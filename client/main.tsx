@@ -12,6 +12,7 @@ import ContentRewrite from "./pages/ContentRewrite";
 import TitleGenerator from "./pages/TitleGenerator";
 import ForbiddenWords from "./pages/ForbiddenWords";
 import VideoDownload from "./pages/VideoDownload";
+import ContentExtract from "./pages/ContentExtract";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,10 @@ const App = () => (
           <Route
             path="/creator-tools/video-download"
             element={<VideoDownload />}
+          />
+          <Route
+            path="/creator-tools/content-extract"
+            element={<ContentExtract />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
