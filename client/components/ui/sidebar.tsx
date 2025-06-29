@@ -56,14 +56,11 @@ const menuItems: MenuItem[] = [
       { title: "视频下载", href: "/creator-tools/video-download" },
       { title: "图文提取", href: "/creator-tools/content-extract" },
       { title: "视频/笔记文案生成", href: "/creator-tools/short-video-copy" },
-      {
-        title: "视频/���记文案提取",
-        href: "/creator-tools/video-note-extract",
-      },
+      { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
-      { title: "图片二创", href: "/creator-tools/image-recreation" },
+      { title: "封面图制作", href: "/creator-tools/image-recreation" },
     ],
   },
   {
@@ -106,7 +103,7 @@ const menuItems: MenuItem[] = [
     icon: TrendingUp,
     href: "/hot-rankings",
     subItems: [
-      { title: "抖音热门账号", href: "/hot-rankings/dy-hot-accounts" },
+      { title: "抖音热��账号", href: "/hot-rankings/dy-hot-accounts" },
       { title: "抖音上升热点榜", href: "/hot-rankings/dy-rising-trends" },
       { title: "抖音同城热点榜", href: "/hot-rankings/dy-local-trends" },
       { title: "抖音挑战热点榜", href: "/hot-rankings/dy-challenge-trends" },
@@ -159,7 +156,7 @@ const menuItems: MenuItem[] = [
     icon: ShoppingCart,
     href: "/ads-products",
     subItems: [
-      { title: "产��详情", href: "/ads-products/product-details" },
+      { title: "产品详情", href: "/ads-products/product-details" },
       { title: "商店产品列表", href: "/ads-products/store-products" },
       { title: "广告关键帧分析", href: "/ads-products/ad-keyframes" },
       { title: "广告百分位数据", href: "/ads-products/ad-percentile" },
