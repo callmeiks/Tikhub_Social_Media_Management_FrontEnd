@@ -378,25 +378,25 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
 
         {/* Footer */}
         {isOpen && (
-          <div className="p-4 border-t border-sidebar-border">
+          <div className="p-4 border-t border-sidebar-border/50">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-                <User className="h-4 w-4 text-sidebar-accent-foreground" />
+              <div className="w-7 h-7 rounded-full bg-sidebar-accent flex items-center justify-center">
+                <User className="h-3.5 w-3.5 text-sidebar-accent-foreground" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
                   管理员
                 </p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">
+                <p className="text-xs text-sidebar-foreground/70 truncate">
                   admin@tikhub.com
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-sidebar-foreground hover:bg-sidebar-accent flex-shrink-0"
+                className="text-sidebar-foreground hover:bg-sidebar-accent flex-shrink-0 h-7 w-7"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
