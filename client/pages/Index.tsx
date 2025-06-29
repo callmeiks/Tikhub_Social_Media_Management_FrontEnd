@@ -209,35 +209,36 @@ export default function Index() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Star className="mr-2 h-5 w-5 text-yellow-500" />
+        <Card className="border border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center text-base">
+              <Zap className="mr-2 h-4 w-4" />
               快捷操作
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {quickActions.map((action) => (
                 <Link key={action.title} to={action.href}>
-                  <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-white to-gray-50">
+                  <Card className="hover:bg-muted/50 transition-colors duration-200 cursor-pointer border border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
-                        <div
-                          className={`p-2 rounded-lg ${action.color} text-white`}
-                        >
-                          <action.icon className="h-4 w-4" />
+                        <div className="p-2 rounded-md bg-foreground text-background">
+                          <action.icon className="h-3.5 w-3.5" />
                         </div>
                         {action.badge && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs h-5 brand-accent"
+                          >
                             {action.badge}
                           </Badge>
                         )}
                       </div>
-                      <h3 className="font-semibold text-sm mb-1">
+                      <h3 className="font-medium text-sm mb-1">
                         {action.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         {action.description}
                       </p>
                     </CardContent>
