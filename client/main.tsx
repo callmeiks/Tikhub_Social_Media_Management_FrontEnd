@@ -17,6 +17,7 @@ import ShortVideoCopy from "./pages/ShortVideoCopy";
 import VideoNoteExtract from "./pages/VideoNoteExtract";
 import AudioExtract from "./pages/AudioExtract";
 import AIVideoGeneration from "./pages/AIVideoGeneration";
+import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,10 @@ const App = () => (
           <Route
             path="/creator-tools/ai-video"
             element={<AIVideoGeneration />}
+          />
+          <Route
+            path="/creator-tools/account-analysis"
+            element={<AccountPK />}
           />
           <Route
             path="/creator-tools/image-recreation"
