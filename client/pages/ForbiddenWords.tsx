@@ -33,7 +33,12 @@ const forbiddenWords = [
   { word: "青春", type: "advertising", risk: "medium", reason: "医美广告限制" },
   { word: "与", type: "misleading", risk: "low", reason: "可能误导用户" },
   { word: "等/这/与", type: "sensitive", risk: "high", reason: "敏感词组合" },
-  { word: "与品/与", type: "advertising", risk: "medium", reason: "品牌宣传限制" },
+  {
+    word: "与品/与",
+    type: "advertising",
+    risk: "medium",
+    reason: "品牌宣传限制",
+  },
   { word: "配", type: "normal", risk: "low", reason: "常规限制词" },
   { word: "与收购", type: "business", risk: "high", reason: "金融商业限制" },
 ];
@@ -43,9 +48,9 @@ const detectionResults = {
   forbiddenCount: 7,
   riskLevel: "medium",
   suggestions: [
-    "建议将"穿"替换为"服装搭配"",
-    "删除或替换"收购"相关表述",
-    "调整"青春"相关描述，避免医美宣传",
+    '建议将"穿"替换为"服装搭配"',
+    '删除或替换"收购"相关表述',
+    '调整"青春"相关描述，避免医美宣传',
   ],
 };
 
@@ -304,7 +309,9 @@ export default function ForbiddenWords() {
                     {showResults && (
                       <Badge
                         variant="secondary"
-                        className={getRiskBadgeColor(detectionResults.riskLevel)}
+                        className={getRiskBadgeColor(
+                          detectionResults.riskLevel,
+                        )}
                       >
                         {detectionResults.riskLevel === "high"
                           ? "高风险"
