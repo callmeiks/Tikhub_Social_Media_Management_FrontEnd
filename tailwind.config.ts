@@ -14,7 +14,15 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -61,10 +69,8 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         brand: {
-          purple: "hsl(var(--brand-purple))",
-          blue: "hsl(var(--brand-blue))",
-          "gradient-from": "hsl(var(--brand-gradient-from))",
-          "gradient-to": "hsl(var(--brand-gradient-to))",
+          accent: "hsl(var(--brand-accent))",
+          "accent-foreground": "hsl(var(--brand-accent-foreground))",
         },
       },
       borderRadius: {
@@ -92,7 +98,7 @@ export default {
         "fade-in": {
           from: {
             opacity: "0",
-            transform: "translateY(10px)",
+            transform: "translateY(4px)",
           },
           to: {
             opacity: "1",
@@ -101,9 +107,11 @@ export default {
         },
         "slide-in": {
           from: {
-            transform: "translateX(-100%)",
+            opacity: "0",
+            transform: "translateX(-8px)",
           },
           to: {
+            opacity: "1",
             transform: "translateX(0)",
           },
         },
@@ -111,7 +119,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
       },
     },
