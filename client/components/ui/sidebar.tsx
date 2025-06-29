@@ -207,24 +207,24 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
   return (
     <div
       className={cn(
-        "flex h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
-        isOpen ? "w-80" : "w-16",
+        "flex h-screen bg-sidebar border-r border-sidebar-border transition-all duration-200",
+        isOpen ? "w-72" : "w-16",
         className,
       )}
     >
       <div className="flex flex-col w-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+        <div className="flex items-center justify-between p-4 border-b border-sidebar-border/50">
           {isOpen && (
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center">
-                <span className="text-white font-bold text-sm">TH</span>
+              <div className="w-7 h-7 rounded-md bg-white flex items-center justify-center">
+                <span className="text-black font-semibold text-sm">TH</span>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-sidebar-foreground">
+                <h1 className="text-base font-semibold text-sidebar-foreground">
                   TikHub
                 </h1>
-                <p className="text-xs text-sidebar-foreground/60">
+                <p className="text-xs text-sidebar-foreground/70">
                   社交媒体管理平台
                 </p>
               </div>
@@ -234,7 +234,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
             variant="ghost"
             size="icon"
             onClick={onToggle}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            className="text-sidebar-foreground hover:bg-sidebar-accent h-8 w-8"
           >
             {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
@@ -242,24 +242,22 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
 
         {/* Platform Selector */}
         {isOpen && (
-          <div className="p-4 border-b border-sidebar-border">
-            <div className="space-y-2">
-              <p className="text-xs text-sidebar-foreground/60 font-medium">
+          <div className="p-4 border-b border-sidebar-border/50">
+            <div className="space-y-3">
+              <p className="text-xs text-sidebar-foreground/70 font-medium">
                 选择平台
               </p>
-              <div className="grid grid-cols-5 gap-1">
+              <div className="grid grid-cols-5 gap-1.5">
                 {Object.entries(platformIcons).map(([platform, icon]) => (
                   <Button
                     key={platform}
-                    variant={
-                      selectedPlatform === platform ? "default" : "ghost"
-                    }
+                    variant="ghost"
                     size="sm"
                     className={cn(
-                      "h-8 w-full text-xs",
+                      "h-8 w-full text-xs transition-all duration-150",
                       selectedPlatform === platform
                         ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent",
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                     )}
                     onClick={() => setSelectedPlatform(platform)}
                   >
