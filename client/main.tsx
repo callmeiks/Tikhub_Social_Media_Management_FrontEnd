@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import CreatorTools from "./pages/CreatorTools";
 import ContentRewrite from "./pages/ContentRewrite";
+import TitleGenerator from "./pages/TitleGenerator";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/creator-tools/*" element={<CreatorTools />} />
           <Route path="/creator-tools/rewrite" element={<ContentRewrite />} />
+          <Route
+            path="/creator-tools/title-generator"
+            element={<TitleGenerator />}
+          />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
           {/* Placeholder routes for other categories - will be implemented later */}
