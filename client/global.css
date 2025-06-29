@@ -38,15 +38,15 @@
 
     --radius: 0.5rem;
 
-    /* Sidebar - Dark theme like ChatGPT */
-    --sidebar-background: 23 23 23;
-    --sidebar-foreground: 217 217 217;
-    --sidebar-primary: 255 255 255;
-    --sidebar-primary-foreground: 13 13 13;
-    --sidebar-accent: 41 41 41;
-    --sidebar-accent-foreground: 236 236 236;
-    --sidebar-border: 41 41 41;
-    --sidebar-ring: 255 255 255;
+    /* Sidebar - Pure black and white */
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 0 0% 100%;
 
     /* TikHub accent colors - minimal use */
     --brand-accent: 99 102 241;
@@ -82,14 +82,14 @@
     --input: 41 41 41;
     --ring: 255 255 255;
 
-    --sidebar-background: 23 23 23;
-    --sidebar-foreground: 217 217 217;
-    --sidebar-primary: 255 255 255;
-    --sidebar-primary-foreground: 13 13 13;
-    --sidebar-accent: 41 41 41;
-    --sidebar-accent-foreground: 236 236 236;
-    --sidebar-border: 41 41 41;
-    --sidebar-ring: 255 255 255;
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 0 0% 100%;
 
     --brand-accent: 129 140 248;
     --brand-accent-foreground: 13 13 13;
