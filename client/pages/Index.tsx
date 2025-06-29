@@ -42,7 +42,7 @@ import {
   Hash,
   Headphones,
   Home,
-  Link,
+  Link as LinkIcon,
   Mail,
   Music,
   Navigation,
@@ -108,7 +108,7 @@ const creatorTools = [
     icon: Type,
     href: "/creator-tools/title-generator",
     popular: true,
-    features: ["智能生成", "A/B测试", "热点融合", "平台优化"],
+    features: ["智能生成", "A/B测��", "热点融合", "平台优化"],
   },
   {
     title: "违禁词查询",
