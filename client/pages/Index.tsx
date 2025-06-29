@@ -159,12 +159,12 @@ export default function Index() {
       subtitle="欢迎使用 TikHub 社交媒体管理平台"
       actions={
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" className="h-8">
+            <Download className="mr-2 h-3.5 w-3.5" />
             导出报告
           </Button>
-          <Button size="sm" className="brand-gradient">
-            <Zap className="mr-2 h-4 w-4" />
+          <Button size="sm" className="h-8 brand-accent">
+            <Zap className="mr-2 h-3.5 w-3.5" />
             新建任务
           </Button>
         </div>
