@@ -276,7 +276,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
 
         {/* Navigation Menu */}
         <div className="flex-1 overflow-y-auto">
-          <nav className="p-2 space-y-1">
+          <nav className="p-2 space-y-0.5">
             {menuItems.map((item) => {
               const isActive = isParentActive(item);
               const isExpanded = expandedItems.includes(item.title);
@@ -298,12 +298,12 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                   >
                     <CollapsibleTrigger asChild>
                       <Button
-                        variant={isActive ? "secondary" : "ghost"}
+                        variant="ghost"
                         className={cn(
-                          "w-full justify-start px-3 py-2 h-auto text-left",
+                          "w-full justify-start px-3 py-2 h-9 text-left transition-all duration-150",
                           isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            ? "bg-sidebar-accent text-sidebar-foreground"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                           !isOpen && "justify-center px-2",
                         )}
                         asChild={!hasSubItems}
@@ -313,13 +313,15 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                             <div className="flex items-center space-x-3">
                               <item.icon className="h-4 w-4 flex-shrink-0" />
                               {isOpen && (
-                                <span className="text-sm">{item.title}</span>
+                                <span className="text-sm font-medium">
+                                  {item.title}
+                                </span>
                               )}
                             </div>
                             {isOpen && hasSubItems && (
                               <ChevronDown
                                 className={cn(
-                                  "h-3 w-3 transition-transform",
+                                  "h-3 w-3 transition-transform duration-200",
                                   isExpanded && "rotate-180",
                                 )}
                               />
@@ -332,34 +334,32 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                           >
                             <item.icon className="h-4 w-4 flex-shrink-0" />
                             {isOpen && (
-                              <span className="text-sm">{item.title}</span>
+                              <span className="text-sm font-medium">
+                                {item.title}
+                              </span>
                             )}
                           </Link>
                         )}
                       </Button>
                     </CollapsibleTrigger>
                     {hasSubItems && isOpen && (
-                      <CollapsibleContent className="space-y-1 mt-1">
+                      <CollapsibleContent className="space-y-0.5 mt-1">
                         {item.subItems?.map((subItem) => (
                           <Link key={subItem.href} to={subItem.href}>
                             <Button
-                              variant={
-                                isItemActive(subItem.href)
-                                  ? "secondary"
-                                  : "ghost"
-                              }
+                              variant="ghost"
                               className={cn(
-                                "w-full justify-start pl-10 pr-3 py-1.5 text-xs h-auto",
+                                "w-full justify-start pl-10 pr-3 py-2 text-xs h-8 transition-all duration-150",
                                 isItemActive(subItem.href)
-                                  ? "bg-sidebar-primary/10 text-sidebar-primary border-l-2 border-sidebar-primary"
-                                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                  ? "bg-sidebar-accent text-sidebar-foreground font-medium"
+                                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                               )}
                             >
                               <span className="truncate">{subItem.title}</span>
                               {subItem.badge && (
                                 <Badge
                                   variant="secondary"
-                                  className="ml-auto text-xs px-1.5 py-0.5 bg-sidebar-primary text-white"
+                                  className="ml-auto text-xs px-1.5 py-0.5 bg-brand-accent text-white"
                                 >
                                   {subItem.badge}
                                 </Badge>
