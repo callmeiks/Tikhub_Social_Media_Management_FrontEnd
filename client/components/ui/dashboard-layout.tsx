@@ -125,16 +125,18 @@ export function DashboardLayout({
 
         {/* Page Header */}
         {(title || subtitle || actions) && (
-          <div className="bg-card border-b border-border px-6 py-4">
+          <div className="bg-background border-b border-border px-6 py-5">
             <div className="flex items-center justify-between">
               <div>
                 {title && (
-                  <h1 className="text-2xl font-bold text-foreground">
+                  <h1 className="text-xl font-semibold text-foreground">
                     {title}
                   </h1>
                 )}
                 {subtitle && (
-                  <p className="text-muted-foreground mt-1">{subtitle}</p>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {subtitle}
+                  </p>
                 )}
               </div>
               {actions && (
