@@ -106,7 +106,7 @@ const recentActivity = [
   {
     action: "账号分析",
     target: "@foodblogger_zh",
-    time: "1小时前",
+    time: "1小时��",
     status: "completed",
   },
   {
@@ -249,24 +249,24 @@ export default function Index() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Platform Overview */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle>平台数据概览</CardTitle>
+          <Card className="border border-border">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">平台数据概览</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {platformData.map((platform) => (
                 <div
                   key={platform.platform}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between py-2"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${platform.color}`} />
-                    <span className="text-lg">{platform.emoji}</span>
+                    <div className="w-2 h-2 rounded-full bg-foreground" />
+                    <span className="text-base">{platform.emoji}</span>
                     <div>
-                      <p className="font-medium">{platform.platform}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-medium text-sm">{platform.platform}</p>
+                      <p className="text-xs text-muted-foreground">
                         {platform.accounts}个账号 · {platform.videos}个视频
                       </p>
                     </div>
@@ -283,23 +283,23 @@ export default function Index() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
+          <Card className="border border-border">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center justify-between text-base">
                 <span>最近活动</span>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="h-8 text-xs">
                   查看全部
                 </Button>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3">
+                <div key={index} className="flex items-start space-x-3 py-1">
                   <div
-                    className={`w-2 h-2 rounded-full mt-2 ${
+                    className={`w-1.5 h-1.5 rounded-full mt-2 ${
                       activity.status === "completed"
-                        ? "bg-green-500"
-                        : "bg-yellow-500"
+                        ? "bg-green-600"
+                        : "bg-yellow-600"
                     }`}
                   />
                   <div className="flex-1">
