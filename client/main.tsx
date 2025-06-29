@@ -7,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import CreatorTools from "./pages/CreatorTools";
+import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,7 +21,16 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/creator-tools/*" element={<CreatorTools />} />
+          <Route path="/data-collection/*" element={<DataCollection />} />
+
+          {/* Placeholder routes for other categories - will be implemented later */}
+          <Route path="/data-monitoring/*" element={<DataCollection />} />
+          <Route path="/hot-rankings/*" element={<DataCollection />} />
+          <Route path="/kol-analysis/*" element={<DataCollection />} />
+          <Route path="/ads-products/*" element={<DataCollection />} />
+
+          {/* Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
