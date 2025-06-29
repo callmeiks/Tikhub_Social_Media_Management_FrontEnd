@@ -58,7 +58,7 @@ export default function ForbiddenWords() {
   const [inputText, setInputText] = useState("");
   const [isChecking, setIsChecking] = useState(false);
   const [activePlatform, setActivePlatform] = useState("douyin");
-  const [activeTab, setActiveTab] = useState("richtext");
+  const [activeTab, setActiveTab] = useState("text");
   const [showResults, setShowResults] = useState(false);
 
   const handleCheck = async () => {
@@ -175,65 +175,84 @@ export default function ForbiddenWords() {
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="grid w-full grid-cols-3 mb-4">
                     <TabsTrigger
-                      value="richtext"
+                      value="text"
                       className="flex items-center space-x-1"
                     >
                       <FileText className="h-3 w-3" />
-                      <span>富文本</span>
+                      <span>查文字</span>
                     </TabsTrigger>
                     <TabsTrigger
-                      value="plaintext"
+                      value="document"
                       className="flex items-center space-x-1"
                     >
-                      <MessageCircle className="h-3 w-3" />
-                      <span>纯文本</span>
+                      <Download className="h-3 w-3" />
+                      <span>查文档</span>
                     </TabsTrigger>
                     <TabsTrigger
                       value="audio"
                       className="flex items-center space-x-1"
                     >
                       <Mic className="h-3 w-3" />
-                      <span>音频框</span>
+                      <span>查音频</span>
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="richtext" className="space-y-4">
+                  <TabsContent value="text" className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <label className="text-sm font-medium">
-                          输入要检测的内容
+                          粘贴或输入要检测的文字内容
                         </label>
                         <span className="text-xs text-muted-foreground">
                           {inputText.length}/2000
                         </span>
                       </div>
                       <Textarea
-                        placeholder="请输入需要检测的内容，支持富文本格式..."
+                        placeholder="请粘贴或输入需要检测的文字内容，支持复制粘贴..."
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         className="min-h-[200px] resize-none"
                         maxLength={2000}
                       />
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                        <Copy className="h-3 w-3" />
+                        <span>支持Ctrl+V快速粘贴</span>
+                      </div>
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="plaintext" className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <label className="text-sm font-medium">
-                          输入纯文本内容
-                        </label>
-                        <span className="text-xs text-muted-foreground">
-                          {inputText.length}/2000
-                        </span>
+                  <TabsContent value="document" className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                        <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground mb-2">
+                          上传文档文件进行检测
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-4">
+                          支持 .txt, .doc, .docx, .pdf 格式
+                        </p>
+                        <div className="flex space-x-2 justify-center">
+                          <Button variant="outline" size="sm">
+                            <Download className="mr-2 h-3 w-3" />
+                            选择文件
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            拖拽上传
+                          </Button>
+                        </div>
                       </div>
-                      <Textarea
-                        placeholder="请输入纯文本内容进行检测..."
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        className="min-h-[200px] resize-none"
-                        maxLength={2000}
-                      />
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          文档解析结果
+                        </label>
+                        <Textarea
+                          placeholder="上传文档后，解析的文字内容将显示在这里..."
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          className="min-h-[120px] resize-none"
+                          maxLength={2000}
+                        />
+                      </div>
                     </div>
                   </TabsContent>
 
@@ -241,20 +260,38 @@ export default function ForbiddenWords() {
                     <div className="space-y-4">
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <Mic className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          点击上传音频文件或开始录音
+                        <p className="text-sm text-muted-foreground mb-2">
+                          上传音频文件进行检测
                         </p>
-                        <Button variant="outline" size="sm" className="mt-2">
-                          选择文件
-                        </Button>
+                        <p className="text-xs text-muted-foreground mb-4">
+                          支持 .mp3, .wav, .m4a, .aac 格式，最大50MB
+                        </p>
+                        <div className="flex space-x-2 justify-center">
+                          <Button variant="outline" size="sm">
+                            <Mic className="mr-2 h-3 w-3" />
+                            选择音频
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            开始录音
+                          </Button>
+                        </div>
                       </div>
-                      <Textarea
-                        placeholder="音频转换的文本将显示在这里..."
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        className="min-h-[120px] resize-none"
-                        maxLength={2000}
-                      />
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          音频转文字结果
+                        </label>
+                        <Textarea
+                          placeholder="上传音频后，语音识别的文字内容将显示在这里..."
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          className="min-h-[120px] resize-none"
+                          maxLength={2000}
+                        />
+                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          <Eye className="h-3 w-3" />
+                          <span>AI语音识别准确率 95%+</span>
+                        </div>
+                      </div>
                     </div>
                   </TabsContent>
                 </Tabs>
