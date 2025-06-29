@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import CreatorTools from "./pages/CreatorTools";
 import ContentRewrite from "./pages/ContentRewrite";
 import TitleGenerator from "./pages/TitleGenerator";
+import ForbiddenWords from "./pages/ForbiddenWords";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +29,10 @@ const App = () => (
           <Route
             path="/creator-tools/title-generator"
             element={<TitleGenerator />}
+          />
+          <Route
+            path="/creator-tools/forbidden-words"
+            element={<ForbiddenWords />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
