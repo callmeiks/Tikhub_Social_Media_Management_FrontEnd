@@ -13,6 +13,7 @@ import TitleGenerator from "./pages/TitleGenerator";
 import ForbiddenWords from "./pages/ForbiddenWords";
 import VideoDownload from "./pages/VideoDownload";
 import ContentExtract from "./pages/ContentExtract";
+import ShortVideoCopy from "./pages/ShortVideoCopy";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +44,10 @@ const App = () => (
           <Route
             path="/creator-tools/content-extract"
             element={<ContentExtract />}
+          />
+          <Route
+            path="/creator-tools/short-video-copy"
+            element={<ShortVideoCopy />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
