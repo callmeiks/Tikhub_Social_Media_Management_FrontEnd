@@ -172,24 +172,24 @@ export default function Index() {
     >
       <div className="space-y-6">
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {statsCards.map((stat) => (
-            <Card key={stat.title} className="border-0 shadow-md">
+            <Card key={stat.title} className="border border-border">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <div className="flex items-center mt-2">
+                    <p className="text-2xl font-semibold">{stat.value}</p>
+                    <div className="flex items-center">
                       {stat.changeType === "positive" ? (
-                        <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
+                        <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
                       ) : (
-                        <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
+                        <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
                       )}
                       <span
-                        className={`text-sm font-medium ${
+                        className={`text-xs font-medium ${
                           stat.changeType === "positive"
                             ? "text-green-600"
                             : "text-red-600"
@@ -199,8 +199,8 @@ export default function Index() {
                       </span>
                     </div>
                   </div>
-                  <div className={`p-3 rounded-full bg-gray-100 ${stat.color}`}>
-                    <stat.icon className="h-6 w-6" />
+                  <div className="p-2 rounded-lg bg-muted">
+                    <stat.icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
               </CardContent>
