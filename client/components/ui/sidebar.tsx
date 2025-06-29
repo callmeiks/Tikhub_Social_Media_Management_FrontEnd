@@ -56,6 +56,7 @@ const menuItems: MenuItem[] = [
       { title: "视频下载", href: "/creator-tools/video-download" },
       { title: "图文提取", href: "/creator-tools/content-extract" },
       { title: "短视频题文案", href: "/creator-tools/short-video-copy" },
+      { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "账号分析", href: "/creator-tools/account-analysis" },
