@@ -15,6 +15,7 @@ import VideoDownload from "./pages/VideoDownload";
 import ContentExtract from "./pages/ContentExtract";
 import ShortVideoCopy from "./pages/ShortVideoCopy";
 import VideoNoteExtract from "./pages/VideoNoteExtract";
+import AudioExtract from "./pages/AudioExtract";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,10 @@ const App = () => (
           <Route
             path="/creator-tools/video-note-extract"
             element={<VideoNoteExtract />}
+          />
+          <Route
+            path="/creator-tools/audio-extract"
+            element={<AudioExtract />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
