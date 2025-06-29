@@ -16,6 +16,7 @@ import ContentExtract from "./pages/ContentExtract";
 import ShortVideoCopy from "./pages/ShortVideoCopy";
 import VideoNoteExtract from "./pages/VideoNoteExtract";
 import AudioExtract from "./pages/AudioExtract";
+import AIVideoGeneration from "./pages/AIVideoGeneration";
 import DataCollection from "./pages/DataCollection";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +59,10 @@ const App = () => (
           <Route
             path="/creator-tools/audio-extract"
             element={<AudioExtract />}
+          />
+          <Route
+            path="/creator-tools/ai-video"
+            element={<AIVideoGeneration />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
 
