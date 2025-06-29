@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -185,6 +185,27 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [selectedPlatform, setSelectedPlatform] = useState("tiktok");
+
+  // Auto-expand menu items based on current route
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const itemsToExpand: string[] = [];
+
+    menuItems.forEach((item) => {
+      if (item.subItems) {
+        const hasActiveSubItem = item.subItems.some(
+          (subItem) =>
+            currentPath === subItem.href ||
+            currentPath.startsWith(subItem.href + "/"),
+        );
+        if (hasActiveSubItem) {
+          itemsToExpand.push(item.title);
+        }
+      }
+    });
+
+    setExpandedItems(itemsToExpand);
+  }, [location.pathname]);
 
   const toggleItem = (title: string) => {
     setExpandedItems((prev) =>
