@@ -23,6 +23,7 @@ import DataCollection from "./pages/DataCollection";
 import CommentCollection from "./pages/CommentCollection";
 import AccountInteraction from "./pages/AccountInteraction";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
+import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,10 @@ const App = () => (
           <Route
             path="/creator-tools/image-recreation"
             element={<CoverImageCreation />}
+          />
+          <Route
+            path="/creator-tools/universal-converter"
+            element={<UniversalConverter />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
           <Route
