@@ -203,52 +203,155 @@ export default function CommentCollection() {
           </TabsContent>
 
           <TabsContent value="scoring" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>计分功能</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-2">
-                        85
-                      </div>
-                      <div className="text-sm font-medium">评论质量分</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        基于评论长度、互动数等
-                      </div>
-                    </div>
-
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-2">
-                        92
-                      </div>
-                      <div className="text-sm font-medium">情感积极度</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        正面评��占比
-                      </div>
-                    </div>
-
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600 mb-2">
-                        78
-                      </div>
-                      <div className="text-sm font-medium">互动活跃度</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        评论互动综合指标
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-center text-muted-foreground">
-                    <p className="text-sm">
-                      完成评论采集后，将自动生成详细的评分报告
+            <div className="space-y-6">
+              {/* Pricing Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-red-600">价格详细说明</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">
+                      本产品旨在提供高质量的内容创作和收集方式，开发运营不简单致力我检测出对应链接上的评论数据网络，具体内容详情联系下方的在线客服。
                     </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>价位表</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">评论上限 ⓘ</span>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      更多充值方案咨询
+                      <span className="text-blue-600">在线客服</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-3 text-sm font-medium">
+                            条数
+                          </th>
+                          <th className="text-center p-3 text-sm font-medium">
+                            1个账号
+                          </th>
+                          <th className="text-center p-3 text-sm font-medium">
+                            10-99个账号
+                          </th>
+                          <th className="text-center p-3 text-sm font-medium">
+                            100-499个账号
+                          </th>
+                          <th className="text-center p-3 text-sm font-medium">
+                            500-1000个账号
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">10</td>
+                          <td className="p-3 text-center">
+                            免费（仅支持抖音网站）
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">
+                            不支持
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">
+                            不支持
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">
+                            不支持
+                          </td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">100</td>
+                          <td className="p-3 text-center">2元/条</td>
+                          <td className="p-3 text-center">1.9元/条</td>
+                          <td className="p-3 text-center">1.8元/条</td>
+                          <td className="p-3 text-center">1.6元/条</td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">500</td>
+                          <td className="p-3 text-center">3元/条</td>
+                          <td className="p-3 text-center">2.8元/条</td>
+                          <td className="p-3 text-center">2.7元/条</td>
+                          <td className="p-3 text-center">2.4元/条</td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">500</td>
+                          <td className="p-3 text-center">4元/条</td>
+                          <td className="p-3 text-center">3.8元/条</td>
+                          <td className="p-3 text-center">3.6元/条</td>
+                          <td className="p-3 text-center">3.2元/条</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-medium">1000</td>
+                          <td className="p-3 text-center">5元/条</td>
+                          <td className="p-3 text-center">4.7元/条</td>
+                          <td className="p-3 text-center">4.5元/条</td>
+                          <td className="p-3 text-center">4元/���</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    注：产品优质服务承诺仅对收费服务的产品适用，具体���务约定及其他要求
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Scoring Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>计分功能</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 border rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600 mb-2">
+                          85
+                        </div>
+                        <div className="text-sm font-medium">评论质量分</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          基于评论长度、互动数等
+                        </div>
+                      </div>
+
+                      <div className="text-center p-4 border rounded-lg">
+                        <div className="text-2xl font-bold text-green-600 mb-2">
+                          92
+                        </div>
+                        <div className="text-sm font-medium">情感积极度</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          正面评论占比
+                        </div>
+                      </div>
+
+                      <div className="text-center p-4 border rounded-lg">
+                        <div className="text-2xl font-bold text-orange-600 mb-2">
+                          78
+                        </div>
+                        <div className="text-sm font-medium">互动活跃度</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          评论互动综合指标
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-center text-muted-foreground">
+                      <p className="text-sm">
+                        完成评论采集后，将自动生成详细的评分报告
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
