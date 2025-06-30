@@ -50,6 +50,11 @@ const menuItems: MenuItem[] = [
     icon: Wand2,
     href: "/creator-tools",
     subItems: [
+      {
+        title: "万能转换",
+        href: "/creator-tools/universal-converter",
+        badge: "HOT",
+      },
       { title: "文案改写", href: "/creator-tools/rewrite" },
       { title: "标题生成", href: "/creator-tools/title-generator" },
       { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
@@ -59,11 +64,6 @@ const menuItems: MenuItem[] = [
       { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
-      {
-        title: "万能转换",
-        href: "/creator-tools/universal-converter",
-        badge: "HOT",
-      },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
     ],
