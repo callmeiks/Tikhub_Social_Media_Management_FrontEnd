@@ -262,40 +262,6 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
           </Button>
         </div>
 
-        {/* Platform Selector */}
-        {isOpen && (
-          <div className="p-4 border-b border-sidebar-border/50">
-            <div className="space-y-3">
-              <p className="text-xs text-sidebar-foreground/70 font-medium">
-                选择平台
-              </p>
-              <div className="grid grid-cols-5 gap-1.5">
-                {Object.entries(platformIcons).map(([platform, icon]) => (
-                  <Button
-                    key={platform}
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "h-8 w-full text-xs transition-all duration-150",
-                      selectedPlatform === platform
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                    )}
-                    onClick={() => setSelectedPlatform(platform)}
-                  >
-                    <span className="mr-1">{icon}</span>
-                    {platform === "tiktok" && "TK"}
-                    {platform === "douyin" && "DY"}
-                    {platform === "xiaohongshu" && "XHS"}
-                    {platform === "bilibili" && "BL"}
-                    {platform === "wechat" && "WX"}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Navigation Menu */}
         <div className="flex-1 overflow-y-auto">
           <nav className="p-2 space-y-0.5">
