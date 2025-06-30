@@ -20,6 +20,7 @@ import AIVideoGeneration from "./pages/AIVideoGeneration";
 import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
+import CommentCollection from "./pages/CommentCollection";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,10 @@ const App = () => (
             element={<CoverImageCreation />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
+          <Route
+            path="/data-collection/comments"
+            element={<CommentCollection />}
+          />
 
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/data-monitoring/*" element={<DataCollection />} />
