@@ -59,6 +59,11 @@ const menuItems: MenuItem[] = [
       { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
+      {
+        title: "万能转换",
+        href: "/creator-tools/universal-converter",
+        badge: "HOT",
+      },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
     ],
@@ -157,7 +162,7 @@ const menuItems: MenuItem[] = [
     href: "/ads-products",
     subItems: [
       { title: "产品详情", href: "/ads-products/product-details" },
-      { title: "商店产品列表", href: "/ads-products/store-products" },
+      { title: "商店��品列表", href: "/ads-products/store-products" },
       { title: "广告关键帧分析", href: "/ads-products/ad-keyframes" },
       { title: "广告百分位数据", href: "/ads-products/ad-percentile" },
       { title: "广告互动分析", href: "/ads-products/ad-interaction" },
