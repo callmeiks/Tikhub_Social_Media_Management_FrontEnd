@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,17 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  ArrowRight,
-  Wand2,
-  Copy,
-  Download,
-  RefreshCw,
-  Link2,
-  FileText,
-  Video,
-  Image,
-} from "lucide-react";
+import { ArrowRight, Wand2, Copy, Download, RefreshCw, Link2, FileText, Video, Image } from "lucide-react";
 
 export default function UniversalConverter() {
   const [sourceContent, setSourceContent] = useState("");
@@ -125,7 +116,7 @@ ${sourceContent}
 
 ✨ 平台优化：
 • 调整了标题格式
-• 优化了内容结构
+• ��化了内容结构
 • 添加了平台标签
 • 增强了互动元素
 
@@ -141,19 +132,15 @@ ${sourceContent}
   };
 
   const detectPlatformFromUrl = (url: string) => {
-    if (url.includes("douyin.com") || url.includes("tiktok.com"))
-      return "douyin";
-    if (url.includes("xiaohongshu.com") || url.includes("xhs.com"))
-      return "xiaohongshu";
-    if (url.includes("bilibili.com")) return "bilibili";
-    if (url.includes("kuaishou.com")) return "kuaishou";
-    if (url.includes("weixin.qq.com") || url.includes("mp.weixin.qq.com"))
-      return "wechat";
-    if (url.includes("weibo.com")) return "weibo";
-    if (url.includes("youtube.com") || url.includes("youtu.be"))
-      return "youtube";
-    if (url.includes("instagram.com")) return "instagram";
-    return "";
+    if (url.includes('douyin.com') || url.includes('tiktok.com')) return 'douyin';
+    if (url.includes('xiaohongshu.com') || url.includes('xhs.com')) return 'xiaohongshu';
+    if (url.includes('bilibili.com')) return 'bilibili';
+    if (url.includes('kuaishou.com')) return 'kuaishou';
+    if (url.includes('weixin.qq.com') || url.includes('mp.weixin.qq.com')) return 'wechat';
+    if (url.includes('weibo.com')) return 'weibo';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+    if (url.includes('instagram.com')) return 'instagram';
+    return '';
   };
 
   const handleExtractFromLink = async () => {
@@ -174,7 +161,7 @@ ${sourceContent}
     let extractedContent = "";
     let metadata = {};
 
-    if (linkInput.includes("douyin.com") || linkInput.includes("tiktok.com")) {
+    if (linkInput.includes('douyin.com') || linkInput.includes('tiktok.com')) {
       extractedContent = `🎵 超火爆视频文案：
 
 "今天教大家一个超实用的生活小技巧！
@@ -191,13 +178,13 @@ ${sourceContent}
 #生活技巧 #实用妙招 #省钱攻略"`;
 
       metadata = {
-        type: "短视频",
-        platform: "抖音/TikTok",
-        views: "50.2万",
-        likes: "1.8万",
-        duration: "30秒",
+        type: '短视频',
+        platform: '抖音/TikTok',
+        views: '50.2万',
+        likes: '1.8万',
+        duration: '30秒'
       };
-    } else if (linkInput.includes("xiaohongshu.com")) {
+    } else if (linkInput.includes('xiaohongshu.com')) {
       extractedContent = `📝 种草笔记分享：
 
 ✨ 发现了这个宝藏好物！
@@ -217,13 +204,13 @@ ${sourceContent}
 小红薯们觉得怎么样？评论区交流～`;
 
       metadata = {
-        type: "图文笔记",
-        platform: "小红书",
-        likes: "2.3K",
-        收藏: "856",
-        图片数: "6张",
+        type: '图文笔记',
+        platform: '小红书',
+        likes: '2.3K',
+        收藏: '856',
+        图片数: '6张'
       };
-    } else if (linkInput.includes("weixin.qq.com")) {
+    } else if (linkInput.includes('weixin.qq.com')) {
       extractedContent = `📰 公众号文章内容：
 
 【标题】如何高效管理时间，提升工作效率
@@ -244,14 +231,14 @@ ${sourceContent}
 （文章内容较长，已提取核心要点）`;
 
       metadata = {
-        type: "公众号文章",
-        platform: "微信公众号",
-        阅读量: "1.2万",
-        在看: "123",
-        字数: "约2500字",
+        type: '公众号文章',
+        platform: '微信公众号',
+        ��读量: '1.2万',
+        在看: '123',
+        字数: '约2500字'
       };
     } else {
-      extractedContent = `🔗 链���内容提取：
+      extractedContent = `🔗 链接内容提取：
 
 ${linkInput}
 
@@ -264,9 +251,9 @@ ${linkInput}
 请查看提取结果，并根据需要进行平台转换。`;
 
       metadata = {
-        type: "网页内容",
-        platform: "通用链接",
-        状态: "提取完成",
+        type: '网页内容',
+        platform: '通用链接',
+        状态: '提取完成'
       };
     }
 
@@ -416,17 +403,13 @@ ${linkInput}
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">
-                      提取信息
-                    </span>
+                    <span className="text-sm font-medium text-blue-800">提取信息</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {Object.entries(extractedMetadata).map(([key, value]) => (
                       <div key={key} className="flex justify-between">
                         <span className="text-blue-600">{key}:</span>
-                        <span className="text-blue-800 font-medium">
-                          {value as string}
-                        </span>
+                        <span className="text-blue-800 font-medium">{value as string}</span>
                       </div>
                     ))}
                   </div>
@@ -435,9 +418,7 @@ ${linkInput}
 
               <div className="relative">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium">
-                    或直接输入文本内容
-                  </span>
+                  <span className="text-sm font-medium">或直接输入文本内容</span>
                 </div>
                 <Textarea
                   placeholder="请输入需要转换的内容...&#10;&#10;支持：&#10;• 视频文案/脚本&#10;• 图文内容&#10;• 标题描述&#10;• 完整文章"
@@ -565,7 +546,7 @@ ${linkInput}
                 </div>
                 <h3 className="font-medium mb-1">智能适配</h3>
                 <p className="text-sm text-muted-foreground">
-                  根据目标平台特点自动调整内容风格
+                  根据目标平台特点���动调整内容风格
                 </p>
               </div>
               <div className="text-center p-4">
