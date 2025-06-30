@@ -41,7 +41,7 @@ export default function AccountInteraction() {
       <div className="p-6 max-w-7xl mx-auto">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-bold">账号回采-公众号</h1>
+            <h1 className="text-2xl font-bold">账号作品数据采集</h1>
             <Badge
               variant="secondary"
               className="bg-green-100 text-green-700 border-green-200"
@@ -50,7 +50,7 @@ export default function AccountInteraction() {
             </Badge>
           </div>
           <p className="text-muted-foreground">
-            智能分析账号数据，支持多平台内容采集
+            智能采集账号作品数据，支持多平台内容分析
           </p>
         </div>
 
@@ -112,9 +112,9 @@ export default function AccountInteraction() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">添加公众号</h3>
+                  <h3 className="text-lg font-medium mb-2">添加账号</h3>
                   <p className="text-muted-foreground mb-6">
-                    请添加需要分析的公众号链接或账号信息
+                    请添加需要采集作品数据的账号链接或账号信息
                   </p>
                 </div>
 
@@ -164,7 +164,7 @@ export default function AccountInteraction() {
                       className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2"
                     >
                       <Search className="w-4 h-4" />
-                      开始智能智能分析
+                      开始作品数据采集
                     </Button>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function AccountInteraction() {
                   <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">暂无历史记录</p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    完成数据采集后，记录将显示在这里
+                    完成作品数据采集后，记录将显示在这里
                   </p>
                 </div>
               </CardContent>
@@ -213,20 +213,20 @@ export default function AccountInteraction() {
                       <div className="text-2xl font-bold text-orange-600 mb-2">
                         0
                       </div>
-                      <div className="text-sm font-medium">总互动数</div>
+                      <div className="text-sm font-medium">总作品数</div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
                       <div className="text-2xl font-bold text-purple-600 mb-2">
                         0
                       </div>
-                      <div className="text-sm font-medium">平均互动率</div>
+                      <div className="text-sm font-medium">平均播放量</div>
                     </div>
                   </div>
 
                   <div className="text-center py-8">
                     <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      开始分析后将显示详细数据图表
+                      开始采集后将显示详细作品数据图表
                     </p>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function AccountInteraction() {
 
                   <div className="text-center text-muted-foreground">
                     <p className="text-sm">
-                      完成账号分析后，将自动生成详细的评分报告
+                      完成作品数据采集后，将自动生成详细的评分报告
                     </p>
                   </div>
                 </div>
