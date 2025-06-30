@@ -10,6 +10,7 @@ import { Link, FileText, Settings, BarChart3 } from "lucide-react";
 export default function CommentCollection() {
   const [linkInput, setLinkInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState("douyin");
 
   const handleProcess = async () => {
     if (!linkInput.trim()) return;
@@ -36,6 +37,52 @@ export default function CommentCollection() {
             </Badge>
           </div>
           <p className="text-muted-foreground">高效各类链接地址评论PY介绍</p>
+        </div>
+
+        {/* Platform Selection */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 border-b">
+            <button
+              onClick={() => setSelectedPlatform("douyin")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                selectedPlatform === "douyin"
+                  ? "border-red-500 text-red-600"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              抖音平台
+            </button>
+            <button
+              onClick={() => setSelectedPlatform("wechat")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                selectedPlatform === "wechat"
+                  ? "border-red-500 text-red-600"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              公众号
+            </button>
+            <button
+              onClick={() => setSelectedPlatform("tiktok")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                selectedPlatform === "tiktok"
+                  ? "border-red-500 text-red-600"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              TikTok
+            </button>
+            <button
+              onClick={() => setSelectedPlatform("xiaohongshu")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                selectedPlatform === "xiaohongshu"
+                  ? "border-red-500 text-red-600"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              小红书
+            </button>
+          </div>
         </div>
 
         <Tabs defaultValue="batch" className="w-full">
@@ -179,7 +226,7 @@ export default function CommentCollection() {
                       </div>
                       <div className="text-sm font-medium">情感积极度</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        正面评论占比
+                        正面评��占比
                       </div>
                     </div>
 
@@ -189,7 +236,7 @@ export default function CommentCollection() {
                       </div>
                       <div className="text-sm font-medium">互动活跃度</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        评论互���综合指标
+                        评论互动综合指标
                       </div>
                     </div>
                   </div>
