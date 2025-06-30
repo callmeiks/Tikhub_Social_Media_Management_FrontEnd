@@ -69,7 +69,7 @@ const menuItems: MenuItem[] = [
     href: "/data-collection",
     subItems: [
       {
-        title: "账号互动数据采集",
+        title: "账号作品数据采集",
         href: "/data-collection/account-interaction",
       },
       { title: "通用评论采集", href: "/data-collection/comments" },
