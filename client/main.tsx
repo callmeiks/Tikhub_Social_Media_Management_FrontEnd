@@ -21,6 +21,7 @@ import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
 import CommentCollection from "./pages/CommentCollection";
+import AccountInteraction from "./pages/AccountInteraction";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,10 @@ const App = () => (
           <Route
             path="/data-collection/comments"
             element={<CommentCollection />}
+          />
+          <Route
+            path="/data-collection/account-interaction"
+            element={<AccountInteraction />}
           />
 
           {/* Placeholder routes for other categories - will be implemented later */}
