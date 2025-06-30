@@ -352,8 +352,14 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                               {subItem.badge && (
                                 <Badge
                                   variant="secondary"
-                                  className="ml-auto text-xs px-1.5 py-0.5 bg-brand-accent text-white"
+                                  className={cn(
+                                    "ml-auto text-xs px-1.5 py-0.5 text-white",
+                                    subItem.badge === "HOT"
+                                      ? "bg-orange-500"
+                                      : "bg-brand-accent",
+                                  )}
                                 >
+                                  {subItem.badge === "HOT" && "🔥 "}
                                   {subItem.badge}
                                 </Badge>
                               )}
