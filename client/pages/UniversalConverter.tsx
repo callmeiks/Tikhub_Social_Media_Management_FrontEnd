@@ -73,7 +73,7 @@ export default function UniversalConverter() {
     },
     {
       title: "小红书 → 抖音",
-      description: "种草笔记转换为短视频脚本",
+      description: "种草笔记转换为���视频脚本",
       popular: true,
     },
     {
@@ -291,7 +291,7 @@ ${contentPoints}
 
       const styleDescription = `${tone === "professional" ? "专业" : tone === "humorous" ? "幽默" : "友好"}语调 + ${length === "short" ? "精简" : length === "long" ? "详细" : "适中"}长度 + ${styleType}风格`;
 
-      mockConversion = `🔄 已转换为 ${platformName} 风格：
+      mockConversion = `��� 已转换为 ${platformName} 风格：
 
 ${sourceContent}
 
@@ -1068,9 +1068,9 @@ ${linkInput}
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   🎯
                 </div>
-                <h3 className="font-medium mb-1">智能适���</h3>
+                <h3 className="font-medium mb-1">智能适应</h3>
                 <p className="text-sm text-muted-foreground">
-                  根据目标平台特点���动调整内容风格
+                  根据目标平台特点，自动调整内容风格
                 </p>
               </div>
               <div className="text-center p-4">
@@ -1095,7 +1095,7 @@ ${linkInput}
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   📊
                 </div>
-                <h3 className="font-medium mb-1">多平台支���</h3>
+                <h3 className="font-medium mb-1">多平台支持</h3>
                 <p className="text-sm text-muted-foreground">
                   支持主流社交媒体平台互转
                 </p>
