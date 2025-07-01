@@ -28,7 +28,23 @@ const contentStyles = [
 const rewriteOptions = [
   { id: "tone", name: "语调调整", options: ["正式", "轻松", "幽默", "专业"] },
   { id: "length", name: "长度控制", options: ["精简", "标准", "详细", "扩展"] },
-  { id: "style", name: "风格类型", options: ["营销", "教育", "娱乐", "新闻"] },
+  {
+    id: "style",
+    name: "风格类型",
+    options: [
+      { value: "爆款文案", description: "高传播性，容易走红" },
+      { value: "情感文案", description: "引发情感共鸣" },
+      { value: "悬念文案", description: "制造悬念，吸引观看" },
+      { value: "教程文案", description: "实用干货分享" },
+      { value: "故事文案", description: "叙事性强，引人入胜" },
+      { value: "热点文案", description: "结合当下热点话题" },
+    ],
+  },
+  {
+    id: "track",
+    name: "赛道类型",
+    options: ["美妆", "健身", "美食", "科技", "教育", "娱乐", "旅行", "时尚"],
+  },
   { id: "language", name: "语言", options: ["中文", "英文"] },
 ];
 
