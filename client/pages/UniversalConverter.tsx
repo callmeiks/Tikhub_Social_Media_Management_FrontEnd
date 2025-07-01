@@ -147,7 +147,7 @@ ${detailLevel}
           : `内容要点：
 1. ${sourceContent.split("").slice(0, 25).join("")}
 2. 这个方法真的太好用了
-3. 大家一定要试试${length === "long" ? "\n4. 详细步骤我都整理好了\n5. 有问题随时评论区问我" : ""}`;
+3. ��家一定要试试${length === "long" ? "\n4. 详细步骤我都整理好了\n5. 有问题随时评论区问我" : ""}`;
 
       const ending =
         tone === "encouraging"
@@ -166,17 +166,22 @@ ${contentPoints}
 
 #抖音热门 #生活技巧 #干货分享`;
     } else {
-      mockConversion = `🔄 已转换为 ${platforms.find((p) => p.value === targetPlatform)?.label} 风格：
+      const platformName = platforms.find(
+        (p) => p.value === targetPlatform,
+      )?.label;
+      const styleDescription = `${tone === "professional" ? "专业" : tone === "humorous" ? "幽默" : "友好"}语调 + ${length === "short" ? "精简" : length === "long" ? "详细" : "适中"}长度 + ${styleType}风格`;
+
+      mockConversion = `🔄 已转换为 ${platformName} 风格：
 
 ${sourceContent}
 
-✨ 平台优化：
-• 调整了标题格式
-• ��化了内容结构
-• 添加了平台标签
-• 增强了互动元素
+✨ 风格优化 (${styleDescription})：
+• 调整了语调为${tone === "formal" ? "正式严肃" : tone === "friendly" ? "友好亲切" : tone === "professional" ? "专业权威" : "个性化"}风格
+• 优化了内容长度为${length === "short" ? "简短精炼" : length === "medium" ? "适中详细" : "详细完整"}版本
+• 采用了${styleType === "tutorial" ? "教程指导" : styleType === "review" ? "评测分析" : styleType === "creative" ? "创意新颖" : "通用"}表达方式
+• 增强了平台适配性
 
-📈 转换完成，建议根据目标平台特点进一步调整`;
+📈 转换完成，已根据所选风格进行深度优化`;
     }
 
     setConvertedContent(mockConversion);
