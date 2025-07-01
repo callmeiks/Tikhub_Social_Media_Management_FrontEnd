@@ -229,7 +229,7 @@ ${sourceContent}
 • 优化了内容长度为${length === "short" ? "简短精炼" : length === "medium" ? "适中详细" : "详细完整"}版本
 • 采用了${styleType === "tutorial" ? "教程指导" : styleType === "review" ? "评测分析" : styleType === "creative" ? "创意新颖" : "通用"}表达方式
 • 针对${ageGroupLabel}进行用词优化
-• 按照${genderLabel}偏好调整表达方式
+• 按��${genderLabel}偏好调整表达方式
 • 增强了平台适配性
 
 🎯 目标受众：${ageGroupLabel} | ${genderLabel}
@@ -304,7 +304,7 @@ ${sourceContent}
     } else if (linkInput.includes("xiaohongshu.com")) {
       extractedContent = `📝 种草笔记分享：
 
-✨ 发现了这个宝藏好物！
+✨ 发现了这个宝��好物！
 真的超级好用，必须分享给大家～
 
 🌟 产品特点：
@@ -349,7 +349,7 @@ ${sourceContent}
 
       metadata = {
         type: "公众号文章",
-        platform: "微信公众号",
+        platform: "微���公众号",
         阅读量: "1.2万",
         在看: "123",
         字数: "约2500字",
@@ -601,13 +601,35 @@ ${linkInput}
                     {
                       casual: "轻松随意",
                       business: "商务正式",
-                      creative: "���意新颖",
+                      creative: "创意新颖",
                       educational: "教育科普",
                       storytelling: "故事叙述",
                       listicle: "列表形式",
                       tutorial: "教程指导",
                       review: "评测分析",
                     }[styleOptions.styleType]
+                  }
+                </Badge>
+                <Badge variant="outline">
+                  {
+                    {
+                      "13-17": "13-17岁",
+                      "18-25": "18-25岁",
+                      "26-35": "26-35岁",
+                      "36-45": "36-45岁",
+                      "46-60": "46-60岁",
+                      "60+": "60+岁",
+                      all: "全年龄",
+                    }[styleOptions.targetAge]
+                  }
+                </Badge>
+                <Badge variant="outline">
+                  {
+                    {
+                      male: "男性向",
+                      female: "女性向",
+                      all: "男女通用",
+                    }[styleOptions.targetGender]
                   }
                 </Badge>
               </div>
@@ -720,7 +742,7 @@ ${linkInput}
                   </span>
                 </div>
                 <Textarea
-                  placeholder="请输入需要转换的内容...&#10;&#10;支持：&#10;• 视频文案/脚本&#10;• 图文内容&#10;• 标题描述&#10;• 完整文章"
+                  placeholder="请输入需要转换的内容...&#10;&#10;支持：&#10;• 视频文案/脚本&#10;• 图文���容&#10;• 标题描述&#10;• 完整文章"
                   value={sourceContent}
                   onChange={(e) => setSourceContent(e.target.value)}
                   className="min-h-[250px] resize-none"
@@ -870,7 +892,7 @@ ${linkInput}
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   📊
                 </div>
-                <h3 className="font-medium mb-1">多平台支持</h3>
+                <h3 className="font-medium mb-1">多平台支���</h3>
                 <p className="text-sm text-muted-foreground">
                   支持主流社交媒体平台互转
                 </p>
