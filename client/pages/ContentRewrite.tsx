@@ -33,9 +33,9 @@ const rewriteOptions = [
 ];
 
 const exampleTexts = [
-  "今天给大家分享一个超级实用的生活小技巧...",
-  "最近发现了一个宝藏APP，必须安利给大家...",
-  "作为一个资深打工人，我想说说职场那些事...",
+  "美妆教程、口红试色、护肤技巧",
+  "健身赛道",
+  "今天给大家分享一个超级实用的生活小技巧，只要三步就能让你的皮肤变得水嫩光滑...",
 ];
 
 export default function ContentRewrite() {
