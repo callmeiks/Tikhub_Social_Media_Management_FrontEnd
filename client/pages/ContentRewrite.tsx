@@ -89,7 +89,7 @@ export default function ContentRewrite() {
 
     const inputType = detectInputType(inputText);
 
-    // 模拟API调用
+    // ��拟API调用
     setTimeout(() => {
       let outputContent = "";
 
@@ -98,7 +98,7 @@ export default function ContentRewrite() {
       } else if (inputType === "track") {
         outputContent = `【赛道定制文案】\n\n🏁 目标赛道：${inputText}\n\n📝 生成文案：\nAI基于您选择的"${inputText}"，结合当前热门趋势和${activeStyle}平台特色，为您定制专属文案。内容风格为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，专注${selectedOptions.track}赛道，${selectedOptions.language}表达，帮助您在该赛道中脱颖而出。`;
       } else {
-        outputContent = `【智能改写文案】\n\n📄 原始内容：${inputText.substring(0, 100)}${inputText.length > 100 ? "..." : ""}\n\n✨ 改写结果：\n经过AI智能改写，结合${activeStyle}平台风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，适配${selectedOptions.track}赛道，${selectedOptions.language}语言的全新优质文案内容。`;
+        outputContent = `【智能改写文案】\n\n📄 原始内容：${inputText.substring(0, 100)}${inputText.length > 100 ? "..." : ""}\n\n✨ 改写结果：\n经过AI智能改写，结合${activeStyle}平台风格特点���调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，适配${selectedOptions.track}赛道，${selectedOptions.language}语言的全新优质文案内容。`;
       }
 
       setOutputText(outputContent);
@@ -117,8 +117,8 @@ export default function ContentRewrite() {
 
   return (
     <DashboardLayout
-      title="文案改写"
-      subtitle="AI智能改写，提升内容质量和原创性"
+      title="文案生成"
+      subtitle="AI智能生成，提升内容质量和原创性"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -190,7 +190,7 @@ export default function ContentRewrite() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
-                      ���始文案
+                      原始文案
                     </span>
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function ContentRewrite() {
             {/* Usage Stats */}
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">今日使用</CardTitle>
+                <CardTitle className="text-base">今日使��</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
