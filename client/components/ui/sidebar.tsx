@@ -56,7 +56,7 @@ const menuItems: MenuItem[] = [
         badge: "HOT",
       },
       { title: "文案生成", href: "/creator-tools/rewrite" },
-      { title: "指定赛道文案生成", href: "/creator-tools/short-video-copy" },
+      { title: "文稿生成", href: "/creator-tools/short-video-copy" },
       { title: "标题生成", href: "/creator-tools/title-generator" },
       { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
       { title: "视频下载", href: "/creator-tools/video-download" },
@@ -116,7 +116,7 @@ const menuItems: MenuItem[] = [
       { title: "抖音低分爆款榜", href: "/hot-rankings/dy-low-score-viral" },
       { title: "抖音高点赞率榜", href: "/hot-rankings/dy-high-like-rate" },
       {
-        title: "抖音高完播率榜",
+        title: "��音高完播率榜",
         href: "/hot-rankings/dy-high-completion-rate",
       },
       {
