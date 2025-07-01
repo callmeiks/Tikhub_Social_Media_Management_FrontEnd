@@ -295,11 +295,15 @@ export default function ContentRewrite() {
                 {rewriteOptions.map((option) => (
                   <div key={option.id}>
                     <p className="text-sm font-medium mb-2">{option.name}</p>
-                    <div className={`grid gap-1 ${option.id === 'style' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                    <div
+                      className={`grid gap-1 ${option.id === "style" ? "grid-cols-1" : "grid-cols-2"}`}
+                    >
                       {option.options.map((opt) => {
-                        const isObject = typeof opt === 'object';
+                        const isObject = typeof opt === "object";
                         const optValue = isObject ? opt.value : opt;
-                        const optDescription = isObject ? opt.description : null;
+                        const optDescription = isObject
+                          ? opt.description
+                          : null;
 
                         return (
                           <Button
@@ -312,7 +316,7 @@ export default function ContentRewrite() {
                                 : "outline"
                             }
                             size="sm"
-                            className={`${isObject ? 'h-auto p-3 flex-col items-start' : 'h-7'} text-xs`}
+                            className={`${isObject ? "h-auto p-3 flex-col items-start" : "h-7"} text-xs`}
                             onClick={() =>
                               setSelectedOptions((prev) => ({
                                 ...prev,
@@ -329,7 +333,6 @@ export default function ContentRewrite() {
                           </Button>
                         );
                       })}
-                      ))}
                     </div>
                   </div>
                 ))}
