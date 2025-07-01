@@ -55,7 +55,7 @@ const menuItems: MenuItem[] = [
         href: "/creator-tools/universal-converter",
         badge: "HOT",
       },
-      { title: "文案改写", href: "/creator-tools/rewrite" },
+      { title: "文案生成", href: "/creator-tools/rewrite" },
       { title: "指定赛道文案生成", href: "/creator-tools/short-video-copy" },
       { title: "标题生成", href: "/creator-tools/title-generator" },
       { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
@@ -86,7 +86,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: "数据监控",
+    title: "���据监控",
     icon: BarChart3,
     href: "/data-monitoring",
     subItems: [
