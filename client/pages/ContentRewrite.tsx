@@ -57,7 +57,7 @@ export default function ContentRewrite() {
     // 模拟API调用
     setTimeout(() => {
       setOutputText(
-        `【重新构思后的文案】\n\n${inputText}\n\n经过AI智能改写，结合${activeStyle}风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型的全新文案内容。`,
+        `【重新构思后的文案】\n\n${inputText}\n\n经过AI智能改写，结合${activeStyle}风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，${selectedOptions.language}语言的全新文案内容。`,
       );
       setIsRewriting(false);
     }, 2000);
