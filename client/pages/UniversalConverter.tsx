@@ -38,6 +38,8 @@ export default function UniversalConverter() {
     tone: "friendly",
     length: "medium",
     styleType: "casual",
+    targetAge: "18-35",
+    targetGender: "all",
   });
 
   const platforms = [
@@ -70,7 +72,7 @@ export default function UniversalConverter() {
     },
     {
       title: "公众号 → 小红书",
-      description: "公众号文章转换为小红书笔记",
+      description: "公众号文章���换为小红书笔记",
       popular: false,
     },
     {
@@ -97,7 +99,7 @@ export default function UniversalConverter() {
 
     // Mock converted content based on platforms and style options
     let mockConversion = "";
-    const { tone, length, styleType } = styleOptions;
+    const { tone, length, styleType, targetAge, targetGender } = styleOptions;
 
     // Apply style modifications based on options
     const getStyledIntro = () => {
@@ -147,7 +149,7 @@ ${detailLevel}
           : `内容要点：
 1. ${sourceContent.split("").slice(0, 25).join("")}
 2. 这个方法真的太好用了
-3. ��家一定要试试${length === "long" ? "\n4. 详细步骤我都整理好了\n5. 有问题随时评论区问我" : ""}`;
+3. 大家一定要试试${length === "long" ? "\n4. 详细步骤我都整理好了\n5. 有问题随时评论区问我" : ""}`;
 
       const ending =
         tone === "encouraging"
@@ -156,7 +158,7 @@ ${detailLevel}
             ? "以上就是今天的专业分享，感谢观看。"
             : "如果觉得有用的话，记得点赞关注哦！";
 
-      mockConversion = `🎬 【${sourceContent.split("").slice(0, 15).join("")}】
+      mockConversion = `🎬 【${sourceContent.split("").slice(0, 15).join("")}��
 
 开场：${opening}
 
@@ -169,6 +171,22 @@ ${contentPoints}
       const platformName = platforms.find(
         (p) => p.value === targetPlatform,
       )?.label;
+      const ageGroupLabel = {
+        "13-17": "中学生群体",
+        "18-25": "大学生/新职场群体",
+        "26-35": "职场精英群体",
+        "36-45": "中年用户群体",
+        "46-60": "成熟用户群体",
+        "60+": "银发族群体",
+        all: "全年龄群体",
+      }[targetAge];
+
+      const genderLabel = {
+        male: "男性用户",
+        female: "女性用户",
+        all: "男女通用",
+      }[targetGender];
+
       const styleDescription = `${tone === "professional" ? "专业" : tone === "humorous" ? "幽默" : "友好"}语调 + ${length === "short" ? "精简" : length === "long" ? "详细" : "适中"}长度 + ${styleType}风格`;
 
       mockConversion = `🔄 已转换为 ${platformName} 风格：
@@ -179,9 +197,12 @@ ${sourceContent}
 • 调整了语调为${tone === "formal" ? "正式严肃" : tone === "friendly" ? "友好亲切" : tone === "professional" ? "专业权威" : "个性化"}风格
 • 优化了内容长度为${length === "short" ? "简短精炼" : length === "medium" ? "适中详细" : "详细完整"}版本
 • 采用了${styleType === "tutorial" ? "教程指导" : styleType === "review" ? "评测分析" : styleType === "creative" ? "创意新颖" : "通用"}表达方式
+• 针对${ageGroupLabel}进行用词优化
+• 按照${genderLabel}偏好调整表达方式
 • 增强了平台适配性
 
-📈 转换完成，已根据所选风格进行深度优化`;
+🎯 目标受众：${ageGroupLabel} | ${genderLabel}
+📈 转换完成，已根据目标受众进行精准优化`;
     }
 
     setConvertedContent(mockConversion);
@@ -237,7 +258,7 @@ ${sourceContent}
 2️⃣ 按照这个步骤...
 3️⃣ 最后这样处理...
 
-效果真的太棒了！大家快试试～
+效果真的太棒了！大���快试试～
 记得点赞收藏哦！❤️
 
 #生活技巧 #实用妙招 #省钱攻略"`;
@@ -290,7 +311,7 @@ ${sourceContent}
 2. 四象��法则
 3. 时间块管理
 
-三、养成良好的工作习惯
+三、养成良好的工作习���
 良好的习惯是高效工作的基础...
 
 （文章内容较长，已提取核心要点）`;
@@ -396,7 +417,7 @@ ${linkInput}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {/* Tone Adjustment */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">语调调整</label>
@@ -462,6 +483,55 @@ ${linkInput}
                     <SelectItem value="listicle">列表形式</SelectItem>
                     <SelectItem value="tutorial">教程指导</SelectItem>
                     <SelectItem value="review">评测分析</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Target Age */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">目标年龄</label>
+                <Select
+                  value={styleOptions.targetAge}
+                  onValueChange={(value) =>
+                    setStyleOptions((prev) => ({ ...prev, targetAge: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="13-17">13-17岁 (中学生)</SelectItem>
+                    <SelectItem value="18-25">
+                      18-25岁 (大学生/新职场)
+                    </SelectItem>
+                    <SelectItem value="26-35">26-35岁 (职场精英)</SelectItem>
+                    <SelectItem value="36-45">36-45岁 (中年用户)</SelectItem>
+                    <SelectItem value="46-60">46-60岁 (成熟用户)</SelectItem>
+                    <SelectItem value="60+">60岁以上 (银发一族)</SelectItem>
+                    <SelectItem value="all">全年龄段</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Target Gender */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">目标性���</label>
+                <Select
+                  value={styleOptions.targetGender}
+                  onValueChange={(value) =>
+                    setStyleOptions((prev) => ({
+                      ...prev,
+                      targetGender: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">男性用户</SelectItem>
+                    <SelectItem value="female">女性用户</SelectItem>
+                    <SelectItem value="all">男女通用</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
