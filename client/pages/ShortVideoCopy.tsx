@@ -29,7 +29,7 @@ import {
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
-  { id: "shenma", name: "神马搜索", emoji: "🔍", active: true },
+  { id: "shenma", name: "神马搜索", emoji: "���", active: true },
   { id: "toutiao", name: "今日头条", emoji: "📰", active: true },
 ];
 
@@ -87,7 +87,7 @@ export default function ShortVideoCopy() {
 
   const handleGenerate = async () => {
     if (!keywords.trim()) {
-      alert("请输入关键词或描述");
+      alert("请输入关键词、文稿描述或现有草稿");
       return;
     }
 
@@ -125,8 +125,8 @@ export default function ShortVideoCopy() {
 
   return (
     <DashboardLayout
-      title="短视频文案"
-      subtitle="为短视频生成创意文案内容，提升内容吸引力"
+      title="文稿生成"
+      subtitle="智能生成各类文稿内容，支持关键词、描述和草稿输入"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -191,7 +191,7 @@ export default function ShortVideoCopy() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    请输入关键词（口令或描述）
+                    输入内容（关键词/文稿描述/现有草稿）
                   </label>
                   <Textarea
                     placeholder="请输入关键词或内容描述，如：护肤技巧、美食制作、旅行攻略等。支持详细描述，语音长���20分钟不超过2000个字符（请明确要求才会生成专业的内容）"
