@@ -32,7 +32,7 @@ const rewriteOptions = [
     id: "style",
     name: "风格类型",
     options: [
-      { value: "爆款文案", description: "高传播性，容易走红" },
+      { value: "爆款文案", description: "高传播���，容易走红" },
       { value: "情感文案", description: "引发情感共鸣" },
       { value: "悬念文案", description: "制造悬念，吸引观看" },
       { value: "教程文案", description: "实用干货分享" },
@@ -62,7 +62,8 @@ export default function ContentRewrite() {
   const [selectedOptions, setSelectedOptions] = useState({
     tone: "轻松",
     length: "标准",
-    style: "营销",
+    style: "爆款文案",
+    track: "美妆",
     language: "中文",
   });
 
