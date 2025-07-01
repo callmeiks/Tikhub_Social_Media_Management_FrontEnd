@@ -87,11 +87,11 @@ export default function ContentRewrite() {
       let outputContent = "";
 
       if (inputType === "keywords") {
-        outputContent = `【基于关键词生成的文案】\n\n🎯 关键词：${inputText}\n\n📝 生成文案：\n根据您提供的关键词"${inputText}"，AI为您生成了适合${activeStyle}平台的优质文案内容。文案采用${selectedOptions.tone}语调，${selectedOptions.length}篇幅，${selectedOptions.style}风格，使用${selectedOptions.language}语言，确保内容既符合平台特色又具有吸引力。`;
+        outputContent = `【基于关键词生成的文案】\n\n🎯 关键词：${inputText}\n\n📝 生成文案：\n根据您提供的关键词"${inputText}"，AI为您生成了适合${activeStyle}平台的优质文案内容。文案采用${selectedOptions.tone}语调，${selectedOptions.length}篇幅，${selectedOptions.style}风格，针对${selectedOptions.track}赛道，使用${selectedOptions.language}语言，确保内容既符合平台特色又具有吸引力。`;
       } else if (inputType === "track") {
-        outputContent = `【赛道定制文案】\n\n🏁 目标赛道：${inputText}\n\n📝 生成文案：\nAI基于您选择的"${inputText}"，结合当前热门趋势和${activeStyle}平台特色，为您定制专属文案。内容风格为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，${selectedOptions.language}表达，帮助您在该赛道中脱颖而出。`;
+        outputContent = `【赛道定制文案】\n\n🏁 目标赛道：${inputText}\n\n📝 生成文案：\nAI基于您选择的"${inputText}"，结合当前热门趋势和${activeStyle}平台特色，为您定制专属文案。内容风格为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，专注${selectedOptions.track}赛道，${selectedOptions.language}表达，帮助您在该赛道中脱颖而出。`;
       } else {
-        outputContent = `【智能改写文案】\n\n📄 原始内容：${inputText.substring(0, 100)}${inputText.length > 100 ? "..." : ""}\n\n✨ 改写结果：\n经过AI智能改写，结合${activeStyle}平台风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，${selectedOptions.language}语言的全新优质文案内容。`;
+        outputContent = `【智能改写文案】\n\n📄 原始内容：${inputText.substring(0, 100)}${inputText.length > 100 ? "..." : ""}\n\n✨ 改写结果：\n经过AI智能改写，结合${activeStyle}平台风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，适配${selectedOptions.track}赛道，${selectedOptions.language}语言的全新优质文案内容。`;
       }
 
       setOutputText(outputContent);
@@ -183,7 +183,7 @@ export default function ContentRewrite() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
-                      原始文案
+                      ���始文案
                     </span>
                   </div>
                 </div>
