@@ -30,7 +30,8 @@ import { useToast } from "@/components/ui/use-toast";
 
 // API configuration
 const API_BASE_URL = "http://localhost:8000/api";
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxMzYwNzAxfQ.IfdUlo3nyL7RjUqDVUHuAVVJAUmAKFnjDLyk3EbxFDg";
+const AUTH_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxMzYwNzAxfQ.IfdUlo3nyL7RjUqDVUHuAVVJAUmAKFnjDLyk3EbxFDg";
 
 export default function UniversalConverter() {
   const { toast } = useToast();
@@ -111,25 +112,28 @@ export default function UniversalConverter() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/universal-converter/convert`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${AUTH_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sourceContent: extractedData,
-          sourcePlatform: sourcePlatform,
-          targetPlatform: targetPlatform,
-          styleOptions: {
-            tone: styleOptions.tone,
-            length: styleOptions.length,
-            styleType: styleOptions.styleType,
-            targetAge: styleOptions.targetAge,
-            targetGender: styleOptions.targetGender,
+      const response = await fetch(
+        `${API_BASE_URL}/universal-converter/convert`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+            "Content-Type": "application/json",
           },
-        }),
-      });
+          body: JSON.stringify({
+            sourceContent: extractedData,
+            sourcePlatform: sourcePlatform,
+            targetPlatform: targetPlatform,
+            styleOptions: {
+              tone: styleOptions.tone,
+              length: styleOptions.length,
+              styleType: styleOptions.styleType,
+              targetAge: styleOptions.targetAge,
+              targetGender: styleOptions.targetGender,
+            },
+          }),
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`转换失败: ${response.statusText}`);
@@ -137,7 +141,7 @@ export default function UniversalConverter() {
 
       const data = await response.json();
       setConvertedContent(data.convertedContent || "");
-      
+
       toast({
         title: "转换成功",
         description: "内容已成功转换为目标平台风格",
@@ -452,27 +456,27 @@ ${linkInput}
 
   const formatExtractedData = (data: any) => {
     let formattedContent = "";
-    
+
     if (data.title) {
       formattedContent += `📌 标题: ${data.title}\n\n`;
     }
-    
+
     if (data.description) {
       formattedContent += `📝 描述：\n${data.description}\n\n`;
     }
-    
+
     if (data.hashtags && data.hashtags.length > 0) {
       formattedContent += `🏷️ 标签: ${data.hashtags.map((tag: string) => `#${tag}`).join(" ")}\n\n`;
     }
-    
+
     if (data.transcript) {
       formattedContent += `📄 转录文本：\n${data.transcript}\n\n`;
     }
-    
+
     if (data.video_url) {
       formattedContent += `🎥 视频链接: ${data.video_url}\n`;
     }
-    
+
     return formattedContent.trim();
   };
 
@@ -499,40 +503,50 @@ ${linkInput}
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/universal-converter/extract`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${AUTH_TOKEN}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/universal-converter/extract`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            input_url: linkInput,
+            source_platform: detectedPlatform,
+          }),
         },
-        body: JSON.stringify({
-          input_url: linkInput,
-          source_platform: detectedPlatform,
-        }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`提取失败: ${response.statusText}`);
       }
 
       const result = await response.json();
-      
+
       if (result.data) {
         setExtractedData(result.data);
         setSourceContent(formatExtractedData(result.data));
-        
+
         // Set metadata for display
         const metadata: any = {
-          平台: platforms.find(p => p.value === detectedPlatform)?.label || detectedPlatform,
+          平台:
+            platforms.find((p) => p.value === detectedPlatform)?.label ||
+            detectedPlatform,
           状态: "提取成功",
         };
-        
-        if (result.data.title) metadata.标题 = result.data.title.substring(0, 30) + (result.data.title.length > 30 ? "..." : "");
-        if (result.data.hashtags) metadata.标签数 = result.data.hashtags.length + "个";
-        if (result.data.transcript) metadata.字数 = result.data.transcript.length + "字";
-        
+
+        if (result.data.title)
+          metadata.标题 =
+            result.data.title.substring(0, 30) +
+            (result.data.title.length > 30 ? "..." : "");
+        if (result.data.hashtags)
+          metadata.标签数 = result.data.hashtags.length + "个";
+        if (result.data.transcript)
+          metadata.字数 = result.data.transcript.length + "字";
+
         setExtractedMetadata(metadata);
-        
+
         toast({
           title: "提取成功",
           description: "内容已成功提取，可以进行转换了",
@@ -719,7 +733,7 @@ ${linkInput}
 
               {/* Target Gender */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">目标性���</label>
+                <label className="text-sm font-medium">目标性别</label>
                 <Select
                   value={styleOptions.targetGender}
                   onValueChange={(value) =>
@@ -918,9 +932,7 @@ ${linkInput}
 
               <div className="relative">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium">
-                    提取的文本内容
-                  </span>
+                  <span className="text-sm font-medium">提取的文本内容</span>
                   {extractedData && (
                     <Badge variant="outline" className="ml-2">
                       已提取数据
