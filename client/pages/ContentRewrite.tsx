@@ -295,28 +295,40 @@ export default function ContentRewrite() {
                 {rewriteOptions.map((option) => (
                   <div key={option.id}>
                     <p className="text-sm font-medium mb-2">{option.name}</p>
-                    <div className="grid grid-cols-2 gap-1">
-                      {option.options.map((opt) => (
-                        <Button
-                          key={opt}
-                          variant={
-                            selectedOptions[
-                              option.id as keyof typeof selectedOptions
-                            ] === opt
-                              ? "default"
-                              : "outline"
-                          }
-                          size="sm"
-                          className="h-7 text-xs"
-                          onClick={() =>
-                            setSelectedOptions((prev) => ({
-                              ...prev,
-                              [option.id]: opt,
-                            }))
-                          }
-                        >
-                          {opt}
-                        </Button>
+                    <div className={`grid gap-1 ${option.id === 'style' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {option.options.map((opt) => {
+                        const isObject = typeof opt === 'object';
+                        const optValue = isObject ? opt.value : opt;
+                        const optDescription = isObject ? opt.description : null;
+
+                        return (
+                          <Button
+                            key={optValue}
+                            variant={
+                              selectedOptions[
+                                option.id as keyof typeof selectedOptions
+                              ] === optValue
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            className={`${isObject ? 'h-auto p-3 flex-col items-start' : 'h-7'} text-xs`}
+                            onClick={() =>
+                              setSelectedOptions((prev) => ({
+                                ...prev,
+                                [option.id]: optValue,
+                              }))
+                            }
+                          >
+                            <span className="font-medium">{optValue}</span>
+                            {optDescription && (
+                              <span className="text-xs text-muted-foreground mt-1">
+                                {optDescription}
+                              </span>
+                            )}
+                          </Button>
+                        );
+                      })}
                       ))}
                     </div>
                   </div>
