@@ -42,11 +42,12 @@ export default function ContentRewrite() {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [isRewriting, setIsRewriting] = useState(false);
-  const [activeStyle, setActiveStyle] = useState("casual");
+  const [activeStyle, setActiveStyle] = useState("xiaohongshu");
   const [selectedOptions, setSelectedOptions] = useState({
     tone: "轻松",
     length: "标准",
     style: "营销",
+    language: "中文",
   });
 
   const handleRewrite = async () => {
