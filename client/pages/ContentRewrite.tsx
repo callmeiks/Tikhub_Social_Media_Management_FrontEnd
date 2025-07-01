@@ -127,7 +127,7 @@ export default function ContentRewrite() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <FileText className="mr-2 h-4 w-4" />
-                    原始文案
+                    内容输入
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {inputText.length}/800
@@ -135,8 +135,26 @@ export default function ContentRewrite() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="mb-3">
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      关键词输入
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                      感兴趣赛道
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                      原始文案
+                    </span>
+                  </div>
+                </div>
                 <Textarea
-                  placeholder="请输入原始文案，点击重新构思，文案将会自动转化改写（请不要重复输入太过相似的内容）"
+                  placeholder={
+                    '请输入以下任一类型内容：&#10;&#10;🔍 关键词：如"美妆教程、护肤技巧、口红推荐"&#10;🎯 感兴趣赛道：如"美妆赛道、健身赛道、美食赛道、科技数码"&#10;📝 原始文案：直接输入需要改写的完整文案内容&#10;&#10;AI将根据您的输入类型，智能生成或改写对应的文案内容'
+                  }
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   className="min-h-[200px] resize-none border-0 p-0 focus-visible:ring-0"
