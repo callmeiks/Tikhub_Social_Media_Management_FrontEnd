@@ -22,6 +22,7 @@ import {
   FileText,
   Video,
   Image,
+  Settings2,
 } from "lucide-react";
 
 export default function UniversalConverter() {
@@ -33,12 +34,17 @@ export default function UniversalConverter() {
   const [linkInput, setLinkInput] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedMetadata, setExtractedMetadata] = useState<any>(null);
+  const [styleOptions, setStyleOptions] = useState({
+    tone: "friendly",
+    length: "medium",
+    styleType: "casual",
+  });
 
   const platforms = [
     { value: "douyin", label: "抖音", emoji: "🎵" },
     { value: "xiaohongshu", label: "小红书", emoji: "📕" },
     { value: "bilibili", label: "B站", emoji: "📺" },
-    { value: "kuaishou", label: "���手", emoji: "⚡" },
+    { value: "kuaishou", label: "快手", emoji: "⚡" },
     { value: "wechat", label: "微信公众号", emoji: "💬" },
     { value: "weibo", label: "微博", emoji: "🐦" },
     { value: "tiktok", label: "TikTok", emoji: "🎬" },
@@ -89,34 +95,74 @@ export default function UniversalConverter() {
     // Simulate AI conversion process
     await new Promise((resolve) => setTimeout(resolve, 2500));
 
-    // Mock converted content based on platforms
+    // Mock converted content based on platforms and style options
     let mockConversion = "";
-    if (sourcePlatform === "douyin" && targetPlatform === "xiaohongshu") {
-      mockConversion = `📝 ${sourceContent.split("").slice(0, 50).join("")}...
+    const { tone, length, styleType } = styleOptions;
 
-✨ 种草指南：
-• 第一点：${sourceContent.split("").slice(0, 20).join("")}
-• 第二点：适合日常使用
-• 第三点：性价比超高
+    // Apply style modifications based on options
+    const getStyledIntro = () => {
+      if (tone === "humorous") return "哈哈哈，今天又来分享好东西啦～";
+      if (tone === "professional")
+        return "基于专业分析，为大家推荐一个优质产品：";
+      if (tone === "emotional") return "真的太爱这个了！必须分享给大家！";
+      return "今天给大家分享一个超棒的发现：";
+    };
+
+    if (sourcePlatform === "douyin" && targetPlatform === "xiaohongshu") {
+      const intro = getStyledIntro();
+      const detailLevel =
+        length === "short"
+          ? "• 简单好用\n• 性价比高"
+          : length === "long"
+            ? "• 第一点：产品质量超棒，用料很足\n• 第二点：设计很贴心，使用体验很好\n• 第三点：性价比非常高，值得入手\n• 第四点：包装精美，送礼自用都不错"
+            : "• 第一点：${sourceContent.split('').slice(0, 20).join('')}\n• 第二点：适合日常使用\n• 第三点：性价比超高";
+
+      mockConversion = `📝 ${intro}
+
+${sourceContent.split("").slice(0, 50).join("")}...
+
+✨ ${styleType === "tutorial" ? "使用教程" : styleType === "review" ? "详细测评" : "种草指南"}：
+${detailLevel}
 
 🏷️ #种草分享 #好物推荐 #生活方式
 
-💡 小红薯们觉得怎么样呢？
+💡 ${tone === "encouraging" ? "相信你们也会喜欢的！" : "小红薯们觉得怎么样呢？"}
 评论区告诉我你们的想法～`;
     } else if (
       sourcePlatform === "xiaohongshu" &&
       targetPlatform === "douyin"
     ) {
-      mockConversion = `🎬 【${sourceContent.split("").slice(0, 15).join("")}】
+      const opening =
+        tone === "humorous"
+          ? "哈喽大家好，我是你们的搞笑博主～"
+          : tone === "professional"
+            ? "大家好，我是专业测评师，今天为大家带来..."
+            : tone === "encouraging"
+              ? "嗨大家好，今天要给大家分享一个超级棒的..."
+              : "嗨大家好，今天给大家分享一个超实用的...";
 
-开场：嗨大家好，今天给大家分享一个超实用的...
-
-内容要点：
+      const contentPoints =
+        length === "short"
+          ? `要点：${sourceContent.split("").slice(0, 30).join("")}`
+          : `内容要点：
 1. ${sourceContent.split("").slice(0, 25).join("")}
 2. 这个方法真的太好用了
-3. 大家一定要试试
+3. 大家一定要试试${length === "long" ? "\n4. 详细步骤我都整理好了\n5. 有问题随时评论区问我" : ""}`;
 
-结尾：如果觉得有用的话，记得点赞关注哦！
+      const ending =
+        tone === "encouraging"
+          ? "相信大家都能学会，加油！"
+          : tone === "professional"
+            ? "以上就是今天的专业分享，感谢观看。"
+            : "如果觉得有用的话，记得点赞关注哦！";
+
+      mockConversion = `🎬 【${sourceContent.split("").slice(0, 15).join("")}】
+
+开场：${opening}
+
+${contentPoints}
+
+结尾：${ending}
 
 #抖音热门 #生活技巧 #干货分享`;
     } else {
@@ -215,7 +261,7 @@ ${sourceContent}
 
 🏷️ #好物分享 #种草安利 #生活记录
 
-小红薯们觉��怎么样？评论区交流～`;
+小红薯们觉得怎么样？评论区交流～`;
 
       metadata = {
         type: "图文笔记",
@@ -236,7 +282,7 @@ ${sourceContent}
 
 二、实用的时间管理方法
 1. 番茄工作法
-2. 四象限法则
+2. 四象��法则
 3. 时间块管理
 
 三、养成良好的工作习惯
@@ -332,6 +378,133 @@ ${linkInput}
                   </span>
                 </Button>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Style Options */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings2 className="w-5 h-5" />
+              风格选项
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Tone Adjustment */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">语调调整</label>
+                <Select
+                  value={styleOptions.tone}
+                  onValueChange={(value) =>
+                    setStyleOptions((prev) => ({ ...prev, tone: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="formal">正式严肃</SelectItem>
+                    <SelectItem value="friendly">友好亲切</SelectItem>
+                    <SelectItem value="professional">专业权威</SelectItem>
+                    <SelectItem value="humorous">幽默风趣</SelectItem>
+                    <SelectItem value="emotional">情感丰富</SelectItem>
+                    <SelectItem value="encouraging">鼓励激励</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Length Control */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">长度控制</label>
+                <Select
+                  value={styleOptions.length}
+                  onValueChange={(value) =>
+                    setStyleOptions((prev) => ({ ...prev, length: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">简短精炼</SelectItem>
+                    <SelectItem value="medium">适中详细</SelectItem>
+                    <SelectItem value="long">详细完整</SelectItem>
+                    <SelectItem value="extended">深度扩展</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Style Type */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">风格类型</label>
+                <Select
+                  value={styleOptions.styleType}
+                  onValueChange={(value) =>
+                    setStyleOptions((prev) => ({ ...prev, styleType: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="casual">轻松随意</SelectItem>
+                    <SelectItem value="business">商务正式</SelectItem>
+                    <SelectItem value="creative">创意新颖</SelectItem>
+                    <SelectItem value="educational">教育科普</SelectItem>
+                    <SelectItem value="storytelling">故事叙述</SelectItem>
+                    <SelectItem value="listicle">列表形式</SelectItem>
+                    <SelectItem value="tutorial">教程指导</SelectItem>
+                    <SelectItem value="review">评测分析</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Style Preview */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <div className="text-sm text-muted-foreground mb-2">
+                当前风格预览：
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline">
+                  {
+                    {
+                      formal: "正式严肃",
+                      friendly: "友好亲切",
+                      professional: "专业权威",
+                      humorous: "幽默风趣",
+                      emotional: "情感丰富",
+                      encouraging: "鼓励激励",
+                    }[styleOptions.tone]
+                  }
+                </Badge>
+                <Badge variant="outline">
+                  {
+                    {
+                      short: "简短精炼",
+                      medium: "适中详细",
+                      long: "详细完整",
+                      extended: "深度扩展",
+                    }[styleOptions.length]
+                  }
+                </Badge>
+                <Badge variant="outline">
+                  {
+                    {
+                      casual: "轻松随意",
+                      business: "商务正式",
+                      creative: "创意新颖",
+                      educational: "教育科普",
+                      storytelling: "故事叙述",
+                      listicle: "列表形式",
+                      tutorial: "教程指导",
+                      review: "评测分析",
+                    }[styleOptions.styleType]
+                  }
+                </Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
