@@ -23,9 +23,17 @@ import {
   Video,
   Image,
   Settings2,
+  AlertCircle,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/components/ui/use-toast";
+
+// API configuration
+const API_BASE_URL = "http://localhost:8000/api";
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxMzYwNzAxfQ.IfdUlo3nyL7RjUqDVUHuAVVJAUmAKFnjDLyk3EbxFDg";
 
 export default function UniversalConverter() {
+  const { toast } = useToast();
   const [sourceContent, setSourceContent] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
   const [sourcePlatform, setSourcePlatform] = useState("");
@@ -33,12 +41,14 @@ export default function UniversalConverter() {
   const [isConverting, setIsConverting] = useState(false);
   const [linkInput, setLinkInput] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
+  const [extractedData, setExtractedData] = useState<any>(null);
   const [extractedMetadata, setExtractedMetadata] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [styleOptions, setStyleOptions] = useState({
     tone: "friendly",
     length: "medium",
     styleType: "casual",
-    targetAge: "18-35",
+    targetAge: "18-25",
     targetGender: "all",
   });
 
@@ -88,6 +98,63 @@ export default function UniversalConverter() {
   ];
 
   const handleConvert = async () => {
+    if (!extractedData || !sourcePlatform || !targetPlatform) {
+      toast({
+        title: "错误",
+        description: "请先提取内容后再进行转换",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConverting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/universal-converter/convert`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sourceContent: extractedData,
+          sourcePlatform: sourcePlatform,
+          targetPlatform: targetPlatform,
+          styleOptions: {
+            tone: styleOptions.tone,
+            length: styleOptions.length,
+            styleType: styleOptions.styleType,
+            targetAge: styleOptions.targetAge,
+            targetGender: styleOptions.targetGender,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`转换失败: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setConvertedContent(data.convertedContent || "");
+      
+      toast({
+        title: "转换成功",
+        description: "内容已成功转换为目标平台风格",
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "转换过程中出现错误");
+      toast({
+        title: "转换失败",
+        description: err instanceof Error ? err.message : "请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
+  const handleConvertOld = async () => {
     if (!sourceContent.trim() || !sourcePlatform || !targetPlatform) {
       return;
     }
@@ -242,6 +309,10 @@ ${sourceContent}
 
   const handleCopy = () => {
     navigator.clipboard.writeText(convertedContent);
+    toast({
+      title: "复制成功",
+      description: "内容已复制到剪贴板",
+    });
   };
 
   const detectPlatformFromUrl = (url: string) => {
@@ -260,7 +331,7 @@ ${sourceContent}
     return "";
   };
 
-  const handleExtractFromLink = async () => {
+  const handleExtractFromLinkOld = async () => {
     if (!linkInput.trim()) return;
 
     setIsExtracting(true);
@@ -377,6 +448,108 @@ ${linkInput}
     setSourceContent(extractedContent);
     setExtractedMetadata(metadata);
     setIsExtracting(false);
+  };
+
+  const formatExtractedData = (data: any) => {
+    let formattedContent = "";
+    
+    if (data.title) {
+      formattedContent += `📌 标题: ${data.title}\n\n`;
+    }
+    
+    if (data.description) {
+      formattedContent += `📝 描述：\n${data.description}\n\n`;
+    }
+    
+    if (data.hashtags && data.hashtags.length > 0) {
+      formattedContent += `🏷️ 标签: ${data.hashtags.map((tag: string) => `#${tag}`).join(" ")}\n\n`;
+    }
+    
+    if (data.transcript) {
+      formattedContent += `📄 转录文本：\n${data.transcript}\n\n`;
+    }
+    
+    if (data.video_url) {
+      formattedContent += `🎥 视频链接: ${data.video_url}\n`;
+    }
+    
+    return formattedContent.trim();
+  };
+
+  const handleExtractFromLink = async () => {
+    if (!linkInput.trim()) return;
+
+    setIsExtracting(true);
+    setError(null);
+    setExtractedData(null);
+    setConvertedContent("");
+
+    // Auto-detect platform from URL
+    const detectedPlatform = detectPlatformFromUrl(linkInput);
+    if (detectedPlatform) {
+      setSourcePlatform(detectedPlatform);
+    } else {
+      toast({
+        title: "警告",
+        description: "无法自动识别平台，请手动选择源平台",
+        variant: "destructive",
+      });
+      setIsExtracting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/universal-converter/extract`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input_url: linkInput,
+          source_platform: detectedPlatform,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`提取失败: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.data) {
+        setExtractedData(result.data);
+        setSourceContent(formatExtractedData(result.data));
+        
+        // Set metadata for display
+        const metadata: any = {
+          平台: platforms.find(p => p.value === detectedPlatform)?.label || detectedPlatform,
+          状态: "提取成功",
+        };
+        
+        if (result.data.title) metadata.标题 = result.data.title.substring(0, 30) + (result.data.title.length > 30 ? "..." : "");
+        if (result.data.hashtags) metadata.标签数 = result.data.hashtags.length + "个";
+        if (result.data.transcript) metadata.字数 = result.data.transcript.length + "字";
+        
+        setExtractedMetadata(metadata);
+        
+        toast({
+          title: "提取成功",
+          description: "内容已成功提取，可以进行转换了",
+        });
+      } else {
+        throw new Error("未能提取到有效内容");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "提取过程中出现错误");
+      toast({
+        title: "提取失败",
+        description: err instanceof Error ? err.message : "请检查链接是否有效",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   const handleTemplateSelect = (template: string) => {
@@ -637,6 +810,14 @@ ${linkInput}
           </CardContent>
         </Card>
 
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Source Content */}
           <Card>
@@ -738,14 +919,19 @@ ${linkInput}
               <div className="relative">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium">
-                    或直接输入文本内容
+                    提取的文本内容
                   </span>
+                  {extractedData && (
+                    <Badge variant="outline" className="ml-2">
+                      已提取数据
+                    </Badge>
+                  )}
                 </div>
                 <Textarea
-                  placeholder="请输入需要转换的内容...&#10;&#10;支持：&#10;• 视频文案/脚本&#10;• 图文���容&#10;• 标题描述&#10;• 完整文章"
+                  placeholder="请先使用上方链接提取功能获取内容..."
                   value={sourceContent}
-                  onChange={(e) => setSourceContent(e.target.value)}
-                  className="min-h-[250px] resize-none"
+                  readOnly
+                  className="min-h-[250px] resize-none bg-gray-50"
                 />
               </div>
 
@@ -757,7 +943,12 @@ ${linkInput}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSourceContent("")}
+                    onClick={() => {
+                      setSourceContent("");
+                      setExtractedData(null);
+                      setExtractedMetadata(null);
+                      setConvertedContent("");
+                    }}
                   >
                     清空
                   </Button>
@@ -832,7 +1023,7 @@ ${linkInput}
           <Button
             onClick={handleConvert}
             disabled={
-              !sourceContent.trim() ||
+              !extractedData ||
               !sourcePlatform ||
               !targetPlatform ||
               isConverting
