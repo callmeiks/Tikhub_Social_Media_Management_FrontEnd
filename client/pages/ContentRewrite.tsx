@@ -18,20 +18,18 @@ import {
 } from "lucide-react";
 
 const contentStyles = [
-  { id: "casual", name: "文案风格", active: true },
-  { id: "xiaohongshu", name: "小红书", active: false },
-  { id: "wechat", name: "公众号", active: false },
-  { id: "zhihu", name: "知乎", active: false },
-  { id: "shipinhao", name: "视频号", active: false },
-  { id: "kuaishou", name: "快手", active: false },
+  { id: "xiaohongshu", name: "小红书", active: true },
   { id: "douyin", name: "抖音", active: false },
-  { id: "chat", name: "群聊学霸", active: false },
+  { id: "kuaishou", name: "快手", active: false },
+  { id: "tiktok", name: "TikTok", active: false },
+  { id: "instagram", name: "Instagram", active: false },
 ];
 
 const rewriteOptions = [
   { id: "tone", name: "语调调整", options: ["正式", "轻松", "幽默", "专业"] },
   { id: "length", name: "长度控制", options: ["精简", "标准", "详细", "扩展"] },
   { id: "style", name: "风格类型", options: ["营销", "教育", "娱乐", "新闻"] },
+  { id: "language", name: "语言", options: ["中文", "英文"] },
 ];
 
 const exampleTexts = [
