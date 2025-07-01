@@ -82,7 +82,7 @@ export default function ShortVideoCopy() {
     "viral",
     "emotional",
   ]);
-  const [selectedPlatform, setSelectedPlatform] = useState("douyin");
+  const [selectedPlatform, setSelectedPlatform] = useState("wechat");
   const [showResults, setShowResults] = useState(false);
 
   const handleGenerate = async () => {
