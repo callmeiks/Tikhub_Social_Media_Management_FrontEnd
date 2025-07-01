@@ -103,21 +103,52 @@ export default function UniversalConverter() {
 
     // Apply style modifications based on options
     const getStyledIntro = () => {
-      if (tone === "humorous") return "哈哈哈，今天又来分享好东西啦～";
+      // Age-specific language adjustments
+      const agePrefix =
+        targetAge === "13-17"
+          ? "同学们"
+          : targetAge === "18-25"
+            ? "小伙伴们"
+            : targetAge === "26-35"
+              ? "朋友们"
+              : targetAge === "36-45"
+                ? "各位"
+                : targetAge === "46-60"
+                  ? "大家"
+                  : targetAge === "60+"
+                    ? "叔叔阿姨们"
+                    : "大家";
+
+      // Gender-specific adjustments
+      const genderTouch =
+        targetGender === "female"
+          ? "姐妹们"
+          : targetGender === "male"
+            ? "兄弟们"
+            : agePrefix;
+
+      if (tone === "humorous")
+        return `哈哈哈，${genderTouch}，今天又来分享好东西啦～`;
       if (tone === "professional")
-        return "基于专业分析，为大家推荐一个优质产品：";
-      if (tone === "emotional") return "真的太爱这个了！必须分享给大家！";
-      return "今天给大家分享一个超棒的发现：";
+        return `${agePrefix}好，基于专业分析，为大家推荐一个优质产品：`;
+      if (tone === "emotional")
+        return `真的太爱这个了！${genderTouch}必须知道！`;
+      return `${genderTouch}好，今天给大家分享一个超棒的发现：`;
     };
 
     if (sourcePlatform === "douyin" && targetPlatform === "xiaohongshu") {
       const intro = getStyledIntro();
+      // Age and gender-specific content adjustments
+      const studentFocus = targetAge === "13-17" || targetAge === "18-25";
+      const budgetTerm = studentFocus ? "学生党友好" : "性价比高";
+      const femaleFocus = targetGender === "female";
+
       const detailLevel =
         length === "short"
-          ? "• 简单好用\n• 性价比高"
+          ? `• 简单好用\n• ${budgetTerm}`
           : length === "long"
-            ? "• 第一点：产品质量超棒，用料很足\n• 第二点：设计很贴心，使用体验很好\n• 第三点：性价比非常高，值得入手\n• 第四点：包装精美，送礼自用都不错"
-            : "• 第一点：${sourceContent.split('').slice(0, 20).join('')}\n• 第二点：适合日常使用\n• 第三点：性价比超高";
+            ? `• 第一点：产品质量超棒，用料很足\n• 第二点：设计很贴心，使用体验很好\n• 第三点：${budgetTerm}，值得入手\n• 第四点：包装精美，${femaleFocus ? "颜值很高" : "送礼自用都不错"}`
+            : `• 第一点：${sourceContent.split("").slice(0, 20).join("")}\n• 第二点：适合日常使用\n• 第三点：${budgetTerm}`;
 
       mockConversion = `📝 ${intro}
 
@@ -251,7 +282,7 @@ ${sourceContent}
       extractedContent = `🎵 超火爆视频文案：
 
 "今天教大家一个超实用的生活小技巧！
-真的太好用了，学会了能省好多钱💰
+真的太好用了，���会了能省好多钱💰
 
 步骤很简单：
 1️⃣ 准备这些材料...
@@ -570,7 +601,7 @@ ${linkInput}
                     {
                       casual: "轻松随意",
                       business: "商务正式",
-                      creative: "创意新颖",
+                      creative: "���意新颖",
                       educational: "教育科普",
                       storytelling: "故事叙述",
                       listicle: "列表形式",
@@ -812,7 +843,7 @@ ${linkInput}
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   🎯
                 </div>
-                <h3 className="font-medium mb-1">智能适配</h3>
+                <h3 className="font-medium mb-1">智能适���</h3>
                 <p className="text-sm text-muted-foreground">
                   根据目标平台特点���动调整内容风格
                 </p>
