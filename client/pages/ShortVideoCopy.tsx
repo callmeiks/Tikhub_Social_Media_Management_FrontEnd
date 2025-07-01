@@ -27,10 +27,10 @@ import {
 } from "lucide-react";
 
 const supportedPlatforms = [
-  { id: "douyin", name: "抖音", emoji: "🎤", active: true },
-  { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
-  { id: "shenma", name: "神马搜索", emoji: "���", active: true },
-  { id: "toutiao", name: "今日头条", emoji: "📰", active: true },
+  { id: "wechat", name: "微信公众号", emoji: "💬", active: true },
+  { id: "csdn", name: "CSDN", emoji: "💻", active: true },
+  { id: "zhihu", name: "知乎", emoji: "🤔", active: true },
+  { id: "other", name: "其他", emoji: "📝", active: true },
 ];
 
 const copywritingStyles = [
