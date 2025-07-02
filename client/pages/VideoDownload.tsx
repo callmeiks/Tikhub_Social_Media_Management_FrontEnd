@@ -325,26 +325,91 @@ https://www.bilibili.com/video/BV1234567890
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">视频质量</label>
+                      <label className="text-sm font-medium">选择平台</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {["1080p", "720p", "480p", "360p"].map((quality) => (
+                        {[
+                          { id: "douyin", name: "抖音", emoji: "🎤" },
+                          { id: "tiktok", name: "TikTok", emoji: "🎵" },
+                          { id: "youtube", name: "YouTube", emoji: "📹" },
+                          { id: "bilibili", name: "B站", emoji: "📺" },
+                        ].map((platform) => (
                           <Button
-                            key={quality}
+                            key={platform.id}
                             variant={
-                              settings.quality === quality
+                              selectedPlatform === platform.id
                                 ? "default"
                                 : "outline"
                             }
                             size="sm"
                             className="h-7 text-xs"
-                            onClick={() =>
-                              setSettings((prev) => ({ ...prev, quality }))
-                            }
+                            onClick={() => {
+                              setSelectedPlatform(platform.id);
+                              // 如果切换到非抖音平台且当前选择了高画��，自动切换到标准
+                              if (
+                                platform.id !== "douyin" &&
+                                settings.quality === "高画质"
+                              ) {
+                                setSettings((prev) => ({
+                                  ...prev,
+                                  quality: "标准",
+                                }));
+                              }
+                            }}
                           >
-                            {quality}
+                            <span className="mr-1">{platform.emoji}</span>
+                            {platform.name}
                           </Button>
                         ))}
                       </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">视频质量</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant={
+                            settings.quality === "标准" ? "default" : "outline"
+                          }
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() =>
+                            setSettings((prev) => ({
+                              ...prev,
+                              quality: "标准",
+                            }))
+                          }
+                        >
+                          标准
+                        </Button>
+                        <Button
+                          variant={
+                            settings.quality === "高画质"
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={selectedPlatform !== "douyin"}
+                          onClick={() =>
+                            setSettings((prev) => ({
+                              ...prev,
+                              quality: "高画质",
+                            }))
+                          }
+                        >
+                          高画质
+                          {selectedPlatform !== "douyin" && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              (仅抖音)
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                      {selectedPlatform !== "douyin" && (
+                        <p className="text-xs text-muted-foreground">
+                          💡 高画质选项仅在抖音平台可用
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -397,7 +462,7 @@ https://www.bilibili.com/video/BV1234567890
                           }))
                         }
                       >
-                        {settings.downloadWithWatermark ? "是" : "��"}
+                        {settings.downloadWithWatermark ? "是" : "否"}
                       </Button>
                     </div>
                   </CardContent>
