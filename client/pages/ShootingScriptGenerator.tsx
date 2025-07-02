@@ -110,6 +110,22 @@ const generatedScripts = [
   },
 ];
 
+const ageOptions = [
+  { id: "all", name: "全年龄段" },
+  { id: "teen", name: "13-17岁" },
+  { id: "young", name: "18-25岁" },
+  { id: "adult", name: "26-35岁" },
+  { id: "middle", name: "36-45岁" },
+  { id: "mature", name: "46-60岁" },
+  { id: "senior", name: "60岁以上" },
+];
+
+const genderOptions = [
+  { id: "all", name: "不限" },
+  { id: "male", name: "男性" },
+  { id: "female", name: "女性" },
+];
+
 const exampleTopics = ["日常护肤教程", "美食制作过程", "穿搭分享", "旅行vlog"];
 
 export default function ShootingScriptGenerator() {
@@ -480,7 +496,7 @@ export default function ShootingScriptGenerator() {
                     variant="secondary"
                     className="w-full justify-center text-xs"
                   >
-                    🎬 每��免费额度 50次
+                    🎬 每日免费额度 50次
                   </Badge>
                 </div>
               </CardContent>
