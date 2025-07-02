@@ -86,7 +86,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: "���据监控",
+    title: "数据监控",
     icon: BarChart3,
     href: "/data-monitoring",
     subItems: [
@@ -116,7 +116,7 @@ const menuItems: MenuItem[] = [
       { title: "抖音低分爆款榜", href: "/hot-rankings/dy-low-score-viral" },
       { title: "抖音高点赞率榜", href: "/hot-rankings/dy-high-like-rate" },
       {
-        title: "��音高完播率榜",
+        title: "抖音高完播率榜",
         href: "/hot-rankings/dy-high-completion-rate",
       },
       {
