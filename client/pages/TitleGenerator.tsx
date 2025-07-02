@@ -80,7 +80,6 @@ const exampleKeywords = [
 
 export default function TitleGenerator() {
   const [inputText, setInputText] = useState("");
-  const [keywords, setKeywords] = useState("");
   const [titleCount, setTitleCount] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePlatform, setActivePlatform] = useState("wechat");
@@ -256,7 +255,6 @@ export default function TitleGenerator() {
                       size="sm"
                       onClick={() => {
                         setInputText("");
-                        setKeywords("");
                         setTitleCount(10);
                       }}
                       className="h-8"
