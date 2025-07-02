@@ -50,7 +50,7 @@ const generatedTitles = [
     tags: ["情感", "年龄", "护肤"],
   },
   {
-    title: "90%的人都不知���的护肤误区，你中招了吗？",
+    title: "90%的人都不知道的护肤误区，你中招了吗？",
     score: 88,
     tags: ["数字", "疑问", "护肤"],
   },
@@ -82,7 +82,7 @@ export default function TitleGenerator() {
   const [inputText, setInputText] = useState("");
   const [keywords, setKeywords] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activePlatform, setActivePlatform] = useState("xiaohongshu");
+  const [activePlatform, setActivePlatform] = useState("wechat");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
     "trending",
     "emotional",
@@ -132,7 +132,7 @@ export default function TitleGenerator() {
   return (
     <DashboardLayout
       title="标题生成"
-      subtitle="根据内容自动生成吸引人的标题，提高点击率"
+      subtitle="根据内容��动生成吸引人的标题，提高点击率"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
