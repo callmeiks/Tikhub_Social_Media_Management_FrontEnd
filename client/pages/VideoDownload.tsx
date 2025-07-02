@@ -261,10 +261,10 @@ export default function VideoDownload() {
 
 https://www.tiktok.com/@user/video/123456789
 https://v.douyin.com/iABCDEF/
-https://www.xiaohongshu.com/discovery/item/xyz123
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
 https://www.bilibili.com/video/BV1234567890
 
-支持的平台：TikTok、抖音、小红书、B站、快手等`}
+支持的平台：TikTok、抖音、YouTube、B站、快手等`}
                         value={batchUrls}
                         onChange={(e) => setBatchUrls(e.target.value)}
                         className="min-h-[300px] resize-none font-mono text-sm"
