@@ -65,7 +65,7 @@ const extractedContent = {
     },
     {
       url: "https://cdn.xiaohongshu.com/image3.jpg",
-      description: "使用前后对比",
+      description: "使用前后��比",
       size: "750x1000",
     },
     {
@@ -181,9 +181,28 @@ export default function ContentExtract() {
           <div className="lg:col-span-2">
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <LinkIcon className="mr-2 h-4 w-4" />
-                  链接提取
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    批量添加笔记链接
+                  </span>
+                  <Badge
+                    variant={
+                      batchUrls
+                        .split("\n")
+                        .filter((url) => url.trim().length > 0).length > 20
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="text-xs"
+                  >
+                    {
+                      batchUrls
+                        .split("\n")
+                        .filter((url) => url.trim().length > 0).length
+                    }
+                    /20
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -194,7 +213,7 @@ export default function ContentExtract() {
                       className="flex items-center space-x-1"
                     >
                       <LinkIcon className="h-3 w-3" />
-                      <span>链接提取</span>
+                      <span>批量提取</span>
                     </TabsTrigger>
                     <TabsTrigger
                       value="search"
@@ -208,17 +227,24 @@ export default function ContentExtract() {
                   <TabsContent value="url" className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
-                        小红书笔记链接
+                        粘贴笔记链接（每行一个，最多20个）
                       </label>
-                      <Input
-                        placeholder="请输入小红书笔记链接，如：https://www.xiaohongshu.com/discovery/item/..."
-                        value={inputUrl}
-                        onChange={(e) => setInputUrl(e.target.value)}
-                        className="border-border"
+                      <Textarea
+                        placeholder={`请粘贴小红书笔记链接，每行一个：
+
+https://www.xiaohongshu.com/discovery/item/123456789
+https://xhslink.com/abcdef
+https://www.xiaohongshu.com/discovery/item/987654321
+
+支持完整链接和分享短链接`}
+                        value={batchUrls}
+                        onChange={(e) => setBatchUrls(e.target.value)}
+                        className="min-h-[200px] resize-none font-mono text-sm"
+                        maxLength={5000}
                       />
                       <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                         <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span>支持完整链接和短链接</span>
+                        <span>支持完整链接和短链接，每行一个</span>
                       </div>
                     </div>
                   </TabsContent>
@@ -476,7 +502,7 @@ export default function ContentExtract() {
                     variant="secondary"
                     className="w-full justify-center text-xs"
                   >
-                    🎉 今日免费额度 100篇
+                    🎉 ��日免费额度 100篇
                   </Badge>
                 </div>
               </CardContent>
@@ -547,7 +573,7 @@ export default function ContentExtract() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-xs text-muted-foreground">
-                  <p>• 仅支持公开的小红书笔记</p>
+                  <p>�� 仅支持公开的小红书笔记</p>
                   <p>• 支持完整链接和分享短链接</p>
                   <p>• 提取的内容仅供学习和参考</p>
                   <p>• 请遵守平台规定和版权法律</p>
