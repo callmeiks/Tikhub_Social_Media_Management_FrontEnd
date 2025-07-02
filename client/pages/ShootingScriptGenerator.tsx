@@ -44,7 +44,7 @@ const supportedPlatforms = [
 const scriptTypes = [
   { id: "tutorial", name: "教程脚本", description: "知识分享类内容" },
   { id: "vlog", name: "生活vlog", description: "日常生活记录" },
-  { id: "review", name: "产品测��", description: "商品评测介绍" },
+  { id: "review", name: "产品测评", description: "商品评测介绍" },
   { id: "story", name: "故事剧情", description: "情节叙事类" },
   { id: "interview", name: "采访对话", description: "访谈问答形式" },
   { id: "promotion", name: "营销推广", description: "品牌宣传类" },
@@ -79,7 +79,7 @@ const generatedScripts = [
 
 【总结】（7秒）
 镜头：面向镜头
-台词：总体���说性价比很高，推荐给大家！记得点赞收藏哦~`,
+台词：总体来说性价比很高，推荐给大家！记得点赞收藏哦~`,
     platform: "抖音",
     type: "产品测评",
     duration: "1分钟",
@@ -280,16 +280,30 @@ export default function ShootingScriptGenerator() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    目标观众（可选）
-                  </label>
-                  <Input
-                    placeholder="例如：18-25岁女性、职场新人、护肤初学者"
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
-                    className="border-border"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      目标年龄（可选）
+                    </label>
+                    <Input
+                      placeholder="例如：18-25岁、30-40岁、全年龄段"
+                      value={targetAge}
+                      onChange={(e) => setTargetAge(e.target.value)}
+                      className="border-border"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      目标性别（可选）
+                    </label>
+                    <Input
+                      placeholder="例如：男性、女性、不限"
+                      value={targetGender}
+                      onChange={(e) => setTargetGender(e.target.value)}
+                      className="border-border"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
