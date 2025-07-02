@@ -30,7 +30,7 @@ import {
 const platformSupport = [
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
-  { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
+  { id: "youtube", name: "YouTube", emoji: "📹", active: true },
   { id: "bilibili", name: "B站", emoji: "📺", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
 ];
