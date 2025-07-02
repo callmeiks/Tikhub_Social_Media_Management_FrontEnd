@@ -132,7 +132,7 @@ export default function TitleGenerator() {
   return (
     <DashboardLayout
       title="标题生成"
-      subtitle="根据内容��动生成吸引人的标题，提高点击率"
+      subtitle="根据内容自动生成吸引人的标题，提高点击率"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -157,7 +157,7 @@ export default function TitleGenerator() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {platformStyles.map((platform) => (
+              {supportedPlatforms.map((platform) => (
                 <Button
                   key={platform.id}
                   variant={
