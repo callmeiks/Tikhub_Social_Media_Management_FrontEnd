@@ -219,7 +219,7 @@ export default function TranscriptGenerator() {
                   </div>
                 </div>
                 <Textarea
-                  placeholder="📝 三种输入方式任选其一：&#10;&#10;1️⃣ 关键词输入&#10;   产品发布会、会议纪要、营销方案&#10;   演讲稿、项目报告、培训资料&#10;&#10;2️⃣ 文稿描述输入&#10;   我需要写一份关于新产品发布的演讲稿...&#10;   帮我准备一个项目汇报的PPT大纲...&#10;&#10;3️⃣ 现有草稿输入&#10;   把您已有的文稿草稿粘贴进来，AI会帮您优化完善&#10;&#10;💡 支持最多2000字符，AI会根据内容自动识别并生成对应的文稿"
+                  placeholder="📝 三种输入方式任选其一：&#10;&#10;1️⃣ 关键词输入&#10;   产品发布会、会议纪要、营销方案&#10;   演讲稿、项目报告、培训资料&#10;&#10;2️⃣ 文稿描述输入&#10;   我需要写一份关于新产品发布的演讲稿...&#10;   帮我准备一个项目汇报的PPT大纲...&#10;&#10;3️⃣ 现有草稿输入&#10;   把您已有的文稿草稿粘贴进来，AI会帮您优化完善&#10;&#10;💡 支持最多2000字符，AI会根据内容��动识别并生成对应的文稿"
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
                   className="min-h-[320px] resize-none border-0 p-0 focus-visible:ring-0"
@@ -549,41 +549,6 @@ export default function TranscriptGenerator() {
                   >
                     🎉 每日获得总数100次权限
                   </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Content Quality */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Target className="mr-2 h-4 w-4" />
-                  文案质量
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground flex items-center">
-                      <Eye className="mr-1 h-3 w-3" />
-                      吸引力
-                    </span>
-                    <span className="text-xs font-medium">95%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground flex items-center">
-                      <ThumbsUp className="mr-1 h-3 w-3" />
-                      互动率
-                    </span>
-                    <span className="text-xs font-medium">88%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground flex items-center">
-                      <Play className="mr-1 h-3 w-3" />
-                      完播率
-                    </span>
-                    <span className="text-xs font-medium">92%</span>
-                  </div>
                 </div>
               </CardContent>
             </Card>
