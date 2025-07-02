@@ -44,6 +44,10 @@ const App = () => (
             element={<TitleGenerator />}
           />
           <Route
+            path="/creator-tools/shooting-script"
+            element={<ShootingScriptGenerator />}
+          />
+          <Route
             path="/creator-tools/forbidden-words"
             element={<ForbiddenWords />}
           />
