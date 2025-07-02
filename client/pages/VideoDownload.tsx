@@ -83,10 +83,9 @@ const downloadQueue = [
 ];
 
 const downloadSettings = {
-  quality: "1080p",
+  quality: "标准",
   format: "mp4",
   downloadPath: "/Downloads/TikHub",
-  downloadWithWatermark: false,
 };
 
 export default function VideoDownload() {
@@ -398,7 +397,7 @@ https://www.bilibili.com/video/BV1234567890
                           }))
                         }
                       >
-                        {settings.downloadWithWatermark ? "是" : "否"}
+                        {settings.downloadWithWatermark ? "是" : "��"}
                       </Button>
                     </div>
                   </CardContent>
