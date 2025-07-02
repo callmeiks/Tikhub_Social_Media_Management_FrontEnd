@@ -40,7 +40,7 @@ const titleTypes = [
   { id: "curiosity", name: "悬念标题", description: "激发好奇心" },
   { id: "practical", name: "实用标题", description: "突出实用价值" },
   { id: "numbers", name: "数字标题", description: "使用具体数字" },
-  { id: "question", name: "疑问标题", description: "引发思考" },
+  { id: "question", name: "疑问标题", description: "引��思考" },
 ];
 
 const generatedTitles = [
@@ -50,7 +50,7 @@ const generatedTitles = [
     tags: ["情感", "年龄", "护肤"],
   },
   {
-    title: "90%的人都不知道的护肤误区��你中招了吗？",
+    title: "90%的人都不知道的护肤误区，你中招了吗？",
     score: 88,
     tags: ["数字", "疑问", "护肤"],
   },
@@ -96,7 +96,7 @@ export default function TitleGenerator() {
     setIsGenerating(true);
     // 模拟API调用
     setTimeout(() => {
-      // 这里可以添���实际的标题生成逻辑
+      // 这里可以添加实际的标题生成逻辑
       setResults([
         ...generatedTitles.map((title) => ({
           ...title,
@@ -223,6 +223,23 @@ export default function TitleGenerator() {
                         {type.name}
                       </Button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Title Count Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">生成数量</label>
+                  <Input
+                    type="number"
+                    placeholder="输入要生成的标题数量"
+                    value={titleCount}
+                    onChange={(e) => setTitleCount(Number(e.target.value))}
+                    min={1}
+                    max={50}
+                    className="border-border"
+                  />
+                  <div className="text-xs text-muted-foreground">
+                    建议生成1-50个标题
                   </div>
                 </div>
 
@@ -397,7 +414,7 @@ export default function TitleGenerator() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-muted-foreground flex items-center">
                       <Hash className="mr-1 h-3 w-3" />
-                      关键词��度
+                      关键词密度
                     </span>
                     <span className="text-xs font-medium">88%</span>
                   </div>
