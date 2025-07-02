@@ -87,6 +87,9 @@ export default function TranscriptGenerator() {
     "emotional",
   ]);
   const [selectedPlatform, setSelectedPlatform] = useState("wechat");
+  const [selectedLanguage, setSelectedLanguage] = useState("chinese");
+  const [wordCount, setWordCount] = useState(500);
+  const [selectedTrack, setSelectedTrack] = useState("general");
   const [showResults, setShowResults] = useState(false);
 
   const handleGenerate = async () => {
@@ -485,7 +488,7 @@ export default function TranscriptGenerator() {
                   <p>• 前3秒要抓住用户注意力</p>
                   <p>• 使用悬念和疑问句增加互动</p>
                   <p>• 结合热点话题提升传播度</p>
-                  <p>• 添加相���话题标签扩大曝光</p>
+                  <p>• 添加相�����话题标签扩大曝光</p>
                   <p>• 文案长度控制在50字以内</p>
                 </div>
               </CardContent>
