@@ -103,10 +103,7 @@ const generatedCopies = [
 export default function TranscriptGenerator() {
   const [keywords, setKeywords] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([
-    "viral",
-    "emotional",
-  ]);
+  const [selectedStyle, setSelectedStyle] = useState("viral");
   const [selectedPlatform, setSelectedPlatform] = useState("wechat");
   const [selectedLanguage, setSelectedLanguage] = useState("chinese");
   const [wordCount, setWordCount] = useState(500);
