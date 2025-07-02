@@ -44,7 +44,7 @@ const supportedPlatforms = [
 const scriptTypes = [
   { id: "tutorial", name: "教程脚本", description: "知识分享类内容" },
   { id: "vlog", name: "生活vlog", description: "日常生活记录" },
-  { id: "review", name: "产品测评", description: "商品评测介绍" },
+  { id: "review", name: "产品测��", description: "商品评测介绍" },
   { id: "story", name: "故事剧情", description: "情节叙事类" },
   { id: "interview", name: "采访对话", description: "访谈问答形式" },
   { id: "promotion", name: "营销推广", description: "品牌宣传类" },
@@ -79,7 +79,7 @@ const generatedScripts = [
 
 【总结】（7秒）
 镜头：面向镜头
-台词：总体来说性价比很高，推荐给大家！记得点赞收藏哦~`,
+台词：总体���说性价比很高，推荐给大家！记得点赞收藏哦~`,
     platform: "抖音",
     type: "产品测评",
     duration: "1分钟",
@@ -104,7 +104,7 @@ const generatedScripts = [
 镜头：完整妆容展示
 台词：完成！是不是很简单？快学起来吧！`,
     platform: "小红书",
-    type: "教程脚��",
+    type: "教程脚本",
     duration: "1分钟",
     score: 88,
   },
@@ -118,7 +118,8 @@ export default function ShootingScriptGenerator() {
   const [selectedPlatform, setSelectedPlatform] = useState("douyin");
   const [selectedType, setSelectedType] = useState("tutorial");
   const [selectedDuration, setSelectedDuration] = useState("short");
-  const [targetAudience, setTargetAudience] = useState("");
+  const [targetAge, setTargetAge] = useState("");
+  const [targetGender, setTargetGender] = useState("");
   const [specialRequirements, setSpecialRequirements] = useState("");
   const [results, setResults] = useState(generatedScripts);
 
