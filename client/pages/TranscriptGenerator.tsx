@@ -161,10 +161,6 @@ export default function TranscriptGenerator() {
             <Settings className="mr-2 h-3.5 w-3.5" />
             设置
           </Button>
-          <Button size="sm" className="h-8 brand-accent">
-            <TrendingUp className="mr-2 h-3.5 w-3.5" />
-            热点词库
-          </Button>
         </div>
       }
     >
