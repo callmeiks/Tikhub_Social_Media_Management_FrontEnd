@@ -262,30 +262,28 @@ export default function TranscriptGenerator() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Copy Style Selection */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <label className="text-sm font-medium">文案风格</label>
-                  <div className="space-y-2">
-                    {copywritingStyles.map((style) => (
-                      <Button
-                        key={style.id}
-                        variant={
-                          selectedStyles.includes(style.id)
-                            ? "default"
-                            : "outline"
-                        }
-                        size="sm"
-                        className="w-full h-auto p-3 text-xs justify-start"
-                        onClick={() => toggleStyle(style.id)}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">{style.name}</div>
-                          <div className="text-xs text-muted-foreground opacity-70">
-                            {style.description}
+                  <Select
+                    value={selectedStyle}
+                    onValueChange={setSelectedStyle}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {copywritingStyles.map((style) => (
+                        <SelectItem key={style.id} value={style.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{style.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {style.description}
+                            </span>
                           </div>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Language Selection */}
