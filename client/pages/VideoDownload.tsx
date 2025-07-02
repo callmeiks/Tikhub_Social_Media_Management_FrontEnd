@@ -332,6 +332,8 @@ https://www.bilibili.com/video/BV1234567890
                           { id: "tiktok", name: "TikTok", emoji: "🎵" },
                           { id: "youtube", name: "YouTube", emoji: "📹" },
                           { id: "bilibili", name: "B站", emoji: "📺" },
+                          { id: "xigua", name: "西瓜", emoji: "🍉" },
+                          { id: "pipixia", name: "皮皮虾", emoji: "🦐" },
                         ].map((platform) => (
                           <Button
                             key={platform.id}
