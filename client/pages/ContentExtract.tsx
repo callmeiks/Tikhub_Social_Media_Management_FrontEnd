@@ -88,7 +88,7 @@ const extractedContent = {
 };
 
 export default function ContentExtract() {
-  const [inputUrl, setInputUrl] = useState("");
+  const [batchUrls, setBatchUrls] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("url");
