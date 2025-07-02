@@ -50,7 +50,7 @@ const generatedTitles = [
     tags: ["情感", "年龄", "护肤"],
   },
   {
-    title: "90%的人都不知道的护肤误区，你中招了吗？",
+    title: "90%的人都不知道的护肤误区��你中招了吗？",
     score: 88,
     tags: ["数字", "疑问", "护肤"],
   },
@@ -81,6 +81,7 @@ const exampleKeywords = [
 export default function TitleGenerator() {
   const [inputText, setInputText] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [titleCount, setTitleCount] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePlatform, setActivePlatform] = useState("wechat");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
@@ -95,7 +96,7 @@ export default function TitleGenerator() {
     setIsGenerating(true);
     // 模拟API调用
     setTimeout(() => {
-      // 这里可以添加实际的标题生成逻辑
+      // 这里可以添���实际的标题生成逻辑
       setResults([
         ...generatedTitles.map((title) => ({
           ...title,
@@ -396,7 +397,7 @@ export default function TitleGenerator() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-muted-foreground flex items-center">
                       <Hash className="mr-1 h-3 w-3" />
-                      关键词密度
+                      关键词��度
                     </span>
                     <span className="text-xs font-medium">88%</span>
                   </div>
