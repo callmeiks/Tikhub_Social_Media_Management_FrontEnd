@@ -108,7 +108,32 @@ const creatorTools = [
     icon: Type,
     href: "/creator-tools/title-generator",
     popular: true,
-    features: ["智能生成", "A/B测��", "热点融合", "平台优化"],
+    features: ["智能生成", "A/B测试", "热点融合", "平台优化"],
+  },
+  {
+    title: "拍摄脚本生成",
+    description: "智能生成视频拍摄脚本，提供完整的拍摄方案",
+    icon: FileText,
+    href: "/creator-tools/shooting-script",
+    popular: false,
+    features: ["脚本生成", "分镜头", "台词对话", "拍摄指导"],
+  },
+  {
+    title: "AI视频生成",
+    description: "使用AI技术生成原创视频内容，创新创作方式",
+    icon: Zap,
+    href: "/creator-tools/ai-video",
+    popular: false,
+    badge: "NEW",
+    features: ["AI生成", "模板库", "素材管理", "一键发布"],
+  },
+  {
+    title: "封面图制作",
+    description: "AI驱动的封面图设计工具，快速生成吸引眼球的封面",
+    icon: Image,
+    href: "/creator-tools/image-recreation",
+    popular: true,
+    features: ["AI设计", "模板库", "文字添加", "风格转换"],
   },
   {
     title: "违禁词查询",
@@ -133,15 +158,6 @@ const creatorTools = [
     href: "/creator-tools/content-extract",
     popular: false,
     features: ["智能提取", "OCR识别", "自动分类", "格式导出"],
-  },
-  {
-    title: "AI视频生成",
-    description: "使用AI技术生成原创视频内容，创新创作方式",
-    icon: Zap,
-    href: "/creator-tools/ai-video",
-    popular: false,
-    badge: "NEW",
-    features: ["AI生成", "模板库", "素材管理", "一键发布"],
   },
 ];
 
@@ -213,7 +229,7 @@ const kolAnalysisFeatures = [
     metrics: ["预期曝光", "转化率", "ROI预测", "风险评估"],
   },
   {
-    title: "竞品KOL分析",
+    title: "竞���KOL分析",
     description: "分析竞品的KOL合作策略",
     icon: BarChart3,
     metrics: ["合作频次", "投放成本", "效果对比", "策略洞察"],
