@@ -45,7 +45,6 @@ const downloadQueue = [
     progress: 100,
     fileSize: "15.2 MB",
     duration: "00:32",
-    quality: "1080p",
   },
   {
     id: 2,
@@ -56,7 +55,6 @@ const downloadQueue = [
     progress: 65,
     fileSize: "23.8 MB",
     duration: "01:15",
-    quality: "720p",
   },
   {
     id: 3,
@@ -67,7 +65,6 @@ const downloadQueue = [
     progress: 0,
     fileSize: "25.8 MB",
     duration: "03:32",
-    quality: "1080p",
   },
   {
     id: 4,
@@ -78,7 +75,6 @@ const downloadQueue = [
     progress: 0,
     fileSize: "45.2 MB",
     duration: "05:30",
-    quality: "1080p",
   },
 ];
 
@@ -454,7 +450,6 @@ https://www.bilibili.com/video/BV1234567890
                           <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                             <span>{item.platform}</span>
                             <span>{item.duration}</span>
-                            <span>{item.quality}</span>
                             <span>{item.fileSize}</span>
                           </div>
                         </div>
