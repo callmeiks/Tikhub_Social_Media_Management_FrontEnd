@@ -61,12 +61,12 @@ const menuItems: MenuItem[] = [
       { title: "拍摄脚本生成", href: "/creator-tools/shooting-script" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
-      { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
       { title: "视频下载", href: "/creator-tools/video-download" },
       { title: "图文提取", href: "/creator-tools/content-extract" },
       { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
+      { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
     ],
   },
   {
@@ -83,7 +83,7 @@ const menuItems: MenuItem[] = [
       { title: "DY粉丝数组成查询", href: "/data-collection/fans-analysis" },
       { title: "作品互动数查询", href: "/data-collection/content-interaction" },
       { title: "关键词作品查询", href: "/data-collection/keyword-content" },
-      { title: "关键词账号查询", href: "/data-collection/keyword-accounts" },
+      { title: "关键���账号查询", href: "/data-collection/keyword-accounts" },
     ],
   },
   {
