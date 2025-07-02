@@ -113,12 +113,8 @@ export default function TitleGenerator() {
     setInputText(example);
   };
 
-  const toggleTitleType = (typeId: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(typeId)
-        ? prev.filter((id) => id !== typeId)
-        : [...prev, typeId],
-    );
+  const selectTitleType = (typeId: string) => {
+    setSelectedType(typeId);
   };
 
   const getScoreColor = (score: number) => {
@@ -194,7 +190,7 @@ export default function TitleGenerator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea
-                  placeholder="请输入内容，点击生成标题，将会自动生成50个标题（请不要重复输入太过相似的内容）"
+                  placeholder="请��入内容，点击生成标题，将会自动生成50个标题（请不要重复输入太过相似的内容）"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   className="min-h-[120px] resize-none border-0 p-0 focus-visible:ring-0"
