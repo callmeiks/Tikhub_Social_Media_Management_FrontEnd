@@ -33,26 +33,48 @@ const contentStyles = [
 ];
 
 const rewriteOptions = [
-  { id: "tone", name: "语调调整", options: ["正式", "轻松", "幽默", "专业"] },
-  { id: "length", name: "长度控制", options: ["精简", "标准", "详细", "扩展"] },
+  { id: "tone", name: "语调调整", options: [
+    { value: "formal", label: "正式" },
+    { value: "casual", label: "轻松" },
+    { value: "humorous", label: "幽默" },
+    { value: "professional", label: "专业" }
+  ]},
+  { id: "length", name: "长度控制", options: [
+    { value: "concise", label: "精简" },
+    { value: "standard", label: "标准" },
+    { value: "detailed", label: "详细" },
+    { value: "extended", label: "扩展" }
+  ]},
   {
     id: "style",
     name: "风格类型",
     options: [
-      { value: "爆款文案", description: "高传播性，容易走红" },
-      { value: "情感文案", description: "引发情感共鸣" },
-      { value: "悬念文案", description: "制造悬念，吸引观看" },
-      { value: "教程文案", description: "实用干货分享" },
-      { value: "故事文案", description: "叙事性强，引人入胜" },
-      { value: "热点文案", description: "结合当下热点话题" },
+      { value: "viral", label: "爆款文案", description: "高传播性，容易走红" },
+      { value: "emotional", label: "情感文案", description: "引发情感共鸣" },
+      { value: "suspense", label: "悬念文案", description: "制造悬念，吸引观看" },
+      { value: "tutorial", label: "教程文案", description: "实用干货分享" },
+      { value: "story", label: "故事文案", description: "叙事性强，引人入胜" },
+      { value: "trending", label: "热点文案", description: "结合当下热点话题" },
     ],
   },
   {
     id: "track",
     name: "赛道类型",
-    options: ["美妆", "健身", "美食", "科技", "教育", "娱乐", "旅行", "时尚"],
+    options: [
+      { value: "beauty", label: "美妆" },
+      { value: "fitness", label: "健身" },
+      { value: "food", label: "美食" },
+      { value: "tech", label: "科技" },
+      { value: "education", label: "教育" },
+      { value: "entertainment", label: "娱乐" },
+      { value: "travel", label: "旅行" },
+      { value: "fashion", label: "时尚" }
+    ],
   },
-  { id: "language", name: "语言", options: ["中文", "英文"] },
+  { id: "language", name: "语言", options: [
+    { value: "chinese", label: "中文" },
+    { value: "english", label: "英文" }
+  ]},
 ];
 
 const exampleTexts = [
@@ -67,11 +89,11 @@ export default function ContentRewrite() {
   const [isRewriting, setIsRewriting] = useState(false);
   const [activeStyle, setActiveStyle] = useState("xiaohongshu");
   const [selectedOptions, setSelectedOptions] = useState({
-    tone: "轻松",
-    length: "标准",
-    style: "爆款文案",
-    track: "美妆",
-    language: "中文",
+    tone: "casual",
+    length: "standard",
+    style: "viral",
+    track: "beauty",
+    language: "chinese",
   });
 
   const handleRewrite = async () => {
@@ -322,9 +344,10 @@ export default function ContentRewrite() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {option.options.map((opt) => {
+                          {option.options.map((opt: any) => {
                             const isObject = typeof opt === "object";
                             const optValue = isObject ? opt.value : opt;
+                            const optLabel = isObject ? opt.label : opt;
                             const optDescription = isObject
                               ? opt.description
                               : null;
@@ -333,7 +356,7 @@ export default function ContentRewrite() {
                               <SelectItem key={optValue} value={optValue}>
                                 <div className="flex flex-col">
                                   <span className="font-medium">
-                                    {optValue}
+                                    {optLabel}
                                   </span>
                                   {optDescription && (
                                     <span className="text-xs text-muted-foreground">
@@ -349,9 +372,11 @@ export default function ContentRewrite() {
                     ) : (
                       /* Use buttons for other options */
                       <div className="grid grid-cols-2 gap-1">
-                        {option.options.map((opt) => {
+                        {option.options.map((opt: any) => {
                           const optValue =
                             typeof opt === "object" ? opt.value : opt;
+                          const optLabel =
+                            typeof opt === "object" ? opt.label : opt;
 
                           return (
                             <Button
@@ -372,7 +397,7 @@ export default function ContentRewrite() {
                                 }))
                               }
                             >
-                              {optValue}
+                              {optLabel}
                             </Button>
                           );
                         })}
