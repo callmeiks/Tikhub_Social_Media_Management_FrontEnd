@@ -94,15 +94,27 @@ export default function ContentExtract() {
   const [activeTab, setActiveTab] = useState("url");
 
   const handleExtract = async () => {
-    if (!inputUrl.trim()) {
-      alert("请输入小红书链接");
+    const urls = batchUrls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    if (urls.length === 0) {
+      alert("请输入至少一个笔记链接");
       return;
     }
 
-    if (
-      !inputUrl.includes("xiaohongshu.com") &&
-      !inputUrl.includes("xhslink.com")
-    ) {
+    if (urls.length > 20) {
+      alert("最多支持20个链接，请减少链接数量");
+      return;
+    }
+
+    // 验证链接格式
+    const invalidUrls = urls.filter(
+      (url) => !url.includes("xiaohongshu.com") && !url.includes("xhslink.com"),
+    );
+
+    if (invalidUrls.length > 0) {
       alert("请输入有效的小红书链接");
       return;
     }
