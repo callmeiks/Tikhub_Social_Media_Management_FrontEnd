@@ -84,10 +84,7 @@ export default function TitleGenerator() {
   const [titleCount, setTitleCount] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePlatform, setActivePlatform] = useState("wechat");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "trending",
-    "emotional",
-  ]);
+  const [selectedType, setSelectedType] = useState("trending");
   const [results, setResults] = useState(generatedTitles);
 
   const handleGenerate = async () => {
