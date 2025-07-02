@@ -39,7 +39,7 @@ const supportedPlatforms = [
   { id: "zhihu", name: "知乎", emoji: "🤔", active: true },
   { id: "douyin", name: "抖音", emoji: "🎵", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
-  { id: "xiaohongshu", name: "小���书", emoji: "📕", active: true },
+  { id: "xiaohongshu", name: "小红书", emoji: "📕", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎬", active: true },
   { id: "other", name: "其他", emoji: "📝", active: true },
 ];
