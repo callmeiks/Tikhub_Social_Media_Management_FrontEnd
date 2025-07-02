@@ -71,7 +71,7 @@ const generatedCopies = [
   {
     id: 1,
     content:
-      "今天教大家一个超实用的护肤小技巧！👀 这个方法我用了3年，皮肤真的越来��好！姐妹们快来学起来~ #护肤小技巧 #美容 #干货分享",
+      "今天教大家一个超实用的护肤小技巧！👀 这个方法我用了3年，皮肤真的越来越好！姐妹们快来学起来~ #护肤小技巧 #美容 #干货分享",
     style: "教程文案",
     platform: "抖音",
     engagement: "预计互动率: 8.5%",
@@ -186,9 +186,9 @@ export default function TranscriptGenerator() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Input Section - Left Side */}
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Input Section */}
+          <div className="lg:col-span-2">
             <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
@@ -201,18 +201,32 @@ export default function TranscriptGenerator() {
                   </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Textarea
-                    placeholder="📝 三种输入方式任选其一：&#10;&#10;1️⃣ 关键词输入&#10;   产品发布会、会议纪要、营销方案&#10;   演讲稿、项目报告、培训资料&#10;&#10;2️⃣ 文稿描述输入&#10;   我需要写一份关于新产品发布的演讲稿...&#10;   帮我准备一个项目汇报的PPT大纲...&#10;&#10;3️⃣ 现有草稿输入&#10;   把您已有的文稿草稿粘贴进来，AI会帮您优化完善&#10;&#10;💡 支持最多2000字符，AI会根据内容自动识别并生成对应的文稿"
-                    value={keywords}
-                    onChange={(e) => setKeywords(e.target.value)}
-                    className="min-h-[400px] resize-none"
-                    maxLength={2000}
-                  />
+              <CardContent>
+                <div className="mb-3">
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      关键词输入
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                      文稿描述
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                      现有草稿
+                    </span>
+                  </div>
                 </div>
+                <Textarea
+                  placeholder="📝 三种输入方式任选其一：&#10;&#10;1️⃣ 关键词输入&#10;   产品发布会、会议纪要、营销方案&#10;   演讲稿、项目报告、培训资料&#10;&#10;2️⃣ 文稿描述输入&#10;   我需要写一份关于新产品发布的演讲稿...&#10;   帮我准备一个项目汇报的PPT大纲...&#10;&#10;3️⃣ 现有草稿输入&#10;   把您已有的文稿草稿粘贴进来，AI会帮您优化完善&#10;&#10;💡 支持最多2000字符，AI会根据内容自动识别并生成对应的文稿"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                  className="min-h-[320px] resize-none border-0 p-0 focus-visible:ring-0"
+                  maxLength={2000}
+                />
 
-                <div className="flex items-center justify-between pt-4 border-t border-border">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                   <div className="flex space-x-2">
                     <Button
                       variant="outline"
@@ -242,33 +256,93 @@ export default function TranscriptGenerator() {
                     </Button>
                   </div>
 
-                  <div className="text-xs text-muted-foreground">
-                    <Zap className="inline h-3 w-3 mr-1" />
-                    AI智能生成
+                  <div className="flex space-x-1">
+                    {["产品发布会演讲稿", "项目汇报大纲", "培训课程内容"].map(
+                      (example, index) => (
+                        <Button
+                          key={index}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setKeywords(example)}
+                          className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          示例{index + 1}
+                        </Button>
+                      ),
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Output Section */}
+            {(showResults || isGenerating) && (
+              <Card className="border border-border mt-4">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span className="flex items-center">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      生成结果
+                    </span>
+                    {showResults && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          navigator.clipboard.writeText("生成的文稿内��")
+                        }
+                        className="h-6"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isGenerating ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="flex items-center space-x-2">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">
+                          AI正在生成文稿...
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="min-h-[200px] p-3 bg-muted/30 rounded-md">
+                      <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
+                        {showResults
+                          ? `【AI生成文稿】
+
+基于您输入的内容"${keywords.substring(0, 50)}${keywords.length > 50 ? "..." : ""}"
+
+已为您生成适合${selectedPlatform}平台的${selectedStyle}风格文稿，使用${selectedLanguage === "chinese" ? "中文" : "英文"}语言，字数约${wordCount}字，针对${selectedTrack}赛道优化。
+
+生成的文���内容将在这里显示...`
+                          : ""}
+                      </pre>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
-          {/* Options Panel - Right Side */}
-          <div className="lg:col-span-1">
+          {/* Settings Panel */}
+          <div className="space-y-4">
+            {/* Generation Options */}
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Settings className="mr-2 h-4 w-4" />
-                  生成选项
-                </CardTitle>
+                <CardTitle className="text-base">生成选项</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Copy Style Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">文案风格</label>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">文稿风格</p>
                   <Select
                     value={selectedStyle}
                     onValueChange={setSelectedStyle}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -286,31 +360,27 @@ export default function TranscriptGenerator() {
                   </Select>
                 </div>
 
-                {/* Language Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">语言</label>
-                  <Select
-                    value={selectedLanguage}
-                    onValueChange={setSelectedLanguage}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languageOptions.map((lang) => (
-                        <SelectItem key={lang.id} value={lang.id}>
-                          <span className="flex items-center gap-2">
-                            {lang.emoji} {lang.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div>
+                  <p className="text-sm font-medium mb-2">语言</p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {languageOptions.map((lang) => (
+                      <Button
+                        key={lang.id}
+                        variant={
+                          selectedLanguage === lang.id ? "default" : "outline"
+                        }
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setSelectedLanguage(lang.id)}
+                      >
+                        {lang.emoji} {lang.name}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Word Count Input */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">字数要求</label>
+                <div>
+                  <p className="text-sm font-medium mb-2">字数要求</p>
                   <Input
                     type="number"
                     value={wordCount}
@@ -320,19 +390,18 @@ export default function TranscriptGenerator() {
                     placeholder="输入字数"
                     className="w-full"
                   />
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground mt-1">
                     建议100-5000字
                   </div>
                 </div>
 
-                {/* Track Type Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">赛道类型</label>
+                <div>
+                  <p className="text-sm font-medium mb-2">赛道类型</p>
                   <Select
                     value={selectedTrack}
                     onValueChange={setSelectedTrack}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
