@@ -190,7 +190,7 @@ export default function TitleGenerator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea
-                  placeholder="请��入内容，点击生成标题，将会自动生成50个标题（请不要重复输入太过相似的内容）"
+                  placeholder="请输入内容，点击生成标题，将会自动生成50个标题（请不要重复输入太过相似的内容）"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   className="min-h-[120px] resize-none border-0 p-0 focus-visible:ring-0"
@@ -205,13 +205,11 @@ export default function TitleGenerator() {
                       <Button
                         key={type.id}
                         variant={
-                          selectedTypes.includes(type.id)
-                            ? "default"
-                            : "outline"
+                          selectedType === type.id ? "default" : "outline"
                         }
                         size="sm"
                         className="h-8 text-xs justify-start"
-                        onClick={() => toggleTitleType(type.id)}
+                        onClick={() => selectTitleType(type.id)}
                       >
                         {type.name}
                       </Button>
