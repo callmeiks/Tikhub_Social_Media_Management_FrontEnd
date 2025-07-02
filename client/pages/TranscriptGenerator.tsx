@@ -71,7 +71,7 @@ const generatedCopies = [
   {
     id: 1,
     content:
-      "今天教大家一个超实用的护肤小技巧！👀 这个方法我用了3年，皮肤真的越来越好！姐妹们快来学起来~ #护肤小技巧 #美容 #干货分享",
+      "今天教大家一个超实用的护肤小技巧！👀 这个方法我用了3年，皮肤真的越来��好！姐妹们快来学起来~ #护肤小技巧 #美容 #干货分享",
     style: "教程文案",
     platform: "抖音",
     engagement: "预计互动率: 8.5%",
@@ -480,40 +480,6 @@ export default function TranscriptGenerator() {
                   >
                     🎉 每日获得总数100次权限
                   </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Keywords */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Hash className="mr-2 h-4 w-4" />
-                  热门关���词
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "护肤技巧",
-                    "美食制作",
-                    "旅行攻略",
-                    "穿搭分享",
-                    "健身减肥",
-                    "学习方法",
-                    "职场技能",
-                    "副业赚钱",
-                  ].map((keyword) => (
-                    <Button
-                      key={keyword}
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => setKeywords(keyword)}
-                    >
-                      {keyword}
-                    </Button>
-                  ))}
                 </div>
               </CardContent>
             </Card>
