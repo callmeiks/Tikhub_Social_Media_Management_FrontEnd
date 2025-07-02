@@ -48,7 +48,7 @@ const copywritingStyles = [
   { id: "viral", name: "爆款文案", description: "高传播性，容易走红" },
   { id: "emotional", name: "情感文案", description: "引发情感共鸣" },
   { id: "suspense", name: "悬念文案", description: "制造悬念，吸引观看" },
-  { id: "tutorial", name: "教程文案", description: "实用干货分享" },
+  { id: "tutorial", name: "教程文���", description: "实用干货分享" },
   { id: "story", name: "故事文案", description: "叙事性强，引人入胜" },
   { id: "trendy", name: "热点文案", description: "结合当下热点话题" },
 ];
@@ -197,15 +197,15 @@ export default function TranscriptGenerator() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Input Section */}
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Input Section - Left Side */}
+          <div className="lg:col-span-3">
             <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Hash className="mr-2 h-4 w-4" />
-                    内容描述
+                    内容输入
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {keywords.length}/2000
@@ -214,110 +214,13 @@ export default function TranscriptGenerator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    输入内容（关键词/文稿描述/现有草稿）
-                  </label>
                   <Textarea
                     placeholder="📝 三种输入方式任选其一：&#10;&#10;1️⃣ 关键词输入&#10;   产品发布会、会议纪要、营销方案&#10;   演讲稿、项目报告、培训资料&#10;&#10;2️⃣ 文稿描述输入&#10;   我需要写一份关于新产品发布的演讲稿...&#10;   帮我准备一个项目汇报的PPT大纲...&#10;&#10;3️⃣ 现有草稿输入&#10;   把您已有的文稿草稿粘贴进来，AI会帮您优化完善&#10;&#10;💡 支持最多2000字符，AI会根据内容自动识别并生成对应的文稿"
                     value={keywords}
                     onChange={(e) => setKeywords(e.target.value)}
-                    className="min-h-[120px] resize-none"
+                    className="min-h-[400px] resize-none"
                     maxLength={2000}
                   />
-                </div>
-
-                {/* Copy Style Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">文案风格</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {copywritingStyles.map((style) => (
-                      <Button
-                        key={style.id}
-                        variant={
-                          selectedStyles.includes(style.id)
-                            ? "default"
-                            : "outline"
-                        }
-                        size="sm"
-                        className="h-auto p-2 text-xs justify-start"
-                        onClick={() => toggleStyle(style.id)}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">{style.name}</div>
-                          <div className="text-xs text-muted-foreground opacity-70">
-                            {style.description}
-                          </div>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Additional Options */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Language Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">语言</label>
-                    <Select
-                      value={selectedLanguage}
-                      onValueChange={setSelectedLanguage}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languageOptions.map((lang) => (
-                          <SelectItem key={lang.id} value={lang.id}>
-                            <span className="flex items-center gap-2">
-                              {lang.emoji} {lang.name}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Word Count Input */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">字数要求</label>
-                    <Input
-                      type="number"
-                      value={wordCount}
-                      onChange={(e) => setWordCount(Number(e.target.value))}
-                      min={100}
-                      max={5000}
-                      placeholder="输入字数"
-                      className="w-full"
-                    />
-                    <div className="text-xs text-muted-foreground">
-                      建议100-5000字
-                    </div>
-                  </div>
-
-                  {/* Track Type Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">赛道类型</label>
-                    <Select
-                      value={selectedTrack}
-                      onValueChange={setSelectedTrack}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {trackTypes.map((track) => (
-                          <SelectItem key={track.id} value={track.id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{track.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {track.description}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-border">
@@ -334,7 +237,7 @@ export default function TranscriptGenerator() {
                       ) : (
                         <Sparkles className="mr-2 h-3.5 w-3.5" />
                       )}
-                      {isGenerating ? "生成中..." : "生成文案"}
+                      {isGenerating ? "生成中..." : "生成文稿"}
                     </Button>
 
                     <Button
