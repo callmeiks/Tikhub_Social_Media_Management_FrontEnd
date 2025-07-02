@@ -133,14 +133,6 @@ export default function TranscriptGenerator() {
     navigator.clipboard.writeText(text);
   };
 
-  const toggleStyle = (styleId: string) => {
-    setSelectedStyles((prev) =>
-      prev.includes(styleId)
-        ? prev.filter((id) => id !== styleId)
-        : [...prev, styleId],
-    );
-  };
-
   const getScoreColor = (score: number) => {
     if (score >= 95) return "text-green-600";
     if (score >= 90) return "text-blue-600";
