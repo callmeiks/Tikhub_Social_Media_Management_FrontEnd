@@ -23,12 +23,15 @@ import {
   Eye,
 } from "lucide-react";
 
-const platformStyles = [
-  { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
-  { id: "wechat", name: "公众号", emoji: "💬", active: false },
-  { id: "douyin", name: "抖音", emoji: "🎤", active: false },
-  { id: "shipinhao", name: "视频号", emoji: "📱", active: false },
-  { id: "kuaishou", name: "快手", emoji: "⚡", active: false },
+const supportedPlatforms = [
+  { id: "wechat", name: "微信公众号", emoji: "💬", active: true },
+  { id: "csdn", name: "CSDN", emoji: "💻", active: true },
+  { id: "zhihu", name: "知乎", emoji: "🤔", active: true },
+  { id: "douyin", name: "抖音", emoji: "🎵", active: true },
+  { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
+  { id: "xiaohongshu", name: "小红书", emoji: "📕", active: true },
+  { id: "tiktok", name: "TikTok", emoji: "🎬", active: true },
+  { id: "other", name: "其他", emoji: "📝", active: true },
 ];
 
 const titleTypes = [
@@ -47,7 +50,7 @@ const generatedTitles = [
     tags: ["情感", "年龄", "护肤"],
   },
   {
-    title: "90%的人都不知道的护肤误区，你中招了吗？",
+    title: "90%的人都不知���的护肤误区，你中招了吗？",
     score: 88,
     tags: ["数字", "疑问", "护肤"],
   },
