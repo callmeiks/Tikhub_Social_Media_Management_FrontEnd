@@ -13,7 +13,7 @@ import TitleGenerator from "./pages/TitleGenerator";
 import ForbiddenWords from "./pages/ForbiddenWords";
 import VideoDownload from "./pages/VideoDownload";
 import ContentExtract from "./pages/ContentExtract";
-import ShortVideoCopy from "./pages/ShortVideoCopy";
+import TranscriptGenerator from "./pages/TranscriptGenerator";
 import VideoNoteExtract from "./pages/VideoNoteExtract";
 import AudioExtract from "./pages/AudioExtract";
 import AIVideoGeneration from "./pages/AIVideoGeneration";
@@ -56,7 +56,7 @@ const App = () => (
           />
           <Route
             path="/creator-tools/short-video-copy"
-            element={<ShortVideoCopy />}
+            element={<TranscriptGenerator />}
           />
           <Route
             path="/creator-tools/video-note-extract"

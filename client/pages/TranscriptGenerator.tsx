@@ -79,7 +79,7 @@ const generatedCopies = [
   },
 ];
 
-export default function ShortVideoCopy() {
+export default function TranscriptGenerator() {
   const [keywords, setKeywords] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([
