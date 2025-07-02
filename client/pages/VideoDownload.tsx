@@ -275,7 +275,7 @@ https://www.bilibili.com/video/BV1234567890
                     {urlCount > 50 && (
                       <div className="flex items-center space-x-2 text-red-600 text-sm">
                         <AlertTriangle className="h-4 w-4" />
-                        <span>链接数量超过限制，请删除多余的链接</span>
+                        <span>链接数量超过限制，请删���多余的链接</span>
                       </div>
                     )}
 
@@ -305,7 +305,7 @@ https://www.bilibili.com/video/BV1234567890
                           className="h-8"
                         >
                           <Trash2 className="mr-2 h-3.5 w-3.5" />
-                          清空
+                          ���空
                         </Button>
                       </div>
 
@@ -344,7 +344,7 @@ https://www.bilibili.com/video/BV1234567890
                             className="h-7 text-xs"
                             onClick={() => {
                               setSelectedPlatform(platform.id);
-                              // 如果切换到非抖音平台且当前选择了高画��，自动切换到标准
+                              // 如果切换到非抖音平台且当前选择了高画质，自动切换到标准
                               if (
                                 platform.id !== "douyin" &&
                                 settings.quality === "高画质"
@@ -446,25 +446,6 @@ https://www.bilibili.com/video/BV1234567890
                         className="text-xs"
                       />
                     </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">保留水印</span>
-                      <Button
-                        variant={
-                          settings.downloadWithWatermark ? "default" : "outline"
-                        }
-                        size="sm"
-                        className="h-6 w-12 text-xs"
-                        onClick={() =>
-                          setSettings((prev) => ({
-                            ...prev,
-                            downloadWithWatermark: !prev.downloadWithWatermark,
-                          }))
-                        }
-                      >
-                        {settings.downloadWithWatermark ? "是" : "否"}
-                      </Button>
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -476,7 +457,7 @@ https://www.bilibili.com/video/BV1234567890
                   <CardContent className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        已完成
+                        已完��
                       </span>
                       <span className="text-sm font-medium">
                         {completedCount}
