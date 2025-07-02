@@ -58,7 +58,7 @@ const menuItems: MenuItem[] = [
       { title: "文案生成", href: "/creator-tools/rewrite" },
       { title: "文稿生成", href: "/creator-tools/short-video-copy" },
       { title: "标题生成", href: "/creator-tools/title-generator" },
-      { title: "拍���脚本生成", href: "/creator-tools/shooting-script" },
+      { title: "拍摄脚本生成", href: "/creator-tools/shooting-script" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
       { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
@@ -115,7 +115,7 @@ const menuItems: MenuItem[] = [
       { title: "抖音挑战热点榜", href: "/hot-rankings/dy-challenge-trends" },
       { title: "抖音视频热榜", href: "/hot-rankings/dy-video-trends" },
       { title: "抖音低分爆款榜", href: "/hot-rankings/dy-low-score-viral" },
-      { title: "抖音高点赞率榜", href: "/hot-rankings/dy-high-like-rate" },
+      { title: "抖音高点赞��榜", href: "/hot-rankings/dy-high-like-rate" },
       {
         title: "抖音高完播率榜",
         href: "/hot-rankings/dy-high-completion-rate",
