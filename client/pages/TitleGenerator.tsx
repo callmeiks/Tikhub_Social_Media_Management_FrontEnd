@@ -297,7 +297,7 @@ export default function TitleGenerator() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Sparkles className="mr-2 h-4 w-4" />
-                    生成结果 ({results.length}个标题)
+                    生成结果 ({results.length}/{titleCount}个标题)
                   </span>
                   <Button variant="ghost" size="sm" className="h-6">
                     <RefreshCw className="h-3 w-3" />
