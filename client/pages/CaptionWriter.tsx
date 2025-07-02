@@ -83,7 +83,7 @@ const exampleTexts = [
   "今天给大家分享一个超级实用的生活小技巧，只要三步就能让你的皮肤变得水嫩光滑...",
 ];
 
-export default function ContentRewrite() {
+export default function CaptionWriter() {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [isRewriting, setIsRewriting] = useState(false);
