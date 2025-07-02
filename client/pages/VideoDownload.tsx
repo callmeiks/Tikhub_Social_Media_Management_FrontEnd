@@ -95,6 +95,7 @@ export default function VideoDownload() {
   const [activeTab, setActiveTab] = useState("batch");
   const [downloadList, setDownloadList] = useState(downloadQueue);
   const [settings, setSettings] = useState(downloadSettings);
+  const [selectedPlatform, setSelectedPlatform] = useState("douyin");
 
   const handleBatchProcess = async () => {
     const urls = batchUrls
