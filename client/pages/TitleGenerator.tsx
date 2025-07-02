@@ -200,17 +200,6 @@ export default function TitleGenerator() {
                   maxLength={2000}
                 />
 
-                {/* Keywords Input */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">关键词（可选）</label>
-                  <Input
-                    placeholder="输入关键词，用逗号分隔，如：护肤,美妆,分享"
-                    value={keywords}
-                    onChange={(e) => setKeywords(e.target.value)}
-                    className="border-border"
-                  />
-                </div>
-
                 {/* Title Type Selection */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">标题类型</label>
