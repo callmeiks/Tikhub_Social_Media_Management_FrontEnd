@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import CreatorTools from "./pages/CreatorTools";
 import CaptionWriter from "./pages/CaptionWriter";
 import TitleGenerator from "./pages/TitleGenerator";
+import ShootingScriptGenerator from "./pages/ShootingScriptGenerator";
 import ForbiddenWords from "./pages/ForbiddenWords";
 import VideoDownload from "./pages/VideoDownload";
 import ContentExtract from "./pages/ContentExtract";
