@@ -40,7 +40,7 @@ const titleTypes = [
   { id: "curiosity", name: "悬念标题", description: "激发好奇心" },
   { id: "practical", name: "实用标题", description: "突出实用价值" },
   { id: "numbers", name: "数字标题", description: "使用具体数字" },
-  { id: "question", name: "疑问标题", description: "引��思考" },
+  { id: "question", name: "疑问标题", description: "引发思考" },
 ];
 
 const generatedTitles = [
@@ -266,6 +266,7 @@ export default function TitleGenerator() {
                       onClick={() => {
                         setInputText("");
                         setKeywords("");
+                        setTitleCount(10);
                       }}
                       className="h-8"
                     >
