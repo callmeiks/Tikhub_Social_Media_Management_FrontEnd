@@ -39,7 +39,7 @@ const supportedPlatforms = [
   { id: "zhihu", name: "知乎", emoji: "🤔", active: true },
   { id: "douyin", name: "抖音", emoji: "🎵", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
-  { id: "xiaohongshu", name: "小红书", emoji: "📕", active: true },
+  { id: "xiaohongshu", name: "小���书", emoji: "📕", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎬", active: true },
   { id: "other", name: "其他", emoji: "📝", active: true },
 ];
@@ -254,6 +254,73 @@ export default function TranscriptGenerator() {
                         </div>
                       </Button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Additional Options */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Language Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">语言</label>
+                    <Select
+                      value={selectedLanguage}
+                      onValueChange={setSelectedLanguage}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languageOptions.map((lang) => (
+                          <SelectItem key={lang.id} value={lang.id}>
+                            <span className="flex items-center gap-2">
+                              {lang.emoji} {lang.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Word Count Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">字数要求</label>
+                    <Input
+                      type="number"
+                      value={wordCount}
+                      onChange={(e) => setWordCount(Number(e.target.value))}
+                      min={100}
+                      max={5000}
+                      placeholder="输入字数"
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      建议100-5000字
+                    </div>
+                  </div>
+
+                  {/* Track Type Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">赛道类型</label>
+                    <Select
+                      value={selectedTrack}
+                      onValueChange={setSelectedTrack}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {trackTypes.map((track) => (
+                          <SelectItem key={track.id} value={track.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{track.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {track.description}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
