@@ -44,7 +44,7 @@ const supportedPlatforms = [
 const scriptTypes = [
   { id: "tutorial", name: "教程脚本", description: "知识分享类内容" },
   { id: "vlog", name: "生活vlog", description: "日常生活记录" },
-  { id: "review", name: "产品测评", description: "商品评测介���" },
+  { id: "review", name: "产品测评", description: "商品评测介绍" },
   { id: "story", name: "故事剧情", description: "情节叙事类" },
   { id: "interview", name: "采访对话", description: "访谈问答形式" },
   { id: "promotion", name: "营销推广", description: "品牌宣传类" },
@@ -235,7 +235,7 @@ export default function ShootingScriptGenerator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea
-                  placeholder="请描述您要制作的视频内容主题，越详细越好，例如：&#10;&#10;• 日常护肤步骤分享，适合初学者&#10;• 10分钟快手早餐制作教程&#10;• 秋��穿搭推荐，职场风格&#10;• 周末短途旅行vlog，海边度假"
+                  placeholder="请描述您要制作的视频内容主题，越详细越好，例如：&#10;&#10;• 日常护肤步骤分享，适合初学者&#10;• 10分钟快手早餐制作教程&#10;• 秋季穿搭推荐，职场风格&#10;• 周末短途旅行vlog，海边度假"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   className="min-h-[120px] resize-none border-0 p-0 focus-visible:ring-0"
@@ -367,8 +367,8 @@ export default function ShootingScriptGenerator() {
                       size="sm"
                       onClick={() => {
                         setTopic("");
-                        setTargetAge("");
-                        setTargetGender("");
+                        setTargetAge("all");
+                        setTargetGender("all");
                         setSpecialRequirements("");
                       }}
                       className="h-8"
