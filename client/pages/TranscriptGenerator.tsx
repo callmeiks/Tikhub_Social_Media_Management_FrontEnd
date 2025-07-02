@@ -46,6 +46,20 @@ const copywritingStyles = [
   { id: "trendy", name: "热点文案", description: "结合当下热点话题" },
 ];
 
+const languageOptions = [
+  { id: "chinese", name: "中文", emoji: "🇨🇳" },
+  { id: "english", name: "英文", emoji: "🇺🇸" },
+];
+
+const trackTypes = [
+  { id: "general", name: "通用", description: "适用于各种场景" },
+  { id: "business", name: "商务", description: "商业演讲、报告" },
+  { id: "tech", name: "科技", description: "技术分享、产品介绍" },
+  { id: "education", name: "教育", description: "培训、教学内容" },
+  { id: "marketing", name: "营销", description: "推广、宣传文案" },
+  { id: "entertainment", name: "娱乐", description: "娱乐、文艺内容" },
+];
+
 const generatedCopies = [
   {
     id: 1,
@@ -411,7 +425,7 @@ export default function TranscriptGenerator() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center">
                   <Hash className="mr-2 h-4 w-4" />
-                  热门关键词
+                  热门关���词
                 </CardTitle>
               </CardHeader>
               <CardContent>
