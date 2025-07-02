@@ -65,7 +65,7 @@ const extractedContent = {
     },
     {
       url: "https://cdn.xiaohongshu.com/image3.jpg",
-      description: "使用前后��比",
+      description: "使用前后对比",
       size: "750x1000",
     },
     {
@@ -264,13 +264,30 @@ https://www.xiaohongshu.com/discovery/item/987654321
                   </TabsContent>
                 </Tabs>
 
+                {batchUrls.split("\n").filter((url) => url.trim().length > 0)
+                  .length > 20 && (
+                  <div className="flex items-center space-x-2 text-red-600 text-sm">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>链接数量超过限制，请删除多余的链接</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleExtract}
-                      disabled={!inputUrl.trim() || isExtracting}
+                      disabled={
+                        batchUrls
+                          .split("\n")
+                          .filter((url) => url.trim().length > 0).length ===
+                          0 ||
+                        batchUrls
+                          .split("\n")
+                          .filter((url) => url.trim().length > 0).length > 20 ||
+                        isExtracting
+                      }
                       className="h-8"
                     >
                       {isExtracting ? (
@@ -285,7 +302,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setInputUrl("");
+                        setBatchUrls("");
                         setShowResults(false);
                       }}
                       className="h-8"
@@ -295,8 +312,19 @@ https://www.xiaohongshu.com/discovery/item/987654321
                   </div>
 
                   <div className="text-xs text-muted-foreground">
-                    <Eye className="inline h-3 w-3 mr-1" />
-                    智能提取图文内容
+                    {batchUrls
+                      .split("\n")
+                      .filter((url) => url.trim().length > 0).length > 0 && (
+                      <span>
+                        检测到{" "}
+                        {
+                          batchUrls
+                            .split("\n")
+                            .filter((url) => url.trim().length > 0).length
+                        }{" "}
+                        个链接
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -502,7 +530,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     variant="secondary"
                     className="w-full justify-center text-xs"
                   >
-                    🎉 ��日免费额度 100篇
+                    🎉 今日免费额度 100篇
                   </Badge>
                 </div>
               </CardContent>
@@ -573,7 +601,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-xs text-muted-foreground">
-                  <p>�� 仅支持公开的小红书笔记</p>
+                  <p>• 仅支持公开的小红书笔记</p>
                   <p>• 支持完整链接和分享短链接</p>
                   <p>• 提取的内容仅供学习和参考</p>
                   <p>• 请遵守平台规定和版权法律</p>
