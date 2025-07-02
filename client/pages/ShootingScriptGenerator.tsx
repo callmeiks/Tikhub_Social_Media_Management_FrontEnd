@@ -340,7 +340,8 @@ export default function ShootingScriptGenerator() {
                       size="sm"
                       onClick={() => {
                         setTopic("");
-                        setTargetAudience("");
+                        setTargetAge("");
+                        setTargetGender("");
                         setSpecialRequirements("");
                       }}
                       className="h-8"
@@ -479,7 +480,7 @@ export default function ShootingScriptGenerator() {
                     variant="secondary"
                     className="w-full justify-center text-xs"
                   >
-                    🎬 每日免费额度 50次
+                    🎬 每��免费额度 50次
                   </Badge>
                 </div>
               </CardContent>
