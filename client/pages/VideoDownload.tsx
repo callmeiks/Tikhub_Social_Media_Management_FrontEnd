@@ -83,7 +83,6 @@ const downloadQueue = [
 ];
 
 const downloadSettings = {
-  quality: "标准",
   format: "mp4",
   downloadPath: "/Downloads/TikHub",
 };
