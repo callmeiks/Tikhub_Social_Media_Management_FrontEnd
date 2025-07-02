@@ -48,7 +48,7 @@ const copywritingStyles = [
   { id: "viral", name: "爆款文案", description: "高传播性，容易走红" },
   { id: "emotional", name: "情感文案", description: "引发情感共鸣" },
   { id: "suspense", name: "悬念文案", description: "制造悬念，吸引观看" },
-  { id: "tutorial", name: "教程文���", description: "实用干货分享" },
+  { id: "tutorial", name: "教程文案", description: "实用干货分享" },
   { id: "story", name: "故事文案", description: "叙事性强，引人入胜" },
   { id: "trendy", name: "热点文案", description: "结合当下热点话题" },
 ];
@@ -257,6 +257,110 @@ export default function TranscriptGenerator() {
                     <Zap className="inline h-3 w-3 mr-1" />
                     AI智能生成
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Options Panel - Right Side */}
+          <div className="lg:col-span-1">
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  生成选项
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Copy Style Selection */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">文案风格</label>
+                  <div className="space-y-2">
+                    {copywritingStyles.map((style) => (
+                      <Button
+                        key={style.id}
+                        variant={
+                          selectedStyles.includes(style.id)
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        className="w-full h-auto p-3 text-xs justify-start"
+                        onClick={() => toggleStyle(style.id)}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">{style.name}</div>
+                          <div className="text-xs text-muted-foreground opacity-70">
+                            {style.description}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Language Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">语言</label>
+                  <Select
+                    value={selectedLanguage}
+                    onValueChange={setSelectedLanguage}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languageOptions.map((lang) => (
+                        <SelectItem key={lang.id} value={lang.id}>
+                          <span className="flex items-center gap-2">
+                            {lang.emoji} {lang.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Word Count Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">字数要求</label>
+                  <Input
+                    type="number"
+                    value={wordCount}
+                    onChange={(e) => setWordCount(Number(e.target.value))}
+                    min={100}
+                    max={5000}
+                    placeholder="输入字数"
+                    className="w-full"
+                  />
+                  <div className="text-xs text-muted-foreground">
+                    建议100-5000字
+                  </div>
+                </div>
+
+                {/* Track Type Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">赛道类型</label>
+                  <Select
+                    value={selectedTrack}
+                    onValueChange={setSelectedTrack}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {trackTypes.map((track) => (
+                        <SelectItem key={track.id} value={track.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{track.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {track.description}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
