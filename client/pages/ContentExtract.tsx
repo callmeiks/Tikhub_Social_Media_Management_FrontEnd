@@ -27,7 +27,7 @@ import {
 
 const extractedContent = {
   title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
-  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到���合自己的护肤方法😭
+  content: `姐妹们好！今天来分享一下我的��肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到���合自己的护肤方法😭
 
 💡 我的肌肤状况：
 - 敏感肌，容易泛红
@@ -557,28 +557,12 @@ https://www.xiaohongshu.com/discovery/item/987654321
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">图片质量</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {["高清", "标准", "压缩"].map((quality) => (
-                      <Button
-                        key={quality}
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs"
-                      >
-                        {quality}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
                   <label className="text-sm font-medium">提取内容</label>
                   <div className="space-y-2">
                     {[
-                      { label: "图片", icon: ImageIcon },
-                      { label: "文字", icon: Type },
-                      { label: "标签", icon: LinkIcon },
+                      { label: "图片", icon: ImageIcon, key: "images" },
+                      { label: "文字", icon: Type, key: "text" },
+                      { label: "标签", icon: LinkIcon, key: "tags" },
                     ].map((item) => (
                       <div
                         key={item.label}
@@ -589,11 +573,27 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <span className="text-sm">{item.label}</span>
                         </div>
                         <Button
-                          variant="outline"
+                          variant={
+                            extractionSettings[
+                              item.key as keyof typeof extractionSettings
+                            ]
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           className="h-6 w-12 text-xs"
+                          onClick={() =>
+                            setExtractionSettings((prev) => ({
+                              ...prev,
+                              [item.key]: !prev[item.key as keyof typeof prev],
+                            }))
+                          }
                         >
-                          开启
+                          {extractionSettings[
+                            item.key as keyof typeof extractionSettings
+                          ]
+                            ? "开启"
+                            : "关闭"}
                         </Button>
                       </div>
                     ))}
