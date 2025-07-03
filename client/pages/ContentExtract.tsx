@@ -25,6 +25,49 @@ import {
   Folder,
 } from "lucide-react";
 
+const extractionQueue = [
+  {
+    id: 1,
+    url: "https://www.xiaohongshu.com/discovery/item/123456",
+    platform: "小红书",
+    title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
+    status: "completed",
+    progress: 100,
+    imageCount: 4,
+    extractedAt: "2024-01-15 14:30",
+  },
+  {
+    id: 2,
+    url: "https://xhslink.com/abcdef",
+    platform: "小红书",
+    title: "冬季穿搭分享 | 温暖又时尚的搭配技巧",
+    status: "extracting",
+    progress: 75,
+    imageCount: 6,
+    extractedAt: "",
+  },
+  {
+    id: 3,
+    url: "https://www.xiaohongshu.com/discovery/item/789012",
+    platform: "小红书",
+    title: "烘焙新手必看！零失败蛋糕制作教程",
+    status: "pending",
+    progress: 0,
+    imageCount: 0,
+    extractedAt: "",
+  },
+  {
+    id: 4,
+    url: "https://www.xiaohongshu.com/discovery/item/345678",
+    platform: "小红书",
+    title: "居家收纳神器推荐，告别凌乱生活",
+    status: "error",
+    progress: 0,
+    imageCount: 0,
+    extractedAt: "",
+  },
+];
+
 const extractedContent = {
   title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
   content: `姐妹们好！今天来分享一下我的��肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到���合自己的护肤方法😭
