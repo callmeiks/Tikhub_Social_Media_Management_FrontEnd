@@ -26,7 +26,7 @@ import {
 
 const extractedContent = {
   title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
-  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到适合自己的护肤方法😭
+  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到���合自己的护肤方法😭
 
 💡 我的肌肤状况：
 - 敏感肌，容易泛红
@@ -92,6 +92,11 @@ export default function ContentExtract() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("url");
+  const [downloadSettings, setDownloadSettings] = useState({
+    format: "jpg",
+    saveText: true,
+    downloadPath: "/Downloads/TikHub/ContentExtract",
+  });
 
   const handleExtract = async () => {
     const urls = batchUrls
