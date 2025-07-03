@@ -790,8 +790,116 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="queue" className="space-y-6">
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Download className="mr-2 h-4 w-4" />
+                    提取队列 ({extractionList.length})
+                  </span>
+                  <div className="flex space-x-2">
+                    <Button variant="ghost" size="sm" className="h-7">
+                      <Pause className="mr-1 h-3 w-3" />
+                      暂停全部
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7">
+                      <RotateCcw className="mr-1 h-3 w-3" />
+                      重试失败
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {extractionList.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 border border-border rounded-lg"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            {getStatusIcon(item.status)}
+                            <h3 className="text-sm font-medium truncate">
+                              {item.title}
+                            </h3>
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs ${getStatusColor(item.status)}`}
+                            >
+                              {getStatusText(item.status)}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate mb-2">
+                            {item.url}
+                          </p>
+                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                            <span>{item.platform}</span>
+                            {item.imageCount > 0 && (
+                              <span>{item.imageCount} 张图片</span>
+                            )}
+                            {item.extractedAt && (
+                              <span>{item.extractedAt}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-red-600"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      {item.status === "extracting" && (
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>提取进度</span>
+                            <span>{item.progress}%</span>
+                          </div>
+                          <Progress value={item.progress} className="h-2" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Clock className="mr-2 h-4 w-4" />
+                  提取历史
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">提取历史为空</h3>
+                  <p className="text-muted-foreground">
+                    完成的提取记录将在这里显示
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
