@@ -649,23 +649,6 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     className="text-xs"
                   />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">同时保存文字</span>
-                  <Button
-                    variant={downloadSettings.saveText ? "default" : "outline"}
-                    size="sm"
-                    className="h-6 w-12 text-xs"
-                    onClick={() =>
-                      setDownloadSettings((prev) => ({
-                        ...prev,
-                        saveText: !prev.saveText,
-                      }))
-                    }
-                  >
-                    {downloadSettings.saveText ? "是" : "否"}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
