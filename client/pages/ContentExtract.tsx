@@ -297,9 +297,18 @@ export default function ContentExtract() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Input Section */}
-          <div className="lg:col-span-2">
+        {/* Main Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="batch">批量提取</TabsTrigger>
+            <TabsTrigger value="queue">提取队列</TabsTrigger>
+            <TabsTrigger value="history">提取历史</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="batch" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Input Section */}
+              <div className="lg:col-span-2">
             <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
