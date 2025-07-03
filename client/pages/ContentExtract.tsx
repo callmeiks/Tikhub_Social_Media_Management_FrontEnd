@@ -260,7 +260,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          根据关键���搜索小红书内容
+                          根据关键词搜索小红书内容
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
                           功能开发中，敬请期待
@@ -597,6 +597,74 @@ https://www.xiaohongshu.com/discovery/item/987654321
               </CardContent>
             </Card>
 
+            {/* Download Settings */}
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Folder className="mr-2 h-4 w-4" />
+                  下载设置
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">图片格式</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["jpg", "png", "webp", "原格式"].map((format) => (
+                      <Button
+                        key={format}
+                        variant={
+                          downloadSettings.format === format
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() =>
+                          setDownloadSettings((prev) => ({
+                            ...prev,
+                            format,
+                          }))
+                        }
+                      >
+                        {format.toUpperCase()}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">保存路径</label>
+                  <Input
+                    value={downloadSettings.downloadPath}
+                    onChange={(e) =>
+                      setDownloadSettings((prev) => ({
+                        ...prev,
+                        downloadPath: e.target.value,
+                      }))
+                    }
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">同时保存文字</span>
+                  <Button
+                    variant={downloadSettings.saveText ? "default" : "outline"}
+                    size="sm"
+                    className="h-6 w-12 text-xs"
+                    onClick={() =>
+                      setDownloadSettings((prev) => ({
+                        ...prev,
+                        saveText: !prev.saveText,
+                      }))
+                    }
+                  >
+                    {downloadSettings.saveText ? "是" : "否"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Tips */}
             <Card className="border border-border">
               <CardHeader className="pb-3">
@@ -609,7 +677,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <div className="space-y-2 text-xs text-muted-foreground">
                   <p>• 仅支持公开的小红书笔记</p>
                   <p>• 支持完整链接和分享短链接</p>
-                  <p>• 提取的内容仅供学习和参考</p>
+                  <p>• 提取的���容仅供学习和参考</p>
                   <p>• 请遵守平台规定和版权法律</p>
                   <p>• 图片质量取决于原始内容</p>
                 </div>
