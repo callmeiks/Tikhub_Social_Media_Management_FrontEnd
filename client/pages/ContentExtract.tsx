@@ -309,7 +309,7 @@ export default function ContentExtract() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Input Section */}
               <div className="lg:col-span-2">
-            <Card className="border border-border">
+                <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
@@ -357,7 +357,7 @@ export default function ContentExtract() {
                   <TabsContent value="url" className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
-                        粘贴笔记链接���每行一个，最多20个）
+                        粘贴笔记链接����每行一个，最多20个）
                       </label>
                       <Textarea
                         placeholder={`请粘贴小红书笔记链接，每行一个：
