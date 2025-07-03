@@ -664,7 +664,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <div className="space-y-2">
                   <label className="text-sm font-medium">图片格式</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {["jpg", "png", "webp", "原格式"].map((format) => (
+                    {["jpg", "png", "webp"].map((format) => (
                       <Button
                         key={format}
                         variant={
