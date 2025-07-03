@@ -142,7 +142,8 @@ export default function ContentExtract() {
   const [batchUrls, setBatchUrls] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [activeTab, setActiveTab] = useState("url");
+  const [activeTab, setActiveTab] = useState("batch");
+  const [extractionList, setExtractionList] = useState(extractionQueue);
   const [downloadSettings, setDownloadSettings] = useState({
     format: "jpg",
     downloadPath: "/Downloads/TikHub/ContentExtract",
