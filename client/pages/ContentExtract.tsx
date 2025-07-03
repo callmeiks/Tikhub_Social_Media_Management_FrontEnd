@@ -35,7 +35,7 @@ const extractedContent = {
 - 毛孔粗大，偶尔爆痘
 
 🌟 护肤步骤分享：
-1️⃣ 温和洁面：氨基酸洁面，早晚各一次
+1️��� 温和洁面：氨基酸洁面，早晚各一次
 2️⃣ 爽肤水：含有神经酰胺的保湿型
 3️⃣ 精华：烟酰胺精华，隔天使用
 4️⃣ 面霜：选择质地轻薄但保湿力强的
@@ -95,7 +95,6 @@ export default function ContentExtract() {
   const [activeTab, setActiveTab] = useState("url");
   const [downloadSettings, setDownloadSettings] = useState({
     format: "jpg",
-    saveText: true,
     downloadPath: "/Downloads/TikHub/ContentExtract",
   });
   const [extractionSettings, setExtractionSettings] = useState({
@@ -238,7 +237,7 @@ export default function ContentExtract() {
                   <TabsContent value="url" className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
-                        粘贴笔记链接（每行一个，最多20个）
+                        粘贴笔记链接���每行一个，最多20个）
                       </label>
                       <Textarea
                         placeholder={`请粘贴小红书笔记链接，每行一个：
