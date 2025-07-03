@@ -23,6 +23,12 @@ import {
   Type,
   Palette,
   Folder,
+  Clock,
+  Trash2,
+  XCircle,
+  Pause,
+  RotateCcw,
+  Progress,
 } from "lucide-react";
 
 const extractionQueue = [
