@@ -202,6 +202,66 @@ export default function ContentExtract() {
     console.log("批量下载所有图片");
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "extracting":
+        return <Download className="h-4 w-4 text-blue-600" />;
+      case "pending":
+        return <Clock className="h-4 w-4 text-yellow-600" />;
+      case "error":
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "已完成";
+      case "extracting":
+        return "提取中";
+      case "pending":
+        return "等待中";
+      case "error":
+        return "失败";
+      default:
+        return "未知";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "extracting":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "error":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const urlCount = batchUrls
+    .split("\n")
+    .map((url) => url.trim())
+    .filter((url) => url.length > 0).length;
+
+  const completedCount = extractionList.filter(
+    (item) => item.status === "completed",
+  ).length;
+  const extractingCount = extractionList.filter(
+    (item) => item.status === "extracting",
+  ).length;
+  const errorCount = extractionList.filter(
+    (item) => item.status === "error",
+  ).length;
+
   return (
     <DashboardLayout
       title="图文提取"
