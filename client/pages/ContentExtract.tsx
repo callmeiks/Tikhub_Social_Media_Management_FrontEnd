@@ -98,6 +98,11 @@ export default function ContentExtract() {
     saveText: true,
     downloadPath: "/Downloads/TikHub/ContentExtract",
   });
+  const [extractionSettings, setExtractionSettings] = useState({
+    images: true,
+    text: true,
+    tags: true,
+  });
 
   const handleExtract = async () => {
     const urls = batchUrls
