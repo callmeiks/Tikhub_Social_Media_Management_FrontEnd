@@ -36,7 +36,7 @@ const extractedResult = {
   fileName: "音频文件.mp3",
   duration: "03:42",
   fileSize: "8.5 MB",
-  extractedText: `大家好，欢迎来到今��的分享。
+  extractedText: `大家好，欢迎来到今天的分享。
 
 今天我想和大家聊聊关于个人成长的话题。在这个快速发展的时代，我们每个人都面临着各种各样的挑战和机遇。
 
@@ -44,7 +44,7 @@ const extractedResult = {
 
 其次，我想强调坚持的重要性。很多时候，成功和失败之间的差距就在于是否能够坚持下去。当我们遇到困难的时候，不要轻易放弃，要相信自己的能力。
 
-最后，我想说的是要保持积极的心态。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正能量。
+最后，我想说的是要保持积极的心态。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正���量。
 
 希望今天的分享对大家有所帮助，谢谢大家的聆听。`,
   confidence: 96,
@@ -200,6 +200,47 @@ export default function AudioExtract() {
                       <span>实时录音</span>
                     </TabsTrigger>
                   </TabsList>
+
+                  <TabsContent value="link" className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">视频链接</label>
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            placeholder="请输入视频链接，如：https://www.douyin.com/video/..."
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          <Button
+                            onClick={handleFileUpload}
+                            disabled={!videoUrl.trim() || isExtracting}
+                            className="h-10"
+                          >
+                            <AudioLines className="mr-2 h-4 w-4" />
+                            提取音频
+                          </Button>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          支持抖音、YouTube、B站等主流平台视频链接
+                        </div>
+                      </div>
+
+                      {isExtracting && (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>正在提取音频并转换文字...</span>
+                            <span>{progress}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                          <div className="text-xs text-muted-foreground text-center">
+                            AI正在从视频中提取音频并分析内容...
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="upload" className="space-y-4">
                     <div className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center bg-orange-50/50">
