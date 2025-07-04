@@ -60,16 +60,114 @@ export default function ForbiddenWords() {
   const [activePlatform, setActivePlatform] = useState("douyin");
   const [activeTab, setActiveTab] = useState("text");
   const [showResults, setShowResults] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [isDocumentChecking, setIsDocumentChecking] = useState(false);
+  const [isAudioChecking, setIsAudioChecking] = useState(false);
+  const [documentText, setDocumentText] = useState("");
+  const [audioText, setAudioText] = useState("");
+  
+  const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
 
   const handleCheck = async () => {
     if (!inputText.trim()) return;
 
     setIsChecking(true);
-    // 模拟API调用
-    setTimeout(() => {
-      setShowResults(true);
+    try {
+      // 调用文本检测API
+      const response = await fetch('http://127.0.0.1:8000/api/prohibited-words/detect-text', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AUTH_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: inputText,
+          detection_types: ['political', 'violence', 'adult', 'gambling', 'drugs'],
+          strictness: 'medium',
+          language: 'mandarin'
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // 处理检测结果
+        setShowResults(true);
+      }
+    } catch (error) {
+      console.error('检测失败:', error);
+    } finally {
       setIsChecking(false);
-    }, 2000);
+    }
+  };
+  
+  const handleDocumentCheck = async () => {
+    if (!selectedFile) return;
+    
+    setIsDocumentChecking(true);
+    try {
+      // 这里应该先解析文档内容，然后调用文本检测API
+      // 模拟文档解析
+      setTimeout(() => {
+        setDocumentText("从文档中解析出的文本内容...");
+        setInputText("从文档中解析出的文本内容...");
+        setIsDocumentChecking(false);
+        // 然后可以调用handleCheck()进行检测
+      }, 2000);
+    } catch (error) {
+      console.error('文档检测失败:', error);
+      setIsDocumentChecking(false);
+    }
+  };
+  
+  const handleAudioCheck = async () => {
+    if (!audioFile) return;
+    
+    setIsAudioChecking(true);
+    try {
+      const formData = new FormData();
+      formData.append('type', 'file');
+      formData.append('file', audioFile);
+      formData.append('detection_types', 'political');
+      formData.append('detection_types', 'violence');
+      formData.append('detection_types', 'adult');
+      formData.append('strictness', 'medium');
+      formData.append('language', 'mandarin');
+      formData.append('include_transcript', 'true');
+      
+      const response = await fetch('http://127.0.0.1:8000/api/prohibited-words/detect-audio', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AUTH_TOKEN}`,
+        },
+        body: formData
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setAudioText(result.transcript || '');
+        setInputText(result.transcript || '');
+        setShowResults(true);
+      }
+    } catch (error) {
+      console.error('音频检测失败:', error);
+    } finally {
+      setIsAudioChecking(false);
+    }
+  };
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+  
+  const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAudioFile(file);
+    }
   };
 
   const handleCopy = (text: string) => {
@@ -226,19 +324,42 @@ export default function ForbiddenWords() {
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          上传文档文件进行检测
+                          {selectedFile ? selectedFile.name : "上传文档文件进行检测"}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
-                          支持 .txt, .doc, .docx, .pdf 格式
+                          支持 .txt, .doc, .docx, .pdf 格式，最大10MB
                         </p>
                         <div className="flex space-x-2 justify-center">
-                          <Button variant="outline" size="sm">
-                            <Download className="mr-2 h-3 w-3" />
-                            选择文件
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            拖拽上传
-                          </Button>
+                          <input
+                            type="file"
+                            id="document-upload"
+                            className="hidden"
+                            accept=".txt,.doc,.docx,.pdf"
+                            onChange={handleFileSelect}
+                          />
+                          <label htmlFor="document-upload">
+                            <Button variant="outline" size="sm" asChild>
+                              <span>
+                                <Download className="mr-2 h-3 w-3" />
+                                选择文件
+                              </span>
+                            </Button>
+                          </label>
+                          {selectedFile && (
+                            <Button 
+                              size="sm"
+                              onClick={handleDocumentCheck}
+                              disabled={isDocumentChecking}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              {isDocumentChecking ? (
+                                <RefreshCw className="mr-2 h-3 w-3 animate-spin" />
+                              ) : (
+                                <Search className="mr-2 h-3 w-3" />
+                              )}
+                              {isDocumentChecking ? "检测中..." : "开始检测"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -247,8 +368,11 @@ export default function ForbiddenWords() {
                         </label>
                         <Textarea
                           placeholder="上传文档后，解析的文字内容将显示在这里..."
-                          value={inputText}
-                          onChange={(e) => setInputText(e.target.value)}
+                          value={documentText || inputText}
+                          onChange={(e) => {
+                            setDocumentText(e.target.value);
+                            setInputText(e.target.value);
+                          }}
                           className="min-h-[120px] resize-none"
                           maxLength={2000}
                         />
@@ -261,19 +385,42 @@ export default function ForbiddenWords() {
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <Mic className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          上传音频文件进行检测
+                          {audioFile ? audioFile.name : "上传音频文件进行检测"}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
-                          支持 .mp3, .wav, .m4a, .aac 格式，最大50MB
+                          支持 .mp3, .wav, .flac, .aac, .opus, .ogg, .m4a 格式，最大50MB
                         </p>
                         <div className="flex space-x-2 justify-center">
-                          <Button variant="outline" size="sm">
-                            <Mic className="mr-2 h-3 w-3" />
-                            选择音频
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            开始录音
-                          </Button>
+                          <input
+                            type="file"
+                            id="audio-upload"
+                            className="hidden"
+                            accept=".mp3,.wav,.flac,.aac,.opus,.ogg,.m4a"
+                            onChange={handleAudioSelect}
+                          />
+                          <label htmlFor="audio-upload">
+                            <Button variant="outline" size="sm" asChild>
+                              <span>
+                                <Mic className="mr-2 h-3 w-3" />
+                                选择音频
+                              </span>
+                            </Button>
+                          </label>
+                          {audioFile && (
+                            <Button 
+                              size="sm"
+                              onClick={handleAudioCheck}
+                              disabled={isAudioChecking}
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              {isAudioChecking ? (
+                                <RefreshCw className="mr-2 h-3 w-3 animate-spin" />
+                              ) : (
+                                <Search className="mr-2 h-3 w-3" />
+                              )}
+                              {isAudioChecking ? "检测中..." : "开始检测"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -282,14 +429,17 @@ export default function ForbiddenWords() {
                         </label>
                         <Textarea
                           placeholder="上传音频后，语音识别的文字内容将显示在这里..."
-                          value={inputText}
-                          onChange={(e) => setInputText(e.target.value)}
+                          value={audioText || inputText}
+                          onChange={(e) => {
+                            setAudioText(e.target.value);
+                            setInputText(e.target.value);
+                          }}
                           className="min-h-[120px] resize-none"
                           maxLength={2000}
                         />
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                           <Eye className="h-3 w-3" />
-                          <span>AI语音识别准确率 95%+</span>
+                          <span>AI语音识别 + 违禁词检测一体化</span>
                         </div>
                       </div>
                     </div>
