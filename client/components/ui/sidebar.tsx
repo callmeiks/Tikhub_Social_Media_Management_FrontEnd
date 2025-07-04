@@ -61,7 +61,7 @@ const menuItems: MenuItem[] = [
       { title: "拍摄脚本生成", href: "/creator-tools/shooting-script" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
-      { title: "视频下载", href: "/creator-tools/video-download" },
+
       { title: "图文提取", href: "/creator-tools/content-extract" },
       { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
