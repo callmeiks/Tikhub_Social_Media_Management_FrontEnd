@@ -137,7 +137,9 @@ export default function ShootingScriptGenerator() {
   const [targetAge, setTargetAge] = useState("all");
   const [targetGender, setTargetGender] = useState("all");
   const [specialRequirements, setSpecialRequirements] = useState("");
-  const [results, setResults] = useState(generatedScripts);
+  const [includeProductionNotes, setIncludeProductionNotes] = useState(true);
+  const [generatedScript, setGeneratedScript] = useState<any>(null);
+  const [scriptMetadata, setScriptMetadata] = useState<any>(null);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -146,16 +148,56 @@ export default function ShootingScriptGenerator() {
     }
 
     setIsGenerating(true);
-    // 模拟API调用
-    setTimeout(() => {
-      setResults([
-        ...generatedScripts.map((script) => ({
-          ...script,
-          title: script.title + " (新生成)",
-        })),
-      ]);
+    setGeneratedScript(null);
+    setScriptMetadata(null);
+    
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/api/shooting-script/generate`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTkxNjQyfQ.LI6v-z3onQIbYIJ_ja-V-a00ZXrxlsjGCHp_RYn1E2g'}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          topic: topic,
+          platform: selectedPlatform,
+          script_type: selectedType,
+          duration: selectedDuration,
+          target_age: targetAge,
+          target_gender: targetGender,
+          special_requirements: specialRequirements || undefined,
+          include_production_notes: includeProductionNotes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API响应数据:', data); // 调试日志
+      
+      // 设置生成的脚本结果
+      if (data.script) {
+        setGeneratedScript(data.script);
+        if (data.script.metadata) {
+          setScriptMetadata(data.script.metadata);
+        }
+      } else {
+        throw new Error('API返回的数据格式不正确');
+      }
+    } catch (error) {
+      console.error('生成脚本失败:', error);
+      // 显示错误信息
+      setGeneratedScript({
+        title: `生成失败`,
+        content: `❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}\n\n请检查网络连接或稍后重试。`
+      });
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const handleCopy = (content: string) => {
@@ -164,6 +206,8 @@ export default function ShootingScriptGenerator() {
 
   const insertExample = (example: string) => {
     setTopic(example);
+    setGeneratedScript(null);
+    setScriptMetadata(null);
   };
 
   const getScoreColor = (score: number) => {
@@ -345,6 +389,19 @@ export default function ShootingScriptGenerator() {
                   />
                 </div>
 
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="includeProductionNotes"
+                    checked={includeProductionNotes}
+                    onChange={(e) => setIncludeProductionNotes(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <label htmlFor="includeProductionNotes" className="text-sm font-medium">
+                    包含制作备注
+                  </label>
+                </div>
+
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex space-x-2">
                     <Button
@@ -370,6 +427,9 @@ export default function ShootingScriptGenerator() {
                         setTargetAge("all");
                         setTargetGender("all");
                         setSpecialRequirements("");
+                        setGeneratedScript(null);
+                        setScriptMetadata(null);
+                        setIncludeProductionNotes(true);
                       }}
                       className="h-8"
                     >
@@ -400,11 +460,18 @@ export default function ShootingScriptGenerator() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Sparkles className="mr-2 h-4 w-4" />
-                    生成结果 ({results.length}个脚本)
+                    生成结果 {generatedScript ? "(1个脚本)" : ""}
                   </span>
-                  <Button variant="ghost" size="sm" className="h-6">
-                    <RefreshCw className="h-3 w-3" />
-                  </Button>
+                  {generatedScript && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6"
+                      onClick={() => handleCopy(generatedScript.content)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -424,54 +491,89 @@ export default function ShootingScriptGenerator() {
                       </div>
                     </div>
                   </div>
-                ) : (
+                ) : generatedScript ? (
                   <div className="space-y-4">
-                    {results.map((script) => (
-                      <div
-                        key={script.id}
-                        className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1 pr-4">
-                            <h3 className="text-sm font-medium mb-2">
-                              {script.title}
-                            </h3>
-                            <pre className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground mb-3 bg-muted/30 p-3 rounded">
-                              {script.content}
-                            </pre>
+                    <div className="p-4 border border-border rounded-lg">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 pr-4">
+                          <h3 className="text-sm font-medium mb-2">
+                            {generatedScript.title}
+                          </h3>
+                          <pre className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground mb-3 bg-muted/30 p-3 rounded">
+                            {generatedScript.content}
+                          </pre>
+                          {scriptMetadata && (
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                               <span className="flex items-center">
                                 <Target className="mr-1 h-3 w-3" />
-                                {script.platform}
+                                {scriptMetadata.platform}
                               </span>
                               <span className="flex items-center">
                                 <Star className="mr-1 h-3 w-3" />
-                                {script.type}
+                                {scriptMetadata.type}
                               </span>
                               <span className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3" />
-                                {script.duration}
+                                {scriptMetadata.duration_category}
                               </span>
+                              {scriptMetadata.score && (
+                                <span
+                                  className={`flex items-center font-medium ${getScoreColor(scriptMetadata.score)}`}
+                                >
+                                  <ThumbsUp className="mr-1 h-3 w-3" />
+                                  {scriptMetadata.score}分
+                                </span>
+                              )}
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span
-                              className={`text-xs font-medium ${getScoreColor(script.score)}`}
-                            >
-                              {script.score}分
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(script.content)}
-                              className="h-6 w-6 p-0"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
+                          )}
                         </div>
                       </div>
-                    ))}
+                      
+                      {/* Script Metadata */}
+                      {scriptMetadata && (
+                        <div className="space-y-4 mt-4 border-t border-border pt-4">
+                          {/* Tags */}
+                          {scriptMetadata.tags && scriptMetadata.tags.length > 0 && (
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-2">内容标签</div>
+                              <div className="flex flex-wrap gap-1">
+                                {scriptMetadata.tags.map((tag: string, index: number) => (
+                                  <Badge key={index} variant="secondary" className="text-xs h-5">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Engagement Prediction */}
+                          {scriptMetadata.engagement_prediction && (
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                              <div className="text-xs text-green-600 font-medium mb-2">预期效果</div>
+                              <div className="grid grid-cols-2 gap-2 text-xs text-green-600">
+                                {scriptMetadata.engagement_prediction.views && (
+                                  <span>👁️ 观看: {scriptMetadata.engagement_prediction.views}</span>
+                                )}
+                                {scriptMetadata.engagement_prediction.likes && (
+                                  <span>👍 点赞: {scriptMetadata.engagement_prediction.likes}</span>
+                                )}
+                                {scriptMetadata.engagement_prediction.comments && (
+                                  <span>💬 评论: {scriptMetadata.engagement_prediction.comments}</span>
+                                )}
+                                {scriptMetadata.engagement_prediction.shares && (
+                                  <span>🔁 分享: {scriptMetadata.engagement_prediction.shares}</span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Video className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">输入视频主题，点击生成脚本开始创作</p>
                   </div>
                 )}
               </CardContent>

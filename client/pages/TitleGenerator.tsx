@@ -83,24 +83,60 @@ export default function TitleGenerator() {
   const [titleCount, setTitleCount] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePlatform, setActivePlatform] = useState("wechat");
-  const [selectedType, setSelectedType] = useState("trending");
-  const [results, setResults] = useState(generatedTitles);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(["trending"]);
+  const [results, setResults] = useState<any[]>([]);
+  const [maxLength, setMaxLength] = useState(50);
 
   const handleGenerate = async () => {
     if (!inputText.trim()) return;
 
     setIsGenerating(true);
-    // 模拟API调用
-    setTimeout(() => {
-      // 这里可以添加实际的标题生成逻辑
-      setResults([
-        ...generatedTitles.map((title) => ({
-          ...title,
-          title: title.title + " (新生成)",
-        })),
-      ]);
+    setResults([]); // 清空之前的结果
+    
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/api/title-generator/generate`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTkxMzc1fQ.Di_iZkfZUlN-kY8z_3Wy_rrS3lxgvm3D-sY-eKHxLXI'}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content: inputText,
+          platform: activePlatform,
+          types: selectedTypes,
+          count: titleCount,
+          max_length: maxLength
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API响应数据:', data); // 调试日志
+      
+      // 设置生成的标题结果
+      if (data.titles && Array.isArray(data.titles)) {
+        setResults(data.titles);
+      } else if (Array.isArray(data)) {
+        setResults(data);
+      } else {
+        throw new Error('API返回的数据格式不正确');
+      }
+    } catch (error) {
+      console.error('生成标题失败:', error);
+      // 显示错误信息
+      setResults([{
+        title: `❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}`,
+        score: 0,
+        tags: ['error']
+      }]);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const handleCopy = (title: string) => {
@@ -110,10 +146,21 @@ export default function TitleGenerator() {
 
   const insertExample = (example: string) => {
     setInputText(example);
+    setResults([]);
   };
 
-  const selectTitleType = (typeId: string) => {
-    setSelectedType(typeId);
+  const toggleTitleType = (typeId: string) => {
+    setSelectedTypes(prev => {
+      if (prev.includes(typeId)) {
+        // 至少保留一个类型
+        if (prev.length > 1) {
+          return prev.filter(id => id !== typeId);
+        }
+        return prev;
+      } else {
+        return [...prev, typeId];
+      }
+    });
   };
 
   const getScoreColor = (score: number) => {
@@ -204,11 +251,11 @@ export default function TitleGenerator() {
                       <Button
                         key={type.id}
                         variant={
-                          selectedType === type.id ? "default" : "outline"
+                          selectedTypes.includes(type.id) ? "default" : "outline"
                         }
                         size="sm"
                         className="h-8 text-xs justify-start"
-                        onClick={() => selectTitleType(type.id)}
+                        onClick={() => toggleTitleType(type.id)}
                       >
                         {type.name}
                       </Button>
@@ -216,20 +263,38 @@ export default function TitleGenerator() {
                   </div>
                 </div>
 
-                {/* Title Count Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">生成数量</label>
-                  <Input
-                    type="number"
-                    placeholder="输入要生成的标题数量"
-                    value={titleCount}
-                    onChange={(e) => setTitleCount(Number(e.target.value))}
-                    min={1}
-                    max={50}
-                    className="border-border"
-                  />
-                  <div className="text-xs text-muted-foreground">
-                    建议生成1-50个标题
+                {/* Title Count and Max Length Selection */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">生成数量</label>
+                    <Input
+                      type="number"
+                      placeholder="输入要生成的标题数量"
+                      value={titleCount}
+                      onChange={(e) => setTitleCount(Number(e.target.value))}
+                      min={1}
+                      max={50}
+                      className="border-border"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      建议生成1-50个标题
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">最大长度</label>
+                    <Input
+                      type="number"
+                      placeholder="标题最大字符数"
+                      value={maxLength}
+                      onChange={(e) => setMaxLength(Number(e.target.value))}
+                      min={10}
+                      max={100}
+                      className="border-border"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      建议10-100个字符
+                    </div>
                   </div>
                 </div>
 
@@ -256,6 +321,9 @@ export default function TitleGenerator() {
                       onClick={() => {
                         setInputText("");
                         setTitleCount(10);
+                        setResults([]);
+                        setSelectedTypes(["trending"]);
+                        setMaxLength(50);
                       }}
                       className="h-8"
                     >
@@ -315,32 +383,38 @@ export default function TitleGenerator() {
                             {result.title}
                           </h3>
                           <div className="flex items-center space-x-2">
-                            <span
-                              className={`text-xs font-medium ${getScoreColor(result.score)}`}
-                            >
-                              {result.score}分
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(result.title)}
-                              className="h-6 w-6 p-0"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
+                            {result.score > 0 && (
+                              <span
+                                className={`text-xs font-medium ${getScoreColor(result.score)}`}
+                              >
+                                {result.score}分
+                              </span>
+                            )}
+                            {!result.title.startsWith('❌') && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCopy(result.title)}
+                                className="h-6 w-6 p-0"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            )}
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-1">
-                          {result.tags.map((tag, tagIndex) => (
-                            <Badge
-                              key={tagIndex}
-                              variant="secondary"
-                              className="text-xs h-5"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
+                        {result.tags && result.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {result.tags.map((tag, tagIndex) => (
+                              <Badge
+                                key={tagIndex}
+                                variant="secondary"
+                                className="text-xs h-5"
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

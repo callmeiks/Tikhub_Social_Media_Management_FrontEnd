@@ -86,6 +86,7 @@ const exampleTexts = [
 export default function CaptionWriter() {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
+  const [generationMetadata, setGenerationMetadata] = useState<any>(null);
   const [isRewriting, setIsRewriting] = useState(false);
   const [activeStyle, setActiveStyle] = useState("xiaohongshu");
   const [selectedOptions, setSelectedOptions] = useState({
@@ -101,13 +102,59 @@ export default function CaptionWriter() {
 
     setIsRewriting(true);
 
-    // 模拟API调用
-    setTimeout(() => {
-      const outputContent = `【AI生成文案】\n\n📝 输入内容：${inputText.substring(0, 100)}${inputText.length > 100 ? "..." : ""}\n\n✨ 生成结果：\n经过AI智能处理，结合${activeStyle}平台风格特点，调整为${selectedOptions.tone}语调，${selectedOptions.length}长度，${selectedOptions.style}类型，适配${selectedOptions.track}赛道，${selectedOptions.language}语言的全新优质文案内容。`;
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/api/caption/generate`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTg4NjA5fQ.zLKS1jjknZC_2jCUJEWByV9ZEDNnCAN8rPMaLNwI_Nw'}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input_text: inputText,
+          platform: activeStyle,
+          options: {
+            tone: selectedOptions.tone,
+            length: selectedOptions.length,
+            style: selectedOptions.style,
+            track: selectedOptions.track,
+            language: selectedOptions.language
+          }
+        })
+      });
 
-      setOutputText(outputContent);
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API响应数据:', data); // 调试日志
+      
+      // 检查响应数据结构 - 使用正确的字段名 generatedCaption
+      if (data.generatedCaption) {
+        setOutputText(data.generatedCaption);
+      } else if (data.generated_caption) {
+        setOutputText(data.generated_caption);
+      } else if (data.caption) {
+        setOutputText(data.caption);
+      } else if (typeof data === 'string') {
+        setOutputText(data);
+      } else {
+        console.error('未找到生成的文案内容:', data);
+        setOutputText('⚠️ API返回了数据，但格式不符合预期。请检查控制台日志。');
+      }
+      
+      if (data.metadata) {
+        setGenerationMetadata(data.metadata);
+      }
+    } catch (error) {
+      console.error('生成文案失败:', error);
+      setOutputText(`❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}\n\n请检查网络连接或稍后重试。`);
+      setGenerationMetadata(null);
+    } finally {
       setIsRewriting(false);
-    }, 2000);
+    }
   };
 
   const handleCopy = (text: string) => {
@@ -117,6 +164,14 @@ export default function CaptionWriter() {
 
   const insertExample = (text: string) => {
     setInputText(text);
+    setOutputText("");
+    setGenerationMetadata(null);
+  };
+
+  const clearInput = () => {
+    setInputText("");
+    setOutputText("");
+    setGenerationMetadata(null);
   };
 
   return (
@@ -228,7 +283,7 @@ export default function CaptionWriter() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setInputText("")}
+                      onClick={clearInput}
                       className="h-8"
                     >
                       清空
@@ -284,10 +339,30 @@ export default function CaptionWriter() {
                       </div>
                     </div>
                   ) : (
-                    <div className="min-h-[150px] p-3 bg-muted/30 rounded-md">
-                      <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
-                        {outputText}
-                      </pre>
+                    <div className="space-y-4">
+                      <div className="min-h-[150px] p-3 bg-muted/30 rounded-md">
+                        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
+                          {outputText}
+                        </pre>
+                      </div>
+                      
+                      {/* Generation Metadata */}
+                      {generationMetadata && (
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                          <div className="flex items-center justify-between text-xs text-blue-600 mb-2">
+                            <span className="font-medium">生成信息</span>
+                            <span>{generationMetadata.generation_time_ms}ms</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs text-blue-600">
+                            <span>平台: {generationMetadata.platform}</span>
+                            <span>语调: {generationMetadata.tone}</span>
+                            <span>长度: {generationMetadata.length}</span>
+                            <span>风格: {generationMetadata.style}</span>
+                            <span>赛道: {generationMetadata.track}</span>
+                            <span>语言: {generationMetadata.language}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>

@@ -109,6 +109,9 @@ export default function TranscriptGenerator() {
   const [wordCount, setWordCount] = useState(500);
   const [selectedTrack, setSelectedTrack] = useState("general");
   const [showResults, setShowResults] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState("");
+  const [generationMetadata, setGenerationMetadata] = useState<any>(null);
+  const [qualityMetrics, setQualityMetrics] = useState<any>(null);
 
   const handleGenerate = async () => {
     if (!keywords.trim()) {
@@ -122,11 +125,63 @@ export default function TranscriptGenerator() {
     }
 
     setIsGenerating(true);
-    // 模拟API调用
-    setTimeout(() => {
+    
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/api/transcript/generate`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTg4NjA5fQ.zLKS1jjknZC_2jCUJEWByV9ZEDNnCAN8rPMaLNwI_Nw'}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input_content: keywords,
+          platform: selectedPlatform,
+          style: selectedStyle,
+          language: selectedLanguage,
+          word_count: wordCount,
+          track_type: selectedTrack,
+          max_length: 3000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API响应数据:', data); // 调试日志
+      
+      // 设置生成的内容
+      if (data.generated_content) {
+        setGeneratedContent(data.generated_content);
+      } else if (data.content) {
+        setGeneratedContent(data.content);
+      } else {
+        throw new Error('API返回的数据格式不正确');
+      }
+      
+      // 设置元数据
+      if (data.metadata) {
+        setGenerationMetadata(data.metadata);
+      }
+      
+      // 设置质量指标
+      if (data.quality_metrics) {
+        setQualityMetrics(data.quality_metrics);
+      }
+      
       setShowResults(true);
+    } catch (error) {
+      console.error('生成文稿失败:', error);
+      setGeneratedContent(`❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}\n\n请检查网络连接或稍后重试。`);
+      setGenerationMetadata(null);
+      setQualityMetrics(null);
+      setShowResults(true);
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const handleCopy = (text: string) => {
@@ -249,6 +304,9 @@ export default function TranscriptGenerator() {
                       onClick={() => {
                         setKeywords("");
                         setShowResults(false);
+                        setGeneratedContent("");
+                        setGenerationMetadata(null);
+                        setQualityMetrics(null);
                       }}
                       className="h-8"
                     >
@@ -263,7 +321,13 @@ export default function TranscriptGenerator() {
                           key={index}
                           variant="ghost"
                           size="sm"
-                          onClick={() => setKeywords(example)}
+                          onClick={() => {
+                            setKeywords(example);
+                            setShowResults(false);
+                            setGeneratedContent("");
+                            setGenerationMetadata(null);
+                            setQualityMetrics(null);
+                          }}
                           className="h-6 text-xs text-muted-foreground hover:text-foreground"
                         >
                           示例{index + 1}
@@ -289,7 +353,7 @@ export default function TranscriptGenerator() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          navigator.clipboard.writeText("生成的文稿内��")
+                          handleCopy(generatedContent)
                         }
                         className="h-6"
                       >
@@ -309,18 +373,51 @@ export default function TranscriptGenerator() {
                       </div>
                     </div>
                   ) : (
-                    <div className="min-h-[200px] p-3 bg-muted/30 rounded-md">
-                      <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
-                        {showResults
-                          ? `【AI生成文稿】
-
-基于您输入的内容"${keywords.substring(0, 50)}${keywords.length > 50 ? "..." : ""}"
-
-已为您生成适合${selectedPlatform}平台的${selectedStyle}风格文稿，使用${selectedLanguage === "chinese" ? "中文" : "英文"}语言，字数约${wordCount}字，针对${selectedTrack}赛道优化。
-
-生成的文���内容将在这里显示...`
-                          : ""}
-                      </pre>
+                    <div className="space-y-4">
+                      <div className="min-h-[200px] p-3 bg-muted/30 rounded-md">
+                        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
+                          {generatedContent}
+                        </pre>
+                      </div>
+                      
+                      {/* Generation Metadata */}
+                      {generationMetadata && (
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                          <div className="flex items-center justify-between text-xs text-blue-600 mb-2">
+                            <span className="font-medium">生成信息</span>
+                            <span>{generationMetadata.generation_time_ms}ms</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs text-blue-600">
+                            <span>平台: {generationMetadata.platform}</span>
+                            <span>风格: {generationMetadata.style}</span>
+                            <span>语言: {generationMetadata.language}</span>
+                            <span>字数: {generationMetadata.word_count}</span>
+                            <span>赛道: {generationMetadata.track_type}</span>
+                            <span>输入预览: {generationMetadata.input_preview}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Quality Metrics */}
+                      {qualityMetrics && (
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                          <div className="text-xs text-green-600 font-medium mb-2">质量评分</div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-green-600">{qualityMetrics.attractiveness}%</div>
+                              <div className="text-xs text-green-600">吸引力</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-green-600">{qualityMetrics.engagement_rate}%</div>
+                              <div className="text-xs text-green-600">互动率</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-green-600">{qualityMetrics.completion_rate}%</div>
+                              <div className="text-xs text-green-600">完成率</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
