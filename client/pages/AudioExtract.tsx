@@ -39,7 +39,7 @@ const extractedResult = {
   fileSize: "8.5 MB",
   extractedText: `大家好，欢迎来到今天的分享。
 
-今天我想和大家聊聊关于个人成长的话题。在这个快速发展的时代，我们每个人都面临着各种各样的挑战和机遇。
+今天���想和大家聊聊关于个人成长的话题。在这个快速发展的时代，我们每个人都面临着各种各样的挑战和机遇。
 
 首先，我认为学习是最重要的。无论你现在处于人生的哪个阶段，持续学习都是必不可少的。学习不仅仅是获取知识，更重要的是培养我们的思维能力和解决问题的能力。
 
@@ -207,12 +207,11 @@ export default function AudioExtract() {
                       <div className="space-y-2">
                         <label className="text-sm font-medium">视频链接</label>
                         <div className="flex space-x-2">
-                          <input
-                            type="text"
+                          <Input
                             placeholder="请输入视频链接，如：https://www.douyin.com/video/..."
                             value={videoUrl}
                             onChange={(e) => setVideoUrl(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1"
                           />
                           <Button
                             onClick={handleFileUpload}
