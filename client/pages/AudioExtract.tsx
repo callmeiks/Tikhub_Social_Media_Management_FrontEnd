@@ -44,7 +44,7 @@ const extractedResult = {
 
 其次，我想强调坚持的重要性。很多时候，成功和失败之间的差距就在于是否能够坚持下去。当我们遇到困难的时候，不要轻易放弃，要相信自己的能力。
 
-最后，我想说的是要保持积极的心态。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正能量。
+最后，我想说的是要保持积极的心��。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正能量。
 
 希望今天的分享对大家有所帮助，谢谢大家的聆听。`,
   confidence: 96,
@@ -464,62 +464,6 @@ export default function AudioExtract() {
                   >
                     🎉 每日免费时长 100分钟
                   </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recognition Settings */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Volume2 className="mr-2 h-4 w-4" />
-                  识别设置
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">语言选择</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {["中文", "英文", "日文", "韩文"].map((lang) => (
-                      <Button
-                        key={lang}
-                        variant={lang === "中文" ? "default" : "outline"}
-                        size="sm"
-                        className="h-7 text-xs"
-                      >
-                        {lang}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">识别模式</label>
-                  <div className="space-y-2">
-                    {[
-                      { label: "高精度模式", desc: "准确率更高，速度较慢" },
-                      { label: "快速模式", desc: "速度更快，准确率较高" },
-                    ].map((mode, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 border border-border rounded"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">{mode.label}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {mode.desc}
-                          </p>
-                        </div>
-                        <Button
-                          variant={index === 0 ? "default" : "outline"}
-                          size="sm"
-                          className="h-6 w-12 text-xs"
-                        >
-                          {index === 0 ? "使用" : "选择"}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </CardContent>
             </Card>
