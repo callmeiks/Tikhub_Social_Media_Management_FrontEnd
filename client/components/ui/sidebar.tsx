@@ -74,6 +74,7 @@ const menuItems: MenuItem[] = [
     icon: Database,
     href: "/data-collection",
     subItems: [
+      { title: "视频下载", href: "/creator-tools/video-download" },
       {
         title: "账号作品数据采集",
         href: "/data-collection/account-interaction",
