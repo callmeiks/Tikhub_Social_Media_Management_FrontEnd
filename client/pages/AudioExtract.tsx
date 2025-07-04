@@ -44,7 +44,7 @@ const extractedResult = {
 
 其次，我想强调坚持的重要性。很多时候，成功和失败之间的差距就在于是否能够坚持下去。当我们遇到困难的时候，不要轻易放弃，要相信自己的能力。
 
-最后，我想说的是要保持积极的心态。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正���量。
+最后，我想说的是要保持积极的心态。积极的心态能够帮助我们更好地面对生活中的挑战，也能够吸引更多的正能量。
 
 希望今天的分享对大家有所帮助，谢谢大家的聆听。`,
   confidence: 96,
@@ -171,8 +171,8 @@ export default function AudioExtract() {
             <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center">
-                  <Upload className="mr-2 h-4 w-4" />
-                  文件上传
+                  <AudioLines className="mr-2 h-4 w-4" />
+                  音视频提取
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -223,7 +223,7 @@ export default function AudioExtract() {
                           </Button>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          支持抖音、YouTube、B站等主流平台视频链接
+                          支持抖音、YouTube、B站等主流平��视频链接
                         </div>
                       </div>
 
@@ -298,7 +298,7 @@ export default function AudioExtract() {
                         <div className="space-y-2">
                           <p className="text-lg font-medium">实时录音转文字</p>
                           <p className="text-sm text-muted-foreground">
-                            点击开始录音，实时转换为文字
+                            点击开始录音，实时转���为文字
                           </p>
                         </div>
                         <div className="flex space-x-2">
