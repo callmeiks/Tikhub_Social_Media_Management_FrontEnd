@@ -56,9 +56,10 @@ const extractedResult = {
 export default function AudioExtract() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("link");
   const [progress, setProgress] = useState(0);
   const [extractedText, setExtractedText] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   const handleFileUpload = async () => {
     setIsExtracting(true);
@@ -133,7 +134,7 @@ export default function AudioExtract() {
                 支持格式：MP3、MP4、WAV、M4A、AAC、AVI、MOV、MKV、WEBM
               </div>
               <div className="text-sm text-muted-foreground">
-                单个文件大小���超过2000M(建议不超过30分钟)
+                单个文件大小不超过2000M(建议不超过30分钟)
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {supportedFormats.map((category) => (
@@ -429,9 +430,9 @@ export default function AudioExtract() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">语言���择</label>
+                  <label className="text-sm font-medium">语言选择</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {["中文", "英文", "日文", "韩文"].map((lang) => (
+                    {["中文", "英文", "���文", "韩文"].map((lang) => (
                       <Button
                         key={lang}
                         variant={lang === "中文" ? "default" : "outline"}
@@ -488,7 +489,7 @@ export default function AudioExtract() {
                   <p>• 建议上传清晰的音频文件</p>
                   <p>• 支持多人对话的识别分离</p>
                   <p>• 长音频文件会分段处理</p>
-                  <p>• 识别结果支持手动编��</p>
+                  <p>• 识别结果支持手动编辑</p>
                   <p>• 可导出为多种文本格式</p>
                 </div>
               </CardContent>
