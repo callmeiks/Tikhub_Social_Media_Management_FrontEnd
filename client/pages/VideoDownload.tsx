@@ -7,6 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Download,
@@ -68,11 +76,14 @@ export default function VideoDownload() {
   const [downloadList, setDownloadList] = useState<VideoTask[]>([]);
   const [settings, setSettings] = useState(downloadSettings);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [isDeletingTasks, setIsDeletingTasks] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<string>("all");
 
   const fetchDownloadTasks = async () => {
     setIsLoadingTasks(true);
     try {
-      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
         "http://127.0.0.1:8000/api/video-download/my-tasks?limit=100&offset=0",
         {
@@ -101,7 +112,65 @@ export default function VideoDownload() {
     if (activeTab === "queue" || activeTab === "history") {
       fetchDownloadTasks();
     }
+    // Clear selections when changing tabs
+    setSelectedTaskIds([]);
   }, [activeTab]);
+
+  const handleBatchDelete = async () => {
+    if (selectedTaskIds.length === 0) {
+      toast.error("请选择要删除的任务");
+      return;
+    }
+
+    setIsDeletingTasks(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/video-download/batch-delete",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            task_ids: selectedTaskIds,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`);
+        setSelectedTaskIds([]);
+        fetchDownloadTasks();
+      } else {
+        toast.error("删除任务失败");
+      }
+    } catch (error) {
+      console.error("Error deleting tasks:", error);
+      toast.error("网络错误，删除任务失败");
+    } finally {
+      setIsDeletingTasks(false);
+    }
+  };
+
+  const handleSelectTask = (taskId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTaskIds(prev => [...prev, taskId]);
+    } else {
+      setSelectedTaskIds(prev => prev.filter(id => id !== taskId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedTaskIds(queueTasks.map(task => task.task_id));
+    } else {
+      setSelectedTaskIds([]);
+    }
+  };
 
   const handleBatchProcess = async () => {
     const urls = batchUrls
@@ -121,7 +190,7 @@ export default function VideoDownload() {
 
     setIsProcessing(true);
     try {
-      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
         "http://127.0.0.1:8000/api/video-download/process",
         {
@@ -250,9 +319,27 @@ export default function VideoDownload() {
     (item) => item.status === "queued" || item.status === "processing" || item.status === "pending"
   );
   
-  const historyTasks = downloadList.filter(
+  const allHistoryTasks = downloadList.filter(
     (item) => item.status === "completed" || item.status === "failed" || item.status === "cancelled"
   );
+
+  const getFilteredHistoryTasks = () => {
+    switch (historyFilter) {
+      case "completed":
+        return allHistoryTasks.filter(task => task.status === "completed");
+      case "failed":
+        return allHistoryTasks.filter(task => task.status === "failed");
+      case "cancelled":
+        return allHistoryTasks.filter(task => task.status === "cancelled");
+      case "failed-cancelled":
+        return allHistoryTasks.filter(task => task.status === "failed" || task.status === "cancelled");
+      case "all":
+      default:
+        return allHistoryTasks;
+    }
+  };
+
+  const historyTasks = getFilteredHistoryTasks();
 
   return (
     <DashboardLayout
@@ -486,16 +573,56 @@ https://www.bilibili.com/video/BV1234567890
                     <Download className="mr-2 h-4 w-4" />
                     下载队列 ({queueTasks.length})
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7"
-                    onClick={() => fetchDownloadTasks()}
-                  >
-                    <RefreshCw className="mr-1 h-3 w-3" />
-                    刷新
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    {queueTasks.length > 0 && (
+                      <>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="h-7"
+                          disabled={selectedTaskIds.length === 0 || isDeletingTasks}
+                          onClick={handleBatchDelete}
+                        >
+                          {isDeletingTasks ? (
+                            <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="mr-1 h-3 w-3" />
+                          )}
+                          删除选中 ({selectedTaskIds.length})
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7"
+                          onClick={() => fetchDownloadTasks()}
+                        >
+                          <RefreshCw className="mr-1 h-3 w-3" />
+                          刷新
+                        </Button>
+                      </>
+                    )}
+                    {queueTasks.length === 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7"
+                        onClick={() => fetchDownloadTasks()}
+                      >
+                        <RefreshCw className="mr-1 h-3 w-3" />
+                        刷新
+                      </Button>
+                    )}
+                  </div>
                 </CardTitle>
+                {queueTasks.length > 0 && (
+                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <Checkbox
+                      checked={selectedTaskIds.length === queueTasks.length}
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <span>全选</span>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 {isLoadingTasks ? (
@@ -517,25 +644,32 @@ https://www.bilibili.com/video/BV1234567890
                         className="p-4 border border-border rounded-lg"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              {getStatusIcon(item.status)}
-                              <h3 className="text-sm font-medium truncate">
-                                {item.title || "获取视频信息中..."}
-                              </h3>
-                              <Badge
-                                variant="secondary"
-                                className={`text-xs ${getStatusColor(item.status)}`}
-                              >
-                                {getStatusText(item.status)}
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate mb-2">
-                              {item.url}
-                            </p>
-                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                              {item.platform && <span>{item.platform}</span>}
-                              <span>{new Date(item.created_at).toLocaleString()}</span>
+                          <div className="flex items-start space-x-3 flex-1 min-w-0">
+                            <Checkbox
+                              checked={selectedTaskIds.includes(item.task_id)}
+                              onCheckedChange={(checked) => handleSelectTask(item.task_id, checked as boolean)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                {getStatusIcon(item.status)}
+                                <h3 className="text-sm font-medium truncate">
+                                  {item.title || "获取视频信息中..."}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${getStatusColor(item.status)}`}
+                                >
+                                  {getStatusText(item.status)}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate mb-2">
+                                {item.url}
+                              </p>
+                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                {item.platform && <span>{item.platform}</span>}
+                                <span>{new Date(item.created_at).toLocaleString()}</span>
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2 ml-4">
@@ -575,17 +709,31 @@ https://www.bilibili.com/video/BV1234567890
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="mr-2 h-4 w-4" />
-                    下载历史 ({historyTasks.length})
+                    下载历史 ({historyTasks.length}/{allHistoryTasks.length})
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7"
-                    onClick={() => fetchDownloadTasks()}
-                  >
-                    <RefreshCw className="mr-1 h-3 w-3" />
-                    刷新
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Select value={historyFilter} onValueChange={setHistoryFilter}>
+                      <SelectTrigger className="h-7 w-32 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        <SelectItem value="completed">已完成</SelectItem>
+                        <SelectItem value="failed">失败</SelectItem>
+                        <SelectItem value="cancelled">已取消</SelectItem>
+                        <SelectItem value="failed-cancelled">失败 + 取消</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7"
+                      onClick={() => fetchDownloadTasks()}
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3" />
+                      刷新
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -668,7 +816,7 @@ https://www.bilibili.com/video/BV1234567890
                                   const filePath = item.file_info!.local_path;
                                   
                                   try {
-                                    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+                                    const token = import.meta.env.VITE_BACKEND_API_TOKEN;
                                     const response = await fetch(
                                       "http://127.0.0.1:8000/api/video-download/open-folder",
                                       {
