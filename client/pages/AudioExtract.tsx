@@ -36,7 +36,7 @@ const extractedResult = {
   fileName: "音频文件.mp3",
   duration: "03:42",
   fileSize: "8.5 MB",
-  extractedText: `大家好，欢迎来到今天的分享。
+  extractedText: `大家好，欢迎来到今��的分享。
 
 今天我想和大家聊聊关于个人成长的话题。在这个快速发展的时代，我们每个人都面临着各种各样的挑战和机遇。
 
@@ -177,7 +177,14 @@ export default function AudioExtract() {
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsList className="grid w-full grid-cols-3 mb-4">
+                    <TabsTrigger
+                      value="link"
+                      className="flex items-center space-x-1"
+                    >
+                      <LinkIcon className="h-3 w-3" />
+                      <span>视频链接</span>
+                    </TabsTrigger>
                     <TabsTrigger
                       value="upload"
                       className="flex items-center space-x-1"
@@ -432,7 +439,7 @@ export default function AudioExtract() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">语言选择</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {["中文", "英文", "���文", "韩文"].map((lang) => (
+                    {["中文", "英文", "日文", "韩文"].map((lang) => (
                       <Button
                         key={lang}
                         variant={lang === "中文" ? "default" : "outline"}
