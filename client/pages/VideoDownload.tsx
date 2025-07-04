@@ -79,6 +79,8 @@ export default function VideoDownload() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isDeletingTasks, setIsDeletingTasks] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<string>("all");
+  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<string[]>([]);
+  const [isDeletingHistoryTasks, setIsDeletingHistoryTasks] = useState(false);
 
   const fetchDownloadTasks = async () => {
     setIsLoadingTasks(true);
@@ -114,6 +116,7 @@ export default function VideoDownload() {
     }
     // Clear selections when changing tabs
     setSelectedTaskIds([]);
+    setSelectedHistoryTaskIds([]);
   }, [activeTab]);
 
   const handleBatchDelete = async () => {
@@ -169,6 +172,62 @@ export default function VideoDownload() {
       setSelectedTaskIds(queueTasks.map(task => task.task_id));
     } else {
       setSelectedTaskIds([]);
+    }
+  };
+
+  const handleHistoryBatchDelete = async () => {
+    if (selectedHistoryTaskIds.length === 0) {
+      toast.error("请选择要删除的任务");
+      return;
+    }
+
+    setIsDeletingHistoryTasks(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/video-download/batch-delete",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            task_ids: selectedHistoryTaskIds,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`);
+        setSelectedHistoryTaskIds([]);
+        fetchDownloadTasks();
+      } else {
+        toast.error("删除任务失败");
+      }
+    } catch (error) {
+      console.error("Error deleting history tasks:", error);
+      toast.error("网络错误，删除任务失败");
+    } finally {
+      setIsDeletingHistoryTasks(false);
+    }
+  };
+
+  const handleSelectHistoryTask = (taskId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedHistoryTaskIds(prev => [...prev, taskId]);
+    } else {
+      setSelectedHistoryTaskIds(prev => prev.filter(id => id !== taskId));
+    }
+  };
+
+  const handleSelectAllHistory = (checked: boolean) => {
+    if (checked) {
+      setSelectedHistoryTaskIds(historyTasks.map(task => task.task_id));
+    } else {
+      setSelectedHistoryTaskIds([]);
     }
   };
 
@@ -712,6 +771,22 @@ https://www.bilibili.com/video/BV1234567890
                     下载历史 ({historyTasks.length}/{allHistoryTasks.length})
                   </span>
                   <div className="flex items-center space-x-2">
+                    {historyTasks.length > 0 && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-7"
+                        disabled={selectedHistoryTaskIds.length === 0 || isDeletingHistoryTasks}
+                        onClick={handleHistoryBatchDelete}
+                      >
+                        {isDeletingHistoryTasks ? (
+                          <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="mr-1 h-3 w-3" />
+                        )}
+                        删除选中 ({selectedHistoryTaskIds.length})
+                      </Button>
+                    )}
                     <Select value={historyFilter} onValueChange={setHistoryFilter}>
                       <SelectTrigger className="h-7 w-32 text-xs">
                         <SelectValue />
@@ -735,6 +810,15 @@ https://www.bilibili.com/video/BV1234567890
                     </Button>
                   </div>
                 </CardTitle>
+                {historyTasks.length > 0 && (
+                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <Checkbox
+                      checked={selectedHistoryTaskIds.length === historyTasks.length}
+                      onCheckedChange={handleSelectAllHistory}
+                    />
+                    <span>全选</span>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 {isLoadingTasks ? (
@@ -758,42 +842,49 @@ https://www.bilibili.com/video/BV1234567890
                         className="p-4 border border-border rounded-lg"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              {getStatusIcon(item.status)}
-                              <h3 className="text-sm font-medium truncate">
-                                {item.title || "未知视频"}
-                              </h3>
-                              <Badge
-                                variant="secondary"
-                                className={`text-xs ${getStatusColor(item.status)}`}
-                              >
-                                {getStatusText(item.status)}
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate mb-2">
-                              {item.url}
-                            </p>
-                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                              {item.platform && <span>{item.platform}</span>}
-                              <span>{new Date(item.created_at).toLocaleString()}</span>
-                              {item.completed_at && (
-                                <span>完成于: {new Date(item.completed_at).toLocaleString()}</span>
+                          <div className="flex items-start space-x-3 flex-1 min-w-0">
+                            <Checkbox
+                              checked={selectedHistoryTaskIds.includes(item.task_id)}
+                              onCheckedChange={(checked) => handleSelectHistoryTask(item.task_id, checked as boolean)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                {getStatusIcon(item.status)}
+                                <h3 className="text-sm font-medium truncate">
+                                  {item.title || "未知视频"}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${getStatusColor(item.status)}`}
+                                >
+                                  {getStatusText(item.status)}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate mb-2">
+                                {item.url}
+                              </p>
+                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                {item.platform && <span>{item.platform}</span>}
+                                <span>{new Date(item.created_at).toLocaleString()}</span>
+                                {item.completed_at && (
+                                  <span>完成于: {new Date(item.completed_at).toLocaleString()}</span>
+                                )}
+                              </div>
+                              {item.error_message && (
+                                <p className="text-xs text-red-600 mt-2">
+                                  错误: {item.error_message}
+                                </p>
+                              )}
+                              {item.file_info && (
+                                <div className="mt-2 text-xs text-muted-foreground">
+                                  <span>文件: {item.file_info.filename}</span>
+                                  <span className="ml-4">
+                                    大小: {(item.file_info.file_size / 1024 / 1024).toFixed(2)} MB
+                                  </span>
+                                </div>
                               )}
                             </div>
-                            {item.error_message && (
-                              <p className="text-xs text-red-600 mt-2">
-                                错误: {item.error_message}
-                              </p>
-                            )}
-                            {item.file_info && (
-                              <div className="mt-2 text-xs text-muted-foreground">
-                                <span>文件: {item.file_info.filename}</span>
-                                <span className="ml-4">
-                                  大小: {(item.file_info.file_size / 1024 / 1024).toFixed(2)} MB
-                                </span>
-                              </div>
-                            )}
                           </div>
                           <div className="flex items-center space-x-2 ml-4">
                             <Button
