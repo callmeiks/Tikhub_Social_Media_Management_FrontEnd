@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AudioLines,
   Video,
@@ -29,8 +33,27 @@ import {
 } from "lucide-react";
 
 const supportedFormats = [
-  { type: "audio", formats: ["MP3", "WAV", "M4A", "AAC", "OGG"] },
-  { type: "video", formats: ["MP4", "AVI", "MOV", "MKV", "WEBM"] },
+  { type: "audio", formats: ["MP3", "WAV", "FLAC", "AAC", "OPUS", "OGG", "M4A"] },
+  { type: "video", formats: ["MP4", "MPEG", "MOV", "WEBM"] },
+];
+
+const supportedLanguages = [
+  { code: "mandarin", name: "中文", flag: "🇨🇳" },
+  { code: "english", name: "English", flag: "🇺🇸" },
+  { code: "japanese", name: "日本語", flag: "🇯🇵" },
+  { code: "korean", name: "한국어", flag: "🇰🇷" },
+  { code: "french", name: "Français", flag: "🇫🇷" },
+  { code: "german", name: "Deutsch", flag: "🇩🇪" },
+  { code: "spanish", name: "Español", flag: "🇪🇸" },
+  { code: "italian", name: "Italiano", flag: "🇮🇹" },
+  { code: "portuguese", name: "Português", flag: "🇵🇹" },
+  { code: "russian", name: "Русский", flag: "🇷🇺" },
+  { code: "arabic", name: "العربية", flag: "🇸🇦" },
+  { code: "turkish", name: "Türkçe", flag: "🇹🇷" },
+  { code: "dutch", name: "Nederlands", flag: "🇳🇱" },
+  { code: "swedish", name: "Svenska", flag: "🇸🇪" },
+  { code: "polish", name: "Polski", flag: "🇵🇱" },
+  { code: "catalan", name: "Català", flag: "🇪🇸" },
 ];
 
 const extractedResult = {
@@ -61,25 +84,208 @@ export default function AudioExtract() {
   const [progress, setProgress] = useState(0);
   const [extractedText, setExtractedText] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(null);
+  const [responseFormat, setResponseFormat] = useState<string>("json");
+  const [speakerLabels, setSpeakerLabels] = useState(false);
+  const [language, setLanguage] = useState<string>("mandarin");
+  const [error, setError] = useState<string | null>(null);
+  const [actualResult, setActualResult] = useState<any>(null);
+  
+  const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
 
-  const handleFileUpload = async () => {
+  const handleExtractText = async (source: 'link' | 'file' | 'recording', data?: File | Blob) => {
     setIsExtracting(true);
     setProgress(0);
+    setError(null);
+    setShowResults(false);
 
-    // 模拟上传和提取进度
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsExtracting(false);
-          setShowResults(true);
-          setExtractedText(extractedResult.extractedText);
-          return 100;
+    try {
+      const formData = new FormData();
+      
+      if (source === 'link') {
+        formData.append('type', 'url');
+        formData.append('url', videoUrl);
+      } else {
+        formData.append('type', 'file');
+        if (source === 'recording' && data) {
+          // 将录音 Blob 转换为 File
+          const audioFile = new File([data], 'recording.webm', { type: 'audio/webm' });
+          formData.append('file', audioFile);
+        } else if (data) {
+          formData.append('file', data as File);
         }
-        return prev + 10;
+      }
+      
+      formData.append('response_format', responseFormat);
+      formData.append('language', language);
+      formData.append('speaker_labels', speakerLabels.toString());
+
+      // 模拟进度（实际上传时可以使用 XMLHttpRequest 监听上传进度）
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 20, 90));
+      }, 500);
+
+      const response = await fetch('http://127.0.0.1:8000/api/audio-transcript/extract', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AUTH_TOKEN}`,
+        },
+        body: formData
       });
-    }, 300);
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setActualResult(result);
+      
+      // 根据返回格式处理结果
+      if (responseFormat === 'json' || responseFormat === 'verbose_json') {
+        setExtractedText(result.transcript || '');
+      } else {
+        setExtractedText(result.transcript || '');
+      }
+      
+      setShowResults(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '提取失败，请重试');
+      console.error('提取文字失败:', err);
+    } finally {
+      setIsExtracting(false);
+      setProgress(0);
+    }
   };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioChunks([audioBlob]);
+        
+        // 创建音频URL供播放
+        const url = URL.createObjectURL(audioBlob);
+        setAudioUrl(url);
+        
+        // 创建音频元素
+        const audio = new Audio(url);
+        setAudioElement(audio);
+        
+        // 监听播放结束事件
+        audio.addEventListener('ended', () => {
+          setIsPlaying(false);
+        });
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      
+      // 开始计时
+      setRecordingDuration(0);
+      const timer = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+      setRecordingTimer(timer);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+      
+      // 停止计时
+      if (recordingTimer) {
+        clearInterval(recordingTimer);
+        setRecordingTimer(null);
+      }
+    }
+  };
+
+  const playAudio = () => {
+    if (audioElement && audioUrl) {
+      audioElement.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const pauseAudio = () => {
+    if (audioElement) {
+      audioElement.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const resetRecording = () => {
+    // 停止播放
+    if (audioElement) {
+      audioElement.pause();
+      setIsPlaying(false);
+    }
+    
+    // 清理音频URL
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    
+    // 重置状态
+    setAudioChunks([]);
+    setAudioUrl(null);
+    setAudioElement(null);
+    setRecordingDuration(0);
+  };
+
+  // 清理音频URL，防止内存泄漏
+  React.useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -132,10 +338,10 @@ export default function AudioExtract() {
           <CardContent>
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground">
-                支持格式：MP3、MP4、WAV、M4A、AAC、AVI、MOV、MKV、WEBM
+                支持格式：MP3、MP4、WAV、FLAC、AAC、OPUS、OGG、M4A、MPEG、MOV、WEBM
               </div>
               <div className="text-sm text-muted-foreground">
-                单个文件大小不超过2000M(建议不超过30分钟)
+                单个文件大小不超过100MB，最大时长30分钟，支持16种主流语言
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {supportedFormats.map((category) => (
@@ -214,12 +420,12 @@ export default function AudioExtract() {
                             className="flex-1"
                           />
                           <Button
-                            onClick={handleFileUpload}
+                            onClick={() => handleExtractText('link')}
                             disabled={!videoUrl.trim() || isExtracting}
                             className="h-10"
                           >
-                            <AudioLines className="mr-2 h-4 w-4" />
-                            提取音频
+                            <FileText className="mr-2 h-4 w-4" />
+                            提取文字
                           </Button>
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -243,28 +449,53 @@ export default function AudioExtract() {
                   </TabsContent>
 
                   <TabsContent value="upload" className="space-y-4">
-                    <div className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center bg-orange-50/50">
+                    <div 
+                      className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center bg-orange-50/50"
+                      onDrop={handleFileDrop}
+                      onDragOver={handleDragOver}
+                    >
                       <div className="flex flex-col items-center space-y-4">
                         <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
                           <FileAudio className="h-8 w-8 text-orange-600" />
                         </div>
                         <div className="space-y-2">
                           <p className="text-lg font-medium text-gray-800">
-                            拖拽文件到此处或点击上传
+                            {selectedFile ? selectedFile.name : "拖拽文件到此处或点击上传"}
                           </p>
                           <p className="text-sm text-gray-600">
-                            支持 MP3、MP4、WAV 等格式，最大 2GB
+                            支持 MP3、MP4、WAV 等格式，最大 100MB
                           </p>
                         </div>
                         <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            onClick={handleFileUpload}
-                            className="border-orange-300 text-orange-700 hover:bg-orange-50"
-                          >
-                            <Upload className="mr-2 h-4 w-4" />
-                            选择文件
-                          </Button>
+                          <input
+                            type="file"
+                            id="file-upload"
+                            className="hidden"
+                            accept=".mp3,.wav,.flac,.aac,.opus,.ogg,.m4a,.mp4,.mpeg,.mov,.webm"
+                            onChange={handleFileSelect}
+                          />
+                          <label htmlFor="file-upload">
+                            <Button
+                              variant="outline"
+                              className="border-orange-300 text-orange-700 hover:bg-orange-50"
+                              asChild
+                            >
+                              <span>
+                                <Upload className="mr-2 h-4 w-4" />
+                                选择文件
+                              </span>
+                            </Button>
+                          </label>
+                          {selectedFile && (
+                            <Button
+                              onClick={() => handleExtractText('file', selectedFile)}
+                              disabled={isExtracting}
+                              className="bg-orange-600 hover:bg-orange-700 text-white"
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              提取文字
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             className="text-orange-700 hover:bg-orange-50"
@@ -298,22 +529,85 @@ export default function AudioExtract() {
                         <div className="space-y-2">
                           <p className="text-lg font-medium">实时录音转文字</p>
                           <p className="text-sm text-muted-foreground">
-                            点击开始录音，实时转���为文字
+                            点击开始录音，实时转音视频文件为文字
                           </p>
                         </div>
                         <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            className="border-red-300 text-red-700 hover:bg-red-50"
-                          >
-                            <Mic className="mr-2 h-4 w-4" />
-                            开始录音
-                          </Button>
-                          <Button variant="ghost" disabled>
-                            <Pause className="mr-2 h-4 w-4" />
-                            停止
-                          </Button>
+                          {!isRecording ? (
+                            <Button
+                              variant="outline"
+                              className="border-red-300 text-red-700 hover:bg-red-50"
+                              onClick={startRecording}
+                            >
+                              <Mic className="mr-2 h-4 w-4" />
+                              开始录音
+                            </Button>
+                          ) : (
+                            <Button
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                              onClick={stopRecording}
+                            >
+                              <Pause className="mr-2 h-4 w-4" />
+                              停止录音
+                            </Button>
+                          )}
+                          {audioChunks.length > 0 && !isRecording && (
+                            <>
+                              <div className="flex space-x-2">
+                                {!isPlaying ? (
+                                  <Button
+                                    onClick={playAudio}
+                                    variant="outline"
+                                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                                  >
+                                    <Play className="mr-2 h-4 w-4" />
+                                    播放录音
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    onClick={pauseAudio}
+                                    variant="outline"
+                                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                                  >
+                                    <Pause className="mr-2 h-4 w-4" />
+                                    暂停
+                                  </Button>
+                                )}
+                                <Button
+                                  onClick={() => handleExtractText('recording', audioChunks[0])}
+                                  disabled={isExtracting}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  <FileText className="mr-2 h-4 w-4" />
+                                  提取文字
+                                </Button>
+                                <Button
+                                  onClick={resetRecording}
+                                  variant="ghost"
+                                  size="icon"
+                                  title="重新录音"
+                                >
+                                  <RefreshCw className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </>
+                          )}
                         </div>
+                        {isRecording && (
+                          <div className="space-y-2">
+                            <div className="text-sm text-red-600 animate-pulse">
+                              正在录音中...
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              录音时长: {Math.floor(recordingDuration / 60).toString().padStart(2, '0')}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                            </div>
+                          </div>
+                        )}
+                        {audioChunks.length > 0 && !isRecording && (
+                          <div className="text-sm text-muted-foreground">
+                            录音时长: {Math.floor(recordingDuration / 60).toString().padStart(2, '0')}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TabsContent>
@@ -321,8 +615,16 @@ export default function AudioExtract() {
               </CardContent>
             </Card>
 
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             {/* Results Section */}
-            {showResults && (
+            {showResults && actualResult && (
               <Card className="border border-border mt-4">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center justify-between">
@@ -335,7 +637,7 @@ export default function AudioExtract() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          handleCopy(extractedResult.extractedText)
+                          handleCopy(extractedText)
                         }
                         className="h-6"
                       >
@@ -357,49 +659,51 @@ export default function AudioExtract() {
                 <CardContent>
                   <div className="space-y-4">
                     {/* File Info */}
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            文件名：
-                          </span>
-                          <span className="font-medium">
-                            {extractedResult.fileName}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">时长：</span>
-                          <span className="font-medium">
-                            {extractedResult.duration}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">大小：</span>
-                          <span className="font-medium">
-                            {extractedResult.fileSize}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            识别率：
-                          </span>
-                          <span className="font-medium text-green-600">
-                            {extractedResult.confidence}%
-                          </span>
+                    {actualResult.file_info && (
+                      <div className="p-3 bg-muted/30 rounded-lg">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">
+                              文件名：
+                            </span>
+                            <span className="font-medium">
+                              {actualResult.file_info.filename || '未知'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">时长：</span>
+                            <span className="font-medium">
+                              {actualResult.file_info.duration 
+                                ? `${Math.floor(actualResult.file_info.duration / 60)}:${(actualResult.file_info.duration % 60).toString().padStart(2, '0')}`
+                                : '未知'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">格式：</span>
+                            <span className="font-medium">
+                              {actualResult.file_info.format?.toUpperCase() || '未知'}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Extracted Text */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-medium">提取的文字内容</h3>
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          <CheckCircle className="h-3 w-3 text-green-600" />
-                          <span>语言：{extractedResult.language}</span>
-                          <span>•</span>
-                          <span>说话人：{extractedResult.speakers}人</span>
-                        </div>
+                        {actualResult.language && (
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <CheckCircle className="h-3 w-3 text-green-600" />
+                            <span>语言：{actualResult.language}</span>
+                            {actualResult.speakers && (
+                              <>
+                                <span>•</span>
+                                <span>说话人：{actualResult.speakers}人</span>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <Textarea
                         value={extractedText}
@@ -409,22 +713,24 @@ export default function AudioExtract() {
                       />
                     </div>
 
-                    {/* Keywords */}
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">关键词</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {extractedResult.keywords.map((keyword, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="text-xs cursor-pointer"
-                            onClick={() => handleCopy(keyword)}
-                          >
-                            {keyword}
-                          </Badge>
-                        ))}
+                    {/* Keywords - 如果API返回关键词 */}
+                    {actualResult.keywords && actualResult.keywords.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium">关键词</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {actualResult.keywords.map((keyword: string, index: number) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs cursor-pointer"
+                              onClick={() => handleCopy(keyword)}
+                            >
+                              {keyword}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -433,6 +739,82 @@ export default function AudioExtract() {
 
           {/* Settings Panel */}
           <div className="space-y-4">
+            {/* Extract Settings */}
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  提取设置
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="language-select">音频语言</Label>
+                    <Select
+                      value={language}
+                      onValueChange={setLanguage}
+                    >
+                      <SelectTrigger id="language-select">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {supportedLanguages.map((lang) => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            <div className="flex items-center space-x-2">
+                              <span>{lang.flag}</span>
+                              <span>{lang.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="response-format">返回格式</Label>
+                    <Select
+                      value={responseFormat}
+                      onValueChange={setResponseFormat}
+                    >
+                      <SelectTrigger id="response-format">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="json">JSON格式</SelectItem>
+                        <SelectItem value="text">纯文本</SelectItem>
+                        <SelectItem value="srt">SRT字幕</SelectItem>
+                        <SelectItem value="verbose_json">详细JSON(含说话人)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="speaker-labels">说话人标识</Label>
+                    <Switch
+                      id="speaker-labels"
+                      checked={speakerLabels}
+                      onCheckedChange={(checked) => {
+                        setSpeakerLabels(checked);
+                        if (checked && responseFormat !== 'verbose_json') {
+                          setResponseFormat('verbose_json');
+                        }
+                      }}
+                      disabled={responseFormat !== 'verbose_json'}
+                    />
+                  </div>
+                  
+                  {speakerLabels && responseFormat !== 'verbose_json' && (
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        说话人标识仅在"详细JSON"格式下可用
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
             {/* Usage Stats */}
             <Card className="border border-border">
               <CardHeader className="pb-3">

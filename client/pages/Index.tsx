@@ -51,7 +51,6 @@ import {
   Settings,
   Smartphone,
   ThumbsUp,
-  Trending,
   UserCheck,
   Wifi,
   Zap as ZapIcon,
