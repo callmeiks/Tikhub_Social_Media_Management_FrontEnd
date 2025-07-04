@@ -99,7 +99,7 @@ export default function TitleGenerator() {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTkxMzc1fQ.Di_iZkfZUlN-kY8z_3Wy_rrS3lxgvm3D-sY-eKHxLXI'}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

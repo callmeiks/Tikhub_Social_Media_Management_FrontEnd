@@ -157,7 +157,7 @@ export default function ShootingScriptGenerator() {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTkxNjQyfQ.LI6v-z3onQIbYIJ_ja-V-a00ZXrxlsjGCHp_RYn1E2g'}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

@@ -30,8 +30,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 // API configuration
 const API_BASE_URL = "http://localhost:8000/api";
-const AUTH_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxMzYwNzAxfQ.IfdUlo3nyL7RjUqDVUHuAVVJAUmAKFnjDLyk3EbxFDg";
+const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
 
 export default function UniversalConverter() {
   const { toast } = useToast();

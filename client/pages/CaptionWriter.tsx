@@ -108,7 +108,7 @@ export default function CaptionWriter() {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNTg4NjA5fQ.zLKS1jjknZC_2jCUJEWByV9ZEDNnCAN8rPMaLNwI_Nw'}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
