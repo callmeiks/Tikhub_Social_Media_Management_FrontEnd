@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import {
   Download,
   Play,
@@ -35,60 +36,72 @@ const platformSupport = [
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
 ];
 
-const downloadQueue = [
-  {
-    id: 1,
-    url: "https://www.tiktok.com/@user/video/7123456789",
-    platform: "TikTok",
-    title: "Amazing dance tutorial #fyp",
-    status: "completed",
-    progress: 100,
-    fileSize: "15.2 MB",
-    duration: "00:32",
-  },
-  {
-    id: 2,
-    url: "https://v.douyin.com/iJKLMNO/",
-    platform: "抖音",
-    title: "美食制作教程",
-    status: "downloading",
-    progress: 65,
-    fileSize: "23.8 MB",
-    duration: "01:15",
-  },
-  {
-    id: 3,
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    platform: "YouTube",
-    title: "Music Video Tutorial",
-    status: "pending",
-    progress: 0,
-    fileSize: "25.8 MB",
-    duration: "03:32",
-  },
-  {
-    id: 4,
-    url: "https://www.bilibili.com/video/BV1234567890",
-    platform: "B站",
-    title: "编程教学视频",
-    status: "error",
-    progress: 0,
-    fileSize: "45.2 MB",
-    duration: "05:30",
-  },
-];
+interface VideoTask {
+  task_id: string;
+  url: string;
+  platform: string | null;
+  title: string | null;
+  status: string;
+  progress: number;
+  created_at: string;
+  completed_at: string | null;
+  error_message: string | null;
+  file_info: {
+    format: string;
+    filename: string;
+    file_size: number;
+    local_path: string;
+    original_url: string;
+  } | null;
+  batch_id: string;
+}
 
 const downloadSettings = {
   format: "mp4",
-  downloadPath: "/Downloads/TikHub",
+  downloadPath: "~/Downloads/TikHub",
 };
 
 export default function VideoDownload() {
   const [batchUrls, setBatchUrls] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState("batch");
-  const [downloadList, setDownloadList] = useState(downloadQueue);
+  const [downloadList, setDownloadList] = useState<VideoTask[]>([]);
   const [settings, setSettings] = useState(downloadSettings);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+
+  const fetchDownloadTasks = async () => {
+    setIsLoadingTasks(true);
+    try {
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/video-download/my-tasks?limit=100&offset=0",
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch tasks");
+      }
+
+      const data = await response.json();
+      setDownloadList(data.tasks || []);
+    } catch (error) {
+      toast.error("获取下载任务失败");
+      console.error("Error fetching tasks:", error);
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "queue" || activeTab === "history") {
+      fetchDownloadTasks();
+    }
+  }, [activeTab]);
 
   const handleBatchProcess = async () => {
     const urls = batchUrls
@@ -97,22 +110,59 @@ export default function VideoDownload() {
       .filter((url) => url.length > 0);
 
     if (urls.length === 0) {
-      alert("请输入至少一个视频链接");
+      toast.error("请输入至少一个视频链接");
       return;
     }
 
     if (urls.length > 50) {
-      alert("最多支持50个链接，请减少链接数量");
+      toast.error("最多支持50个链接，请减少链接数量");
       return;
     }
 
     setIsProcessing(true);
-    // 模拟处理过程
-    setTimeout(() => {
-      // 这里可以添加实际的批量处理逻辑
+    try {
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/video-download/process",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            metadata: {
+              batchName: "My Video Collection",
+              userId: "e9829a6d-abc6-46d2-94ea-89171d0f3df7",
+            },
+            settings: {
+              downloadPath: settings.downloadPath,
+              format: settings.format,
+            },
+            urls: urls,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to process download");
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message);
+        setBatchUrls("");
+        fetchDownloadTasks();
+      } else {
+        toast.error(data.message || "处理失败");
+      }
+    } catch (error) {
+      toast.error("提交下载任务失败");
+      console.error("Error processing download:", error);
+    } finally {
       setIsProcessing(false);
-      alert(`成功添加 ${urls.length} 个视频到下载队列`);
-    }, 2000);
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -123,8 +173,14 @@ export default function VideoDownload() {
         return <Download className="h-4 w-4 text-blue-600" />;
       case "pending":
         return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "error":
+      case "failed":
         return <XCircle className="h-4 w-4 text-red-600" />;
+      case "processing":
+        return <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />;
+      case "queued":
+        return <Clock className="h-4 w-4 text-yellow-600" />;
+      case "cancelled":
+        return <XCircle className="h-4 w-4 text-gray-600" />;
       default:
         return <Clock className="h-4 w-4 text-gray-600" />;
     }
@@ -138,8 +194,14 @@ export default function VideoDownload() {
         return "下载中";
       case "pending":
         return "等待中";
-      case "error":
+      case "failed":
         return "失败";
+      case "processing":
+        return "处理中";
+      case "queued":
+        return "排队中";
+      case "cancelled":
+        return "已取消";
       default:
         return "未知";
     }
@@ -153,8 +215,14 @@ export default function VideoDownload() {
         return "bg-blue-100 text-blue-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "error":
+      case "failed":
         return "bg-red-100 text-red-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "queued":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -169,11 +237,22 @@ export default function VideoDownload() {
     (item) => item.status === "completed",
   ).length;
   const downloadingCount = downloadList.filter(
-    (item) => item.status === "downloading",
+    (item) => item.status === "processing" || item.status === "downloading",
   ).length;
   const errorCount = downloadList.filter(
-    (item) => item.status === "error",
+    (item) => item.status === "failed",
   ).length;
+  const queuedCount = downloadList.filter(
+    (item) => item.status === "queued" || item.status === "pending",
+  ).length;
+
+  const queueTasks = downloadList.filter(
+    (item) => item.status === "queued" || item.status === "processing" || item.status === "pending"
+  );
+  
+  const historyTasks = downloadList.filter(
+    (item) => item.status === "completed" || item.status === "failed" || item.status === "cancelled"
+  );
 
   return (
     <DashboardLayout
@@ -269,7 +348,7 @@ https://www.bilibili.com/video/BV1234567890
                     {urlCount > 50 && (
                       <div className="flex items-center space-x-2 text-red-600 text-sm">
                         <AlertTriangle className="h-4 w-4" />
-                        <span>链接数量超过限制，请删���多余的链接</span>
+                        <span>链接数量超过限制，请删除多余的链接</span>
                       </div>
                     )}
 
@@ -299,7 +378,7 @@ https://www.bilibili.com/video/BV1234567890
                           className="h-8"
                         >
                           <Trash2 className="mr-2 h-3.5 w-3.5" />
-                          ���空
+                          清空
                         </Button>
                       </div>
 
@@ -358,12 +437,12 @@ https://www.bilibili.com/video/BV1234567890
                 {/* Statistics */}
                 <Card className="border border-border">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">今日统计</CardTitle>
+                    <CardTitle className="text-base">统计</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        已完��
+                        已完成
                       </span>
                       <span className="text-sm font-medium">
                         {completedCount}
@@ -371,10 +450,18 @@ https://www.bilibili.com/video/BV1234567890
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        下载中
+                        处理中
                       </span>
                       <span className="text-sm font-medium">
                         {downloadingCount}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        排队中
+                      </span>
+                      <span className="text-sm font-medium">
+                        {queuedCount}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -385,18 +472,6 @@ https://www.bilibili.com/video/BV1234567890
                         {errorCount}
                       </span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-foreground h-2 rounded-full"
-                        style={{ width: "75%" }}
-                      />
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="w-full justify-center text-xs"
-                    >
-                      🎉 今日已下载 156 个视频
-                    </Badge>
                   </CardContent>
                 </Card>
               </div>
@@ -409,79 +484,87 @@ https://www.bilibili.com/video/BV1234567890
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Download className="mr-2 h-4 w-4" />
-                    下载队列 ({downloadList.length})
+                    下载队列 ({queueTasks.length})
                   </span>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" className="h-7">
-                      <Pause className="mr-1 h-3 w-3" />
-                      暂停全部
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-7">
-                      <RotateCcw className="mr-1 h-3 w-3" />
-                      重试失败
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7"
+                    onClick={() => fetchDownloadTasks()}
+                  >
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    刷新
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {downloadList.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-4 border border-border rounded-lg"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            {getStatusIcon(item.status)}
-                            <h3 className="text-sm font-medium truncate">
-                              {item.title}
-                            </h3>
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs ${getStatusColor(item.status)}`}
+                {isLoadingTasks ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">加载中...</p>
+                  </div>
+                ) : queueTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileVideo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">队列为空</h3>
+                    <p className="text-muted-foreground">暂无正在处理的下载任务</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {queueTasks.map((item) => (
+                      <div
+                        key={item.task_id}
+                        className="p-4 border border-border rounded-lg"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              {getStatusIcon(item.status)}
+                              <h3 className="text-sm font-medium truncate">
+                                {item.title || "获取视频信息中..."}
+                              </h3>
+                              <Badge
+                                variant="secondary"
+                                className={`text-xs ${getStatusColor(item.status)}`}
+                              >
+                                {getStatusText(item.status)}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mb-2">
+                              {item.url}
+                            </p>
+                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                              {item.platform && <span>{item.platform}</span>}
+                              <span>{new Date(item.created_at).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => {
+                                navigator.clipboard.writeText(item.url);
+                                toast.success("链接已复制");
+                              }}
                             >
-                              {getStatusText(item.status)}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate mb-2">
-                            {item.url}
-                          </p>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                            <span>{item.platform}</span>
-                            <span>{item.duration}</span>
-                            <span>{item.fileSize}</span>
+                              <Copy className="h-3 w-3" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-red-600"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        {(item.status === "processing" || item.status === "downloading") && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>处理进度</span>
+                              <span>{item.progress}%</span>
+                            </div>
+                            <Progress value={item.progress} className="h-2" />
+                          </div>
+                        )}
                       </div>
-                      {item.status === "downloading" && (
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span>下载进度</span>
-                            <span>{item.progress}%</span>
-                          </div>
-                          <Progress value={item.progress} className="h-2" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -489,19 +572,144 @@ https://www.bilibili.com/video/BV1234567890
           <TabsContent value="history" className="space-y-6">
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  下载历史
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Clock className="mr-2 h-4 w-4" />
+                    下载历史 ({historyTasks.length})
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7"
+                    onClick={() => fetchDownloadTasks()}
+                  >
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    刷新
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <FileVideo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">下载历史为空</h3>
-                  <p className="text-muted-foreground">
-                    完成的下载记录将在这里显示
-                  </p>
-                </div>
+                {isLoadingTasks ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">加载中...</p>
+                  </div>
+                ) : historyTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileVideo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">下载历史为空</h3>
+                    <p className="text-muted-foreground">
+                      完成的下载记录将在这里显示
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {historyTasks.map((item) => (
+                      <div
+                        key={item.task_id}
+                        className="p-4 border border-border rounded-lg"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              {getStatusIcon(item.status)}
+                              <h3 className="text-sm font-medium truncate">
+                                {item.title || "未知视频"}
+                              </h3>
+                              <Badge
+                                variant="secondary"
+                                className={`text-xs ${getStatusColor(item.status)}`}
+                              >
+                                {getStatusText(item.status)}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mb-2">
+                              {item.url}
+                            </p>
+                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                              {item.platform && <span>{item.platform}</span>}
+                              <span>{new Date(item.created_at).toLocaleString()}</span>
+                              {item.completed_at && (
+                                <span>完成于: {new Date(item.completed_at).toLocaleString()}</span>
+                              )}
+                            </div>
+                            {item.error_message && (
+                              <p className="text-xs text-red-600 mt-2">
+                                错误: {item.error_message}
+                              </p>
+                            )}
+                            {item.file_info && (
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                <span>文件: {item.file_info.filename}</span>
+                                <span className="ml-4">
+                                  大小: {(item.file_info.file_size / 1024 / 1024).toFixed(2)} MB
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => {
+                                navigator.clipboard.writeText(item.url);
+                                toast.success("链接已复制");
+                              }}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                            {item.file_info && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={async () => {
+                                  const filePath = item.file_info!.local_path;
+                                  
+                                  try {
+                                    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAcXEuY29tIiwiZXhwIjoxNzUxNjA3OTc4fQ.miRq7uyI13hi30jrDlAnI74FGvd5Z6-vl5jhHk5nDwQ";
+                                    const response = await fetch(
+                                      "http://127.0.0.1:8000/api/video-download/open-folder",
+                                      {
+                                        method: "POST",
+                                        headers: {
+                                          accept: "application/json",
+                                          Authorization: `Bearer ${token}`,
+                                          "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify({
+                                          file_path: filePath,
+                                        }),
+                                      }
+                                    );
+
+                                    if (response.ok) {
+                                      const data = await response.json();
+                                      if (data.success) {
+                                        toast.success("文件夹已打开");
+                                      } else {
+                                        toast.error(data.message || "打开文件夹失败");
+                                      }
+                                    } else {
+                                      toast.error("服务器错误，无法打开文件夹");
+                                    }
+                                  } catch (error) {
+                                    console.error("Error opening folder:", error);
+                                    toast.error("网络错误，无法打开文件夹");
+                                  }
+                                }}
+                                title="打开文件夹"
+                              >
+                                <Folder className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
