@@ -58,7 +58,7 @@ const menuItems: MenuItem[] = [
       { title: "文案生成", href: "/creator-tools/rewrite" },
       { title: "文稿生成", href: "/creator-tools/short-video-copy" },
       { title: "标题生成", href: "/creator-tools/title-generator" },
-      { title: "拍摄脚���生成", href: "/creator-tools/shooting-script" },
+      { title: "拍摄脚本生成", href: "/creator-tools/shooting-script" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
 
@@ -73,6 +73,8 @@ const menuItems: MenuItem[] = [
     href: "/data-collection",
     subItems: [
       { title: "视频下载", href: "/creator-tools/video-download" },
+      { title: "图文提取", href: "/creator-tools/content-extract" },
+      { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
       {
         title: "账号作品数据采集",
         href: "/data-collection/account-interaction",
@@ -108,7 +110,7 @@ const menuItems: MenuItem[] = [
     icon: TrendingUp,
     href: "/hot-rankings",
     subItems: [
-      { title: "抖音热��账号", href: "/hot-rankings/dy-hot-accounts" },
+      { title: "抖音�����账号", href: "/hot-rankings/dy-hot-accounts" },
       { title: "抖音上升热点榜", href: "/hot-rankings/dy-rising-trends" },
       { title: "抖音同城热点榜", href: "/hot-rankings/dy-local-trends" },
       { title: "抖音挑战热点榜", href: "/hot-rankings/dy-challenge-trends" },
