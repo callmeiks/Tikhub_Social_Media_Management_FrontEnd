@@ -7,6 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   FileText,
   Video,
   Copy,
@@ -60,7 +68,7 @@ const extractedData = {
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
-✨ 精华：烟酰胺精华液  
+✨ 精华：烟酰胺精华液
 ✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
 
@@ -119,7 +127,7 @@ export default function VideoNoteExtract() {
   return (
     <DashboardLayout
       title="视频/笔记文案提取"
-      subtitle="智能提取视频和笔记中的文案内容，快速获取创作灵感"
+      subtitle="智能提取视频和笔记中的文案内容，快速获取创���灵感"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
