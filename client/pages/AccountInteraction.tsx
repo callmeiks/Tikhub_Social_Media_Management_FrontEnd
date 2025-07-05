@@ -613,7 +613,7 @@ https://weibo.com/u/123456789
                                   className="h-6"
                                 >
                                   <Download className="h-3 w-3 mr-1" />
-                                  ���出CSV
+                                  导出CSV
                                 </Button>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -840,44 +840,51 @@ https://weibo.com/u/123456789
                   <div className="border rounded-lg p-4">
                     <h3 className="text-sm font-medium mb-3 flex items-center">
                       <Heart className="h-4 w-4 mr-2 text-red-500" />
-                      作���总点赞量最高用户
+                      作品总点赞量最高用户
                     </h3>
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                          <span className="text-lg">
-                            {highestLikesAccount.platform === "抖音"
-                              ? "🎤"
-                              : highestLikesAccount.platform === "小红书"
-                                ? "📖"
-                                : "🎵"}
-                          </span>
+                    {highestLikesAccount ? (
+                      <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <span className="text-lg">
+                              {highestLikesAccount.platform === "抖音"
+                                ? "🎤"
+                                : highestLikesAccount.platform === "小红书"
+                                  ? "📖"
+                                  : "🎵"}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {highestLikesAccount.name}
+                            </p>
+                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                              <span>{highestLikesAccount.platform}</span>
+                              <span>{highestLikesAccount.followers} 粉丝</span>
+                              <span>{highestLikesAccount.totalWorks} 作品</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {highestLikesAccount.name}
-                          </p>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                            <span>{highestLikesAccount.platform}</span>
-                            <span>{highestLikesAccount.followers} 粉丝</span>
-                            <span>{highestLikesAccount.totalWorks} 作品</span>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-red-600">
+                            {highestLikesAccount.totalLikes}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            总点赞数
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-red-600">
-                          {highestLikesAccount.totalLikes}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          总点赞数
-                        </div>
+                    ) : (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <Users className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm">没有符合筛选条件的账号数据</p>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Platform Distribution */}
                   <div className="border rounded-lg p-4">
-                    <h3 className="text-sm font-medium mb-3">平台分布</h3>
+                    <h3 className="text-sm font-medium mb-3">平台分���</h3>
                     <div className="space-y-2">
                       {supportedPlatforms.map((platform) => {
                         const count = accountData.filter(
