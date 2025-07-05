@@ -113,7 +113,7 @@ const extractedData = {
 - 皮肤更有光泽
 - 痘印淡化了很多
 
-🌟 我用的方��：
+🌟 我用的方法：
 1️⃣ 早晚双重清洁
 2️⃣ 精华要按摩到吸收
 3️⃣ 面膜一周2-3次
@@ -296,7 +296,7 @@ https://www.bilibili.com/video/BV1234567890
                           <>
                             <AlertTriangle className="h-3 w-3 text-red-600" />
                             <span className="text-red-600">
-                              发现 {invalidUrls.length} 个无效链接���请检查格式
+                              发现 {invalidUrls.length} 个无效链接，请检查格式
                             </span>
                           </>
                         ) : (
@@ -310,7 +310,7 @@ https://www.bilibili.com/video/BV1234567890
                     {urlCount > 50 && (
                       <div className="flex items-center space-x-2 text-red-600 text-sm">
                         <AlertTriangle className="h-4 w-4" />
-                        <span>链接数量超过限制，请删除多余的链接</span>
+                        <span>链接数量超过限制，��删除多余的链接</span>
                       </div>
                     )}
 
@@ -350,8 +350,7 @@ https://www.bilibili.com/video/BV1234567890
                       </div>
 
                       <div className="text-xs text-muted-foreground">
-                        <Eye className="inline h-3 w-3 mr-1" />
-                        AI智能文案提取
+                        {urlCount > 0 && <span>检测到 {urlCount} 个链接</span>}
                       </div>
                     </div>
                   </CardContent>
