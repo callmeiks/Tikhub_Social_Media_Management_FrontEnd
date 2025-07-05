@@ -158,6 +158,9 @@ export default function AccountInteraction() {
   const [accountData, setAccountData] = useState(sampleAccountData);
   const [expandedAccounts, setExpandedAccounts] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<{ [key: number]: number }>({});
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
+    supportedPlatforms.map((p) => p.name),
+  );
 
   const urlCount = batchUrls
     .split("\n")
@@ -357,7 +360,7 @@ https://www.tiktok.com/@username
 https://www.bilibili.com/space/123456
 https://weibo.com/u/123456789
 
-支持抖音、小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
+支持抖音��小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -721,7 +724,7 @@ https://weibo.com/u/123456789
                   <div className="border rounded-lg p-4">
                     <h3 className="text-sm font-medium mb-3 flex items-center">
                       <Heart className="h-4 w-4 mr-2 text-red-500" />
-                      作品总点赞量最高用户
+                      作品总点赞量最��用户
                     </h3>
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div className="flex items-center space-x-3">
