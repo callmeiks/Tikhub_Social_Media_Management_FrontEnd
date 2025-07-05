@@ -29,6 +29,8 @@ import {
   XCircle,
   Pause,
   RotateCcw,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 const extractionQueue = [
@@ -91,7 +93,7 @@ const extractedContent = {
 5️⃣ 防晒：物理防晒，SPF30以上
 
 ✨ 重点产品推荐：
-- 洁面：某某氨基酸洁面泡沫
+- 洁面：某���氨基酸洁面泡沫
 - 爽肤水：某某神经酰胺爽肤水
 - 精华：某某烟酰胺精华液
 - 面霜：某某修护面霜
@@ -552,7 +554,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <h3 className="text-sm font-medium">
-                                提取图片 ({extractedContent.images.length})
+                                提取��片 ({extractedContent.images.length})
                               </h3>
                               <Button
                                 variant="ghost"
