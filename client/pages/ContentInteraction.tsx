@@ -286,7 +286,7 @@ export default function ContentInteraction() {
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `作品互动数据_${filteredContentData.length}条记录.xlsx`;
+    link.download = `作品互动数据_${selectedContentData.length}条记录.xlsx`;
     link.click();
   };
 
