@@ -185,15 +185,15 @@ export default function ContentInteraction() {
   };
 
   const toggleContentSelection = (contentId: number) => {
-    setSelectedContent((prev) =>
+    setSelectedContent(prev =>
       prev.includes(contentId)
-        ? prev.filter((id) => id !== contentId)
-        : [...prev, contentId],
+        ? prev.filter(id => id !== contentId)
+        : [...prev, contentId]
     );
   };
 
   const selectAllContent = () => {
-    setSelectedContent(filteredContentData.map((content) => content.id));
+    setSelectedContent(filteredContentData.map(content => content.id));
   };
 
   const clearAllContent = () => {
@@ -203,16 +203,14 @@ export default function ContentInteraction() {
   // Clear selected content that are no longer visible due to platform filtering
   useEffect(() => {
     const filteredContentIds = contentData
-      .filter((content) => selectedPlatforms.includes(content.platform))
-      .map((content) => content.id);
-    setSelectedContent((prev) =>
-      prev.filter((id) => filteredContentIds.includes(id)),
-    );
+      .filter(content => selectedPlatforms.includes(content.platform))
+      .map(content => content.id);
+    setSelectedContent(prev => prev.filter(id => filteredContentIds.includes(id)));
   }, [selectedPlatforms, contentData]);
 
   const exportContentData = () => {
-    const selectedContentData = contentData.filter((content) =>
-      selectedContent.includes(content.id),
+    const selectedContentData = contentData.filter(content =>
+      selectedContent.includes(content.id)
     );
 
     if (selectedContentData.length === 0) {
@@ -328,6 +326,24 @@ export default function ContentInteraction() {
             </div>
           </CardContent>
         </Card>
+
+        <Tabs defaultValue="add" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="add" className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              添加作品
+            </TabsTrigger>
+            <TabsTrigger value="data" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              作品数据
+            </TabsTrigger>
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              总数据展示
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="add" className="mt-6">
 
         {/* Batch Input */}
         <Card>
