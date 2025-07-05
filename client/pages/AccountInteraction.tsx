@@ -93,7 +93,7 @@ const sampleAccountData = [
         publishedAt: "2024-01-18",
         likes: "12.3万",
         comments: "2.8万",
-        shares: "6.2千",
+        shares: "6.2��",
         views: "180万",
         url: "https://www.douyin.com/video/124",
       },
@@ -161,6 +161,7 @@ export default function AccountInteraction() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
     supportedPlatforms.map((p) => p.name),
   );
+  const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
 
   const urlCount = batchUrls
     .split("\n")
@@ -741,8 +742,8 @@ https://weibo.com/u/123456789
                                 {totalPages > 1 && (
                                   <div className="flex items-center justify-between">
                                     <div className="text-xs text-muted-foreground">
-                                      显示第 {(currentAccountPage - 1) * 10 + 1}{" "}
-                                      -{" "}
+                                      显���第{" "}
+                                      {(currentAccountPage - 1) * 10 + 1} -{" "}
                                       {Math.min(
                                         currentAccountPage * 10,
                                         account.works.length,
