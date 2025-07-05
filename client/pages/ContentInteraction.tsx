@@ -69,7 +69,7 @@ const sampleContentData = [
     id: 2,
     title: "学生党宿舍收纳神器推荐",
     platform: "小红书",
-    author: "生活记录家",
+    author: "生���记录家",
     url: "https://www.xiaohongshu.com/discovery/item/456789",
     publishedAt: "2024-01-19",
     views: "120万",
@@ -116,6 +116,7 @@ export default function ContentInteraction() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
     supportedPlatforms.map((p) => p.name),
   );
+  const [selectedContent, setSelectedContent] = useState<number[]>([]);
 
   const urlCount = batchUrls
     .split("\n")
@@ -514,7 +515,7 @@ https://www.youtube.com/watch?v=example123
                       <TableHead className="w-[80px]">点赞</TableHead>
                       <TableHead className="w-[80px]">评论</TableHead>
                       <TableHead className="w-[80px]">分享</TableHead>
-                      <TableHead className="w-[80px]">收藏</TableHead>
+                      <TableHead className="w-[80px]">��藏</TableHead>
                       <TableHead className="w-[60px]">操作</TableHead>
                     </TableRow>
                   </TableHeader>
