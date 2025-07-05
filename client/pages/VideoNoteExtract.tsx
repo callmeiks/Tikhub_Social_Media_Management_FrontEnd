@@ -122,10 +122,10 @@ const extractedData = {
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
 ✨ 精华：烟酰胺精华液
-✨ 面膜：玻尿酸补水面膜
+✨ 面膜：玻尿酸补���面膜
 ✨ 防晒：物理防晒霜SPF50
 
-坚持真的有用！姐妹们��起变美～
+坚持真的有用！姐妹们一起变美～
 
 #护肤心得 #变美 #护肤分享`,
   hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
@@ -146,8 +146,18 @@ export default function VideoNoteExtract() {
   const [activeTab, setActiveTab] = useState("extract");
 
   const handleExtract = async () => {
-    if (!inputUrl.trim()) {
-      alert("请输入视频或笔记链接");
+    const urls = batchUrls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    if (urls.length === 0) {
+      alert("请输入至少一个视频或笔记链接");
+      return;
+    }
+
+    if (urls.length > 50) {
+      alert("最多支持50个链接，请减少链接数量");
       return;
     }
 
