@@ -253,14 +253,20 @@ export default function AccountInteraction() {
   };
 
   // Statistics calculations
-  const totalAccounts = accountData.length;
-  const totalWorks = accountData.reduce((sum, acc) => sum + acc.totalWorks, 0);
-  const highestLikesAccount = accountData.reduce((max, acc) =>
-    parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
-    parseInt(max.totalLikes.replace(/[万千]/g, ""))
-      ? acc
-      : max,
+  const totalAccounts = filteredAccountData.length;
+  const totalWorks = filteredAccountData.reduce(
+    (sum, acc) => sum + acc.totalWorks,
+    0,
   );
+  const highestLikesAccount =
+    filteredAccountData.length > 0
+      ? filteredAccountData.reduce((max, acc) =>
+          parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
+          parseInt(max.totalLikes.replace(/[万千]/g, ""))
+            ? acc
+            : max,
+        )
+      : null;
 
   const getWorksForPage = (account: any, page: number) => {
     const startIndex = (page - 1) * 10;
