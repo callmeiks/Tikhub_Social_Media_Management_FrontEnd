@@ -76,7 +76,7 @@ const extractionHistory = [
   },
   {
     id: 4,
-    title: "学生党��看！宿舍收纳神器推荐",
+    title: "学生党必看！宿舍收纳神器推荐",
     platform: "B站",
     author: "生活小能手",
     extractedAt: "2024-01-12 20:30",
@@ -119,7 +119,7 @@ const extractedData = {
 1️⃣ 早晚双重清洁
 2️⃣ 精华要按摩到吸收
 3️⃣ 面膜一周2-3次
-4️⃣ 防晒真的很重要！
+4️�� 防晒真的很重要！
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
@@ -248,7 +248,7 @@ export default function VideoNoteExtract() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="extract">文案提取</TabsTrigger>
-            <TabsTrigger value="history">提取历史</TabsTrigger>
+            <TabsTrigger value="history">提取���史</TabsTrigger>
           </TabsList>
 
           <TabsContent value="extract" className="space-y-6">
@@ -282,8 +282,10 @@ https://www.tiktok.com/@user/video/123456789
 https://v.douyin.com/iABCDEF/
 https://www.xiaohongshu.com/discovery/item/xyz123
 https://www.bilibili.com/video/BV1234567890
+https://www.instagram.com/p/ABC123xyz/
+https://x.com/user/status/123456789
 
-支持TikTok、抖音、小红书、B站、快手等平台`}
+支持TikTok、抖音、小红书、B站、快手、Instagram、X等平台`}
                         value={batchUrls}
                         onChange={(e) => setBatchUrls(e.target.value)}
                         className="min-h-[200px] resize-none font-mono text-sm"
