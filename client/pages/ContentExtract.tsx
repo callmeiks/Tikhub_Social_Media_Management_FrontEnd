@@ -148,7 +148,7 @@ const extractionHistory = [
 💄 小技巧：
 - 粉底液要选择贴合肤色的
 - 腮红可以让气色更好
-- 口红选择日常色号
+- 口红选���日常色号
 
 #化妆教程 #裸妆 #新手化妆`,
       tags: ["#化妆教程", "#裸妆", "#新手化妆", "#美妆分享"],
@@ -189,7 +189,7 @@ const extractionHistory = [
 花费不到100元就能让宿舍焕然一新！
 
 #宿舍收纳 #学生党 #收纳神器`,
-      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#整理收纳"],
+      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#��理收纳"],
       images: [
         { description: "收纳前后对比", size: "750x1000" },
         { description: "收纳产品展示", size: "750x1000" },
@@ -278,7 +278,7 @@ const extractedContent = {
     },
     {
       url: "https://cdn.xiaohongshu.com/image2.jpg",
-      description: "洁面产品对比图",
+      description: "��面产品对比图",
       size: "750x1000",
     },
     {
@@ -317,7 +317,9 @@ export default function ContentExtract() {
   const [isCancellingTasks, setIsCancellingTasks] = useState(false);
   const [historyTasks, setHistoryTasks] = useState<ContentExtractTask[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<string[]>([]);
+  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<
+    string[]
+  >([]);
   const [isRetryingTasks, setIsRetryingTasks] = useState(false);
   const [expandedHistoryItems, setExpandedHistoryItems] = useState<number[]>(
     [],
@@ -344,16 +346,16 @@ export default function ContentExtract() {
         {
           method: "POST",
           headers: {
-            "accept": "application/json",
-            "Authorization": `Bearer ${token}`,
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             limit: 10,
             offset: 0,
-            status: ["queued", "processing", "paused"]
-          })
-        }
+            status: ["queued", "processing", "paused"],
+          }),
+        },
       );
 
       if (!response.ok) {
@@ -378,16 +380,16 @@ export default function ContentExtract() {
         {
           method: "POST",
           headers: {
-            "accept": "application/json",
-            "Authorization": `Bearer ${token}`,
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             limit: 10,
             offset: 0,
-            status: ["completed", "failed", "cancelled"]
-          })
-        }
+            status: ["completed", "failed", "cancelled"],
+          }),
+        },
       );
 
       if (!response.ok) {
@@ -418,21 +420,21 @@ export default function ContentExtract() {
 
   const cancelTasks = async (taskIds: string[]) => {
     if (taskIds.length === 0) return;
-    
+
     setIsCancellingTasks(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
-      
+
       const cancelPromises = taskIds.map(async (taskId) => {
         const response = await fetch(
           `http://127.0.0.1:8000/api/content-extract/batch/${taskId}`,
           {
             method: "DELETE",
             headers: {
-              "accept": "application/json",
-              "Authorization": `Bearer ${token}`,
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -443,13 +445,12 @@ export default function ContentExtract() {
       });
 
       await Promise.all(cancelPromises);
-      
+
       // 刷新任务列表
       await fetchExtractTasks();
-      
+
       // 清空选中的任务
       setSelectedTaskIds([]);
-      
     } catch (error) {
       console.error("Error cancelling tasks:", error);
       alert("取消任务失败，请重试");
@@ -460,15 +461,15 @@ export default function ContentExtract() {
 
   const handleSelectTask = (taskId: string, checked: boolean) => {
     if (checked) {
-      setSelectedTaskIds(prev => [...prev, taskId]);
+      setSelectedTaskIds((prev) => [...prev, taskId]);
     } else {
-      setSelectedTaskIds(prev => prev.filter(id => id !== taskId));
+      setSelectedTaskIds((prev) => prev.filter((id) => id !== taskId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTaskIds(extractTasks.map(task => task.id));
+      setSelectedTaskIds(extractTasks.map((task) => task.id));
     } else {
       setSelectedTaskIds([]);
     }
@@ -476,11 +477,12 @@ export default function ContentExtract() {
 
   const handleCancelSelected = async () => {
     if (selectedTaskIds.length === 0) return;
-    
-    const confirmMessage = selectedTaskIds.length === 1 
-      ? "确定要取消这个任务吗？" 
-      : `确定要取消这 ${selectedTaskIds.length} 个任务吗？`;
-      
+
+    const confirmMessage =
+      selectedTaskIds.length === 1
+        ? "确定要取消这个任务吗？"
+        : `确定要取消这 ${selectedTaskIds.length} 个任务吗？`;
+
     if (confirm(confirmMessage)) {
       await cancelTasks(selectedTaskIds);
     }
@@ -488,21 +490,21 @@ export default function ContentExtract() {
 
   const retryTasks = async (taskIds: string[]) => {
     if (taskIds.length === 0) return;
-    
+
     setIsRetryingTasks(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
-      
+
       const retryPromises = taskIds.map(async (taskId) => {
         const response = await fetch(
           `http://127.0.0.1:8000/api/content-extract/task/${taskId}/retry`,
           {
             method: "POST",
             headers: {
-              "accept": "application/json",
-              "Authorization": `Bearer ${token}`,
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -513,13 +515,12 @@ export default function ContentExtract() {
       });
 
       await Promise.all(retryPromises);
-      
+
       // 刷新历史任务列表
       await fetchHistoryTasks();
-      
+
       // 清空选中的任务
       setSelectedHistoryTaskIds([]);
-      
     } catch (error) {
       console.error("Error retrying tasks:", error);
       alert("重试任务失败，请重试");
@@ -530,9 +531,9 @@ export default function ContentExtract() {
 
   const handleSelectHistoryTask = (taskId: string, checked: boolean) => {
     if (checked) {
-      setSelectedHistoryTaskIds(prev => [...prev, taskId]);
+      setSelectedHistoryTaskIds((prev) => [...prev, taskId]);
     } else {
-      setSelectedHistoryTaskIds(prev => prev.filter(id => id !== taskId));
+      setSelectedHistoryTaskIds((prev) => prev.filter((id) => id !== taskId));
     }
   };
 
@@ -540,8 +541,13 @@ export default function ContentExtract() {
     if (checked) {
       // 选择当前筛选结果中的所有可选任务
       const selectableTaskIds = filteredHistoryTasks
-        .filter(task => task.status === "completed" || task.status === "failed" || task.status === "cancelled")
-        .map(task => task.id);
+        .filter(
+          (task) =>
+            task.status === "completed" ||
+            task.status === "failed" ||
+            task.status === "cancelled",
+        )
+        .map((task) => task.id);
       setSelectedHistoryTaskIds(selectableTaskIds);
     } else {
       setSelectedHistoryTaskIds([]);
@@ -550,11 +556,12 @@ export default function ContentExtract() {
 
   const handleRetrySelected = async () => {
     if (selectedHistoryTaskIds.length === 0) return;
-    
-    const confirmMessage = selectedHistoryTaskIds.length === 1 
-      ? "确定要重试这个任务吗？" 
-      : `确定要重试这 ${selectedHistoryTaskIds.length} 个任务吗？`;
-      
+
+    const confirmMessage =
+      selectedHistoryTaskIds.length === 1
+        ? "确定要重试这个任务吗？"
+        : `确定要重试这 ${selectedHistoryTaskIds.length} 个任务吗？`;
+
     if (confirm(confirmMessage)) {
       await retryTasks(selectedHistoryTaskIds);
     }
@@ -589,43 +596,47 @@ export default function ContentExtract() {
     setIsExtracting(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
-      
-      const response = await fetch("http://127.0.0.1:8000/api/content-extract/batch", {
-        method: "POST",
-        headers: {
-          "accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          settings: {
-            downloadPath: downloadSettings.downloadPath,
-            extractImages: extractionSettings.images,
-            extractTags: extractionSettings.tags, 
-            extractText: extractionSettings.text,
-            imageFormat: downloadSettings.format
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/content-extract/batch",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-          urls: urls
-        })
-      });
+          body: JSON.stringify({
+            settings: {
+              downloadPath: downloadSettings.downloadPath,
+              extractImages: extractionSettings.images,
+              extractTags: extractionSettings.tags,
+              extractText: extractionSettings.text,
+              imageFormat: downloadSettings.format,
+            },
+            urls: urls,
+          }),
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-      
-      alert(`提交成功！创建了 ${result.urlCount} 个提取任务，预计需要 ${result.estimatedTime} 秒完成。`);
-      
+
+      alert(
+        `提交成功！创建了 ${result.urlCount} 个提取任务，预计需要 ${result.estimatedTime} 秒完成。`,
+      );
+
       // 清空输入并刷新任务列表
       setBatchUrls("");
       setShowResults(false);
-      
+
       // 如果当前在队列标签页，刷新队列数据
       if (activeTab === "queue") {
         fetchExtractTasks();
       }
-      
     } catch (error) {
       console.error("提取请求失败:", error);
       alert("提取请求失败，请检查网络连接或重试");
@@ -680,7 +691,7 @@ export default function ContentExtract() {
       case "paused":
         return "已暂停";
       case "cancelled":
-        return "已取消";
+        return "已��消";
       default:
         return "未知";
     }
@@ -724,13 +735,15 @@ export default function ContentExtract() {
   const getFilteredHistoryTasks = () => {
     switch (historyFilter) {
       case "completed":
-        return historyTasks.filter(task => task.status === "completed");
+        return historyTasks.filter((task) => task.status === "completed");
       case "failed":
-        return historyTasks.filter(task => task.status === "failed");
+        return historyTasks.filter((task) => task.status === "failed");
       case "cancelled":
-        return historyTasks.filter(task => task.status === "cancelled");
+        return historyTasks.filter((task) => task.status === "cancelled");
       case "failed-cancelled":
-        return historyTasks.filter(task => task.status === "failed" || task.status === "cancelled");
+        return historyTasks.filter(
+          (task) => task.status === "failed" || task.status === "cancelled",
+        );
       case "all":
       default:
         return historyTasks;
@@ -748,8 +761,10 @@ export default function ContentExtract() {
 
     setIsExportingCsv(true);
     try {
-      const selectedTasks = historyTasks.filter(task => 
-        selectedHistoryTaskIds.includes(task.id) && task.status === "completed"
+      const selectedTasks = historyTasks.filter(
+        (task) =>
+          selectedHistoryTaskIds.includes(task.id) &&
+          task.status === "completed",
       );
 
       if (selectedTasks.length === 0) {
@@ -757,36 +772,56 @@ export default function ContentExtract() {
         return;
       }
 
-      const dateStr = new Date().toISOString().split('T')[0];
+      const dateStr = new Date().toISOString().split("T")[0];
 
       if (exportFormat === "csv") {
         // CSV导出
-        const headers = ["任务ID", "URL", "标题", "内容文字", "图片数量", "图片URL列表", "作者", "粉丝数", "点赞数", "评论数", "分享数", "标签", "完成时间"];
+        const headers = [
+          "任务ID",
+          "URL",
+          "标题",
+          "内容文字",
+          "图片数量",
+          "图片URL列表",
+          "作者",
+          "粉丝数",
+          "点赞数",
+          "评论数",
+          "分享数",
+          "标签",
+          "完成时间",
+        ];
         const csvContent = [
           headers.join(","),
-          ...selectedTasks.map(task => [
-            task.id,
-            `"${task.url}"`,
-            `"${task.content?.title || ""}"`,
-            `"${task.content?.text?.replace(/"/g, '""') || ""}"`,
-            task.content?.images?.length || 0,
-            `"${task.content?.images?.map(img => img.url).join("; ") || ""}"`,
-            `"${task.content?.author?.name || ""}"`,
-            task.content?.author?.followers || 0,
-            task.content?.stats?.likes || 0,
-            task.content?.stats?.comments || 0,
-            task.content?.stats?.shares || 0,
-            `"${task.content?.tags?.join("; ") || ""}"`,
-            task.completed_at ? new Date(task.completed_at).toLocaleString() : ""
-          ].join(","))
+          ...selectedTasks.map((task) =>
+            [
+              task.id,
+              `"${task.url}"`,
+              `"${task.content?.title || ""}"`,
+              `"${task.content?.text?.replace(/"/g, '""') || ""}"`,
+              task.content?.images?.length || 0,
+              `"${task.content?.images?.map((img) => img.url).join("; ") || ""}"`,
+              `"${task.content?.author?.name || ""}"`,
+              task.content?.author?.followers || 0,
+              task.content?.stats?.likes || 0,
+              task.content?.stats?.comments || 0,
+              task.content?.stats?.shares || 0,
+              `"${task.content?.tags?.join("; ") || ""}"`,
+              task.completed_at
+                ? new Date(task.completed_at).toLocaleString()
+                : "",
+            ].join(","),
+          ),
         ].join("\n");
 
-        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(["\uFEFF" + csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
         downloadFile(blob, `content_extract_${dateStr}.csv`);
       } else if (exportFormat === "markdown") {
         // Markdown导出
         let markdownContent = `# 图文提取结果导出\n\n导出时间: ${new Date().toLocaleString()}\n\n`;
-        
+
         selectedTasks.forEach((task, index) => {
           markdownContent += `## ${index + 1}. ${task.content?.title || "无标题"}\n\n`;
           markdownContent += `**任务ID**: ${task.id}\n\n`;
@@ -794,11 +829,11 @@ export default function ContentExtract() {
           markdownContent += `**作者**: ${task.content?.author?.name || "未知"} (${task.content?.author?.followers || 0} 粉丝)\n\n`;
           markdownContent += `**互动数据**: ❤️ ${task.content?.stats?.likes || 0} | 💬 ${task.content?.stats?.comments || 0} | 🔗 ${task.content?.stats?.shares || 0}\n\n`;
           markdownContent += `**内容文字**:\n${task.content?.text || ""}\n\n`;
-          
+
           if (task.content?.tags && task.content.tags.length > 0) {
             markdownContent += `**标签**: ${task.content.tags.join(" ")}\n\n`;
           }
-          
+
           if (task.content?.images && task.content.images.length > 0) {
             markdownContent += `**图片 (${task.content.images.length}张)**:\n`;
             task.content.images.forEach((img, imgIndex) => {
@@ -806,36 +841,58 @@ export default function ContentExtract() {
             });
             markdownContent += "\n";
           }
-          
+
           markdownContent += `**完成时间**: ${task.completed_at ? new Date(task.completed_at).toLocaleString() : ""}\n\n`;
           markdownContent += "---\n\n";
         });
 
-        const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8;' });
+        const blob = new Blob([markdownContent], {
+          type: "text/markdown;charset=utf-8;",
+        });
         downloadFile(blob, `content_extract_${dateStr}.md`);
       } else if (exportFormat === "xlsx") {
         // XLSX导出 (简化版，使用CSV格式但扩展名为xlsx)
-        const headers = ["任务ID", "URL", "标题", "内容文字", "图片数量", "图片URL列表", "作者", "粉丝数", "点赞数", "评论数", "分享数", "标签", "完成时间"];
+        const headers = [
+          "任务ID",
+          "URL",
+          "标题",
+          "内容文字",
+          "图片数量",
+          "图片URL列表",
+          "作者",
+          "粉丝数",
+          "点赞数",
+          "评论数",
+          "分享数",
+          "标签",
+          "完成时间",
+        ];
         const csvContent = [
           headers.join("\t"),
-          ...selectedTasks.map(task => [
-            task.id,
-            task.url,
-            task.content?.title || "",
-            task.content?.text || "",
-            task.content?.images?.length || 0,
-            task.content?.images?.map(img => img.url).join("; ") || "",
-            task.content?.author?.name || "",
-            task.content?.author?.followers || 0,
-            task.content?.stats?.likes || 0,
-            task.content?.stats?.comments || 0,
-            task.content?.stats?.shares || 0,
-            task.content?.tags?.join("; ") || "",
-            task.completed_at ? new Date(task.completed_at).toLocaleString() : ""
-          ].join("\t"))
+          ...selectedTasks.map((task) =>
+            [
+              task.id,
+              task.url,
+              task.content?.title || "",
+              task.content?.text || "",
+              task.content?.images?.length || 0,
+              task.content?.images?.map((img) => img.url).join("; ") || "",
+              task.content?.author?.name || "",
+              task.content?.author?.followers || 0,
+              task.content?.stats?.likes || 0,
+              task.content?.stats?.comments || 0,
+              task.content?.stats?.shares || 0,
+              task.content?.tags?.join("; ") || "",
+              task.completed_at
+                ? new Date(task.completed_at).toLocaleString()
+                : "",
+            ].join("\t"),
+          ),
         ].join("\n");
 
-        const blob = new Blob(["\uFEFF" + csvContent], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;' });
+        const blob = new Blob(["\uFEFF" + csvContent], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;",
+        });
         downloadFile(blob, `content_extract_${dateStr}.xlsx`);
       }
 
@@ -854,7 +911,7 @@ export default function ContentExtract() {
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
     link.setAttribute("download", filename);
-    link.style.visibility = 'hidden';
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -901,7 +958,7 @@ export default function ContentExtract() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="batch">批量提取</TabsTrigger>
             <TabsTrigger value="queue">提取队列</TabsTrigger>
-            <TabsTrigger value="history">提取历史</TabsTrigger>
+            <TabsTrigger value="history">文案数据</TabsTrigger>
           </TabsList>
 
           <TabsContent value="batch" className="space-y-6">
@@ -1392,9 +1449,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                   </span>
                   <div className="flex space-x-2">
                     {selectedTaskIds.length > 0 && (
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
+                      <Button
+                        variant="destructive"
+                        size="sm"
                         className="h-7"
                         onClick={handleCancelSelected}
                         disabled={isCancellingTasks}
@@ -1407,9 +1464,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         取消选中
                       </Button>
                     )}
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-7"
                       onClick={fetchExtractTasks}
                       disabled={isLoadingTasks}
@@ -1453,16 +1510,23 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id="select-all"
-                            checked={selectedTaskIds.length === extractTasks.length && extractTasks.length > 0}
+                            checked={
+                              selectedTaskIds.length === extractTasks.length &&
+                              extractTasks.length > 0
+                            }
                             onCheckedChange={handleSelectAll}
                           />
-                          <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
+                          <label
+                            htmlFor="select-all"
+                            className="text-sm font-medium cursor-pointer"
+                          >
                             全选 ({extractTasks.length} 个任务)
                           </label>
                         </div>
                         {selectedTaskIds.length > 0 && (
                           <span className="text-xs text-muted-foreground">
-                            已选择 {selectedTaskIds.length} / {extractTasks.length}
+                            已选择 {selectedTaskIds.length} /{" "}
+                            {extractTasks.length}
                           </span>
                         )}
                       </div>
@@ -1471,7 +1535,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       <div
                         key={task.id}
                         className={`p-4 border border-border rounded-lg ${
-                          selectedTaskIds.includes(task.id) ? 'bg-blue-50 border-blue-200' : ''
+                          selectedTaskIds.includes(task.id)
+                            ? "bg-blue-50 border-blue-200"
+                            : ""
                         }`}
                       >
                         <div className="flex items-start justify-between mb-3">
@@ -1479,7 +1545,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                             <Checkbox
                               id={`task-${task.id}`}
                               checked={selectedTaskIds.includes(task.id)}
-                              onCheckedChange={(checked) => handleSelectTask(task.id, checked as boolean)}
+                              onCheckedChange={(checked) =>
+                                handleSelectTask(task.id, checked as boolean)
+                              }
                               className="mt-1"
                             />
                             <div className="flex-1 min-w-0">
@@ -1501,10 +1569,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                               <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                 <span>小红书</span>
                                 {task.content?.images && (
-                                  <span>{task.content.images.length} 张图片</span>
+                                  <span>
+                                    {task.content.images.length} 张图片
+                                  </span>
                                 )}
                                 {task.created_at && (
-                                  <span>{new Date(task.created_at).toLocaleString()}</span>
+                                  <span>
+                                    {new Date(task.created_at).toLocaleString()}
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -1515,7 +1587,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 variant="ghost"
                                 size="sm"
                                 className="h-6 w-6 p-0"
-                                onClick={() => task.content && handleCopy(task.content.text)}
+                                onClick={() =>
+                                  task.content && handleCopy(task.content.text)
+                                }
                               >
                                 <Copy className="h-3 w-3" />
                               </Button>
@@ -1532,7 +1606,8 @@ https://www.xiaohongshu.com/discovery/item/987654321
                             </Button>
                           </div>
                         </div>
-                        {(task.status === "processing" || task.status === "queued") && (
+                        {(task.status === "processing" ||
+                          task.status === "queued") && (
                           <div className="space-y-1">
                             <div className="flex justify-between text-xs">
                               <span>提取进度</span>
@@ -1560,7 +1635,8 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="mr-2 h-4 w-4" />
-                    提取历史 ({filteredHistoryTasks.length}/{historyTasks.length})
+                    提取历史 ({filteredHistoryTasks.length}/
+                    {historyTasks.length})
                     {selectedHistoryTaskIds.length > 0 && (
                       <Badge variant="secondary" className="ml-2 text-xs">
                         已选择 {selectedHistoryTaskIds.length}
@@ -1568,12 +1644,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     )}
                   </span>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="h-7"
                       onClick={handleRetrySelected}
-                      disabled={isRetryingTasks || selectedHistoryTaskIds.length === 0}
+                      disabled={
+                        isRetryingTasks || selectedHistoryTaskIds.length === 0
+                      }
                     >
                       {isRetryingTasks ? (
                         <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
@@ -1583,7 +1661,10 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       重试选中
                     </Button>
                     <div className="flex items-center space-x-1">
-                      <Select value={exportFormat} onValueChange={setExportFormat}>
+                      <Select
+                        value={exportFormat}
+                        onValueChange={setExportFormat}
+                      >
                         <SelectTrigger className="h-7 w-20 text-xs">
                           <SelectValue />
                         </SelectTrigger>
@@ -1593,12 +1674,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <SelectItem value="xlsx">XLSX</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Button 
-                        variant="default" 
-                        size="sm" 
+                      <Button
+                        variant="default"
+                        size="sm"
                         className="h-7 bg-green-600 hover:bg-green-700"
                         onClick={exportToCSV}
-                        disabled={isExportingCsv || selectedHistoryTaskIds.length === 0}
+                        disabled={
+                          isExportingCsv || selectedHistoryTaskIds.length === 0
+                        }
                       >
                         {isExportingCsv ? (
                           <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
@@ -1608,7 +1691,10 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         导出
                       </Button>
                     </div>
-                    <Select value={historyFilter} onValueChange={setHistoryFilter}>
+                    <Select
+                      value={historyFilter}
+                      onValueChange={setHistoryFilter}
+                    >
                       <SelectTrigger className="h-7 w-32 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -1617,12 +1703,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         <SelectItem value="completed">已完成</SelectItem>
                         <SelectItem value="failed">失败</SelectItem>
                         <SelectItem value="cancelled">已取消</SelectItem>
-                        <SelectItem value="failed-cancelled">失败 + 取消</SelectItem>
+                        <SelectItem value="failed-cancelled">
+                          失败 + 取消
+                        </SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-7"
                       onClick={fetchHistoryTasks}
                       disabled={isLoadingHistory}
@@ -1652,10 +1740,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     <div className="text-center">
                       <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
                       <p className="text-sm text-muted-foreground mb-2">
-                        {historyFilter === "all" ? "暂无提取历史" : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的任务`}
+                        {historyFilter === "all"
+                          ? "暂无提取历史"
+                          : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的任务`}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {historyFilter === "all" ? "完成的提取任务将在这里显示" : "请尝试其他筛选条件"}
+                        {historyFilter === "all"
+                          ? "完成的提取任务将在这里显示"
+                          : "请尝试其他筛选条件"}
                       </p>
                     </div>
                   </div>
@@ -1667,37 +1759,65 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <Checkbox
                             id="select-all-history"
                             checked={
-                              selectedHistoryTaskIds.length > 0 && 
-                              selectedHistoryTaskIds.length === filteredHistoryTasks.filter(task => 
-                                task.status === "completed" || task.status === "failed" || task.status === "cancelled"
-                              ).length
+                              selectedHistoryTaskIds.length > 0 &&
+                              selectedHistoryTaskIds.length ===
+                                filteredHistoryTasks.filter(
+                                  (task) =>
+                                    task.status === "completed" ||
+                                    task.status === "failed" ||
+                                    task.status === "cancelled",
+                                ).length
                             }
                             onCheckedChange={handleSelectAllHistory}
                           />
-                          <label htmlFor="select-all-history" className="text-sm font-medium cursor-pointer">
-                            全选 ({filteredHistoryTasks.filter(task => 
-                              task.status === "completed" || task.status === "failed" || task.status === "cancelled"
-                            ).length} 个可选)
+                          <label
+                            htmlFor="select-all-history"
+                            className="text-sm font-medium cursor-pointer"
+                          >
+                            全选 (
+                            {
+                              filteredHistoryTasks.filter(
+                                (task) =>
+                                  task.status === "completed" ||
+                                  task.status === "failed" ||
+                                  task.status === "cancelled",
+                              ).length
+                            }{" "}
+                            个可选)
                           </label>
                         </div>
                         {selectedHistoryTaskIds.length > 0 && (
                           <span className="text-xs text-muted-foreground">
-                            已选择 {selectedHistoryTaskIds.length} / {filteredHistoryTasks.filter(task => 
-                              task.status === "completed" || task.status === "failed" || task.status === "cancelled"
-                            ).length}
+                            已选择 {selectedHistoryTaskIds.length} /{" "}
+                            {
+                              filteredHistoryTasks.filter(
+                                (task) =>
+                                  task.status === "completed" ||
+                                  task.status === "failed" ||
+                                  task.status === "cancelled",
+                              ).length
+                            }
                           </span>
                         )}
                       </div>
                     )}
                     {filteredHistoryTasks.map((task) => {
-                      const isExpanded = expandedHistoryItems.includes(parseInt(task.id));
-                      const isRetryable = task.status === "failed" || task.status === "cancelled";
-                      const isSelectable = task.status === "completed" || task.status === "failed" || task.status === "cancelled";
+                      const isExpanded = expandedHistoryItems.includes(
+                        parseInt(task.id),
+                      );
+                      const isRetryable =
+                        task.status === "failed" || task.status === "cancelled";
+                      const isSelectable =
+                        task.status === "completed" ||
+                        task.status === "failed" ||
+                        task.status === "cancelled";
                       return (
                         <div
                           key={task.id}
                           className={`border border-border rounded-lg ${
-                            selectedHistoryTaskIds.includes(task.id) ? 'bg-blue-50 border-blue-200' : ''
+                            selectedHistoryTaskIds.includes(task.id)
+                              ? "bg-blue-50 border-blue-200"
+                              : ""
                           }`}
                         >
                           <div className="p-4">
@@ -1706,8 +1826,15 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 {isSelectable && (
                                   <Checkbox
                                     id={`history-task-${task.id}`}
-                                    checked={selectedHistoryTaskIds.includes(task.id)}
-                                    onCheckedChange={(checked) => handleSelectHistoryTask(task.id, checked as boolean)}
+                                    checked={selectedHistoryTaskIds.includes(
+                                      task.id,
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSelectHistoryTask(
+                                        task.id,
+                                        checked as boolean,
+                                      )
+                                    }
                                     className="mt-1"
                                   />
                                 )}
@@ -1730,17 +1857,26 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                   <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                     <span>小红书</span>
                                     {task.content?.images && (
-                                      <span>{task.content.images.length} 张图片</span>
+                                      <span>
+                                        {task.content.images.length} 张图片
+                                      </span>
                                     )}
                                     {task.completed_at && (
-                                      <span>{new Date(task.completed_at).toLocaleString()}</span>
+                                      <span>
+                                        {new Date(
+                                          task.completed_at,
+                                        ).toLocaleString()}
+                                      </span>
                                     )}
                                   </div>
-                                  {task.status === "completed" && task.content && (
-                                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
-                                      <p className="line-clamp-1 font-medium">{task.content.title}</p>
-                                    </div>
-                                  )}
+                                  {task.status === "completed" &&
+                                    task.content && (
+                                      <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                                        <p className="line-clamp-1 font-medium">
+                                          {task.content.title}
+                                        </p>
+                                      </div>
+                                    )}
                                   {task.error_message && (
                                     <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
                                       错误: {task.error_message}
@@ -1753,7 +1889,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => toggleHistoryExpansion(parseInt(task.id))}
+                                    onClick={() =>
+                                      toggleHistoryExpansion(parseInt(task.id))
+                                    }
                                     className="h-6 w-6 p-0"
                                   >
                                     {isExpanded ? (
@@ -1767,7 +1905,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleCopy(task.content?.text || "")}
+                                    onClick={() =>
+                                      handleCopy(task.content?.text || "")
+                                    }
                                     className="h-6 w-6 p-0"
                                   >
                                     <Copy className="h-3 w-3" />
@@ -1797,8 +1937,8 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                   <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
                                     <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                                       {task.content.author.avatar ? (
-                                        <img 
-                                          src={task.content.author.avatar} 
+                                        <img
+                                          src={task.content.author.avatar}
                                           alt={task.content.author.name}
                                           className="w-10 h-10 rounded-full"
                                         />
@@ -1817,9 +1957,21 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                       )}
                                     </div>
                                     <div className="ml-auto flex space-x-4 text-xs text-muted-foreground">
-                                      {task.content.stats.likes && <span>❤️ {task.content.stats.likes}</span>}
-                                      {task.content.stats.comments && <span>💬 {task.content.stats.comments}</span>}
-                                      {task.content.stats.shares && <span>🔗 {task.content.stats.shares}</span>}
+                                      {task.content.stats.likes && (
+                                        <span>
+                                          ❤️ {task.content.stats.likes}
+                                        </span>
+                                      )}
+                                      {task.content.stats.comments && (
+                                        <span>
+                                          💬 {task.content.stats.comments}
+                                        </span>
+                                      )}
+                                      {task.content.stats.shares && (
+                                        <span>
+                                          🔗 {task.content.stats.shares}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -1833,7 +1985,9 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleCopy(task.content?.text || "")}
+                                      onClick={() =>
+                                        handleCopy(task.content?.text || "")
+                                      }
                                       className="h-6"
                                     >
                                       <Copy className="h-3 w-3 mr-1" />
@@ -1846,79 +2000,90 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 </div>
 
                                 {/* Tags */}
-                                {task.content.tags && task.content.tags.length > 0 && (
-                                  <div className="space-y-2">
-                                    <h4 className="text-sm font-medium">
-                                      话题标签
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2">
-                                      {task.content.tags.map((tag: string, index: number) => (
-                                        <Badge
-                                          key={index}
-                                          variant="outline"
-                                          className="text-xs cursor-pointer"
-                                          onClick={() => handleCopy(tag)}
-                                        >
-                                          #{tag}
-                                        </Badge>
-                                      ))}
+                                {task.content.tags &&
+                                  task.content.tags.length > 0 && (
+                                    <div className="space-y-2">
+                                      <h4 className="text-sm font-medium">
+                                        话题标签
+                                      </h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {task.content.tags.map(
+                                          (tag: string, index: number) => (
+                                            <Badge
+                                              key={index}
+                                              variant="outline"
+                                              className="text-xs cursor-pointer"
+                                              onClick={() => handleCopy(tag)}
+                                            >
+                                              #{tag}
+                                            </Badge>
+                                          ),
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
                                 {/* Images */}
-                                {task.content.images && task.content.images.length > 0 && (
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <h4 className="text-sm font-medium">
-                                        提取图片 ({task.content.images.length})
-                                      </h4>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleBatchDownload}
-                                        className="h-6"
-                                      >
-                                        <Download className="h-3 w-3 mr-1" />
-                                        下载图片
-                                      </Button>
-                                    </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                      {task.content.images.map((image: any, index: number) => (
-                                        <div
-                                          key={index}
-                                          className="group relative border border-border rounded-lg overflow-hidden bg-gray-100"
+                                {task.content.images &&
+                                  task.content.images.length > 0 && (
+                                    <div className="space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <h4 className="text-sm font-medium">
+                                          提取图片 ({task.content.images.length}
+                                          )
+                                        </h4>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={handleBatchDownload}
+                                          className="h-6"
                                         >
-                                          <div className="aspect-square flex items-center justify-center">
-                                            <img 
-                                              src={image.url} 
-                                              alt={image.description}
-                                              className="w-full h-full object-cover"
-                                              onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                                const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                if (nextElement) {
-                                                  nextElement.style.display = 'flex';
-                                                }
-                                              }}
-                                            />
-                                            <div className="hidden w-full h-full items-center justify-center">
-                                              <ImageIcon className="h-6 w-6 text-gray-400" />
+                                          <Download className="h-3 w-3 mr-1" />
+                                          下载图片
+                                        </Button>
+                                      </div>
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                        {task.content.images.map(
+                                          (image: any, index: number) => (
+                                            <div
+                                              key={index}
+                                              className="group relative border border-border rounded-lg overflow-hidden bg-gray-100"
+                                            >
+                                              <div className="aspect-square flex items-center justify-center">
+                                                <img
+                                                  src={image.url}
+                                                  alt={image.description}
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    e.currentTarget.style.display =
+                                                      "none";
+                                                    const nextElement = e
+                                                      .currentTarget
+                                                      .nextElementSibling as HTMLElement;
+                                                    if (nextElement) {
+                                                      nextElement.style.display =
+                                                        "flex";
+                                                    }
+                                                  }}
+                                                />
+                                                <div className="hidden w-full h-full items-center justify-center">
+                                                  <ImageIcon className="h-6 w-6 text-gray-400" />
+                                                </div>
+                                              </div>
+                                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
+                                                <p className="truncate text-xs">
+                                                  {image.description}
+                                                </p>
+                                                <p className="text-gray-300 text-xs">
+                                                  {image.fileSize}
+                                                </p>
+                                              </div>
                                             </div>
-                                          </div>
-                                          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
-                                            <p className="truncate text-xs">
-                                              {image.description}
-                                            </p>
-                                            <p className="text-gray-300 text-xs">
-                                              {image.fileSize}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      ))}
+                                          ),
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
                               </div>
                             </div>
                           )}
