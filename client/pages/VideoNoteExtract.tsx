@@ -36,6 +36,8 @@ const supportedPlatforms = [
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
   { id: "bilibili", name: "B站", emoji: "📺", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
+  { id: "instagram", name: "Instagram", emoji: "📷", active: true },
+  { id: "x", name: "X (Twitter)", emoji: "🐦", active: true },
 ];
 
 const extractionHistory = [
@@ -310,7 +312,7 @@ https://www.bilibili.com/video/BV1234567890
                     {urlCount > 50 && (
                       <div className="flex items-center space-x-2 text-red-600 text-sm">
                         <AlertTriangle className="h-4 w-4" />
-                        <span>链接数量超过限制，��删除多余的链接</span>
+                        <span>链接数量超过限制，请删除多余的链接</span>
                       </div>
                     )}
 
