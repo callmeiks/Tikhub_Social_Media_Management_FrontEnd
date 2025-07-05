@@ -74,7 +74,7 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "视频下载", href: "/creator-tools/video-download" },
       { title: "图文提取", href: "/creator-tools/content-extract" },
-      { title: "视频/笔记文案提取", href: "/creator-tools/video-note-extract" },
+      { title: "文案提取", href: "/creator-tools/video-note-extract" },
       {
         title: "账号作品数据采集",
         href: "/data-collection/account-interaction",
