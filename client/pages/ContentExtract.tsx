@@ -46,7 +46,7 @@ const extractionHistory = [
       content: `姐妹们好！今天来跟大家分享我的减肥心路历程～
 
 💪 我的减肥数据：
-- 开始体重：130斤
+- 开始��重：130斤
 - 目标体重：100斤
 - 减肥周期：6个月
 - 最终体重：98斤
@@ -129,7 +129,7 @@ const extractionHistory = [
 
 🏠 宿舍收纳痛点：
 - 空间小东西多
-- 没有足够储物空间
+- ���有足够储物空间
 - 东西容易乱
 
 🛍️ 收纳神器推荐：
@@ -181,7 +181,7 @@ const extractionQueue = [
     id: 3,
     url: "https://www.xiaohongshu.com/discovery/item/789012",
     platform: "小红书",
-    title: "烘焙新手必看！零失败蛋糕制作教程",
+    title: "烘焙新手必看！零失败��糕制作教程",
     status: "pending",
     progress: 0,
     imageCount: 0,
@@ -224,7 +224,7 @@ const extractedContent = {
 💖 小贴士：
 - 敏感肌一定要温和护肤
 - 新产品要先做过敏测试
-- 防晒真的超级重要！
+- 防��真的超级重要！
 
 #护肤心得 #敏感肌护肤 #护肤分享 #美妆博主`,
   images: [
@@ -398,7 +398,7 @@ export default function ContentExtract() {
   return (
     <DashboardLayout
       title="图文提取"
-      subtitle="从小红书笔记中提取图片和文字信息，便于二次创��"
+      subtitle="从小红书笔记中提取图片和文字信息，便于二次创作"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -1001,18 +1001,172 @@ https://www.xiaohongshu.com/discovery/item/987654321
           <TabsContent value="history" className="space-y-6">
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  提取历史
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Clock className="mr-2 h-4 w-4" />
+                    提取历史 ({extractionHistory.length})
+                  </span>
+                  <Badge variant="secondary" className="text-xs">
+                    已完成 {extractionHistory.length} 篇
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">提取历史为空</h3>
-                  <p className="text-muted-foreground">
-                    完成的提取记录将在这里显示
-                  </p>
+                <div className="space-y-3">
+                  {extractionHistory.map((item) => {
+                    const isExpanded = expandedHistoryItems.includes(item.id);
+                    return (
+                      <div
+                        key={item.id}
+                        className="border border-border rounded-lg"
+                      >
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <h3 className="text-sm font-medium truncate">
+                                  {item.title}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs bg-green-100 text-green-800"
+                                >
+                                  已完成
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate mb-2">
+                                {item.url}
+                              </p>
+                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                <span>{item.platform}</span>
+                                <span>{item.imageCount} 张图片</span>
+                                <span>{item.extractedAt}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-4">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleHistoryExpansion(item.id)}
+                                className="h-6 w-6 p-0"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="h-3 w-3" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleCopy(item.extractedData.content)
+                                }
+                                className="h-6 w-6 p-0"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-red-600"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expanded Content */}
+                        {isExpanded && (
+                          <div className="border-t border-border p-4 bg-muted/20">
+                            <div className="space-y-4">
+                              {/* Extracted Text */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-sm font-medium">
+                                    提取的文字内容
+                                  </h4>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleCopy(item.extractedData.content)
+                                    }
+                                    className="h-6"
+                                  >
+                                    <Copy className="h-3 w-3 mr-1" />
+                                    复制文字
+                                  </Button>
+                                </div>
+                                <div className="bg-background p-3 rounded-lg text-sm max-h-40 overflow-y-auto">
+                                  {item.extractedData.content}
+                                </div>
+                              </div>
+
+                              {/* Tags */}
+                              <div className="space-y-2">
+                                <h4 className="text-sm font-medium">
+                                  话题标签
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {item.extractedData.tags.map((tag, index) => (
+                                    <Badge
+                                      key={index}
+                                      variant="outline"
+                                      className="text-xs cursor-pointer"
+                                      onClick={() => handleCopy(tag)}
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Images */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-sm font-medium">
+                                    提取图片 ({item.extractedData.images.length}
+                                    )
+                                  </h4>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleBatchDownload}
+                                    className="h-6"
+                                  >
+                                    <Download className="h-3 w-3 mr-1" />
+                                    下载图片
+                                  </Button>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                  {item.extractedData.images.map(
+                                    (image, index) => (
+                                      <div
+                                        key={index}
+                                        className="group relative border border-border rounded-lg overflow-hidden bg-gray-100"
+                                      >
+                                        <div className="aspect-square flex items-center justify-center">
+                                          <ImageIcon className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
+                                          <p className="truncate text-xs">
+                                            {image.description}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
