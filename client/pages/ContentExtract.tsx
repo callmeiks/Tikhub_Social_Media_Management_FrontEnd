@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   FileText,
   Image as ImageIcon,
@@ -32,6 +40,41 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+
+interface ContentExtractTask {
+  id: string;
+  url: string;
+  status: string;
+  progress: number;
+  created_at: string;
+  completed_at: string | null;
+  error_message: string | null;
+  content: {
+    title: string;
+    text: string;
+    images: Array<{
+      url: string;
+      description: string;
+      fileSize: string;
+      format: string;
+    }>;
+    tags: string[];
+    author: {
+      name: string;
+      userId: string;
+      avatar: string;
+      followers: number;
+      isVerified: boolean;
+    };
+    stats: {
+      likes: number;
+      comments: number;
+      shares: number;
+      views: number;
+    };
+    publishedAt: string;
+  } | null;
+}
 
 const extractionHistory = [
   {
@@ -268,9 +311,20 @@ export default function ContentExtract() {
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("batch");
   const [extractionList, setExtractionList] = useState(extractionQueue);
+  const [extractTasks, setExtractTasks] = useState<ContentExtractTask[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [isCancellingTasks, setIsCancellingTasks] = useState(false);
+  const [historyTasks, setHistoryTasks] = useState<ContentExtractTask[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<string[]>([]);
+  const [isRetryingTasks, setIsRetryingTasks] = useState(false);
   const [expandedHistoryItems, setExpandedHistoryItems] = useState<number[]>(
     [],
   );
+  const [historyFilter, setHistoryFilter] = useState<string>("all");
+  const [isExportingCsv, setIsExportingCsv] = useState(false);
+  const [exportFormat, setExportFormat] = useState<string>("csv");
   const [downloadSettings, setDownloadSettings] = useState({
     format: "jpg",
     downloadPath: "/Downloads/TikHub/ContentExtract",
@@ -280,6 +334,231 @@ export default function ContentExtract() {
     text: true,
     tags: true,
   });
+
+  const fetchExtractTasks = async () => {
+    setIsLoadingTasks(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/content-extract/tasks",
+        {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            limit: 10,
+            offset: 0,
+            status: ["queued", "processing", "paused"]
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch extract tasks");
+      }
+
+      const data = await response.json();
+      setExtractTasks(data.tasks || []);
+    } catch (error) {
+      console.error("Error fetching extract tasks:", error);
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
+
+  const fetchHistoryTasks = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/content-extract/tasks",
+        {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            limit: 10,
+            offset: 0,
+            status: ["completed", "failed", "cancelled"]
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch history tasks");
+      }
+
+      const data = await response.json();
+      setHistoryTasks(data.tasks || []);
+    } catch (error) {
+      console.error("Error fetching history tasks:", error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "queue") {
+      fetchExtractTasks();
+    } else if (activeTab === "history") {
+      fetchHistoryTasks();
+    }
+  }, [activeTab]);
+
+  // 当历史筛选器改变时清空选择
+  useEffect(() => {
+    setSelectedHistoryTaskIds([]);
+  }, [historyFilter]);
+
+  const cancelTasks = async (taskIds: string[]) => {
+    if (taskIds.length === 0) return;
+    
+    setIsCancellingTasks(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      
+      const cancelPromises = taskIds.map(async (taskId) => {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/content-extract/batch/${taskId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "accept": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to cancel task ${taskId}`);
+        }
+
+        return response.json();
+      });
+
+      await Promise.all(cancelPromises);
+      
+      // 刷新任务列表
+      await fetchExtractTasks();
+      
+      // 清空选中的任务
+      setSelectedTaskIds([]);
+      
+    } catch (error) {
+      console.error("Error cancelling tasks:", error);
+      alert("取消任务失败，请重试");
+    } finally {
+      setIsCancellingTasks(false);
+    }
+  };
+
+  const handleSelectTask = (taskId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTaskIds(prev => [...prev, taskId]);
+    } else {
+      setSelectedTaskIds(prev => prev.filter(id => id !== taskId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedTaskIds(extractTasks.map(task => task.id));
+    } else {
+      setSelectedTaskIds([]);
+    }
+  };
+
+  const handleCancelSelected = async () => {
+    if (selectedTaskIds.length === 0) return;
+    
+    const confirmMessage = selectedTaskIds.length === 1 
+      ? "确定要取消这个任务吗？" 
+      : `确定要取消这 ${selectedTaskIds.length} 个任务吗？`;
+      
+    if (confirm(confirmMessage)) {
+      await cancelTasks(selectedTaskIds);
+    }
+  };
+
+  const retryTasks = async (taskIds: string[]) => {
+    if (taskIds.length === 0) return;
+    
+    setIsRetryingTasks(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      
+      const retryPromises = taskIds.map(async (taskId) => {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/content-extract/task/${taskId}/retry`,
+          {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to retry task ${taskId}`);
+        }
+
+        return response.json();
+      });
+
+      await Promise.all(retryPromises);
+      
+      // 刷新历史任务列表
+      await fetchHistoryTasks();
+      
+      // 清空选中的任务
+      setSelectedHistoryTaskIds([]);
+      
+    } catch (error) {
+      console.error("Error retrying tasks:", error);
+      alert("重试任务失败，请重试");
+    } finally {
+      setIsRetryingTasks(false);
+    }
+  };
+
+  const handleSelectHistoryTask = (taskId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedHistoryTaskIds(prev => [...prev, taskId]);
+    } else {
+      setSelectedHistoryTaskIds(prev => prev.filter(id => id !== taskId));
+    }
+  };
+
+  const handleSelectAllHistory = (checked: boolean) => {
+    if (checked) {
+      // 选择当前筛选结果中的所有可选任务
+      const selectableTaskIds = filteredHistoryTasks
+        .filter(task => task.status === "completed" || task.status === "failed" || task.status === "cancelled")
+        .map(task => task.id);
+      setSelectedHistoryTaskIds(selectableTaskIds);
+    } else {
+      setSelectedHistoryTaskIds([]);
+    }
+  };
+
+  const handleRetrySelected = async () => {
+    if (selectedHistoryTaskIds.length === 0) return;
+    
+    const confirmMessage = selectedHistoryTaskIds.length === 1 
+      ? "确定要重试这个任务吗？" 
+      : `确定要重试这 ${selectedHistoryTaskIds.length} 个任务吗？`;
+      
+    if (confirm(confirmMessage)) {
+      await retryTasks(selectedHistoryTaskIds);
+    }
+  };
 
   const handleExtract = async () => {
     const urls = batchUrls
@@ -308,11 +587,51 @@ export default function ContentExtract() {
     }
 
     setIsExtracting(true);
-    // 模拟API调用
-    setTimeout(() => {
-      setShowResults(true);
+    try {
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      
+      const response = await fetch("http://127.0.0.1:8000/api/content-extract/batch", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          settings: {
+            downloadPath: downloadSettings.downloadPath,
+            extractImages: extractionSettings.images,
+            extractTags: extractionSettings.tags, 
+            extractText: extractionSettings.text,
+            imageFormat: downloadSettings.format
+          },
+          urls: urls
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      alert(`提交成功！创建了 ${result.urlCount} 个提取任务，预计需要 ${result.estimatedTime} 秒完成。`);
+      
+      // 清空输入并刷新任务列表
+      setBatchUrls("");
+      setShowResults(false);
+      
+      // 如果当前在队列标签页，刷新队列数据
+      if (activeTab === "queue") {
+        fetchExtractTasks();
+      }
+      
+    } catch (error) {
+      console.error("提取请求失败:", error);
+      alert("提取请求失败，请检查网络连接或重试");
+    } finally {
       setIsExtracting(false);
-    }, 3000);
+    }
   };
 
   const handleCopy = (text: string) => {
@@ -333,12 +652,16 @@ export default function ContentExtract() {
     switch (status) {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "extracting":
+      case "processing":
         return <Download className="h-4 w-4 text-blue-600" />;
-      case "pending":
+      case "queued":
         return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "error":
+      case "failed":
         return <XCircle className="h-4 w-4 text-red-600" />;
+      case "paused":
+        return <Pause className="h-4 w-4 text-orange-600" />;
+      case "cancelled":
+        return <XCircle className="h-4 w-4 text-gray-600" />;
       default:
         return <Clock className="h-4 w-4 text-gray-600" />;
     }
@@ -348,12 +671,16 @@ export default function ContentExtract() {
     switch (status) {
       case "completed":
         return "已完成";
-      case "extracting":
-        return "提取中";
-      case "pending":
-        return "等待中";
-      case "error":
+      case "processing":
+        return "处理中";
+      case "queued":
+        return "排队中";
+      case "failed":
         return "失败";
+      case "paused":
+        return "已暂停";
+      case "cancelled":
+        return "已取消";
       default:
         return "未知";
     }
@@ -363,12 +690,16 @@ export default function ContentExtract() {
     switch (status) {
       case "completed":
         return "bg-green-100 text-green-800";
-      case "extracting":
+      case "processing":
         return "bg-blue-100 text-blue-800";
-      case "pending":
+      case "queued":
         return "bg-yellow-100 text-yellow-800";
-      case "error":
+      case "failed":
         return "bg-red-100 text-red-800";
+      case "paused":
+        return "bg-orange-100 text-orange-800";
+      case "cancelled":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -382,17 +713,152 @@ export default function ContentExtract() {
   const completedCount = extractionList.filter(
     (item) => item.status === "completed",
   ).length;
-  const extractingCount = extractionList.filter(
-    (item) => item.status === "extracting",
-  ).length;
-  const errorCount = extractionList.filter(
-    (item) => item.status === "error",
-  ).length;
 
   const toggleHistoryExpansion = (id: number) => {
     setExpandedHistoryItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
+  };
+
+  // 筛选历史任务
+  const getFilteredHistoryTasks = () => {
+    switch (historyFilter) {
+      case "completed":
+        return historyTasks.filter(task => task.status === "completed");
+      case "failed":
+        return historyTasks.filter(task => task.status === "failed");
+      case "cancelled":
+        return historyTasks.filter(task => task.status === "cancelled");
+      case "failed-cancelled":
+        return historyTasks.filter(task => task.status === "failed" || task.status === "cancelled");
+      case "all":
+      default:
+        return historyTasks;
+    }
+  };
+
+  const filteredHistoryTasks = getFilteredHistoryTasks();
+
+  // 导出功能
+  const exportToCSV = async () => {
+    if (selectedHistoryTaskIds.length === 0) {
+      alert("请选择要导出的任务");
+      return;
+    }
+
+    setIsExportingCsv(true);
+    try {
+      const selectedTasks = historyTasks.filter(task => 
+        selectedHistoryTaskIds.includes(task.id) && task.status === "completed"
+      );
+
+      if (selectedTasks.length === 0) {
+        alert("没有可导出的已完成任务");
+        return;
+      }
+
+      const dateStr = new Date().toISOString().split('T')[0];
+
+      if (exportFormat === "csv") {
+        // CSV导出
+        const headers = ["任务ID", "URL", "标题", "内容文字", "图片数量", "图片URL列表", "作者", "粉丝数", "点赞数", "评论数", "分享数", "标签", "完成时间"];
+        const csvContent = [
+          headers.join(","),
+          ...selectedTasks.map(task => [
+            task.id,
+            `"${task.url}"`,
+            `"${task.content?.title || ""}"`,
+            `"${task.content?.text?.replace(/"/g, '""') || ""}"`,
+            task.content?.images?.length || 0,
+            `"${task.content?.images?.map(img => img.url).join("; ") || ""}"`,
+            `"${task.content?.author?.name || ""}"`,
+            task.content?.author?.followers || 0,
+            task.content?.stats?.likes || 0,
+            task.content?.stats?.comments || 0,
+            task.content?.stats?.shares || 0,
+            `"${task.content?.tags?.join("; ") || ""}"`,
+            task.completed_at ? new Date(task.completed_at).toLocaleString() : ""
+          ].join(","))
+        ].join("\n");
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        downloadFile(blob, `content_extract_${dateStr}.csv`);
+      } else if (exportFormat === "markdown") {
+        // Markdown导出
+        let markdownContent = `# 图文提取结果导出\n\n导出时间: ${new Date().toLocaleString()}\n\n`;
+        
+        selectedTasks.forEach((task, index) => {
+          markdownContent += `## ${index + 1}. ${task.content?.title || "无标题"}\n\n`;
+          markdownContent += `**任务ID**: ${task.id}\n\n`;
+          markdownContent += `**URL**: ${task.url}\n\n`;
+          markdownContent += `**作者**: ${task.content?.author?.name || "未知"} (${task.content?.author?.followers || 0} 粉丝)\n\n`;
+          markdownContent += `**互动数据**: ❤️ ${task.content?.stats?.likes || 0} | 💬 ${task.content?.stats?.comments || 0} | 🔗 ${task.content?.stats?.shares || 0}\n\n`;
+          markdownContent += `**内容文字**:\n${task.content?.text || ""}\n\n`;
+          
+          if (task.content?.tags && task.content.tags.length > 0) {
+            markdownContent += `**标签**: ${task.content.tags.join(" ")}\n\n`;
+          }
+          
+          if (task.content?.images && task.content.images.length > 0) {
+            markdownContent += `**图片 (${task.content.images.length}张)**:\n`;
+            task.content.images.forEach((img, imgIndex) => {
+              markdownContent += `${imgIndex + 1}. [${img.description || "图片"}](${img.url})\n`;
+            });
+            markdownContent += "\n";
+          }
+          
+          markdownContent += `**完成时间**: ${task.completed_at ? new Date(task.completed_at).toLocaleString() : ""}\n\n`;
+          markdownContent += "---\n\n";
+        });
+
+        const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8;' });
+        downloadFile(blob, `content_extract_${dateStr}.md`);
+      } else if (exportFormat === "xlsx") {
+        // XLSX导出 (简化版，使用CSV格式但扩展名为xlsx)
+        const headers = ["任务ID", "URL", "标题", "内容文字", "图片数量", "图片URL列表", "作者", "粉丝数", "点赞数", "评论数", "分享数", "标签", "完成时间"];
+        const csvContent = [
+          headers.join("\t"),
+          ...selectedTasks.map(task => [
+            task.id,
+            task.url,
+            task.content?.title || "",
+            task.content?.text || "",
+            task.content?.images?.length || 0,
+            task.content?.images?.map(img => img.url).join("; ") || "",
+            task.content?.author?.name || "",
+            task.content?.author?.followers || 0,
+            task.content?.stats?.likes || 0,
+            task.content?.stats?.comments || 0,
+            task.content?.stats?.shares || 0,
+            task.content?.tags?.join("; ") || "",
+            task.completed_at ? new Date(task.completed_at).toLocaleString() : ""
+          ].join("\t"))
+        ].join("\n");
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;' });
+        downloadFile(blob, `content_extract_${dateStr}.xlsx`);
+      }
+
+      alert(`成功导出 ${selectedTasks.length} 个任务的数据`);
+      setSelectedHistoryTaskIds([]);
+    } catch (error) {
+      console.error("导出失败:", error);
+      alert("导出失败，请重试");
+    } finally {
+      setIsExportingCsv(false);
+    }
+  };
+
+  const downloadFile = (blob: Blob, filename: string) => {
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -917,83 +1383,173 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Download className="mr-2 h-4 w-4" />
-                    提取队列 ({extractionList.length})
+                    提取队列 ({extractTasks.length})
+                    {selectedTaskIds.length > 0 && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        已选择 {selectedTaskIds.length}
+                      </Badge>
+                    )}
                   </span>
                   <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" className="h-7">
-                      <Pause className="mr-1 h-3 w-3" />
-                      暂停全部
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-7">
-                      <RotateCcw className="mr-1 h-3 w-3" />
-                      重试失败
+                    {selectedTaskIds.length > 0 && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        className="h-7"
+                        onClick={handleCancelSelected}
+                        disabled={isCancellingTasks}
+                      >
+                        {isCancellingTasks ? (
+                          <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <XCircle className="mr-1 h-3 w-3" />
+                        )}
+                        取消选中
+                      </Button>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7"
+                      onClick={fetchExtractTasks}
+                      disabled={isLoadingTasks}
+                    >
+                      {isLoadingTasks ? (
+                        <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-1 h-3 w-3" />
+                      )}
+                      刷新
                     </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {extractionList.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-4 border border-border rounded-lg"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            {getStatusIcon(item.status)}
-                            <h3 className="text-sm font-medium truncate">
-                              {item.title}
-                            </h3>
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs ${getStatusColor(item.status)}`}
-                            >
-                              {getStatusText(item.status)}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate mb-2">
-                            {item.url}
-                          </p>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                            <span>{item.platform}</span>
-                            {item.imageCount > 0 && (
-                              <span>{item.imageCount} 张��片</span>
-                            )}
-                            {item.extractedAt && (
-                              <span>{item.extractedAt}</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-red-600"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      {item.status === "extracting" && (
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span>提取进度</span>
-                            <span>{item.progress}%</span>
-                          </div>
-                          <Progress value={item.progress} className="h-2" />
-                        </div>
-                      )}
+                {isLoadingTasks ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground">
+                        正在加载提取队列...
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : extractTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-center">
+                      <Download className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        暂无正在处理的提取任务
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        请前往批量提取页面添加新任务
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {extractTasks.length > 0 && (
+                      <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="select-all"
+                            checked={selectedTaskIds.length === extractTasks.length && extractTasks.length > 0}
+                            onCheckedChange={handleSelectAll}
+                          />
+                          <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
+                            全选 ({extractTasks.length} 个任务)
+                          </label>
+                        </div>
+                        {selectedTaskIds.length > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            已选择 {selectedTaskIds.length} / {extractTasks.length}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {extractTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`p-4 border border-border rounded-lg ${
+                          selectedTaskIds.includes(task.id) ? 'bg-blue-50 border-blue-200' : ''
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start space-x-3 flex-1 min-w-0">
+                            <Checkbox
+                              id={`task-${task.id}`}
+                              checked={selectedTaskIds.includes(task.id)}
+                              onCheckedChange={(checked) => handleSelectTask(task.id, checked as boolean)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                {getStatusIcon(task.status)}
+                                <h3 className="text-sm font-medium truncate">
+                                  {task.content?.title || "正在提取内容..."}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${getStatusColor(task.status)}`}
+                                >
+                                  {getStatusText(task.status)}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate mb-2">
+                                {task.url}
+                              </p>
+                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                <span>小红书</span>
+                                {task.content?.images && (
+                                  <span>{task.content.images.length} 张图片</span>
+                                )}
+                                {task.created_at && (
+                                  <span>{new Date(task.created_at).toLocaleString()}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            {task.content && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => task.content && handleCopy(task.content.text)}
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-red-600"
+                              onClick={() => cancelTasks([task.id])}
+                              disabled={isCancellingTasks}
+                              title="取消任务"
+                            >
+                              <XCircle className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        {(task.status === "processing" || task.status === "queued") && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>提取进度</span>
+                              <span>{task.progress}%</span>
+                            </div>
+                            <Progress value={task.progress} className="h-2" />
+                          </div>
+                        )}
+                        {task.error_message && (
+                          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+                            错误: {task.error_message}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -1004,170 +1560,373 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="mr-2 h-4 w-4" />
-                    提取历史 ({extractionHistory.length})
+                    提取历史 ({filteredHistoryTasks.length}/{historyTasks.length})
+                    {selectedHistoryTaskIds.length > 0 && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        已选择 {selectedHistoryTaskIds.length}
+                      </Badge>
+                    )}
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    已完成 {extractionHistory.length} 篇
-                  </Badge>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-7"
+                      onClick={handleRetrySelected}
+                      disabled={isRetryingTasks || selectedHistoryTaskIds.length === 0}
+                    >
+                      {isRetryingTasks ? (
+                        <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                      ) : (
+                        <RotateCcw className="mr-1 h-3 w-3" />
+                      )}
+                      重试选中
+                    </Button>
+                    <div className="flex items-center space-x-1">
+                      <Select value={exportFormat} onValueChange={setExportFormat}>
+                        <SelectTrigger className="h-7 w-20 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="csv">CSV</SelectItem>
+                          <SelectItem value="markdown">MD</SelectItem>
+                          <SelectItem value="xlsx">XLSX</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="h-7 bg-green-600 hover:bg-green-700"
+                        onClick={exportToCSV}
+                        disabled={isExportingCsv || selectedHistoryTaskIds.length === 0}
+                      >
+                        {isExportingCsv ? (
+                          <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Download className="mr-1 h-3 w-3" />
+                        )}
+                        导出
+                      </Button>
+                    </div>
+                    <Select value={historyFilter} onValueChange={setHistoryFilter}>
+                      <SelectTrigger className="h-7 w-32 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        <SelectItem value="completed">已完成</SelectItem>
+                        <SelectItem value="failed">失败</SelectItem>
+                        <SelectItem value="cancelled">已取消</SelectItem>
+                        <SelectItem value="failed-cancelled">失败 + 取消</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7"
+                      onClick={fetchHistoryTasks}
+                      disabled={isLoadingHistory}
+                    >
+                      {isLoadingHistory ? (
+                        <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-1 h-3 w-3" />
+                      )}
+                      刷新
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {extractionHistory.map((item) => {
-                    const isExpanded = expandedHistoryItems.includes(item.id);
-                    return (
-                      <div
-                        key={item.id}
-                        className="border border-border rounded-lg"
-                      >
-                        <div className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                                <h3 className="text-sm font-medium truncate">
-                                  {item.title}
-                                </h3>
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs bg-green-100 text-green-800"
-                                >
-                                  已完成
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground truncate mb-2">
-                                {item.url}
-                              </p>
-                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                                <span>{item.platform}</span>
-                                <span>{item.imageCount} 张图片</span>
-                                <span>{item.extractedAt}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2 ml-4">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => toggleHistoryExpansion(item.id)}
-                                className="h-6 w-6 p-0"
-                              >
-                                {isExpanded ? (
-                                  <ChevronDown className="h-3 w-3" />
-                                ) : (
-                                  <ChevronRight className="h-3 w-3" />
-                                )}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleCopy(item.extractedData.content)
-                                }
-                                className="h-6 w-6 p-0"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 text-red-600"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
+                {isLoadingHistory ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground">
+                        正在加载提取历史...
+                      </p>
+                    </div>
+                  </div>
+                ) : filteredHistoryTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-center">
+                      <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {historyFilter === "all" ? "暂无提取历史" : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的任务`}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {historyFilter === "all" ? "完成的提取任务将在这里显示" : "请尝试其他筛选条件"}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filteredHistoryTasks.length > 0 && (
+                      <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="select-all-history"
+                            checked={
+                              selectedHistoryTaskIds.length > 0 && 
+                              selectedHistoryTaskIds.length === filteredHistoryTasks.filter(task => 
+                                task.status === "completed" || task.status === "failed" || task.status === "cancelled"
+                              ).length
+                            }
+                            onCheckedChange={handleSelectAllHistory}
+                          />
+                          <label htmlFor="select-all-history" className="text-sm font-medium cursor-pointer">
+                            全选 ({filteredHistoryTasks.filter(task => 
+                              task.status === "completed" || task.status === "failed" || task.status === "cancelled"
+                            ).length} 个可选)
+                          </label>
                         </div>
-
-                        {/* Expanded Content */}
-                        {isExpanded && (
-                          <div className="border-t border-border p-4 bg-muted/20">
-                            <div className="space-y-4">
-                              {/* Extracted Text */}
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <h4 className="text-sm font-medium">
-                                    提取的文字内容
-                                  </h4>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleCopy(item.extractedData.content)
-                                    }
-                                    className="h-6"
-                                  >
-                                    <Copy className="h-3 w-3 mr-1" />
-                                    复制文字
-                                  </Button>
-                                </div>
-                                <div className="bg-background p-3 rounded-lg text-sm max-h-40 overflow-y-auto">
-                                  {item.extractedData.content}
-                                </div>
-                              </div>
-
-                              {/* Tags */}
-                              <div className="space-y-2">
-                                <h4 className="text-sm font-medium">
-                                  话题标签
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {item.extractedData.tags.map((tag, index) => (
+                        {selectedHistoryTaskIds.length > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            已选择 {selectedHistoryTaskIds.length} / {filteredHistoryTasks.filter(task => 
+                              task.status === "completed" || task.status === "failed" || task.status === "cancelled"
+                            ).length}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {filteredHistoryTasks.map((task) => {
+                      const isExpanded = expandedHistoryItems.includes(parseInt(task.id));
+                      const isRetryable = task.status === "failed" || task.status === "cancelled";
+                      const isSelectable = task.status === "completed" || task.status === "failed" || task.status === "cancelled";
+                      return (
+                        <div
+                          key={task.id}
+                          className={`border border-border rounded-lg ${
+                            selectedHistoryTaskIds.includes(task.id) ? 'bg-blue-50 border-blue-200' : ''
+                          }`}
+                        >
+                          <div className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-start space-x-3 flex-1 min-w-0">
+                                {isSelectable && (
+                                  <Checkbox
+                                    id={`history-task-${task.id}`}
+                                    checked={selectedHistoryTaskIds.includes(task.id)}
+                                    onCheckedChange={(checked) => handleSelectHistoryTask(task.id, checked as boolean)}
+                                    className="mt-1"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    {getStatusIcon(task.status)}
+                                    <h3 className="text-sm font-medium truncate">
+                                      {task.content?.title || "提取内容"}
+                                    </h3>
                                     <Badge
-                                      key={index}
-                                      variant="outline"
-                                      className="text-xs cursor-pointer"
-                                      onClick={() => handleCopy(tag)}
+                                      variant="secondary"
+                                      className={`text-xs ${getStatusColor(task.status)}`}
                                     >
-                                      {tag}
+                                      {getStatusText(task.status)}
                                     </Badge>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Images */}
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <h4 className="text-sm font-medium">
-                                    提取图片 ({item.extractedData.images.length}
-                                    )
-                                  </h4>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleBatchDownload}
-                                    className="h-6"
-                                  >
-                                    <Download className="h-3 w-3 mr-1" />
-                                    下载图片
-                                  </Button>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                  {item.extractedData.images.map(
-                                    (image, index) => (
-                                      <div
-                                        key={index}
-                                        className="group relative border border-border rounded-lg overflow-hidden bg-gray-100"
-                                      >
-                                        <div className="aspect-square flex items-center justify-center">
-                                          <ImageIcon className="h-6 w-6 text-gray-400" />
-                                        </div>
-                                        <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
-                                          <p className="truncate text-xs">
-                                            {image.description}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    ),
+                                  </div>
+                                  <p className="text-xs text-muted-foreground truncate mb-2">
+                                    {task.url}
+                                  </p>
+                                  <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                    <span>小红书</span>
+                                    {task.content?.images && (
+                                      <span>{task.content.images.length} 张图片</span>
+                                    )}
+                                    {task.completed_at && (
+                                      <span>{new Date(task.completed_at).toLocaleString()}</span>
+                                    )}
+                                  </div>
+                                  {task.status === "completed" && task.content && (
+                                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                                      <p className="line-clamp-1 font-medium">{task.content.title}</p>
+                                    </div>
+                                  )}
+                                  {task.error_message && (
+                                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+                                      错误: {task.error_message}
+                                    </div>
                                   )}
                                 </div>
                               </div>
+                              <div className="flex items-center space-x-2 ml-4">
+                                {task.status === "completed" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => toggleHistoryExpansion(parseInt(task.id))}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronDown className="h-3 w-3" />
+                                    ) : (
+                                      <ChevronRight className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                )}
+                                {task.content && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleCopy(task.content?.text || "")}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                )}
+                                {isRetryable && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => retryTasks([task.id])}
+                                    className="h-6 w-6 p-0 text-blue-600"
+                                    title="重试任务"
+                                  >
+                                    <RotateCcw className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+
+                          {/* Expanded Content */}
+                          {isExpanded && task.content && (
+                            <div className="border-t border-border p-4 bg-muted/20">
+                              <div className="space-y-4">
+                                {/* Author Info */}
+                                {task.content.author && (
+                                  <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
+                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                      {task.content.author.avatar ? (
+                                        <img 
+                                          src={task.content.author.avatar} 
+                                          alt={task.content.author.name}
+                                          className="w-10 h-10 rounded-full"
+                                        />
+                                      ) : (
+                                        <span className="text-sm">👤</span>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium">
+                                        {task.content.author.name}
+                                      </p>
+                                      {task.content.author.followers && (
+                                        <p className="text-xs text-muted-foreground">
+                                          {task.content.author.followers} 粉丝
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="ml-auto flex space-x-4 text-xs text-muted-foreground">
+                                      {task.content.stats.likes && <span>❤️ {task.content.stats.likes}</span>}
+                                      {task.content.stats.comments && <span>💬 {task.content.stats.comments}</span>}
+                                      {task.content.stats.shares && <span>🔗 {task.content.stats.shares}</span>}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Extracted Text */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-medium">
+                                      提取的文字内容
+                                    </h4>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopy(task.content?.text || "")}
+                                      className="h-6"
+                                    >
+                                      <Copy className="h-3 w-3 mr-1" />
+                                      复制文字
+                                    </Button>
+                                  </div>
+                                  <div className="bg-background p-3 rounded-lg text-sm max-h-40 overflow-y-auto">
+                                    {task.content.text}
+                                  </div>
+                                </div>
+
+                                {/* Tags */}
+                                {task.content.tags && task.content.tags.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h4 className="text-sm font-medium">
+                                      话题标签
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {task.content.tags.map((tag: string, index: number) => (
+                                        <Badge
+                                          key={index}
+                                          variant="outline"
+                                          className="text-xs cursor-pointer"
+                                          onClick={() => handleCopy(tag)}
+                                        >
+                                          #{tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Images */}
+                                {task.content.images && task.content.images.length > 0 && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <h4 className="text-sm font-medium">
+                                        提取图片 ({task.content.images.length})
+                                      </h4>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleBatchDownload}
+                                        className="h-6"
+                                      >
+                                        <Download className="h-3 w-3 mr-1" />
+                                        下载图片
+                                      </Button>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                      {task.content.images.map((image: any, index: number) => (
+                                        <div
+                                          key={index}
+                                          className="group relative border border-border rounded-lg overflow-hidden bg-gray-100"
+                                        >
+                                          <div className="aspect-square flex items-center justify-center">
+                                            <img 
+                                              src={image.url} 
+                                              alt={image.description}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                if (nextElement) {
+                                                  nextElement.style.display = 'flex';
+                                                }
+                                              }}
+                                            />
+                                            <div className="hidden w-full h-full items-center justify-center">
+                                              <ImageIcon className="h-6 w-6 text-gray-400" />
+                                            </div>
+                                          </div>
+                                          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
+                                            <p className="truncate text-xs">
+                                              {image.description}
+                                            </p>
+                                            <p className="text-gray-300 text-xs">
+                                              {image.fileSize}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
