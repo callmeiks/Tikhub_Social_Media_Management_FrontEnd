@@ -240,7 +240,7 @@ export default function AccountInteraction() {
     if (!account) return;
 
     const csvContent = [
-      "标题,发布时间,点赞数,评论数,分享数,播放量,链接",
+      "��题,发布时间,点赞数,评论数,分享数,播放量,链接",
       ...account.works.map(
         (work) =>
           `"${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
@@ -373,7 +373,7 @@ export default function AccountInteraction() {
         { width: 40 }, // 作品标题
         { width: 12 }, // 发布时间
         { width: 10 }, // 点赞数
-        { width: 10 }, // 评论数
+        { width: 10 }, // ��论数
         { width: 10 }, // 分享数
         { width: 12 }, // 播放量
         { width: 50 }, // 链接
@@ -447,7 +447,7 @@ export default function AccountInteraction() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="batch" className="flex items-center gap-2">
               <Link className="w-4 h-4" />
-              批量链接
+              添加账户
             </TabsTrigger>
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -512,7 +512,7 @@ https://weibo.com/u/123456789
                       </>
                     ) : (
                       <span className="text-muted-foreground">
-                        支持主页链接和用户名，每行一��
+                        支持主页链接和用户名，每行一个
                       </span>
                     )}
                   </div>
@@ -684,7 +684,7 @@ https://weibo.com/u/123456789
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        没有找到符合筛��条件的账号
+                        没有找到符合筛选条件��账号
                       </p>
                     </div>
                   ) : (
@@ -1000,7 +1000,7 @@ https://weibo.com/u/123456789
                             </p>
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                               <span>{highestLikesAccount.platform}</span>
-                              <span>{highestLikesAccount.followers} 粉丝</span>
+                              <span>{highestLikesAccount.followers} 粉��</span>
                               <span>{highestLikesAccount.totalWorks} 作品</span>
                             </div>
                           </div>
