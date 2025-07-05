@@ -643,6 +643,15 @@ https://weibo.com/u/123456789
                           <div className="p-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
+                                <Checkbox
+                                  checked={selectedAccounts.includes(
+                                    account.id,
+                                  )}
+                                  onCheckedChange={() =>
+                                    toggleAccountSelection(account.id)
+                                  }
+                                  className="mr-1"
+                                />
                                 <Button
                                   variant="ghost"
                                   size="sm"
