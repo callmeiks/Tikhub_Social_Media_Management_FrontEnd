@@ -151,7 +151,7 @@ const extractionHistory = [
 - 口红选择日常色号
 
 #化妆教程 #裸妆 #新手化妆`,
-      tags: ["#化妆教程", "#裸��", "#新手化妆", "#美妆分享"],
+      tags: ["#化妆教程", "#裸妆", "#新手化妆", "#美妆分享"],
       images: [
         { description: "化妆前后对比", size: "750x1000" },
         { description: "化妆品清单", size: "750x1000" },
@@ -655,7 +655,7 @@ export default function ContentExtract() {
   };
 
   const handleBatchDownload = () => {
-    // 模拟批量下载
+    // 模拟批量��载
     console.log("批量下载所有图片");
   };
 
@@ -896,7 +896,7 @@ export default function ContentExtract() {
         downloadFile(blob, `content_extract_${dateStr}.xlsx`);
       }
 
-      alert(`成���导出 ${selectedTasks.length} 个任务的数据`);
+      alert(`成功导出 ${selectedTasks.length} 个任务的数据`);
       setSelectedHistoryTaskIds([]);
     } catch (error) {
       console.error("导出失败:", error);
@@ -1731,7 +1731,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     <div className="text-center">
                       <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
                       <p className="text-sm text-muted-foreground">
-                        正在加载提取历史...
+                        正在加载文案数据...
                       </p>
                     </div>
                   </div>
