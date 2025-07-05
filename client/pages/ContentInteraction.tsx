@@ -344,9 +344,8 @@ export default function ContentInteraction() {
           </TabsList>
 
           <TabsContent value="add" className="mt-6">
-
-        {/* Batch Input */}
-        <Card>
+            {/* Batch Input */}
+            <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center">
