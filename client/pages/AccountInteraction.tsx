@@ -553,7 +553,7 @@ https://weibo.com/u/123456789
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        没有找到符合筛选条件的账号
+                        没有找���符合筛选条件的账号
                       </p>
                     </div>
                   ) : (
@@ -658,7 +658,7 @@ https://weibo.com/u/123456789
                                             标题
                                           </TableHead>
                                           <TableHead className="w-[100px]">
-                                            发布时间
+                                            发���时间
                                           </TableHead>
                                           <TableHead className="w-[80px]">
                                             点赞
@@ -884,10 +884,10 @@ https://weibo.com/u/123456789
 
                   {/* Platform Distribution */}
                   <div className="border rounded-lg p-4">
-                    <h3 className="text-sm font-medium mb-3">平台分���</h3>
+                    <h3 className="text-sm font-medium mb-3">平台分布</h3>
                     <div className="space-y-2">
                       {supportedPlatforms.map((platform) => {
-                        const count = accountData.filter(
+                        const count = filteredAccountData.filter(
                           (acc) => acc.platform === platform.name,
                         ).length;
                         const percentage =
