@@ -159,7 +159,7 @@ export default function AccountInteraction() {
   const [expandedAccounts, setExpandedAccounts] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<{ [key: number]: number }>({});
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    supportedPlatforms.map(p => p.name)
+    supportedPlatforms.map((p) => p.name),
   );
 
   const urlCount = batchUrls
@@ -254,15 +254,19 @@ export default function AccountInteraction() {
 
   // Statistics calculations
   const totalAccounts = filteredAccountData.length;
-  const totalWorks = filteredAccountData.reduce((sum, acc) => sum + acc.totalWorks, 0);
-  const highestLikesAccount = filteredAccountData.length > 0
-    ? filteredAccountData.reduce((max, acc) =>
-        parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
-        parseInt(max.totalLikes.replace(/[万千]/g, ""))
-          ? acc
-          : max,
-      )
-    : null;
+  const totalWorks = filteredAccountData.reduce(
+    (sum, acc) => sum + acc.totalWorks,
+    0,
+  );
+  const highestLikesAccount =
+    filteredAccountData.length > 0
+      ? filteredAccountData.reduce((max, acc) =>
+          parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
+          parseInt(max.totalLikes.replace(/[万千]/g, ""))
+            ? acc
+            : max,
+        )
+      : null;
 
   const getWorksForPage = (account: any, page: number) => {
     const startIndex = (page - 1) * 10;
@@ -274,20 +278,20 @@ export default function AccountInteraction() {
   };
 
   // Filter accounts by selected platforms
-  const filteredAccountData = accountData.filter(account =>
-    selectedPlatforms.includes(account.platform)
+  const filteredAccountData = accountData.filter((account) =>
+    selectedPlatforms.includes(account.platform),
   );
 
   const togglePlatform = (platformName: string) => {
-    setSelectedPlatforms(prev =>
+    setSelectedPlatforms((prev) =>
       prev.includes(platformName)
-        ? prev.filter(p => p !== platformName)
-        : [...prev, platformName]
+        ? prev.filter((p) => p !== platformName)
+        : [...prev, platformName],
     );
   };
 
   const selectAllPlatforms = () => {
-    setSelectedPlatforms(supportedPlatforms.map(p => p.name));
+    setSelectedPlatforms(supportedPlatforms.map((p) => p.name));
   };
 
   const clearAllPlatforms = () => {
@@ -499,7 +503,7 @@ https://weibo.com/u/123456789
                           <div className="space-y-2">
                             {supportedPlatforms.map((platform) => {
                               const accountCount = accountData.filter(
-                                acc => acc.platform === platform.name
+                                (acc) => acc.platform === platform.name,
                               ).length;
                               return (
                                 <div
@@ -508,8 +512,12 @@ https://weibo.com/u/123456789
                                 >
                                   <Checkbox
                                     id={platform.id}
-                                    checked={selectedPlatforms.includes(platform.name)}
-                                    onCheckedChange={() => togglePlatform(platform.name)}
+                                    checked={selectedPlatforms.includes(
+                                      platform.name,
+                                    )}
+                                    onCheckedChange={() =>
+                                      togglePlatform(platform.name)
+                                    }
                                   />
                                   <label
                                     htmlFor={platform.id}
@@ -518,7 +526,10 @@ https://weibo.com/u/123456789
                                     <span>{platform.emoji}</span>
                                     <span>{platform.name}</span>
                                     {accountCount > 0 && (
-                                      <Badge variant="secondary" className="text-xs">
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                      >
                                         {accountCount}
                                       </Badge>
                                     )}
@@ -547,233 +558,241 @@ https://weibo.com/u/123456789
                     </div>
                   ) : (
                     filteredAccountData.map((account) => {
-                    const isExpanded = expandedAccounts.includes(account.id);
-                    const currentAccountPage = currentPage[account.id] || 1;
-                    const worksForPage = getWorksForPage(
-                      account,
-                      currentAccountPage,
-                    );
-                    const totalPages = getTotalPages(account.works.length);
+                      const isExpanded = expandedAccounts.includes(account.id);
+                      const currentAccountPage = currentPage[account.id] || 1;
+                      const worksForPage = getWorksForPage(
+                        account,
+                        currentAccountPage,
+                      );
+                      const totalPages = getTotalPages(account.works.length);
 
-                    return (
-                      <div
-                        key={account.id}
-                        className="border border-border rounded-lg"
-                      >
-                        <div className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  toggleAccountExpansion(account.id)
-                                }
-                                className="h-6 w-6 p-0"
-                              >
-                                {isExpanded ? (
-                                  <ChevronUp className="h-3 w-3" />
-                                ) : (
-                                  <ChevronDown className="h-3 w-3" />
-                                )}
-                              </Button>
-                              <div>
-                                <h3 className="text-sm font-medium">
-                                  {account.name}
-                                </h3>
-                                <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    {account.platform}
-                                  </Badge>
-                                  <span>{account.followers} 粉丝</span>
-                                  <span>{account.totalWorks} 作品</span>
-                                  <span>{account.addedAt}</span>
+                      return (
+                        <div
+                          key={account.id}
+                          className="border border-border rounded-lg"
+                        >
+                          <div className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    toggleAccountExpansion(account.id)
+                                  }
+                                  className="h-6 w-6 p-0"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronUp className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronDown className="h-3 w-3" />
+                                  )}
+                                </Button>
+                                <div>
+                                  <h3 className="text-sm font-medium">
+                                    {account.name}
+                                  </h3>
+                                  <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {account.platform}
+                                    </Badge>
+                                    <span>{account.followers} 粉丝</span>
+                                    <span>{account.totalWorks} 作品</span>
+                                    <span>{account.addedAt}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => exportAccountData(account.id)}
-                                className="h-6"
-                              >
-                                <Download className="h-3 w-3 mr-1" />
-                                导出CSV
-                              </Button>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    <MoreHorizontal className="h-3 w-3" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
-                                    <Copy className="h-3 w-3 mr-2" />
-                                    复制链接
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Eye className="h-3 w-3 mr-2" />
-                                    查看主页
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-600">
-                                    删除账号
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => exportAccountData(account.id)}
+                                  className="h-6"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  ���出CSV
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                    >
+                                      <MoreHorizontal className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>
+                                      <Copy className="h-3 w-3 mr-2" />
+                                      复制链接
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <Eye className="h-3 w-3 mr-2" />
+                                      查看主页
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600">
+                                      删除账号
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {isExpanded && (
-                          <div className="border-t border-border">
-                            <div className="p-4">
-                              <div className="mb-4">
-                                <h4 className="text-sm font-medium mb-2">
-                                  作品列表
-                                </h4>
-                                <div className="rounded-md border">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead className="w-[300px]">
-                                          标题
-                                        </TableHead>
-                                        <TableHead className="w-[100px]">
-                                          发布时间
-                                        </TableHead>
-                                        <TableHead className="w-[80px]">
-                                          点赞
-                                        </TableHead>
-                                        <TableHead className="w-[80px]">
-                                          评论
-                                        </TableHead>
-                                        <TableHead className="w-[80px]">
-                                          分享
-                                        </TableHead>
-                                        <TableHead className="w-[80px]">
-                                          播放
-                                        </TableHead>
-                                        <TableHead className="w-[60px]">
-                                          操作
-                                        </TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {worksForPage.map((work) => (
-                                        <TableRow key={work.id}>
-                                          <TableCell className="font-medium">
-                                            <div
-                                              className="max-w-[280px] truncate"
-                                              title={work.title}
-                                            >
-                                              {work.title}
-                                            </div>
-                                          </TableCell>
-                                          <TableCell className="text-sm text-muted-foreground">
-                                            {work.publishedAt}
-                                          </TableCell>
-                                          <TableCell className="text-sm">
-                                            <span className="flex items-center">
-                                              <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                              {work.likes}
-                                            </span>
-                                          </TableCell>
-                                          <TableCell className="text-sm">
-                                            <span className="flex items-center">
-                                              <MessageCircle className="h-3 w-3 mr-1 text-blue-500" />
-                                              {work.comments}
-                                            </span>
-                                          </TableCell>
-                                          <TableCell className="text-sm">
-                                            <span className="flex items-center">
-                                              <Share2 className="h-3 w-3 mr-1 text-green-500" />
-                                              {work.shares}
-                                            </span>
-                                          </TableCell>
-                                          <TableCell className="text-sm">
-                                            <span className="flex items-center">
-                                              <Play className="h-3 w-3 mr-1 text-purple-500" />
-                                              {work.views}
-                                            </span>
-                                          </TableCell>
-                                          <TableCell>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-6 w-6 p-0"
-                                              onClick={() =>
-                                                window.open(work.url, "_blank")
-                                              }
-                                            >
-                                              <Eye className="h-3 w-3" />
-                                            </Button>
-                                          </TableCell>
+                          {isExpanded && (
+                            <div className="border-t border-border">
+                              <div className="p-4">
+                                <div className="mb-4">
+                                  <h4 className="text-sm font-medium mb-2">
+                                    作品列表
+                                  </h4>
+                                  <div className="rounded-md border">
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead className="w-[300px]">
+                                            标题
+                                          </TableHead>
+                                          <TableHead className="w-[100px]">
+                                            发布时间
+                                          </TableHead>
+                                          <TableHead className="w-[80px]">
+                                            点赞
+                                          </TableHead>
+                                          <TableHead className="w-[80px]">
+                                            评论
+                                          </TableHead>
+                                          <TableHead className="w-[80px]">
+                                            分享
+                                          </TableHead>
+                                          <TableHead className="w-[80px]">
+                                            播放
+                                          </TableHead>
+                                          <TableHead className="w-[60px]">
+                                            操作
+                                          </TableHead>
                                         </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {worksForPage.map((work) => (
+                                          <TableRow key={work.id}>
+                                            <TableCell className="font-medium">
+                                              <div
+                                                className="max-w-[280px] truncate"
+                                                title={work.title}
+                                              >
+                                                {work.title}
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">
+                                              {work.publishedAt}
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                              <span className="flex items-center">
+                                                <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                                {work.likes}
+                                              </span>
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                              <span className="flex items-center">
+                                                <MessageCircle className="h-3 w-3 mr-1 text-blue-500" />
+                                                {work.comments}
+                                              </span>
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                              <span className="flex items-center">
+                                                <Share2 className="h-3 w-3 mr-1 text-green-500" />
+                                                {work.shares}
+                                              </span>
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                              <span className="flex items-center">
+                                                <Play className="h-3 w-3 mr-1 text-purple-500" />
+                                                {work.views}
+                                              </span>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 w-6 p-0"
+                                                onClick={() =>
+                                                  window.open(
+                                                    work.url,
+                                                    "_blank",
+                                                  )
+                                                }
+                                              >
+                                                <Eye className="h-3 w-3" />
+                                              </Button>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
                                 </div>
-                              </div>
 
-                              {/* Pagination */}
-                              {totalPages > 1 && (
-                                <div className="flex items-center justify-between">
-                                  <div className="text-xs text-muted-foreground">
-                                    显示第 {(currentAccountPage - 1) * 10 + 1} -{" "}
-                                    {Math.min(
-                                      currentAccountPage * 10,
-                                      account.works.length,
-                                    )}{" "}
-                                    项，共 {account.works.length} 项
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-xs text-muted-foreground">
+                                      显示第 {(currentAccountPage - 1) * 10 + 1}{" "}
+                                      -{" "}
+                                      {Math.min(
+                                        currentAccountPage * 10,
+                                        account.works.length,
+                                      )}{" "}
+                                      项，共 {account.works.length} 项
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          changePage(
+                                            account.id,
+                                            currentAccountPage - 1,
+                                          )
+                                        }
+                                        disabled={currentAccountPage === 1}
+                                        className="h-6"
+                                      >
+                                        上一页
+                                      </Button>
+                                      <span className="text-xs text-muted-foreground">
+                                        {currentAccountPage} / {totalPages}
+                                      </span>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          changePage(
+                                            account.id,
+                                            currentAccountPage + 1,
+                                          )
+                                        }
+                                        disabled={
+                                          currentAccountPage === totalPages
+                                        }
+                                        className="h-6"
+                                      >
+                                        下一页
+                                      </Button>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        changePage(
-                                          account.id,
-                                          currentAccountPage - 1,
-                                        )
-                                      }
-                                      disabled={currentAccountPage === 1}
-                                      className="h-6"
-                                    >
-                                      上一页
-                                    </Button>
-                                    <span className="text-xs text-muted-foreground">
-                                      {currentAccountPage} / {totalPages}
-                                    </span>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        changePage(
-                                          account.id,
-                                          currentAccountPage + 1,
-                                        )
-                                      }
-                                      disabled={
-                                        currentAccountPage === totalPages
-                                      }
-                                      className="h-6"
-                                    >
-                                      下一页
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -821,7 +840,7 @@ https://weibo.com/u/123456789
                   <div className="border rounded-lg p-4">
                     <h3 className="text-sm font-medium mb-3 flex items-center">
                       <Heart className="h-4 w-4 mr-2 text-red-500" />
-                      作品总点赞量最高用户
+                      作���总点赞量最高用户
                     </h3>
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div className="flex items-center space-x-3">
