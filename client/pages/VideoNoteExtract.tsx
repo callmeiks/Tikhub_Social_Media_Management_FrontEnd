@@ -47,7 +47,7 @@ const extractionHistory = [
   {
     id: 1,
     title: "这样护肤3个月，皮肤真的变好了！",
-    platform: "���音",
+    platform: "抖音",
     author: "护肤小仙女",
     extractedAt: "2024-01-15 14:30",
     wordCount: 156,
@@ -133,7 +133,7 @@ const extractedData = {
 坚持真的有用！姐妹们一起变美～
 
 #护肤心得 #变美 #护肤分享`,
-  hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
+  hashtags: ["#护���心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
   keyPoints: [
     "双重清洁很重要",
     "精华要充分按摩",
@@ -148,8 +148,7 @@ export default function VideoNoteExtract() {
   const [inputUrl, setInputUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [activeTab, setActiveTab] = useState("url");
-  const [selectedPlatform, setSelectedPlatform] = useState("all");
+  const [activeTab, setActiveTab] = useState("extract");
 
   const handleExtract = async () => {
     if (!inputUrl.trim()) {
