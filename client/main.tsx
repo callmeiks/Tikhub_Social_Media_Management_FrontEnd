@@ -21,7 +21,6 @@ import AIVideoGeneration from "./pages/AIVideoGeneration";
 import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
-import CommentCollection from "./pages/CommentCollection";
 import AccountInteraction from "./pages/AccountInteraction";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import UniversalConverter from "./pages/UniversalConverter";
