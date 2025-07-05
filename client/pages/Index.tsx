@@ -152,7 +152,7 @@ const creatorTools = [
   },
   {
     title: "图文提取",
-    description: "从视频中提取图片和文字信息，便于二次创作",
+    description: "从��频中提取图片和文字信息，便于二次创作",
     icon: FileText,
     href: "/creator-tools/content-extract",
     popular: false,
@@ -167,12 +167,7 @@ const dataCollectionTools = [
     icon: Users,
     features: ["实时采集", "数据清洗", "行为分析", "报告生成"],
   },
-  {
-    title: "热门话题采集",
-    description: "实时抓取各平台热门话题，把握流量风口",
-    icon: Hash,
-    features: ["热点监控", "趋势分析", "关键词挖掘", "竞品分析"],
-  },
+
   {
     title: "评论情感分析",
     description: "智能分析评论情感倾向，了解用户反馈",
