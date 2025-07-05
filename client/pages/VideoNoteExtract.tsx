@@ -48,7 +48,7 @@ const extractionHistory = [
     id: 1,
     title: "这样护肤3个月，皮肤真的变好了！",
     platform: "抖音",
-    author: "护肤小仙���",
+    author: "护肤小仙女",
     extractedAt: "2024-01-15 14:30",
     wordCount: 156,
     engagement: "37.8%",
@@ -126,14 +126,14 @@ const extractedData = {
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
-✨ 精华：烟酰胺精华液
+✨ 精���：烟酰胺精华液
 ✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
 
 坚持真的有用！姐妹们一起变美～
 
 #护肤心得 #变美 #护肤分享`,
-  hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
+  hashtags: ["#护肤���得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
   keyPoints: [
     "双重清洁很重要",
     "精华要充分按摩",
@@ -224,43 +224,25 @@ export default function VideoNoteExtract() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Input Section */}
-          <div className="lg:col-span-2">
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <LinkIcon className="mr-2 h-4 w-4" />
-                  内容提取
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-3 mb-4">
-                    <TabsTrigger
-                      value="url"
-                      className="flex items-center space-x-1"
-                    >
-                      <LinkIcon className="h-3 w-3" />
-                      <span>链接提取</span>
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="batch"
-                      className="flex items-center space-x-1"
-                    >
-                      <FileText className="h-3 w-3" />
-                      <span>批量提取</span>
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="search"
-                      className="flex items-center space-x-1"
-                    >
-                      <Search className="h-3 w-3" />
-                      <span>搜索提取</span>
-                    </TabsTrigger>
-                  </TabsList>
+        {/* Main Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="extract">文案提取</TabsTrigger>
+            <TabsTrigger value="history">提取历史</TabsTrigger>
+          </TabsList>
 
-                  <TabsContent value="url" className="space-y-4">
+          <TabsContent value="extract" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Input Section */}
+              <div className="lg:col-span-2">
+                <Card className="border border-border">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center">
+                      <FileText className="mr-2 h-4 w-4" />
+                      文案提取
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
                         视频或笔记链接
@@ -290,85 +272,49 @@ export default function VideoNoteExtract() {
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            支持完整链接和分享短链接
+                            ���持完整链接和分享短链接
                           </span>
                         )}
                       </div>
                     </div>
-                  </TabsContent>
 
-                  <TabsContent value="batch" className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        批量链接（每行一个）
-                      </label>
-                      <Textarea
-                        placeholder={`请输入多个链接，每行一个：
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExtract}
+                          disabled={!inputUrl.trim() || !isValidUrl || isExtracting}
+                          className="h-8"
+                        >
+                          {isExtracting ? (
+                            <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Zap className="mr-2 h-3.5 w-3.5" />
+                          )}
+                          {isExtracting ? "提取中..." : "开始提取"}
+                        </Button>
 
-https://www.tiktok.com/@user/video/123456789
-https://v.douyin.com/iABCDEF/
-https://www.xiaohongshu.com/discovery/item/xyz123`}
-                        className="min-h-[120px] resize-none font-mono text-sm"
-                        maxLength={5000}
-                      />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setInputUrl("");
+                            setShowResults(false);
+                          }}
+                          className="h-8"
+                        >
+                          清空
+                        </Button>
+                      </div>
+
                       <div className="text-xs text-muted-foreground">
-                        最多支持20个链接，将按顺序提取
+                        <Eye className="inline h-3 w-3 mr-1" />
+                        AI智能文案提取
                       </div>
                     </div>
-                  </TabsContent>
-
-                  <TabsContent value="search" className="space-y-4">
-                    <div className="space-y-4">
-                      <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
-                        <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground mb-2">
-                          根据关键词搜索热门内容并提取文案
-                        </p>
-                        <p className="text-xs text-muted-foreground mb-4">
-                          功能开发中，敬请期待
-                        </p>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExtract}
-                      disabled={!inputUrl.trim() || !isValidUrl || isExtracting}
-                      className="h-8"
-                    >
-                      {isExtracting ? (
-                        <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Zap className="mr-2 h-3.5 w-3.5" />
-                      )}
-                      {isExtracting ? "提取中..." : "开始提取"}
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setInputUrl("");
-                        setShowResults(false);
-                      }}
-                      className="h-8"
-                    >
-                      清空
-                    </Button>
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    <Eye className="inline h-3 w-3 mr-1" />
-                    AI智能文案提取
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
             {/* Results Section */}
             {(showResults || isExtracting) && (
