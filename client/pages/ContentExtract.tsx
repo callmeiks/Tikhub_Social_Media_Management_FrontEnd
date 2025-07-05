@@ -101,7 +101,7 @@ const extractionHistory = [
 4. 多喝水：每天至少2000ml
 
 ⚠️ 踩坑提醒：
-- 不要节食！会反弹的
+- 不要节食���会反弹的
 - 不要只做有氧，要加力量训练
 - 体重会有波动，看趋势不看单天
 
@@ -141,7 +141,7 @@ const extractionHistory = [
 📝 具体步骤：
 1️⃣ 妆前打底：先用妆前乳打底，让妆容更持久
 2️⃣ 底妆处理：用粉底液均匀涂抹全脸
-3️⃣ 遮瑕重点：用遮瑕膏遮盖痘印和黑眼圈
+3️⃣ 遮瑕重点：用遮瑕膏遮盖痘印��黑眼圈
 4️⃣ 定妆处理：用散粉轻拍定妆
 5️⃣ 眉毛画法：用眉笔勾勒自然眉形
 
@@ -183,7 +183,7 @@ const extractionHistory = [
 
 💡 收纳技巧：
 - 物品分类标签化
-- 常用物品放在容易拿到的地方
+- 常用物品放在容易拿到��地方
 - 定期整理，养成好习惯
 
 花费不到100元就能让宿舍焕然一新！
@@ -655,7 +655,7 @@ export default function ContentExtract() {
   };
 
   const handleBatchDownload = () => {
-    // 模拟批量��载
+    // 模拟批量下载
     console.log("批量下载所有图片");
   };
 
@@ -1283,7 +1283,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          剩余
+                          剩���
                         </span>
                         <span className="text-sm font-medium">
                           {100 - completedCount} 篇
@@ -1741,7 +1741,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
                       <p className="text-sm text-muted-foreground mb-2">
                         {historyFilter === "all"
-                          ? "暂无提取历史"
+                          ? "暂无文案数据"
                           : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的任务`}
                       </p>
                       <p className="text-xs text-muted-foreground">
