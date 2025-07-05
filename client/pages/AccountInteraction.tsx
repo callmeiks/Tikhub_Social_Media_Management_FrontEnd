@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,7 +135,7 @@ const sampleAccountData = [
     totalWorks: 203,
     totalLikes: "3580万",
     totalComments: "67.8万",
-    totalShares: "23.4���",
+    totalShares: "23.4万",
     works: [
       {
         id: 1,
@@ -144,7 +144,7 @@ const sampleAccountData = [
         likes: "25.8万",
         comments: "8.9万",
         shares: "12.5千",
-        views: "450万",
+        views: "450���",
         url: "https://www.tiktok.com/video/789",
       },
       // More works...
@@ -891,7 +891,7 @@ https://weibo.com/u/123456789
                       </div>
                       <div className="text-sm font-medium">总账号数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加��账号总数
+                        已添加的账号总数
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
