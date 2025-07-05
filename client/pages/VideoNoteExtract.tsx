@@ -43,6 +43,64 @@ const supportedPlatforms = [
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
 ];
 
+const extractionHistory = [
+  {
+    id: 1,
+    title: "这样护肤3个月，皮肤真的变好了！",
+    platform: "���音",
+    author: "护肤小仙女",
+    extractedAt: "2024-01-15 14:30",
+    wordCount: 156,
+    engagement: "37.8%",
+    status: "已完成",
+    url: "https://v.douyin.com/iABCDEF/",
+  },
+  {
+    id: 2,
+    title: "减肥成功分享！从130斤到100斤的完整攻略",
+    platform: "小红书",
+    author: "瘦身达人",
+    extractedAt: "2024-01-14 16:22",
+    wordCount: 234,
+    engagement: "42.1%",
+    status: "已完成",
+    url: "https://www.xiaohongshu.com/discovery/item/123456",
+  },
+  {
+    id: 3,
+    title: "新手化妆教程｜打造自然裸妆的5个步骤",
+    platform: "TikTok",
+    author: "美妆博主",
+    extractedAt: "2024-01-13 09:15",
+    wordCount: 189,
+    engagement: "28.9%",
+    status: "已完成",
+    url: "https://www.tiktok.com/@user/video/123456789",
+  },
+  {
+    id: 4,
+    title: "学生党必看！宿舍收纳神器推荐",
+    platform: "B站",
+    author: "生活小能手",
+    extractedAt: "2024-01-12 20:30",
+    wordCount: 167,
+    engagement: "31.5%",
+    status: "已完成",
+    url: "https://www.bilibili.com/video/BV1234567890",
+  },
+  {
+    id: 5,
+    title: "5分钟快手早餐，营养又美味",
+    platform: "快手",
+    author: "美食家",
+    extractedAt: "2024-01-11 08:45",
+    wordCount: 142,
+    engagement: "25.3%",
+    status: "已完成",
+    url: "https://www.kuaishou.com/video/123456",
+  },
+];
+
 const extractedData = {
   title: "这样护肤3个月，皮肤真的变好了！",
   videoInfo: {
@@ -127,7 +185,7 @@ export default function VideoNoteExtract() {
   return (
     <DashboardLayout
       title="视频/笔记文案提取"
-      subtitle="智能提取视频和笔记中的文案内容，快速获取创���灵感"
+      subtitle="智能提取视频和笔记中的文案内容，快速获取创作灵感"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
