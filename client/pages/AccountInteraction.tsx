@@ -79,7 +79,7 @@ const sampleAccountData = [
     works: [
       {
         id: 1,
-        title: "超火的韩式裸妆教程！新手必看",
+        title: "超火的韩��裸妆教程！新手必看",
         publishedAt: "2024-01-20",
         likes: "15.6万",
         comments: "3.2万",
@@ -162,14 +162,6 @@ export default function AccountInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
-
-  // Clear selected accounts that are no longer visible due to platform filtering
-  useEffect(() => {
-    const filteredAccountIds = filteredAccountData.map((acc) => acc.id);
-    setSelectedAccounts((prev) =>
-      prev.filter((id) => filteredAccountIds.includes(id)),
-    );
-  }, [selectedPlatforms, accountData]);
 
   const urlCount = batchUrls
     .split("\n")
