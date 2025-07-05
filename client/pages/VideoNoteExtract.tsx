@@ -113,7 +113,7 @@ const extractedData = {
 - 皮肤更有光泽
 - 痘印淡化了很多
 
-�� 我用的方法：
+🌟 我用的方��：
 1️⃣ 早晚双重清洁
 2️⃣ 精华要按摩到吸收
 3️⃣ 面膜一周2-3次
@@ -296,7 +296,7 @@ https://www.bilibili.com/video/BV1234567890
                           <>
                             <AlertTriangle className="h-3 w-3 text-red-600" />
                             <span className="text-red-600">
-                              发现 {invalidUrls.length} 个无效链接，请检查格式
+                              发现 {invalidUrls.length} 个无效链接���请检查格式
                             </span>
                           </>
                         ) : (
@@ -321,7 +321,10 @@ https://www.bilibili.com/video/BV1234567890
                           size="sm"
                           onClick={handleExtract}
                           disabled={
-                            !inputUrl.trim() || !isValidUrl || isExtracting
+                            urlCount === 0 ||
+                            urlCount > 50 ||
+                            hasInvalidUrls ||
+                            isExtracting
                           }
                           className="h-8"
                         >
@@ -330,14 +333,14 @@ https://www.bilibili.com/video/BV1234567890
                           ) : (
                             <Zap className="mr-2 h-3.5 w-3.5" />
                           )}
-                          {isExtracting ? "提取中..." : "开始提取"}
+                          {isExtracting ? "批量提取中..." : "开始批量提取"}
                         </Button>
 
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            setInputUrl("");
+                            setBatchUrls("");
                             setShowResults(false);
                           }}
                           className="h-8"
@@ -547,7 +550,7 @@ https://www.bilibili.com/video/BV1234567890
                       <p>• 支持提取视频字幕和笔记文字</p>
                       <p>• 自动识别话题标签和关键词</p>
                       <p>• 可批量处理多个链接</p>
-                      <p>�� 提取结果支持一键复制</p>
+                      <p>• 提取结果支持一键复制</p>
                       <p>• 仅限公开内容的文案提取</p>
                     </div>
                   </CardContent>
