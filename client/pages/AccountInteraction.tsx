@@ -68,7 +68,7 @@ const sampleAccountData = [
   {
     id: 1,
     name: "美妆达人小丽",
-    platform: "抖音",
+    platform: "抖���",
     profileUrl: "https://www.douyin.com/user/123456",
     followers: "156.8万",
     addedAt: "2024-01-15 14:30",
@@ -207,7 +207,7 @@ export default function AccountInteraction() {
     }
 
     if (hasInvalidUrls) {
-      alert("存在无效链接，请检查后重试");
+      alert("存在无��链接，请检查后重试");
       return;
     }
 
@@ -260,11 +260,13 @@ export default function AccountInteraction() {
 
   // Clear selected accounts that are no longer visible due to platform filtering
   useEffect(() => {
-    const filteredAccountIds = filteredAccountData.map((acc) => acc.id);
+    const filteredAccountIds = accountData
+      .filter((account) => selectedPlatforms.includes(account.platform))
+      .map((acc) => acc.id);
     setSelectedAccounts((prev) =>
       prev.filter((id) => filteredAccountIds.includes(id)),
     );
-  }, [selectedPlatforms, accountData, filteredAccountData]);
+  }, [selectedPlatforms, accountData]);
 
   // Statistics calculations
   const totalAccounts = filteredAccountData.length;
@@ -435,7 +437,7 @@ https://www.tiktok.com/@username
 https://www.bilibili.com/space/123456
 https://weibo.com/u/123456789
 
-支持抖音、小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
+支持抖音、小红书、快手、微���、B站、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
