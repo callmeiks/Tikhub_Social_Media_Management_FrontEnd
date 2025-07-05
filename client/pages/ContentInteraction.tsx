@@ -238,7 +238,7 @@ export default function ContentInteraction() {
         "添加时间",
         "链接",
       ],
-      ...filteredContentData.map((content) => [
+      ...selectedContentData.map((content) => [
         content.title,
         content.platform,
         content.author,
@@ -348,7 +348,7 @@ export default function ContentInteraction() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                作品链接（每行一个���最多50个）
+                作品链接（每行一个，最多50个）
               </label>
               <Textarea
                 placeholder={`请粘贴作品链接，每行一个：
@@ -377,7 +377,7 @@ https://www.youtube.com/watch?v=example123
                   <>
                     <AlertTriangle className="h-3 w-3 text-red-600" />
                     <span className="text-red-600">
-                      发现 {invalidUrls.length} 个无效链接，请检��格式
+                      发现 {invalidUrls.length} 个无效链接，请检查格式
                     </span>
                   </>
                 ) : (
@@ -412,7 +412,7 @@ https://www.youtube.com/watch?v=example123
                   ) : (
                     <Search className="mr-2 h-3.5 w-3.5" />
                   )}
-                  {isAnalyzing ? "分析中..." : "���始分析"}
+                  {isAnalyzing ? "分析中..." : "开始分析"}
                 </Button>
 
                 <Button
