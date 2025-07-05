@@ -58,7 +58,7 @@ const supportedPlatforms = [
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
   { id: "weibo", name: "微博", emoji: "🎭", active: true },
-  { id: "bilibili", name: "哔哩哔哩", emoji: "📺", active: true },
+  { id: "bilibili", name: "哔哩哔���", emoji: "📺", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
   { id: "instagram", name: "Instagram", emoji: "📷", active: true },
   { id: "x", name: "X (Twitter)", emoji: "🐦", active: true },
@@ -103,7 +103,7 @@ const sampleAccountData = [
   },
   {
     id: 2,
-    name: "生活记录家",
+    name: "生活记���家",
     platform: "小红书",
     profileUrl: "https://www.xiaohongshu.com/user/789012",
     followers: "89.3万",
@@ -240,7 +240,7 @@ export default function AccountInteraction() {
     if (!account) return;
 
     const csvContent = [
-      "��题,发布时间,点赞数,评论数,分享数,播放量,链接",
+      "标题,发布时间,点赞数,���论数,分享数,播放量,链接",
       ...account.works.map(
         (work) =>
           `"${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
@@ -373,7 +373,7 @@ export default function AccountInteraction() {
         { width: 40 }, // 作品标题
         { width: 12 }, // 发布时间
         { width: 10 }, // 点赞数
-        { width: 10 }, // ��论数
+        { width: 10 }, // 评论数
         { width: 10 }, // 分享数
         { width: 12 }, // 播放量
         { width: 50 }, // 链接
@@ -455,7 +455,7 @@ export default function AccountInteraction() {
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              数据展示
+              总数据展示
             </TabsTrigger>
           </TabsList>
 
@@ -684,7 +684,7 @@ https://weibo.com/u/123456789
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        没有找到符合筛选条件��账号
+                        没有找到符合筛选条件的账号
                       </p>
                     </div>
                   ) : (
@@ -953,7 +953,7 @@ https://weibo.com/u/123456789
                       </div>
                       <div className="text-sm font-medium">总账号数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加的账号总数
+                        已添加���账号总数
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
@@ -1000,7 +1000,7 @@ https://weibo.com/u/123456789
                             </p>
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                               <span>{highestLikesAccount.platform}</span>
-                              <span>{highestLikesAccount.followers} 粉��</span>
+                              <span>{highestLikesAccount.followers} 粉丝</span>
                               <span>{highestLikesAccount.totalWorks} 作品</span>
                             </div>
                           </div>
