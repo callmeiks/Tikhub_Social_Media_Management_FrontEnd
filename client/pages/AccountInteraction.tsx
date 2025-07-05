@@ -419,7 +419,7 @@ export default function AccountInteraction() {
                     账号主页链接（每行一个，最多20个）
                   </label>
                   <Textarea
-                    placeholder={`请粘贴账号主页链接，每行一个：
+                    placeholder={`请粘贴账���主页链接，每行一个：
 
 https://www.douyin.com/user/123456789
 https://www.xiaohongshu.com/user/abcdef123
@@ -581,8 +581,37 @@ https://weibo.com/u/123456789
                         </div>
                       </PopoverContent>
                     </Popover>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={selectAllAccounts}
+                        className="h-6 text-xs"
+                        disabled={filteredAccountData.length === 0}
+                      >
+                        全选
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearAllAccounts}
+                        className="h-6 text-xs"
+                        disabled={selectedAccounts.length === 0}
+                      >
+                        清空
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={exportSelectedAccounts}
+                        disabled={selectedAccounts.length === 0}
+                        className="h-8 brand-accent"
+                      >
+                        <Download className="mr-2 h-3.5 w-3.5" />
+                        导出选中 ({selectedAccounts.length})
+                      </Button>
+                    </div>
                     <Badge variant="secondary" className="text-xs">
-                      ���添加 {accountData.length} 个账号
+                      已添加 {accountData.length} 个账号
                     </Badge>
                   </div>
                 </CardTitle>
