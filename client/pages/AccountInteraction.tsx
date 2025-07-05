@@ -58,7 +58,7 @@ const supportedPlatforms = [
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
   { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
   { id: "weibo", name: "微博", emoji: "🎭", active: true },
-  { id: "bilibili", name: "哔哩哔���", emoji: "📺", active: true },
+  { id: "bilibili", name: "哔哩哔哩", emoji: "📺", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
   { id: "instagram", name: "Instagram", emoji: "📷", active: true },
   { id: "x", name: "X (Twitter)", emoji: "🐦", active: true },
@@ -103,7 +103,7 @@ const sampleAccountData = [
   },
   {
     id: 2,
-    name: "生活记���家",
+    name: "生活记录家",
     platform: "小红书",
     profileUrl: "https://www.xiaohongshu.com/user/789012",
     followers: "89.3万",
@@ -240,7 +240,7 @@ export default function AccountInteraction() {
     if (!account) return;
 
     const csvContent = [
-      "标题,发布时间,点赞数,���论数,分享数,播放量,链接",
+      "标题,发布时间,点赞数,评论数,分享数,播放量,链接",
       ...account.works.map(
         (work) =>
           `"${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
@@ -371,7 +371,7 @@ export default function AccountInteraction() {
       // Set column widths for better readability
       worksheet["!cols"] = [
         { width: 40 }, // 作品标题
-        { width: 12 }, // 发布时间
+        { width: 12 }, // 发���时间
         { width: 10 }, // 点赞数
         { width: 10 }, // 评论数
         { width: 10 }, // 分享数
@@ -941,7 +941,7 @@ https://weibo.com/u/123456789
           <TabsContent value="data" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">数据展示</CardTitle>
+                <CardTitle className="text-base">总数据展示</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -953,7 +953,7 @@ https://weibo.com/u/123456789
                       </div>
                       <div className="text-sm font-medium">总账号数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加���账号总数
+                        已添加的账号总数
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
