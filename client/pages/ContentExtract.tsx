@@ -244,7 +244,7 @@ const extractionQueue = [
 
 const extractedContent = {
   title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
-  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到适合自己的护肤方法😭
+  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才��到适合自己的护肤方法😭
 
 💡 我的肌肤状况：
 - 敏感肌，容易泛红
@@ -922,7 +922,7 @@ export default function ContentExtract() {
       setSelectedHistoryTaskIds([]);
     } catch (error) {
       console.error("导出失败:", error);
-      alert("导出失败，请重试");
+      alert("���出失败，请重试");
     } finally {
       setIsExportingCsv(false);
     }
@@ -1135,7 +1135,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <div className="text-center">
                             <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
                             <p className="text-sm text-muted-foreground mb-2">
-                              正在解析小红书内容...
+                              正��解析小红书内容...
                             </p>
                             <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
                               <span>提取图片</span>
@@ -1374,7 +1374,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 item.key as keyof typeof extractionSettings
                               ]
                                 ? "开启"
-                                : "关闭"}
+                                : "���闭"}
                             </Button>
                           </div>
                         ))}
@@ -1728,6 +1728,20 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         <SelectItem value="failed-cancelled">
                           失败 + 取消
                         </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={platformFilter}
+                      onValueChange={setPlatformFilter}
+                    >
+                      <SelectTrigger className="h-7 w-28 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部平台</SelectItem>
+                        <SelectItem value="小红书">小红书</SelectItem>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="其他">其他</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
