@@ -113,14 +113,14 @@ const extractedData = {
 - 皮肤更有光泽
 - 痘印淡化了很多
 
-🌟 我用的方法：
+�� 我用的方法：
 1️⃣ 早晚双重清洁
 2️⃣ 精华要按摩到吸收
 3️⃣ 面膜一周2-3次
 4️⃣ 防晒真的很重要！
 
 💡 产品推荐：
-✨ 洁��：氨基酸洁面泡沫
+✨ 洁面：氨基酸洁面泡沫
 ✨ 精华：烟酰胺精华液
 ✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
@@ -252,46 +252,67 @@ export default function VideoNoteExtract() {
               <div className="lg:col-span-2">
                 <Card className="border border-border">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <FileText className="mr-2 h-4 w-4" />
-                      文案提取
+                    <CardTitle className="text-base flex items-center justify-between">
+                      <span className="flex items-center">
+                        <FileText className="mr-2 h-4 w-4" />
+                        批量文案提取
+                      </span>
+                      <Badge
+                        variant={urlCount > 50 ? "destructive" : "secondary"}
+                        className="text-xs"
+                      >
+                        {urlCount}/50
+                      </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">
-                        视频或笔记链接
+                        视频或笔记链接（每行一个，最多50个）
                       </label>
-                      <Input
-                        placeholder="请输入TikTok、抖音、小红书、B站、快手等平台的视频或笔记链接"
-                        value={inputUrl}
-                        onChange={(e) => setInputUrl(e.target.value)}
-                        className={`border-border ${
-                          inputUrl &&
-                          !isValidUrl &&
-                          "border-red-300 focus:border-red-500"
-                        }`}
+                      <Textarea
+                        placeholder={`请粘贴视频或笔记链接，每行一个：
+
+https://www.tiktok.com/@user/video/123456789
+https://v.douyin.com/iABCDEF/
+https://www.xiaohongshu.com/discovery/item/xyz123
+https://www.bilibili.com/video/BV1234567890
+
+支持TikTok、抖音、小红书、B站、快手等平台`}
+                        value={batchUrls}
+                        onChange={(e) => setBatchUrls(e.target.value)}
+                        className="min-h-[200px] resize-none font-mono text-sm"
+                        maxLength={10000}
                       />
                       <div className="flex items-center space-x-2 text-xs">
-                        {inputUrl && isValidUrl ? (
+                        {urlCount > 0 && !hasInvalidUrls ? (
                           <>
                             <CheckCircle className="h-3 w-3 text-green-600" />
-                            <span className="text-green-600">链接格式正确</span>
+                            <span className="text-green-600">
+                              检测到 {urlCount} 个有效链接
+                            </span>
                           </>
-                        ) : inputUrl && !isValidUrl ? (
+                        ) : hasInvalidUrls ? (
                           <>
                             <AlertTriangle className="h-3 w-3 text-red-600" />
                             <span className="text-red-600">
-                              请输入有效的平台链接
+                              发现 {invalidUrls.length} 个无效链接，请检查格式
                             </span>
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            支持完整链接和分享短链接
+                            支持完整链接和分享短链接，每行一个
                           </span>
                         )}
                       </div>
                     </div>
+
+                    {urlCount > 50 && (
+                      <div className="flex items-center space-x-2 text-red-600 text-sm">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span>链接数量超过限制，请删除多余的链接</span>
+                      </div>
+                    )}
 
                     <div className="flex items-center justify-between pt-4 border-t border-border">
                       <div className="flex space-x-2">
@@ -409,7 +430,7 @@ export default function VideoNoteExtract() {
                               </Badge>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              ���者：{extractedData.videoInfo.author}
+                              作者：{extractedData.videoInfo.author}
                             </p>
                           </div>
 
@@ -526,7 +547,7 @@ export default function VideoNoteExtract() {
                       <p>• 支持提取视频字幕和笔记文字</p>
                       <p>• 自动识别话题标签和关键词</p>
                       <p>• 可批量处理多个链接</p>
-                      <p>• 提取结果支持一键复制</p>
+                      <p>�� 提取结果支持一键复制</p>
                       <p>• 仅限公开内容的文案提取</p>
                     </div>
                   </CardContent>
@@ -553,7 +574,7 @@ export default function VideoNoteExtract() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[300px]">���题</TableHead>
+                        <TableHead className="w-[300px]">标题</TableHead>
                         <TableHead className="w-[80px]">平台</TableHead>
                         <TableHead className="w-[120px]">作者</TableHead>
                         <TableHead className="w-[80px]">字数</TableHead>
