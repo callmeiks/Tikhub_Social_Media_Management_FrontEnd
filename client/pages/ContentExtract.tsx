@@ -33,6 +33,129 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+const extractionHistory = [
+  {
+    id: 1,
+    url: "https://www.xiaohongshu.com/discovery/item/111111",
+    platform: "小红书",
+    title: "减肥成功分享！从130斤到100斤的完整攻略",
+    status: "completed",
+    imageCount: 8,
+    extractedAt: "2024-01-14 16:22",
+    extractedData: {
+      content: `姐妹们好！今天来跟大家分享我的减肥心路历程～
+
+💪 我的减肥数据：
+- 开始体重：130斤
+- 目标体重：100斤
+- 减肥周期：6个月
+- 最终体重：98斤
+
+🔥 减肥方法分享：
+1. 控制饮食：少油少盐，多吃蛋白质
+2. 规律运动：每天至少30分钟有氧运动
+3. 充足睡眠：保证每天8小时睡眠
+4. 多喝水：每天至少2000ml
+
+⚠️ 踩坑提醒：
+- 不要节食！会反弹的
+- 不要只做有氧，要加力量训练
+- 体重会有波动，看趋势不看单天
+
+💡 心得体会：
+减肥是一个长期过程，要有耐心，相信自己一定可以成功！
+
+#减肥分享 #瘦身心得 #健康生活`,
+      tags: ["#减肥分享", "#瘦身心得", "#健康生活", "#减肥攻略"],
+      images: [
+        { description: "减肥前后对比图", size: "750x1000" },
+        { description: "健康食谱搭配", size: "750x1000" },
+        { description: "运动计划表", size: "750x1000" },
+        { description: "体重变化曲线图", size: "750x1000" },
+      ],
+    },
+  },
+  {
+    id: 2,
+    url: "https://www.xiaohongshu.com/discovery/item/222222",
+    platform: "小红书",
+    title: "新手化妆教程｜打造自然裸妆的5个步骤",
+    status: "completed",
+    imageCount: 6,
+    extractedAt: "2024-01-13 09:15",
+    extractedData: {
+      content: `Hello美女们！今天教大家画一个简单的日常裸妆～
+
+✨ 需要的产品：
+- 妆前乳
+- 粉底液
+- 遮瑕膏
+- 散粉
+- 眉笔
+- 腮红
+- 口红
+
+📝 具体步骤：
+1️⃣ 妆前打底：先用妆前乳打底，让妆容更持久
+2️⃣ 底妆处理：用粉底液均匀涂抹全脸
+3️⃣ 遮瑕重点：用遮瑕膏遮盖痘印和黑眼圈
+4️⃣ 定妆处理：用散粉轻拍定妆
+5️⃣ 眉毛画法：用眉笔勾勒自然眉形
+
+💄 小技巧：
+- 粉底液要选择贴合肤色的
+- 腮红可以让气色更好
+- 口红选择日常色号
+
+#化妆教程 #裸妆 #新手化妆`,
+      tags: ["#化妆教程", "#裸妆", "#新手化妆", "#美妆分享"],
+      images: [
+        { description: "化妆前后对比", size: "750x1000" },
+        { description: "化妆品清单", size: "750x1000" },
+        { description: "步骤详解图", size: "750x1000" },
+      ],
+    },
+  },
+  {
+    id: 3,
+    url: "https://www.xiaohongshu.com/discovery/item/333333",
+    platform: "小红书",
+    title: "学生党必看！宿舍收纳神器推荐",
+    status: "completed",
+    imageCount: 5,
+    extractedAt: "2024-01-12 20:30",
+    extractedData: {
+      content: `同学们好！分享一下我的宿舍收纳经验～
+
+🏠 宿舍收纳痛点：
+- 空间小东西多
+- 没有足够储物空间
+- 东西容易乱
+
+🛍️ 收纳神器推荐：
+1. 床下收纳箱：可以放换季衣物
+2. 挂式收纳袋：充分利用墙面空间
+3. 桌面收纳盒：小物件分类存放
+4. 真空压缩袋：节省50%空间
+
+💡 收纳技巧：
+- 物品分类标签化
+- 常用物品放在容易拿到的地方
+- 定期整理，养成好习惯
+
+花费不到100元就能让宿舍焕然一新！
+
+#宿舍收纳 #学生党 #收纳神器`,
+      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#整理收纳"],
+      images: [
+        { description: "收纳前后对比", size: "750x1000" },
+        { description: "收纳产品展示", size: "750x1000" },
+        { description: "整理步骤图", size: "750x1000" },
+      ],
+    },
+  },
+];
+
 const extractionQueue = [
   {
     id: 1,
@@ -93,7 +216,7 @@ const extractedContent = {
 5️⃣ 防晒：物理防晒，SPF30以上
 
 ✨ 重点产品推荐：
-- 洁面：某���氨基酸洁面泡沫
+- 洁面：某某氨基酸洁面泡沫
 - 爽肤水：某某神经酰胺爽肤水
 - 精华：某某烟酰胺精华液
 - 面霜：某某修护面霜
@@ -292,7 +415,7 @@ export default function ContentExtract() {
                 📖 仅支持小红书
               </Badge>
               <span className="text-sm text-orange-700">
-                当前仅支持小红书平台的图文内容提取，其他平台功能正在开发中
+                当前仅支持小红书平台的图文内容提取，其他平台功能正在开��中
               </span>
             </div>
           </CardContent>
@@ -554,7 +677,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <h3 className="text-sm font-medium">
-                                提取��片 ({extractedContent.images.length})
+                                提取图片 ({extractedContent.images.length})
                               </h3>
                               <Button
                                 variant="ghost"
