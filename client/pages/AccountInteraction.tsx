@@ -159,7 +159,7 @@ export default function AccountInteraction() {
   const [expandedAccounts, setExpandedAccounts] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<{ [key: number]: number }>({});
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    supportedPlatforms.map((p) => p.name),
+    supportedPlatforms.map(p => p.name)
   );
 
   const urlCount = batchUrls
@@ -254,19 +254,15 @@ export default function AccountInteraction() {
 
   // Statistics calculations
   const totalAccounts = filteredAccountData.length;
-  const totalWorks = filteredAccountData.reduce(
-    (sum, acc) => sum + acc.totalWorks,
-    0,
-  );
-  const highestLikesAccount =
-    filteredAccountData.length > 0
-      ? filteredAccountData.reduce((max, acc) =>
-          parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
-          parseInt(max.totalLikes.replace(/[万千]/g, ""))
-            ? acc
-            : max,
-        )
-      : null;
+  const totalWorks = filteredAccountData.reduce((sum, acc) => sum + acc.totalWorks, 0);
+  const highestLikesAccount = filteredAccountData.length > 0
+    ? filteredAccountData.reduce((max, acc) =>
+        parseInt(acc.totalLikes.replace(/[万千]/g, "")) >
+        parseInt(max.totalLikes.replace(/[万千]/g, ""))
+          ? acc
+          : max,
+      )
+    : null;
 
   const getWorksForPage = (account: any, page: number) => {
     const startIndex = (page - 1) * 10;
@@ -278,20 +274,20 @@ export default function AccountInteraction() {
   };
 
   // Filter accounts by selected platforms
-  const filteredAccountData = accountData.filter((account) =>
-    selectedPlatforms.includes(account.platform),
+  const filteredAccountData = accountData.filter(account =>
+    selectedPlatforms.includes(account.platform)
   );
 
   const togglePlatform = (platformName: string) => {
-    setSelectedPlatforms((prev) =>
+    setSelectedPlatforms(prev =>
       prev.includes(platformName)
-        ? prev.filter((p) => p !== platformName)
-        : [...prev, platformName],
+        ? prev.filter(p => p !== platformName)
+        : [...prev, platformName]
     );
   };
 
   const selectAllPlatforms = () => {
-    setSelectedPlatforms(supportedPlatforms.map((p) => p.name));
+    setSelectedPlatforms(supportedPlatforms.map(p => p.name));
   };
 
   const clearAllPlatforms = () => {
@@ -419,7 +415,7 @@ https://weibo.com/u/123456789
                 {urlCount > 20 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>账号数量超过限制，请删除多余的链接</span>
+                    <span>账号数量超过限制，请删除多余的��接</span>
                   </div>
                 )}
 
@@ -503,7 +499,7 @@ https://weibo.com/u/123456789
                           <div className="space-y-2">
                             {supportedPlatforms.map((platform) => {
                               const accountCount = accountData.filter(
-                                (acc) => acc.platform === platform.name,
+                                acc => acc.platform === platform.name
                               ).length;
                               return (
                                 <div
@@ -512,12 +508,8 @@ https://weibo.com/u/123456789
                                 >
                                   <Checkbox
                                     id={platform.id}
-                                    checked={selectedPlatforms.includes(
-                                      platform.name,
-                                    )}
-                                    onCheckedChange={() =>
-                                      togglePlatform(platform.name)
-                                    }
+                                    checked={selectedPlatforms.includes(platform.name)}
+                                    onCheckedChange={() => togglePlatform(platform.name)}
                                   />
                                   <label
                                     htmlFor={platform.id}
@@ -526,10 +518,7 @@ https://weibo.com/u/123456789
                                     <span>{platform.emoji}</span>
                                     <span>{platform.name}</span>
                                     {accountCount > 0 && (
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs"
-                                      >
+                                      <Badge variant="secondary" className="text-xs">
                                         {accountCount}
                                       </Badge>
                                     )}
@@ -542,14 +531,22 @@ https://weibo.com/u/123456789
                       </PopoverContent>
                     </Popover>
                     <Badge variant="secondary" className="text-xs">
-                      已添加 {accountData.length} 个账号
+                      ���添加 {accountData.length} 个账号
                     </Badge>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {accountData.map((account) => {
+                  {filteredAccountData.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        没有找到符合筛选条件的账号
+                      </p>
+                    </div>
+                  ) : (
+                    filteredAccountData.map((account) => {
                     const isExpanded = expandedAccounts.includes(account.id);
                     const currentAccountPage = currentPage[account.id] || 1;
                     const worksForPage = getWorksForPage(
