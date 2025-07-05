@@ -336,26 +336,77 @@ export default function AccountInteraction() {
       return;
     }
 
-    const csvContent = [
-      "账号名称,平台,粉丝数,作品标题,发布时间,点赞数,评论数,分享数,播放量,链接",
-      ...selectedAccountsData.flatMap((account) =>
-        account.works.map(
-          (work) =>
-            `"${account.name}","${account.platform}","${account.followers}","${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
-        ),
-      ),
-    ].join("\n");
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    // Add a sheet for each selected account
+    selectedAccountsData.forEach((account) => {
+      // Prepare data for this account
+      const sheetData = [
+        // Header row
+        [
+          "作品标题",
+          "发布时间",
+          "点赞数",
+          "评论数",
+          "分享数",
+          "播放量",
+          "链接",
+        ],
+        // Data rows
+        ...account.works.map((work) => [
+          work.title,
+          work.publishedAt,
+          work.likes,
+          work.comments,
+          work.shares,
+          work.views,
+          work.url,
+        ]),
+      ];
+
+      // Create worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      // Set column widths for better readability
+      worksheet["!cols"] = [
+        { width: 40 }, // 作品标题
+        { width: 12 }, // 发布时间
+        { width: 10 }, // 点赞数
+        { width: 10 }, // 评论数
+        { width: 10 }, // 分享数
+        { width: 12 }, // 播放量
+        { width: 50 }, // 链接
+      ];
+
+      // Clean sheet name (Excel sheet names have restrictions)
+      const cleanSheetName = account.name
+        .replace(/[\\\/\?\*\[\]]/g, "_")
+        .substring(0, 31);
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, cleanSheetName);
+    });
+
+    // Generate Excel file and download
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `批量账号数据_${selectedAccountsData.length}个账号.csv`;
+    link.download = `账号作品数据_${selectedAccountsData.length}个账号.xlsx`;
     link.click();
   };
 
   return (
     <DashboardLayout
-      title="账号作品��据采��"
+      title="账号作品��据采集"
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
