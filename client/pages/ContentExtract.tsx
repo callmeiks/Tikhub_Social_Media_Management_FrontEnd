@@ -106,7 +106,7 @@ const extractionHistory = [
 - 体重会有波动，看趋势不看单天
 
 💡 心得体会：
-减肥是一个长期过程，要有耐心，相信自己一定可以成功！
+减肥是一个长期过程，要有耐心，相信自己一定可��成功！
 
 #减肥分享 #瘦身心得 #健康生活`,
       tags: ["#减肥分享", "#瘦身心得", "#健康生活", "#减肥攻略"],
@@ -189,7 +189,7 @@ const extractionHistory = [
 花费不到100元就能让宿舍焕然一新！
 
 #宿舍收纳 #学生党 #收纳神器`,
-      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#整理收纳"],
+      tags: ["#宿舍收纳", "#学生党", "#���纳神器", "#整理收纳"],
       images: [
         { description: "收纳前后对比", size: "750x1000" },
         { description: "收纳产品展示", size: "750x1000" },
@@ -325,6 +325,7 @@ export default function ContentExtract() {
     [],
   );
   const [historyFilter, setHistoryFilter] = useState<string>("all");
+  const [platformFilter, setPlatformFilter] = useState<string>("all");
   const [isExportingCsv, setIsExportingCsv] = useState(false);
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [downloadSettings, setDownloadSettings] = useState({
@@ -731,7 +732,7 @@ export default function ContentExtract() {
     );
   };
 
-  // 筛选历史任务
+  // ���选历史任务
   const getFilteredHistoryTasks = () => {
     switch (historyFilter) {
       case "completed":
