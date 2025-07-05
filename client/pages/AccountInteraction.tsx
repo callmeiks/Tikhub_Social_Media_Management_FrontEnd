@@ -93,7 +93,7 @@ const sampleAccountData = [
         publishedAt: "2024-01-18",
         likes: "12.3万",
         comments: "2.8万",
-        shares: "6.2��",
+        shares: "6.2千",
         views: "180万",
         url: "https://www.douyin.com/video/124",
       },
@@ -308,10 +308,6 @@ export default function AccountInteraction() {
           <Button variant="outline" size="sm" className="h-8">
             <RefreshCw className="mr-2 h-3.5 w-3.5" />
             刷新数据
-          </Button>
-          <Button size="sm" className="h-8 brand-accent">
-            <Download className="mr-2 h-3.5 w-3.5" />
-            导出全部
           </Button>
         </div>
       }
@@ -742,8 +738,8 @@ https://weibo.com/u/123456789
                                 {totalPages > 1 && (
                                   <div className="flex items-center justify-between">
                                     <div className="text-xs text-muted-foreground">
-                                      显���第{" "}
-                                      {(currentAccountPage - 1) * 10 + 1} -{" "}
+                                      显示第 {(currentAccountPage - 1) * 10 + 1}{" "}
+                                      -{" "}
                                       {Math.min(
                                         currentAccountPage * 10,
                                         account.works.length,
