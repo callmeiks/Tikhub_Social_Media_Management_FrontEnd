@@ -22,6 +22,7 @@ import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
 import AccountInteraction from "./pages/AccountInteraction";
+import ContentInteraction from "./pages/ContentInteraction";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
