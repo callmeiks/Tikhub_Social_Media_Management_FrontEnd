@@ -252,6 +252,11 @@ export default function AccountInteraction() {
     link.click();
   };
 
+  // Filter accounts by selected platforms
+  const filteredAccountData = accountData.filter((account) =>
+    selectedPlatforms.includes(account.platform),
+  );
+
   // Statistics calculations
   const totalAccounts = filteredAccountData.length;
   const totalWorks = filteredAccountData.reduce(
@@ -277,11 +282,6 @@ export default function AccountInteraction() {
     return Math.ceil(totalWorks / 10);
   };
 
-  // Filter accounts by selected platforms
-  const filteredAccountData = accountData.filter((account) =>
-    selectedPlatforms.includes(account.platform),
-  );
-
   const togglePlatform = (platformName: string) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platformName)
@@ -300,7 +300,7 @@ export default function AccountInteraction() {
 
   return (
     <DashboardLayout
-      title="账号作品数据采集"
+      title="账号作品��据采集"
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
