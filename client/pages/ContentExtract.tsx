@@ -201,7 +201,7 @@ const extractionQueue = [
 
 const extractedContent = {
   title: "超详细护肤心得分享！敏感肌女孩的逆袭之路",
-  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到适合自己的护肤方法😭
+  content: `姐妹们好！今天来分享一下我的护肤心得，作为一个敏感肌女孩，真的是踩了太多坑才找到适合自己的护肤��法😭
 
 💡 我的肌肤状况：
 - 敏感肌，容易泛红
@@ -268,6 +268,9 @@ export default function ContentExtract() {
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("batch");
   const [extractionList, setExtractionList] = useState(extractionQueue);
+  const [expandedHistoryItems, setExpandedHistoryItems] = useState<number[]>(
+    [],
+  );
   const [downloadSettings, setDownloadSettings] = useState({
     format: "jpg",
     downloadPath: "/Downloads/TikHub/ContentExtract",
@@ -415,7 +418,7 @@ export default function ContentExtract() {
                 📖 仅支持小红书
               </Badge>
               <span className="text-sm text-orange-700">
-                当前仅支持小红书平台的图文内容提取，其他平台功能正在开��中
+                当前仅支持小红书平台的图文内容提取，其他平台功能正在开发中
               </span>
             </div>
           </CardContent>
