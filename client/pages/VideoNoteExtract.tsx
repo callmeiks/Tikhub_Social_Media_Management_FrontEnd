@@ -76,7 +76,7 @@ const extractionHistory = [
   },
   {
     id: 4,
-    title: "学生党必看！宿舍收纳神器推荐",
+    title: "学生党��看！宿舍收纳神器推荐",
     platform: "B站",
     author: "生活小能手",
     extractedAt: "2024-01-12 20:30",
@@ -182,6 +182,9 @@ export default function VideoNoteExtract() {
       /xiaohongshu\.com/,
       /bilibili\.com/,
       /kuaishou\.com/,
+      /instagram\.com/,
+      /x\.com/,
+      /twitter\.com/,
     ];
     return platformPatterns.some((pattern) => pattern.test(url));
   };
