@@ -406,7 +406,7 @@ export default function AccountInteraction() {
 
   return (
     <DashboardLayout
-      title="账号作品��据采集"
+      title="账号作品数据采集"
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
@@ -512,7 +512,7 @@ https://weibo.com/u/123456789
                       </>
                     ) : (
                       <span className="text-muted-foreground">
-                        支持主页链接和用户名，每行一个
+                        支持主页链接和用户名，每行一��
                       </span>
                     )}
                   </div>
@@ -684,7 +684,7 @@ https://weibo.com/u/123456789
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        没有找到符合筛选条件的账号
+                        没有找到符合筛��条件的账号
                       </p>
                     </div>
                   ) : (
