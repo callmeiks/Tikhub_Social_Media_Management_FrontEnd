@@ -144,7 +144,7 @@ const sampleAccountData = [
         likes: "25.8万",
         comments: "8.9万",
         shares: "12.5千",
-        views: "450���",
+        views: "450万",
         url: "https://www.tiktok.com/video/789",
       },
       // More works...
@@ -162,6 +162,14 @@ export default function AccountInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+
+  // Clear selected accounts that are no longer visible due to platform filtering
+  useEffect(() => {
+    const filteredAccountIds = filteredAccountData.map((acc) => acc.id);
+    setSelectedAccounts((prev) =>
+      prev.filter((id) => filteredAccountIds.includes(id)),
+    );
+  }, [selectedPlatforms, accountData]);
 
   const urlCount = batchUrls
     .split("\n")
