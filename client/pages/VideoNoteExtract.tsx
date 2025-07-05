@@ -21,18 +21,13 @@ import {
   Download,
   RefreshCw,
   Settings,
-  Search,
-  Link as LinkIcon,
   CheckCircle,
   AlertTriangle,
   Eye,
   Zap,
-  Play,
-  MessageCircle,
-  Hash,
   Clock,
   Target,
-  BookOpen,
+  MessageCircle,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -126,14 +121,14 @@ const extractedData = {
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
-✨ 精���：烟酰胺精华液
+✨ 精华：烟酰胺精华液  
 ✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
 
 坚持真的有用！姐妹们一起变美～
 
 #护肤心得 #变美 #护肤分享`,
-  hashtags: ["#护肤���得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
+  hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
   keyPoints: [
     "双重清洁很重要",
     "精华要充分按摩",
@@ -272,7 +267,7 @@ export default function VideoNoteExtract() {
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            ���持完整链接和分享短链接
+                            支持完整链接和分享短链接
                           </span>
                         )}
                       </div>
@@ -284,7 +279,9 @@ export default function VideoNoteExtract() {
                           variant="outline"
                           size="sm"
                           onClick={handleExtract}
-                          disabled={!inputUrl.trim() || !isValidUrl || isExtracting}
+                          disabled={
+                            !inputUrl.trim() || !isValidUrl || isExtracting
+                          }
                           className="h-8"
                         >
                           {isExtracting ? (
@@ -316,90 +313,16 @@ export default function VideoNoteExtract() {
                   </CardContent>
                 </Card>
 
-            {/* Results Section */}
-            {(showResults || isExtracting) && (
-              <Card className="border border-border mt-4">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center justify-between">
-                    <span className="flex items-center">
-                      <FileText className="mr-2 h-4 w-4" />
-                      提取结果
-                    </span>
-                    {showResults && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleCopy(extractedData.extractedCopy)}
-                        className="h-6"
-                      >
-                        <Copy className="mr-1 h-3 w-3" />
-                        复制全部
-                      </Button>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isExtracting ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="text-center">
-                        <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
-                        <p className="text-sm text-muted-foreground mb-2">
-                          正在分析视频/笔记内容...
-                        </p>
-                        <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
-                          <span>解析链接</span>
-                          <span>•</span>
-                          <span>提取文案</span>
-                          <span>•</span>
-                          <span>分析内容</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {/* Video/Note Info */}
-                      <div className="p-4 bg-muted/30 rounded-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <h3 className="text-sm font-medium mb-2">
-                              {extractedData.title}
-                            </h3>
-                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                              <span className="flex items-center">
-                                <Target className="mr-1 h-3 w-3" />
-                                {extractedData.videoInfo.platform}
-                              </span>
-                              <span className="flex items-center">
-                                <Clock className="mr-1 h-3 w-3" />
-                                {extractedData.videoInfo.duration}
-                              </span>
-                              <span className="flex items-center">
-                                <Eye className="mr-1 h-3 w-3" />
-                                {extractedData.videoInfo.views}
-                              </span>
-                              <span className="flex items-center">
-                                ❤️ {extractedData.videoInfo.likes}
-                              </span>
-                            </div>
-                          </div>
-                          <Badge
-                            variant="secondary"
-                            className="bg-green-100 text-green-800"
-                          >
-                            {extractedData.engagementRate}% 互动率
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          作者：{extractedData.videoInfo.author}
-                        </p>
-                      </div>
-
-                      {/* Extracted Content */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium">
-                            提取的文案内容
-                          </h3>
+                {/* Results Section */}
+                {(showResults || isExtracting) && (
+                  <Card className="border border-border mt-4">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center justify-between">
+                        <span className="flex items-center">
+                          <FileText className="mr-2 h-4 w-4" />
+                          提取结果
+                        </span>
+                        {showResults && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -408,182 +331,283 @@ export default function VideoNoteExtract() {
                             }
                             className="h-6"
                           >
-                            <Copy className="h-3 w-3" />
+                            <Copy className="mr-1 h-3 w-3" />
+                            复制全部
                           </Button>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {isExtracting ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="text-center">
+                            <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
+                            <p className="text-sm text-muted-foreground mb-2">
+                              正在分析视频/笔记内容...
+                            </p>
+                            <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
+                              <span>解析链接</span>
+                              <span>•</span>
+                              <span>提取文案</span>
+                              <span>•</span>
+                              <span>分析内容</span>
+                            </div>
+                          </div>
                         </div>
-                        <Textarea
-                          value={extractedData.extractedCopy}
-                          readOnly
-                          className="min-h-[200px] text-sm bg-muted/30"
+                      ) : (
+                        <div className="space-y-6">
+                          {/* Video/Note Info */}
+                          <div className="p-4 bg-muted/30 rounded-lg">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h3 className="text-sm font-medium mb-2">
+                                  {extractedData.title}
+                                </h3>
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                  <span className="flex items-center">
+                                    <Target className="mr-1 h-3 w-3" />
+                                    {extractedData.videoInfo.platform}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Clock className="mr-1 h-3 w-3" />
+                                    {extractedData.videoInfo.duration}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Eye className="mr-1 h-3 w-3" />
+                                    {extractedData.videoInfo.views}
+                                  </span>
+                                  <span className="flex items-center">
+                                    ❤️ {extractedData.videoInfo.likes}
+                                  </span>
+                                </div>
+                              </div>
+                              <Badge
+                                variant="secondary"
+                                className="bg-green-100 text-green-800"
+                              >
+                                {extractedData.engagementRate}% 互动率
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              作者：{extractedData.videoInfo.author}
+                            </p>
+                          </div>
+
+                          {/* Extracted Content */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-sm font-medium">
+                                提取的文案内容
+                              </h3>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleCopy(extractedData.extractedCopy)
+                                }
+                                className="h-6"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <Textarea
+                              value={extractedData.extractedCopy}
+                              readOnly
+                              className="min-h-[200px] text-sm bg-muted/30"
+                            />
+                          </div>
+
+                          {/* Hashtags */}
+                          <div className="space-y-2">
+                            <h3 className="text-sm font-medium">话题标签</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {extractedData.hashtags.map((tag, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs cursor-pointer"
+                                  onClick={() => handleCopy(tag)}
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Key Points */}
+                          <div className="space-y-2">
+                            <h3 className="text-sm font-medium">关键要点</h3>
+                            <div className="space-y-1">
+                              {extractedData.keyPoints.map((point, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center space-x-2 text-sm"
+                                >
+                                  <div className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
+                                  <span>{point}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              {/* Settings Panel */}
+              <div className="space-y-4">
+                {/* Usage Stats */}
+                <Card className="border border-border">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">今日使用</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          已提取
+                        </span>
+                        <span className="text-sm font-medium">8 次</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          剩余
+                        </span>
+                        <span className="text-sm font-medium">92 次</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div
+                          className="bg-foreground h-2 rounded-full"
+                          style={{ width: "8%" }}
                         />
                       </div>
-
-                      {/* Hashtags */}
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">话题标签</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {extractedData.hashtags.map((tag, index) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className="text-xs cursor-pointer"
-                              onClick={() => handleCopy(tag)}
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Key Points */}
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">关键要点</h3>
-                        <div className="space-y-1">
-                          {extractedData.keyPoints.map((point, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center space-x-2 text-sm"
-                            >
-                              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
-                              <span>{point}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Settings Panel */}
-          <div className="space-y-4">
-            {/* Usage Stats */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">今日使用</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      已提取
-                    </span>
-                    <span className="text-sm font-medium">8 次</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">剩余</span>
-                    <span className="text-sm font-medium">92 次</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div
-                      className="bg-foreground h-2 rounded-full"
-                      style={{ width: "8%" }}
-                    />
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className="w-full justify-center text-xs"
-                  >
-                    🎉 今日免费额度 100次
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Extraction Settings */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  提取设置
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">提取内容</label>
-                  <div className="space-y-2">
-                    {[
-                      { label: "完整文案", checked: true },
-                      { label: "话题标签", checked: true },
-                      { label: "关键要点", checked: true },
-                      { label: "情感分析", checked: false },
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        className="flex items-center justify-between"
+                      <Badge
+                        variant="secondary"
+                        className="w-full justify-center text-xs"
                       >
-                        <span className="text-sm">{item.label}</span>
-                        <Button
-                          variant={item.checked ? "default" : "outline"}
-                          size="sm"
-                          className="h-6 w-12 text-xs"
-                        >
-                          {item.checked ? "开启" : "关闭"}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Extracts */}
-            <Card className="border border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  最近提取
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    {
-                      title: "护肤心得分享",
-                      platform: "抖音",
-                      time: "10分钟前",
-                    },
-                    {
-                      title: "美食制作教程",
-                      platform: "小红书",
-                      time: "1小时前",
-                    },
-                    { title: "旅行攻略", platform: "B站", time: "2小时前" },
-                  ].map((item, index) => (
-                    <div key={index} className="text-xs">
-                      <p className="font-medium truncate">{item.title}</p>
-                      <div className="flex justify-between text-muted-foreground mt-1">
-                        <span>{item.platform}</span>
-                        <span>{item.time}</span>
-                      </div>
+                        🎉 今日免费额度 100次
+                      </Badge>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
-            {/* Tips */}
+                {/* Tips */}
+                <Card className="border border-border">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      使用技巧
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-xs text-muted-foreground">
+                      <p>• 支持提取视频字幕和笔记文字</p>
+                      <p>• 自动识别话题标签和关键词</p>
+                      <p>• 可批量处理多个链接</p>
+                      <p>• 提取结果支持一键复制</p>
+                      <p>• 仅限公开内容的文案提取</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
             <Card className="border border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  使用技巧
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Clock className="mr-2 h-4 w-4" />
+                    提取历史
+                  </span>
+                  <Badge variant="secondary" className="text-xs">
+                    共 {extractionHistory.length} 条记录
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  <p>• 支持提取视频字幕和笔记文字</p>
-                  <p>• 自动识别话题标签和关键词</p>
-                  <p>• 可批量处理多个链接</p>
-                  <p>• 提取结果支持一键复制</p>
-                  <p>• 仅限公开内容的文案提取</p>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[300px]">标题</TableHead>
+                        <TableHead className="w-[80px]">平台</TableHead>
+                        <TableHead className="w-[120px]">作者</TableHead>
+                        <TableHead className="w-[80px]">字数</TableHead>
+                        <TableHead className="w-[80px]">互动率</TableHead>
+                        <TableHead className="w-[140px]">提取时间</TableHead>
+                        <TableHead className="w-[80px]">状态</TableHead>
+                        <TableHead className="w-[100px]">操作</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {extractionHistory.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">
+                            <div
+                              className="max-w-[280px] truncate"
+                              title={item.title}
+                            >
+                              {item.title}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs">
+                              {item.platform}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {item.author}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {item.wordCount}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {item.engagement}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {item.extractedAt}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs bg-green-100 text-green-800"
+                            >
+                              {item.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => handleCopy(item.url)}
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => window.open(item.url, "_blank")}
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
