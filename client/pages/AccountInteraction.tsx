@@ -299,6 +299,49 @@ export default function AccountInteraction() {
     setSelectedPlatforms([]);
   };
 
+  const toggleAccountSelection = (accountId: number) => {
+    setSelectedAccounts((prev) =>
+      prev.includes(accountId)
+        ? prev.filter((id) => id !== accountId)
+        : [...prev, accountId],
+    );
+  };
+
+  const selectAllAccounts = () => {
+    setSelectedAccounts(filteredAccountData.map((acc) => acc.id));
+  };
+
+  const clearAllAccounts = () => {
+    setSelectedAccounts([]);
+  };
+
+  const exportSelectedAccounts = () => {
+    const selectedAccountsData = accountData.filter((acc) =>
+      selectedAccounts.includes(acc.id),
+    );
+
+    if (selectedAccountsData.length === 0) {
+      alert("请选择要导出的账号");
+      return;
+    }
+
+    const csvContent = [
+      "账号名称,平台,粉丝数,作品标题,发布时间,点赞数,评论数,分享数,播放量,链接",
+      ...selectedAccountsData.flatMap((account) =>
+        account.works.map(
+          (work) =>
+            `"${account.name}","${account.platform}","${account.followers}","${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
+        ),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `批量账号数据_${selectedAccountsData.length}个账号.csv`;
+    link.click();
+  };
+
   return (
     <DashboardLayout
       title="账号作品��据采集"
@@ -867,7 +910,7 @@ https://weibo.com/u/123456789
                             {highestLikesAccount.totalLikes}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            总点赞数
+                            ���点赞数
                           </div>
                         </div>
                       </div>
