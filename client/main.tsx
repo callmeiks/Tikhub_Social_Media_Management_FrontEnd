@@ -87,10 +87,7 @@ const App = () => (
             element={<UniversalConverter />}
           />
           <Route path="/data-collection/*" element={<DataCollection />} />
-          <Route
-            path="/data-collection/comments"
-            element={<CommentCollection />}
-          />
+
           <Route
             path="/data-collection/account-interaction"
             element={<AccountInteraction />}
