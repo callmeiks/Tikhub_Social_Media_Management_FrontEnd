@@ -135,7 +135,7 @@ const sampleAccountData = [
     totalWorks: 203,
     totalLikes: "3580万",
     totalComments: "67.8万",
-    totalShares: "23.4万",
+    totalShares: "23.4���",
     works: [
       {
         id: 1,
@@ -622,7 +622,7 @@ https://weibo.com/u/123456789
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        没有找���符合筛选条件的账号
+                        没有找到符合筛选条件的账号
                       </p>
                     </div>
                   ) : (
@@ -891,7 +891,7 @@ https://weibo.com/u/123456789
                       </div>
                       <div className="text-sm font-medium">总账号数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加的账号总数
+                        已添加��账号总数
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
