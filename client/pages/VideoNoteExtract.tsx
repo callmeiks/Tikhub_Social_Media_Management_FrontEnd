@@ -119,7 +119,7 @@ const extractedData = {
 1️⃣ 早晚双重清洁
 2️⃣ 精华要按摩到吸收
 3️⃣ 面膜一周2-3次
-4️�� 防晒真的很重要！
+4️⃣ 防晒真的很重要！
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
@@ -204,7 +204,7 @@ export default function VideoNoteExtract() {
   return (
     <DashboardLayout
       title="文案提取"
-      subtitle="智能提取视频和笔记中的文案内容，快速获取创作灵感"
+      subtitle="智能提取视频和笔记中的文案内容，支持TikTok、抖音、小红书、B站、快手、Instagram、X等平台"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -248,7 +248,7 @@ export default function VideoNoteExtract() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="extract">文案提取</TabsTrigger>
-            <TabsTrigger value="history">提取���史</TabsTrigger>
+            <TabsTrigger value="history">提取历史</TabsTrigger>
           </TabsList>
 
           <TabsContent value="extract" className="space-y-6">
