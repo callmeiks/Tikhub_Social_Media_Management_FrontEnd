@@ -910,7 +910,7 @@ https://weibo.com/u/123456789
                             {highestLikesAccount.totalLikes}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            ���点赞数
+                            总点赞数
                           </div>
                         </div>
                       </div>
