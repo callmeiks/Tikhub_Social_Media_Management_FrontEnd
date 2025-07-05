@@ -25,6 +25,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   Search,
   Link,
   FileText,
@@ -43,6 +49,7 @@ import {
   MessageCircle,
   Share2,
   MoreHorizontal,
+  Filter,
 } from "lucide-react";
 
 const supportedPlatforms = [
