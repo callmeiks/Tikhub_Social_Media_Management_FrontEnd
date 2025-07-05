@@ -80,11 +80,9 @@ const menuItems: MenuItem[] = [
         href: "/data-collection/account-interaction",
       },
 
-      { title: "���题采集", href: "/data-collection/topics" },
-      { title: "DY粉丝数组成查询", href: "/data-collection/fans-analysis" },
       { title: "作品互动数查询", href: "/data-collection/content-interaction" },
       { title: "关键词作品查询", href: "/data-collection/keyword-content" },
-      { title: "关键���账号查询", href: "/data-collection/keyword-accounts" },
+      { title: "关键词账号查询", href: "/data-collection/keyword-accounts" },
     ],
   },
   {
