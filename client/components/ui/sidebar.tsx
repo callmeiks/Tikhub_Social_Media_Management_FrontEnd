@@ -62,7 +62,7 @@ const menuItems: MenuItem[] = [
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
       { title: "封面图制作", href: "/creator-tools/image-recreation" },
 
-      { title: "音视频提取文字", href: "/creator-tools/audio-extract" },
+      { title: "音视频���取文字", href: "/creator-tools/audio-extract" },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
       { title: "违禁词查询", href: "/creator-tools/forbidden-words" },
     ],
@@ -79,7 +79,7 @@ const menuItems: MenuItem[] = [
         title: "账号作品数据采集",
         href: "/data-collection/account-interaction",
       },
-      { title: "通用评论采集", href: "/data-collection/comments" },
+
       { title: "���题采集", href: "/data-collection/topics" },
       { title: "DY粉丝数组成查询", href: "/data-collection/fans-analysis" },
       { title: "作品互动数查询", href: "/data-collection/content-interaction" },
@@ -149,7 +149,7 @@ const menuItems: MenuItem[] = [
       { title: "粉丝趋势", href: "/kol-analysis/fan-trends" },
       { title: "性价比分析", href: "/kol-analysis/roi-analysis" },
       { title: "星图指标", href: "/kol-analysis/star-metrics" },
-      { title: "KOL相关热词分析", href: "/kol-analysis/keyword-analysis" },
+      { title: "KOL相关热��分析", href: "/kol-analysis/keyword-analysis" },
       { title: "KOL视频表现分析", href: "/kol-analysis/video-performance" },
       { title: "KOL转化能力分析", href: "/kol-analysis/conversion-analysis" },
       {
