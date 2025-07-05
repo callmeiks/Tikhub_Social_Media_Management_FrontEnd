@@ -120,9 +120,9 @@ const extractedData = {
 4️⃣ 防晒真的很重要！
 
 💡 产品推荐：
-✨ 洁面：氨基酸洁面泡沫
+✨ 洁��：氨基酸洁面泡沫
 ✨ 精华：烟酰胺精华液
-✨ 面膜：玻尿酸补���面膜
+✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
 
 坚持真的有用！姐妹们一起变美～
@@ -184,7 +184,17 @@ export default function VideoNoteExtract() {
     return platformPatterns.some((pattern) => pattern.test(url));
   };
 
-  const isValidUrl = validateUrl(inputUrl);
+  const urlCount = batchUrls
+    .split("\n")
+    .map((url) => url.trim())
+    .filter((url) => url.length > 0).length;
+
+  const invalidUrls = batchUrls
+    .split("\n")
+    .map((url) => url.trim())
+    .filter((url) => url.length > 0 && !validateUrl(url));
+
+  const hasInvalidUrls = invalidUrls.length > 0;
 
   return (
     <DashboardLayout
@@ -399,7 +409,7 @@ export default function VideoNoteExtract() {
                               </Badge>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              作者：{extractedData.videoInfo.author}
+                              ���者：{extractedData.videoInfo.author}
                             </p>
                           </div>
 
@@ -543,7 +553,7 @@ export default function VideoNoteExtract() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[300px]">标题</TableHead>
+                        <TableHead className="w-[300px]">���题</TableHead>
                         <TableHead className="w-[80px]">平台</TableHead>
                         <TableHead className="w-[120px]">作者</TableHead>
                         <TableHead className="w-[80px]">字数</TableHead>
