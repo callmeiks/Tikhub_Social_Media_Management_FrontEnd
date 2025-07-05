@@ -93,7 +93,7 @@ const sampleAccountData = [
         title: "5分钟快速护肤步骤分享",
         publishedAt: "2024-01-18",
         likes: "12.3万",
-        comments: "2.8万",
+        comments: "2.8��",
         shares: "6.2千",
         views: "180万",
         url: "https://www.douyin.com/video/124",
@@ -669,7 +669,7 @@ https://weibo.com/u/123456789
                         className="h-8 brand-accent"
                       >
                         <Download className="mr-2 h-3.5 w-3.5" />
-                        导出选中 ({selectedAccounts.length})
+                        导出Excel ({selectedAccounts.length})
                       </Button>
                     </div>
                     <Badge variant="secondary" className="text-xs">
