@@ -148,10 +148,10 @@ const extractionHistory = [
 💄 小技巧：
 - 粉底液要选择贴合肤色的
 - 腮红可以让气色更好
-- 口红选���日常色号
+- 口红选择日常色号
 
 #化妆教程 #裸妆 #新手化妆`,
-      tags: ["#化妆教程", "#裸妆", "#新手化妆", "#美妆分享"],
+      tags: ["#化妆教程", "#裸��", "#新手化妆", "#美妆分享"],
       images: [
         { description: "化妆前后对比", size: "750x1000" },
         { description: "化妆品清单", size: "750x1000" },
@@ -189,7 +189,7 @@ const extractionHistory = [
 花费不到100元就能让宿舍焕然一新！
 
 #宿舍收纳 #学生党 #收纳神器`,
-      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#��理收纳"],
+      tags: ["#宿舍收纳", "#学生党", "#收纳神器", "#整理收纳"],
       images: [
         { description: "收纳前后对比", size: "750x1000" },
         { description: "收纳产品展示", size: "750x1000" },
@@ -278,7 +278,7 @@ const extractedContent = {
     },
     {
       url: "https://cdn.xiaohongshu.com/image2.jpg",
-      description: "��面产品对比图",
+      description: "洁面产品对比图",
       size: "750x1000",
     },
     {
@@ -691,7 +691,7 @@ export default function ContentExtract() {
       case "paused":
         return "已暂停";
       case "cancelled":
-        return "已��消";
+        return "已取消";
       default:
         return "未知";
     }
@@ -896,7 +896,7 @@ export default function ContentExtract() {
         downloadFile(blob, `content_extract_${dateStr}.xlsx`);
       }
 
-      alert(`成功导出 ${selectedTasks.length} 个任务的数据`);
+      alert(`成���导出 ${selectedTasks.length} 个任务的数据`);
       setSelectedHistoryTaskIds([]);
     } catch (error) {
       console.error("导出失败:", error);
@@ -1635,7 +1635,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="mr-2 h-4 w-4" />
-                    提取历史 ({filteredHistoryTasks.length}/
+                    文案数据 ({filteredHistoryTasks.length}/
                     {historyTasks.length})
                     {selectedHistoryTaskIds.length > 0 && (
                       <Badge variant="secondary" className="ml-2 text-xs">
