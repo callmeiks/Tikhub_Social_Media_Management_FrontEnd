@@ -138,7 +138,7 @@ const extractionHistory = [
 - 腮红
 - 口红
 
-📝 具体步骤：
+📝 具体��骤：
 1️⃣ 妆前打底：先用妆前乳打底，让妆容更持久
 2️⃣ 底妆处理：用粉底液均匀涂抹全脸
 3️⃣ 遮瑕重点：用遮瑕膏遮盖痘印��黑眼圈
@@ -177,7 +177,7 @@ const extractionHistory = [
 
 🛍️ 收纳神器推荐：
 1. 床下收纳箱：可以放换季衣物
-2. 挂式收纳袋：充分利用墙面空间
+2. 挂式收纳袋：充分��用墙面空间
 3. 桌面收纳盒：小物件分类存放
 4. 真空压缩袋：节省50%空间
 
@@ -265,7 +265,7 @@ const extractedContent = {
 - 面霜：某某修护面霜
 
 💖 小贴士：
-- 敏感肌一定要温和护肤
+- 敏��肌一定要温和护肤
 - 新产品要先做过敏测试
 - 防��真的超级重要！
 
@@ -732,23 +732,44 @@ export default function ContentExtract() {
     );
   };
 
-  // ���选历史任务
+  // 筛选历史任务
   const getFilteredHistoryTasks = () => {
+    let filtered = historyTasks;
+
+    // 按状态筛选
     switch (historyFilter) {
       case "completed":
-        return historyTasks.filter((task) => task.status === "completed");
+        filtered = filtered.filter((task) => task.status === "completed");
+        break;
       case "failed":
-        return historyTasks.filter((task) => task.status === "failed");
+        filtered = filtered.filter((task) => task.status === "failed");
+        break;
       case "cancelled":
-        return historyTasks.filter((task) => task.status === "cancelled");
+        filtered = filtered.filter((task) => task.status === "cancelled");
+        break;
       case "failed-cancelled":
-        return historyTasks.filter(
+        filtered = filtered.filter(
           (task) => task.status === "failed" || task.status === "cancelled",
         );
+        break;
       case "all":
       default:
-        return historyTasks;
+        break;
     }
+
+    // 按平台筛选
+    if (platformFilter !== "all") {
+      filtered = filtered.filter((task) => {
+        const platform = task.url.includes("xiaohongshu")
+          ? "小红书"
+          : task.url.includes("instagram")
+            ? "Instagram"
+            : "其他";
+        return platform === platformFilter;
+      });
+    }
+
+    return filtered;
   };
 
   const filteredHistoryTasks = getFilteredHistoryTasks();
