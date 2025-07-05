@@ -467,11 +467,84 @@ https://weibo.com/u/123456789
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Users className="mr-2 h-4 w-4" />
-                    账号数据 ({accountData.length})
+                    账号数据 ({filteredAccountData.length})
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    已添加 {accountData.length} 个账号
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8">
+                          <Filter className="mr-2 h-3.5 w-3.5" />
+                          平台筛选 ({selectedPlatforms.length})
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56" align="end">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-medium">选择平台</h4>
+                            <div className="flex space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={selectAllPlatforms}
+                                className="h-6 text-xs"
+                              >
+                                全选
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearAllPlatforms}
+                                className="h-6 text-xs"
+                              >
+                                清空
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {supportedPlatforms.map((platform) => {
+                              const accountCount = accountData.filter(
+                                (acc) => acc.platform === platform.name,
+                              ).length;
+                              return (
+                                <div
+                                  key={platform.id}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Checkbox
+                                    id={platform.id}
+                                    checked={selectedPlatforms.includes(
+                                      platform.name,
+                                    )}
+                                    onCheckedChange={() =>
+                                      togglePlatform(platform.name)
+                                    }
+                                  />
+                                  <label
+                                    htmlFor={platform.id}
+                                    className="flex items-center space-x-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                                  >
+                                    <span>{platform.emoji}</span>
+                                    <span>{platform.name}</span>
+                                    {accountCount > 0 && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                      >
+                                        {accountCount}
+                                      </Badge>
+                                    )}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Badge variant="secondary" className="text-xs">
+                      已添加 {accountData.length} 个账号
+                    </Badge>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
