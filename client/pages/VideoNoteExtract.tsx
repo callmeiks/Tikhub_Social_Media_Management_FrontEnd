@@ -48,7 +48,7 @@ const extractionHistory = [
     id: 1,
     title: "这样护肤3个月，皮肤真的变好了！",
     platform: "抖音",
-    author: "护肤小仙女",
+    author: "护肤小仙���",
     extractedAt: "2024-01-15 14:30",
     wordCount: 156,
     engagement: "37.8%",
@@ -133,7 +133,7 @@ const extractedData = {
 坚持真的有用！姐妹们一起变美～
 
 #护肤心得 #变美 #护肤分享`,
-  hashtags: ["#护���心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
+  hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
   keyPoints: [
     "双重清洁很重要",
     "精华要充分按摩",
@@ -183,7 +183,7 @@ export default function VideoNoteExtract() {
 
   return (
     <DashboardLayout
-      title="视频/笔记文案提取"
+      title="文案提取"
       subtitle="智能提取视频和笔记中的文案内容，快速获取创作灵感"
       actions={
         <div className="flex space-x-2">
