@@ -121,11 +121,11 @@ const extractedData = {
 
 💡 产品推荐：
 ✨ 洁面：氨基酸洁面泡沫
-✨ 精华：烟酰胺精华液  
+✨ 精华：烟酰胺精华液
 ✨ 面膜：玻尿酸补水面膜
 ✨ 防晒：物理防晒霜SPF50
 
-坚持真的有用！姐妹们一起变美～
+坚持真的有用！姐妹们��起变美～
 
 #护肤心得 #变美 #护肤分享`,
   hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
@@ -140,7 +140,7 @@ const extractedData = {
 };
 
 export default function VideoNoteExtract() {
-  const [inputUrl, setInputUrl] = useState("");
+  const [batchUrls, setBatchUrls] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("extract");
