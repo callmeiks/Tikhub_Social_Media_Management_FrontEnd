@@ -94,6 +94,10 @@ const App = () => (
             element={<AccountInteraction />}
           />
           <Route
+            path="/data-collection/content-interaction"
+            element={<ContentInteraction />}
+          />
+          <Route
             path="/data-collection/keyword-content"
             element={<KeywordContentSearch />}
           />
