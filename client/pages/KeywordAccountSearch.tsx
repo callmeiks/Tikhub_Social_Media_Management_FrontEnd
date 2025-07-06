@@ -149,7 +149,9 @@ export default function KeywordAccountSearch() {
     switch (selectedPlatform) {
       case "douyin":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Users className="h-4 w-4 text-blue-500" />
@@ -191,9 +193,7 @@ export default function KeywordAccountSearch() {
                 <SelectContent>
                   <SelectItem value="all">🌟 不限制</SelectItem>
                   <SelectItem value="common_user">👤 普通用户</SelectItem>
-                  <SelectItem value="enterprise_user">
-                    🏢 企业认证用户
-                  </SelectItem>
+                  <SelectItem value="enterprise_user">🏢 企业认证用户</SelectItem>
                   <SelectItem value="personal_user">✅ 个人认证用户</SelectItem>
                 </SelectContent>
               </Select>
@@ -266,14 +266,8 @@ export default function KeywordAccountSearch() {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {
-                    supportedPlatforms.find((p) => p.id === selectedPlatform)
-                      ?.emoji
-                  }{" "}
-                  {
-                    supportedPlatforms.find((p) => p.id === selectedPlatform)
-                      ?.name
-                  }
+                  {supportedPlatforms.find((p) => p.id === selectedPlatform)?.emoji}{" "}
+                  {supportedPlatforms.find((p) => p.id === selectedPlatform)?.name}
                 </p>
                 <p className="text-xs text-gray-500">
                   该平台暂无额外筛选条件，使用基础关键词搜索即可
@@ -371,9 +365,7 @@ export default function KeywordAccountSearch() {
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                             className="pl-10 pr-4 py-3 text-base border-0 bg-transparent focus:ring-0 focus:outline-none"
-                            onKeyPress={(e) =>
-                              e.key === "Enter" && handleSearch()
-                            }
+                            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                           />
                         </div>
                         <Button
@@ -384,7 +376,7 @@ export default function KeywordAccountSearch() {
                           {isSearching ? (
                             <>
                               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                              搜索中...
+                              搜索��...
                             </>
                           ) : (
                             <>
@@ -397,8 +389,7 @@ export default function KeywordAccountSearch() {
                       {/* Search suggestions hint */}
                       <div className="mt-2 text-center">
                         <p className="text-xs text-gray-500">
-                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人"
-                          等热门创作者
+                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人" 等热门创作者
                         </p>
                       </div>
                     </div>
