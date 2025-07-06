@@ -829,7 +829,7 @@ https://weibo.com/u/123456789
                           </div>
 
 
-                            <div className="border-t border-border">
+
                               <div className="p-4">
                                 <div className="mb-4">
                                   <h4 className="text-sm font-medium mb-2">
