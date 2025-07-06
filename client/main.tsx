@@ -25,6 +25,9 @@ import AccountInteraction from "./pages/AccountInteraction";
 import ContentInteraction from "./pages/ContentInteraction";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import KeywordAccountSearch from "./pages/KeywordAccountSearch";
+import ContentMonitoring from "./pages/ContentMonitoring";
+import InfluencerMonitoring from "./pages/InfluencerMonitoring";
+import CustomRankings from "./pages/CustomRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
