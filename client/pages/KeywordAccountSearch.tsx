@@ -113,7 +113,7 @@ export default function KeywordAccountSearch() {
     }
 
     setIsSearching(true);
-    // 模拟API调用
+    // 模拟API��用
     setTimeout(() => {
       setIsSearching(false);
       alert(
@@ -291,7 +291,7 @@ export default function KeywordAccountSearch() {
   return (
     <DashboardLayout
       title="关键词账号查询"
-      subtitle="通过关键词搜索各平台相关��号"
+      subtitle="通过关键词搜索各平台相关账号"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -302,31 +302,6 @@ export default function KeywordAccountSearch() {
       }
     >
       <div className="space-y-6">
-        {/* Platform Support */}
-        <Card className="border border-border">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center">
-              <Users className="mr-2 h-4 w-4" />
-              支持平台
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {supportedPlatforms.map((platform) => (
-                <Badge
-                  key={platform.id}
-                  variant="secondary"
-                  className="flex items-center space-x-1 h-7"
-                >
-                  <span>{platform.emoji}</span>
-                  <span>{platform.name}</span>
-                  <CheckCircle className="h-3 w-3 text-green-600" />
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         <Tabs
           value={selectedPlatform}
           onValueChange={setSelectedPlatform}
