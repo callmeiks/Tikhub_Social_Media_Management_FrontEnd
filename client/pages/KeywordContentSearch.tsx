@@ -34,6 +34,7 @@ import {
   CheckCircle,
   FileText,
   BarChart3,
+  Hash,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -80,7 +81,7 @@ const mockResults = [
     views: "450万",
     likes: "25.8万",
     comments: "8.9万",
-    shares: "12.5千",
+    shares: "12.5���",
     url: "https://www.tiktok.com/@techreviewer/video/789012",
   },
 ];
@@ -475,7 +476,7 @@ export default function KeywordContentSearch() {
   return (
     <DashboardLayout
       title="关键词作品查询"
-      subtitle="通过关键词搜索各平台相关作品内容"
+      subtitle="通过关键词搜索各平台相关��品内容"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -627,7 +628,7 @@ export default function KeywordContentSearch() {
                               </TableHead>
                               <TableHead className="w-[80px]">点赞</TableHead>
                               <TableHead className="w-[80px]">评论</TableHead>
-                              <TableHead className="w-[80px]">分享</TableHead>
+                              <TableHead className="w-[80px]">分��</TableHead>
                               <TableHead className="w-[60px]">操作</TableHead>
                             </TableRow>
                           </TableHeader>
