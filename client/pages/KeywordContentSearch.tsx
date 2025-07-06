@@ -66,7 +66,7 @@ const mockResults = [
     author: "生活记录家",
     publishTime: "2024-01-19",
     views: "120万",
-    likes: "8.9万",
+    likes: "8.9��",
     comments: "1.5万",
     shares: "3.2千",
     url: "https://www.xiaohongshu.com/discovery/item/456789",
@@ -460,31 +460,6 @@ export default function KeywordContentSearch() {
       }
     >
       <div className="space-y-6">
-        {/* Platform Support */}
-        <Card className="border border-border">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center">
-              <Search className="mr-2 h-4 w-4" />
-              支持平台
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {supportedPlatforms.map((platform) => (
-                <Badge
-                  key={platform.id}
-                  variant="secondary"
-                  className="flex items-center space-x-1 h-7"
-                >
-                  <span>{platform.emoji}</span>
-                  <span>{platform.name}</span>
-                  <CheckCircle className="h-3 w-3 text-green-600" />
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         <Tabs
           value={selectedPlatform}
           onValueChange={setSelectedPlatform}
