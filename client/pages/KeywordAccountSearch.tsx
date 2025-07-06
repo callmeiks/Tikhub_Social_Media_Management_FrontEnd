@@ -113,7 +113,7 @@ export default function KeywordAccountSearch() {
     }
 
     setIsSearching(true);
-    // 模拟API调用
+    // 模拟API���用
     setTimeout(() => {
       setIsSearching(false);
       alert(
@@ -126,9 +126,10 @@ export default function KeywordAccountSearch() {
     switch (selectedPlatform) {
       case "douyin":
         return (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Users className="h-4 w-4 text-blue-500" />
                 粉丝数量筛选
               </label>
               <Select
@@ -137,21 +138,22 @@ export default function KeywordAccountSearch() {
                   setDouyinFilters((prev) => ({ ...prev, userFans: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="不限" />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                  <SelectValue placeholder="选择粉丝数量范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">不限</SelectItem>
-                  <SelectItem value="0_1k">1000以下</SelectItem>
-                  <SelectItem value="1k_1w">1000到1万</SelectItem>
-                  <SelectItem value="1w_10w">1万到10万</SelectItem>
-                  <SelectItem value="10w_100w">10万到100万</SelectItem>
-                  <SelectItem value="100w_">100万以上</SelectItem>
+                  <SelectItem value="all">🌟 不限制</SelectItem>
+                  <SelectItem value="0_1k">👤 1000以下</SelectItem>
+                  <SelectItem value="1k_1w">👥 1000到1万</SelectItem>
+                  <SelectItem value="1w_10w">🔥 1万到10万</SelectItem>
+                  <SelectItem value="10w_100w">⭐ 10万到100万</SelectItem>
+                  <SelectItem value="100w_">💎 100万以上</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Verified className="h-4 w-4 text-green-500" />
                 用户类型筛选
               </label>
               <Select
@@ -160,14 +162,16 @@ export default function KeywordAccountSearch() {
                   setDouyinFilters((prev) => ({ ...prev, userType: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="不限" />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                  <SelectValue placeholder="选择用户认证类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">不限</SelectItem>
-                  <SelectItem value="common_user">普通用户</SelectItem>
-                  <SelectItem value="enterprise_user">企业认证用户</SelectItem>
-                  <SelectItem value="personal_user">个人认证用户</SelectItem>
+                  <SelectItem value="all">🌟 不限制</SelectItem>
+                  <SelectItem value="common_user">👤 普通用户</SelectItem>
+                  <SelectItem value="enterprise_user">
+                    🏢 企业认证用户
+                  </SelectItem>
+                  <SelectItem value="personal_user">✅ 个人认证用户</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -441,7 +445,7 @@ export default function KeywordAccountSearch() {
                               <TableHead className="w-[80px]">关注</TableHead>
                               <TableHead className="w-[80px]">作品</TableHead>
                               <TableHead className="w-[100px]">获赞</TableHead>
-                              <TableHead className="w-[300px]">简介</TableHead>
+                              <TableHead className="w-[300px]">简��</TableHead>
                               <TableHead className="w-[100px]">认证</TableHead>
                               <TableHead className="w-[60px]">操作</TableHead>
                             </TableRow>
