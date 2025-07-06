@@ -355,7 +355,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                       : "bg-brand-accent",
                                   )}
                                 >
-                                  {subItem.badge === "HOT" && "���� "}
+                                  {subItem.badge === "HOT" && "🔥 "}
                                   {subItem.badge}
                                 </Badge>
                               )}
