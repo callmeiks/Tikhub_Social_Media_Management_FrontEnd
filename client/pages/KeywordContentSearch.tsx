@@ -134,7 +134,7 @@ export default function KeywordContentSearch() {
     setTimeout(() => {
       setIsSearching(false);
       alert(
-        `正在搜索关���词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的内容`,
+        `正在搜索关键词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的内容`,
       );
     }, 2000);
   };
@@ -143,7 +143,32 @@ export default function KeywordContentSearch() {
     switch (selectedPlatform) {
       case "douyin":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-4">
+            {/* Quantity Filter - Common for all platforms */}
+            <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Hash className="h-4 w-4 text-indigo-500" />
+                返回数量
+              </label>
+              <Select
+                value={quantityFilter}
+                onValueChange={setQuantityFilter}
+              >
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-indigo-400 transition-colors w-full sm:w-48">
+                  <SelectValue placeholder="选择返回数量" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="50">📊 50条结果</SelectItem>
+                  <SelectItem value="100">📈 100条结果</SelectItem>
+                  <SelectItem value="500">📉 500条结果</SelectItem>
+                  <SelectItem value="1000">📋 1000条结果</SelectItem>
+                  <SelectItem value="1000+">🚀 1000+条结果</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Platform-specific filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 <BarChart3 className="h-4 w-4 text-blue-500" />
@@ -273,7 +298,7 @@ export default function KeywordContentSearch() {
                   <SelectItem value="1">最近一天</SelectItem>
                   <SelectItem value="7">最近一周</SelectItem>
                   <SelectItem value="30">最近一个月</SelectItem>
-                  <SelectItem value="90">��近三个月</SelectItem>
+                  <SelectItem value="90">最近三个月</SelectItem>
                   <SelectItem value="180">最近半年</SelectItem>
                 </SelectContent>
               </Select>
@@ -581,7 +606,7 @@ export default function KeywordContentSearch() {
                         <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                         <p className="text-sm text-muted-foreground">
                           {keyword
-                            ? `���有找到关键词 "${keyword}" 的相关内容`
+                            ? `没有找到关键词 "${keyword}" 的相关内容`
                             : "请输入关键词开始搜索"}
                         </p>
                       </div>
