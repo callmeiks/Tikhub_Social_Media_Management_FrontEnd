@@ -110,6 +110,20 @@ const App = () => (
             element={<KeywordAccountSearch />}
           />
 
+          {/* Data Monitoring Routes */}
+          <Route
+            path="/data-monitoring/content-monitoring"
+            element={<ContentMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/influencer-monitoring"
+            element={<InfluencerMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/custom-rankings"
+            element={<CustomRankings />}
+          />
+
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/data-monitoring/*" element={<DataCollection />} />
           <Route path="/hot-rankings/*" element={<DataCollection />} />
