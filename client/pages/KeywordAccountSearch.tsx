@@ -94,6 +94,7 @@ export default function KeywordAccountSearch() {
   const [selectedPlatform, setSelectedPlatform] = useState("douyin");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState(mockResults);
+  const [quantityFilter, setQuantityFilter] = useState("50");
 
   // Platform-specific filters
   const [douyinFilters, setDouyinFilters] = useState({
@@ -113,7 +114,7 @@ export default function KeywordAccountSearch() {
     }
 
     setIsSearching(true);
-    // 模拟API��用
+    // 模拟API调用
     setTimeout(() => {
       setIsSearching(false);
       alert(
