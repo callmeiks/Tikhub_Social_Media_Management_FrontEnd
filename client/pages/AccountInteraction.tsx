@@ -163,6 +163,7 @@ export default function AccountInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+  const [collectionQuantity, setCollectionQuantity] = useState("最新50");
 
   const urlCount = batchUrls
     .split("\n")
@@ -990,7 +991,7 @@ https://weibo.com/u/123456789
                               {highestLikesAccount.platform === "抖音"
                                 ? "🎤"
                                 : highestLikesAccount.platform === "小红书"
-                                  ? "📖"
+                                  ? "���"
                                   : "🎵"}
                             </span>
                           </div>
