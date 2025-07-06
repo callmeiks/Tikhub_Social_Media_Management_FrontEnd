@@ -80,7 +80,7 @@ const menuItems: MenuItem[] = [
         href: "/data-collection/account-interaction",
       },
 
-      { title: "作品互动数查询", href: "/data-collection/content-interaction" },
+      { title: "作品数据查询", href: "/data-collection/content-interaction" },
       { title: "关键词作品查询", href: "/data-collection/keyword-content" },
       { title: "关键词账号查询", href: "/data-collection/keyword-accounts" },
     ],
@@ -144,7 +144,7 @@ const menuItems: MenuItem[] = [
       { title: "性价比分析", href: "/kol-analysis/roi-analysis" },
       { title: "星图指标", href: "/kol-analysis/star-metrics" },
       { title: "KOL相关热��分析", href: "/kol-analysis/keyword-analysis" },
-      { title: "KOL视频表现分��", href: "/kol-analysis/video-performance" },
+      { title: "KOL视频表现分析", href: "/kol-analysis/video-performance" },
       { title: "KOL转化能力分析", href: "/kol-analysis/conversion-analysis" },
       {
         title: "TikTok Creator搜索",
