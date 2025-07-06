@@ -128,9 +128,12 @@ const mockInfluencerData = [
 
 export default function InfluencerMonitoring() {
   const [monitoringData, setMonitoringData] = useState(mockInfluencerData);
-  const [newInfluencerUrl, setNewInfluencerUrl] = useState("");
+  const [batchUrls, setBatchUrls] = useState("");
   const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [validUrls, setValidUrls] = useState([]);
+  const [invalidUrls, setInvalidUrls] = useState([]);
 
   const validateUrl = (url: string) => {
     return supportedPlatforms.some((platform) => url.includes(platform.domain));
