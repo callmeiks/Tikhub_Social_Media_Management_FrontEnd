@@ -194,7 +194,7 @@ export default function KeywordAccountSearch() {
                   <SelectValue placeholder="不限制" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">不限制</SelectItem>
+                  <SelectItem value="all">不限制</SelectItem>
                   <SelectItem value="ZERO_TO_ONE_K">0-1K</SelectItem>
                   <SelectItem value="ONE_K_TO_TEN_K">1K-10K</SelectItem>
                   <SelectItem value="TEN_K_TO_ONE_H_K">10K-100K</SelectItem>
