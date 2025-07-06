@@ -140,46 +140,55 @@ export default function KeywordContentSearch() {
     switch (selectedPlatform) {
       case "douyin":
         return (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">排序方式</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <BarChart3 className="h-4 w-4 text-blue-500" />
+                排序方式
+              </label>
               <Select
                 value={douyinFilters.sortType}
                 onValueChange={(value) =>
                   setDouyinFilters((prev) => ({ ...prev, sortType: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                  <SelectValue placeholder="选择排序方式" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">综合排序</SelectItem>
-                  <SelectItem value="1">最多点赞</SelectItem>
-                  <SelectItem value="2">最新发布</SelectItem>
+                  <SelectItem value="0">🎯 综合排序</SelectItem>
+                  <SelectItem value="1">❤️ 最多点赞</SelectItem>
+                  <SelectItem value="2">⏰ 最新发布</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">发布时间</label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Calendar className="h-4 w-4 text-green-500" />
+                发布时间
+              </label>
               <Select
                 value={douyinFilters.publishTime}
                 onValueChange={(value) =>
                   setDouyinFilters((prev) => ({ ...prev, publishTime: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                  <SelectValue placeholder="选择时间范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">不限</SelectItem>
-                  <SelectItem value="1">最近一天</SelectItem>
-                  <SelectItem value="7">最近一周</SelectItem>
-                  <SelectItem value="180">最近半年</SelectItem>
+                  <SelectItem value="0">🌟 不限</SelectItem>
+                  <SelectItem value="1">📅 最近一天</SelectItem>
+                  <SelectItem value="7">🗓️ 最近一周</SelectItem>
+                  <SelectItem value="180">📆 最近半年</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">视频时长</label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Eye className="h-4 w-4 text-purple-500" />
+                视频时长
+              </label>
               <Select
                 value={douyinFilters.filterDuration}
                 onValueChange={(value) =>
@@ -189,33 +198,36 @@ export default function KeywordContentSearch() {
                   }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-colors">
+                  <SelectValue placeholder="选择时长范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">不限</SelectItem>
-                  <SelectItem value="0-1">1分钟以内</SelectItem>
-                  <SelectItem value="1-5">1-5分钟</SelectItem>
-                  <SelectItem value="5-10000">5分钟以上</SelectItem>
+                  <SelectItem value="0">🌟 不限</SelectItem>
+                  <SelectItem value="0-1">⚡ 1分钟以内</SelectItem>
+                  <SelectItem value="1-5">🎬 1-5分钟</SelectItem>
+                  <SelectItem value="5-10000">🎭 5分钟以上</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">内容类型</label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <FileText className="h-4 w-4 text-orange-500" />
+                内容类型
+              </label>
               <Select
                 value={douyinFilters.contentType}
                 onValueChange={(value) =>
                   setDouyinFilters((prev) => ({ ...prev, contentType: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-orange-400 transition-colors">
+                  <SelectValue placeholder="选择内容类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">不限</SelectItem>
-                  <SelectItem value="1">视频</SelectItem>
-                  <SelectItem value="2">图片</SelectItem>
-                  <SelectItem value="3">文章</SelectItem>
+                  <SelectItem value="0">🌟 不限</SelectItem>
+                  <SelectItem value="1">🎥 视频</SelectItem>
+                  <SelectItem value="2">🖼️ 图片</SelectItem>
+                  <SelectItem value="3">📝 文章</SelectItem>
                 </SelectContent>
               </Select>
             </div>
