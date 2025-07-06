@@ -89,7 +89,7 @@ const sampleAccountData = [
     works: [
       {
         id: 1,
-        title: "超火的韩式裸妆教程！新手必看",
+        title: "超火的韩式��妆教程！新手必看",
         publishedAt: "2024-01-20",
         likes: "15.6万",
         comments: "3.2万",
@@ -163,6 +163,7 @@ const sampleAccountData = [
 ];
 
 export default function AccountInteraction() {
+  const navigate = useNavigate();
   const [batchUrls, setBatchUrls] = useState("");
   const [isCollecting, setIsCollecting] = useState(false);
   const [accountData, setAccountData] = useState(sampleAccountData);
@@ -565,7 +566,7 @@ https://weibo.com/u/123456789
                         </SelectContent>
                       </Select>
                       <div className="text-xs text-muted-foreground">
-                        设置每个账号采集的作品数量
+                        ���置每个账号采集的作品数量
                       </div>
                     </div>
                   )}
