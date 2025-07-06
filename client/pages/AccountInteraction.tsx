@@ -30,6 +30,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search,
@@ -991,7 +998,7 @@ https://weibo.com/u/123456789
                               {highestLikesAccount.platform === "抖音"
                                 ? "🎤"
                                 : highestLikesAccount.platform === "小红书"
-                                  ? "���"
+                                  ? "📖"
                                   : "🎵"}
                             </span>
                           </div>
