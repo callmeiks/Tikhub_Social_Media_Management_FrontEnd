@@ -805,39 +805,25 @@ https://weibo.com/u/123456789
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2">
+                                <div className="text-right text-xs text-muted-foreground">
+                                  <div>添加于</div>
+                                  <div>{account.addedAt}</div>
+                                </div>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => exportAccountData(account.id)}
-                                  className="h-6"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    exportAccountData(account.id);
+                                  }}
+                                  className="h-8"
                                 >
                                   <Download className="h-3 w-3 mr-1" />
-                                  导出CSV
+                                  导出
                                 </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
-                                      <MoreHorizontal className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>
-                                      <Copy className="h-3 w-3 mr-2" />
-                                      复制链接
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Eye className="h-3 w-3 mr-2" />
-                                      查看主页
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-600">
-                                      删除账号
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                <div className="text-muted-foreground">
+                                  <ExternalLink className="h-4 w-4" />
+                                </div>
                               </div>
                             </div>
                           </div>
