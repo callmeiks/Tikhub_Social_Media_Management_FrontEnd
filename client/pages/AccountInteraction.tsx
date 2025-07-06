@@ -387,7 +387,7 @@ export default function AccountInteraction() {
       // Set column widths for better readability
       worksheet["!cols"] = [
         { width: 40 }, // 作品标题
-        { width: 12 }, // 发���时���
+        { width: 12 }, // 发���时间
         { width: 10 }, // 点赞数
         { width: 10 }, // 评论数
         { width: 10 }, // 分享数
@@ -789,9 +789,18 @@ https://weibo.com/u/123456789
                                     >
                                       {account.platform}
                                     </Badge>
-                                    <span>{account.followers} 粉丝</span>
-                                    <span>{account.totalWorks} 作品</span>
-                                    <span>{account.addedAt}</span>
+                                    <span className="flex items-center">
+                                      <Users className="h-3 w-3 mr-1" />
+                                      {account.followers} 粉丝
+                                    </span>
+                                    <span className="flex items-center">
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      {account.totalWorks} 作品
+                                    </span>
+                                    <span className="flex items-center">
+                                      <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                      {account.totalLikes}
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -1041,7 +1050,7 @@ https://weibo.com/u/123456789
                                 ? "🎤"
                                 : highestLikesAccount.platform === "小红书"
                                   ? "📖"
-                                  : "����"}
+                                  : "🎵"}
                             </span>
                           </div>
                           <div>
