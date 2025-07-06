@@ -66,7 +66,7 @@ const mockResults = [
     author: "生活记录家",
     publishTime: "2024-01-19",
     views: "120万",
-    likes: "8.9��",
+    likes: "8.9万",
     comments: "1.5万",
     shares: "3.2千",
     url: "https://www.xiaohongshu.com/discovery/item/456789",
@@ -90,6 +90,7 @@ export default function KeywordContentSearch() {
   const [selectedPlatform, setSelectedPlatform] = useState("douyin");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState(mockResults);
+  const [quantityFilter, setQuantityFilter] = useState("50");
 
   // Platform-specific filters
   const [douyinFilters, setDouyinFilters] = useState({
@@ -133,7 +134,7 @@ export default function KeywordContentSearch() {
     setTimeout(() => {
       setIsSearching(false);
       alert(
-        `正在搜索关键词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的内容`,
+        `正在搜索关���词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的内容`,
       );
     }, 2000);
   };
@@ -272,7 +273,7 @@ export default function KeywordContentSearch() {
                   <SelectItem value="1">最近一天</SelectItem>
                   <SelectItem value="7">最近一周</SelectItem>
                   <SelectItem value="30">最近一个月</SelectItem>
-                  <SelectItem value="90">最近三个月</SelectItem>
+                  <SelectItem value="90">��近三个月</SelectItem>
                   <SelectItem value="180">最近半年</SelectItem>
                 </SelectContent>
               </Select>
@@ -580,7 +581,7 @@ export default function KeywordContentSearch() {
                         <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                         <p className="text-sm text-muted-foreground">
                           {keyword
-                            ? `没有找到关键词 "${keyword}" 的相关内容`
+                            ? `���有找到关键词 "${keyword}" 的相关内容`
                             : "请输入关键词开始搜索"}
                         </p>
                       </div>
