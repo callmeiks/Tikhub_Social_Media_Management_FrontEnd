@@ -113,7 +113,7 @@ export default function KeywordAccountSearch() {
     }
 
     setIsSearching(true);
-    // 模拟API���用
+    // 模拟API调用
     setTimeout(() => {
       setIsSearching(false);
       alert(
@@ -180,9 +180,10 @@ export default function KeywordAccountSearch() {
 
       case "tiktok":
         return (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Users className="h-4 w-4 text-pink-500" />
                 粉丝数排序
               </label>
               <Select
@@ -194,20 +195,21 @@ export default function KeywordAccountSearch() {
                   }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="不限制" />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-pink-400 transition-colors">
+                  <SelectValue placeholder="选择粉丝数量范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">不限制</SelectItem>
-                  <SelectItem value="ZERO_TO_ONE_K">0-1K</SelectItem>
-                  <SelectItem value="ONE_K_TO_TEN_K">1K-10K</SelectItem>
-                  <SelectItem value="TEN_K_TO_ONE_H_K">10K-100K</SelectItem>
-                  <SelectItem value="ONE_H_K_PLUS">100K以上</SelectItem>
+                  <SelectItem value="all">🌟 不限制</SelectItem>
+                  <SelectItem value="ZERO_TO_ONE_K">👤 0-1K</SelectItem>
+                  <SelectItem value="ONE_K_TO_TEN_K">👥 1K-10K</SelectItem>
+                  <SelectItem value="TEN_K_TO_ONE_H_K">🔥 10K-100K</SelectItem>
+                  <SelectItem value="ONE_H_K_PLUS">💎 100K以上</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Crown className="h-4 w-4 text-yellow-500" />
                 账号类型排序
               </label>
               <Select
@@ -216,12 +218,12 @@ export default function KeywordAccountSearch() {
                   setTiktokFilters((prev) => ({ ...prev, profileType: value }))
                 }
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="不限制" />
+                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-yellow-400 transition-colors">
+                  <SelectValue placeholder="选择账号认证类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">不限制</SelectItem>
-                  <SelectItem value="VERIFIED">认证用户</SelectItem>
+                  <SelectItem value="all">🌟 不限制</SelectItem>
+                  <SelectItem value="VERIFIED">✅ 认证用户</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -445,7 +447,7 @@ export default function KeywordAccountSearch() {
                               <TableHead className="w-[80px]">关注</TableHead>
                               <TableHead className="w-[80px]">作品</TableHead>
                               <TableHead className="w-[100px]">获赞</TableHead>
-                              <TableHead className="w-[300px]">简��</TableHead>
+                              <TableHead className="w-[300px]">简介</TableHead>
                               <TableHead className="w-[100px]">认证</TableHead>
                               <TableHead className="w-[60px]">操作</TableHead>
                             </TableRow>
