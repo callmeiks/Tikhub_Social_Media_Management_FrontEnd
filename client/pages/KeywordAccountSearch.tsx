@@ -164,7 +164,7 @@ export default function KeywordAccountSearch() {
                   <SelectValue placeholder="不限" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">不限</SelectItem>
+                  <SelectItem value="all">不限</SelectItem>
                   <SelectItem value="common_user">普通用户</SelectItem>
                   <SelectItem value="enterprise_user">企业认证用户</SelectItem>
                   <SelectItem value="personal_user">个人认证用户</SelectItem>
