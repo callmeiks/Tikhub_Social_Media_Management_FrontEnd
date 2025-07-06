@@ -758,7 +758,8 @@ https://weibo.com/u/123456789
                       return (
                         <div
                           key={account.id}
-                          className="border border-border rounded-lg"
+                          className="border border-border rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
+                          onClick={() => handleAccountClick(account.id)}
                         >
                           <div className="p-4">
                             <div className="flex items-center justify-between">
