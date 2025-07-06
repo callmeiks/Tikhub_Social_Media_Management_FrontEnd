@@ -35,6 +35,7 @@ import {
   FileText,
   BarChart3,
   Hash,
+  Users,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -81,7 +82,7 @@ const mockResults = [
     views: "450万",
     likes: "25.8万",
     comments: "8.9万",
-    shares: "12.5���",
+    shares: "12.5千",
     url: "https://www.tiktok.com/@techreviewer/video/789012",
   },
 ];
@@ -140,318 +141,372 @@ export default function KeywordContentSearch() {
     }, 2000);
   };
 
+  const getQuantityFilterComponent = () => (
+    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <Hash className="h-4 w-4 text-indigo-500" />
+        返回数量
+      </label>
+      <Select value={quantityFilter} onValueChange={setQuantityFilter}>
+        <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-indigo-400 transition-colors w-full sm:w-48">
+          <SelectValue placeholder="选择返回数量" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="50">📊 50条结果</SelectItem>
+          <SelectItem value="100">📈 100条结果</SelectItem>
+          <SelectItem value="500">📉 500条结果</SelectItem>
+          <SelectItem value="1000">📋 1000条结果</SelectItem>
+          <SelectItem value="1000+">🚀 1000+条结果</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   const getPlatformFilterComponent = () => {
     switch (selectedPlatform) {
       case "douyin":
         return (
           <div className="space-y-4">
-            {/* Quantity Filter - Common for all platforms */}
-            <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <Hash className="h-4 w-4 text-indigo-500" />
-                返回数量
-              </label>
-              <Select
-                value={quantityFilter}
-                onValueChange={setQuantityFilter}
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-indigo-400 transition-colors w-full sm:w-48">
-                  <SelectValue placeholder="选择返回数量" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="50">📊 50条结果</SelectItem>
-                  <SelectItem value="100">📈 100条结果</SelectItem>
-                  <SelectItem value="500">📉 500条结果</SelectItem>
-                  <SelectItem value="1000">📋 1000条结果</SelectItem>
-                  <SelectItem value="1000+">🚀 1000+条结果</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Platform-specific filters */}
+            {getQuantityFilterComponent()}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <BarChart3 className="h-4 w-4 text-blue-500" />
-                排序方式
-              </label>
-              <Select
-                value={douyinFilters.sortType}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({ ...prev, sortType: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
-                  <SelectValue placeholder="选择排序方式" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">🎯 综合排序</SelectItem>
-                  <SelectItem value="1">❤️ 最多点赞</SelectItem>
-                  <SelectItem value="2">⏰ 最新发布</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Calendar className="h-4 w-4 text-green-500" />
-                发布时间
-              </label>
-              <Select
-                value={douyinFilters.publishTime}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({ ...prev, publishTime: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
-                  <SelectValue placeholder="选择时间范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">🌟 不限</SelectItem>
-                  <SelectItem value="1">📅 最近一天</SelectItem>
-                  <SelectItem value="7">🗓️ 最近一周</SelectItem>
-                  <SelectItem value="180">📆 最近半年</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Eye className="h-4 w-4 text-purple-500" />
-                视频时长
-              </label>
-              <Select
-                value={douyinFilters.filterDuration}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({
-                    ...prev,
-                    filterDuration: value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-colors">
-                  <SelectValue placeholder="选择时长范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">🌟 不限</SelectItem>
-                  <SelectItem value="0-1">⚡ 1分钟以内</SelectItem>
-                  <SelectItem value="1-5">🎬 1-5分钟</SelectItem>
-                  <SelectItem value="5-10000">🎭 5分钟以上</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <FileText className="h-4 w-4 text-orange-500" />
-                内容类型
-              </label>
-              <Select
-                value={douyinFilters.contentType}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({ ...prev, contentType: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-orange-400 transition-colors">
-                  <SelectValue placeholder="选择内容类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">🌟 不限</SelectItem>
-                  <SelectItem value="1">🎥 视频</SelectItem>
-                  <SelectItem value="2">🖼️ 图片</SelectItem>
-                  <SelectItem value="3">📝 文章</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  排序方式
+                </label>
+                <Select
+                  value={douyinFilters.sortType}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({ ...prev, sortType: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                    <SelectValue placeholder="选择排序方式" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🎯 综合排序</SelectItem>
+                    <SelectItem value="1">❤️ 最多点赞</SelectItem>
+                    <SelectItem value="2">⏰ 最新发布</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Calendar className="h-4 w-4 text-green-500" />
+                  发布时间
+                </label>
+                <Select
+                  value={douyinFilters.publishTime}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({
+                      ...prev,
+                      publishTime: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                    <SelectValue placeholder="选择时间范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🌟 不限</SelectItem>
+                    <SelectItem value="1">📅 最近一天</SelectItem>
+                    <SelectItem value="7">🗓️ 最近一周</SelectItem>
+                    <SelectItem value="180">📆 最近半年</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Eye className="h-4 w-4 text-purple-500" />
+                  视频时长
+                </label>
+                <Select
+                  value={douyinFilters.filterDuration}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({
+                      ...prev,
+                      filterDuration: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-purple-400 transition-colors">
+                    <SelectValue placeholder="选择时长范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🌟 不限</SelectItem>
+                    <SelectItem value="0-1">⚡ 1分钟以内</SelectItem>
+                    <SelectItem value="1-5">🎬 1-5分钟</SelectItem>
+                    <SelectItem value="5-10000">🎭 5分钟以上</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <FileText className="h-4 w-4 text-orange-500" />
+                  内容类型
+                </label>
+                <Select
+                  value={douyinFilters.contentType}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({
+                      ...prev,
+                      contentType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-orange-400 transition-colors">
+                    <SelectValue placeholder="选择内容类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🌟 不限</SelectItem>
+                    <SelectItem value="1">🎥 视频</SelectItem>
+                    <SelectItem value="2">🖼️ 图片</SelectItem>
+                    <SelectItem value="3">📝 文章</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "tiktok":
         return (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">排序方式</label>
-              <Select
-                value={tiktokFilters.sortType}
-                onValueChange={(value) =>
-                  setTiktokFilters((prev) => ({ ...prev, sortType: value }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">相关度</SelectItem>
-                  <SelectItem value="1">最多点赞</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">发布时间</label>
-              <Select
-                value={tiktokFilters.publishTime}
-                onValueChange={(value) =>
-                  setTiktokFilters((prev) => ({ ...prev, publishTime: value }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">不限制</SelectItem>
-                  <SelectItem value="1">最近一天</SelectItem>
-                  <SelectItem value="7">最近一周</SelectItem>
-                  <SelectItem value="30">最近一个月</SelectItem>
-                  <SelectItem value="90">最近三个月</SelectItem>
-                  <SelectItem value="180">最近半年</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  排序方式
+                </label>
+                <Select
+                  value={tiktokFilters.sortType}
+                  onValueChange={(value) =>
+                    setTiktokFilters((prev) => ({ ...prev, sortType: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                    <SelectValue placeholder="选择排序方式" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🎯 相关度</SelectItem>
+                    <SelectItem value="1">❤️ 最多点赞</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Calendar className="h-4 w-4 text-green-500" />
+                  发布时间
+                </label>
+                <Select
+                  value={tiktokFilters.publishTime}
+                  onValueChange={(value) =>
+                    setTiktokFilters((prev) => ({
+                      ...prev,
+                      publishTime: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                    <SelectValue placeholder="选择时间范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">🌟 不限制</SelectItem>
+                    <SelectItem value="1">📅 最近一天</SelectItem>
+                    <SelectItem value="7">🗓️ 最近一周</SelectItem>
+                    <SelectItem value="30">📊 最近一个月</SelectItem>
+                    <SelectItem value="90">📈 最近三个月</SelectItem>
+                    <SelectItem value="180">📆 最近半年</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "xiaohongshu":
         return (
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">排序规则</label>
-              <Select
-                value={xiaohongshuFilters.sortType}
-                onValueChange={(value) =>
-                  setXiaohongshuFilters((prev) => ({
-                    ...prev,
-                    sortType: value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="general">综合排序</SelectItem>
-                  <SelectItem value="time_descending">最新发布</SelectItem>
-                  <SelectItem value="popularity_descending">
-                    最多点赞
-                  </SelectItem>
-                  <SelectItem value="comment_descending">最多评论</SelectItem>
-                  <SelectItem value="collect_descending">最多收藏</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">笔记类型</label>
-              <Select
-                value={xiaohongshuFilters.filterNoteType}
-                onValueChange={(value) =>
-                  setXiaohongshuFilters((prev) => ({
-                    ...prev,
-                    filterNoteType: value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="不限">不限</SelectItem>
-                  <SelectItem value="视频笔记">视频笔记</SelectItem>
-                  <SelectItem value="普通笔记">普通笔记</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block">发布时间</label>
-              <Select
-                value={xiaohongshuFilters.filterNoteTime}
-                onValueChange={(value) =>
-                  setXiaohongshuFilters((prev) => ({
-                    ...prev,
-                    filterNoteTime: value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="不限">不限</SelectItem>
-                  <SelectItem value="一天内">一天内</SelectItem>
-                  <SelectItem value="一周内">一周内</SelectItem>
-                  <SelectItem value="半年内">半年内</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  排序规则
+                </label>
+                <Select
+                  value={xiaohongshuFilters.sortType}
+                  onValueChange={(value) =>
+                    setXiaohongshuFilters((prev) => ({
+                      ...prev,
+                      sortType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                    <SelectValue placeholder="选���排序规则" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">🎯 综合排序</SelectItem>
+                    <SelectItem value="time_descending">⏰ 最新发布</SelectItem>
+                    <SelectItem value="popularity_descending">
+                      ❤️ 最多点赞
+                    </SelectItem>
+                    <SelectItem value="comment_descending">
+                      💬 最多评论
+                    </SelectItem>
+                    <SelectItem value="collect_descending">
+                      ⭐ 最多收藏
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <FileText className="h-4 w-4 text-orange-500" />
+                  笔记类型
+                </label>
+                <Select
+                  value={xiaohongshuFilters.filterNoteType}
+                  onValueChange={(value) =>
+                    setXiaohongshuFilters((prev) => ({
+                      ...prev,
+                      filterNoteType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-orange-400 transition-colors">
+                    <SelectValue placeholder="选择笔记类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="不限">🌟 不限</SelectItem>
+                    <SelectItem value="视频笔记">🎥 视频笔记</SelectItem>
+                    <SelectItem value="普通笔记">🖼️ 普通笔记</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Calendar className="h-4 w-4 text-green-500" />
+                  发布时间
+                </label>
+                <Select
+                  value={xiaohongshuFilters.filterNoteTime}
+                  onValueChange={(value) =>
+                    setXiaohongshuFilters((prev) => ({
+                      ...prev,
+                      filterNoteTime: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                    <SelectValue placeholder="选择时间范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="不限">🌟 不限</SelectItem>
+                    <SelectItem value="一天内">📅 一天内</SelectItem>
+                    <SelectItem value="一周内">🗓️ 一周内</SelectItem>
+                    <SelectItem value="半年内">📆 半年内</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "bilibili":
         return (
-          <div className="grid grid-cols-1 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">排序方式</label>
-              <Select
-                value={bilibiliFilters.order}
-                onValueChange={(value) =>
-                  setBilibiliFilters((prev) => ({ ...prev, order: value }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="totalrank">综合排序</SelectItem>
-                  <SelectItem value="click">最多播放</SelectItem>
-                  <SelectItem value="pubdate">最新发布</SelectItem>
-                  <SelectItem value="dm">最多弹幕</SelectItem>
-                  <SelectItem value="stow">最多收藏</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  排序方式
+                </label>
+                <Select
+                  value={bilibiliFilters.order}
+                  onValueChange={(value) =>
+                    setBilibiliFilters((prev) => ({ ...prev, order: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors w-40">
+                    <SelectValue placeholder="选择排序方式" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="totalrank">🎯 综合排序</SelectItem>
+                    <SelectItem value="click">👁️ 最多播放</SelectItem>
+                    <SelectItem value="pubdate">⏰ 最新发布</SelectItem>
+                    <SelectItem value="dm">💬 最多弹幕</SelectItem>
+                    <SelectItem value="stow">⭐ 最多收藏</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "instagram":
         return (
-          <div className="grid grid-cols-1 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">Feed类型</label>
-              <Select
-                value={instagramFilters.feedType}
-                onValueChange={(value) =>
-                  setInstagramFilters((prev) => ({ ...prev, feedType: value }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="top">热门</SelectItem>
-                  <SelectItem value="recent">最新</SelectItem>
-                  <SelectItem value="clips">快拍</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  Feed类型
+                </label>
+                <Select
+                  value={instagramFilters.feedType}
+                  onValueChange={(value) =>
+                    setInstagramFilters((prev) => ({
+                      ...prev,
+                      feedType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors w-32">
+                    <SelectValue placeholder="选择Feed类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">🔥 热门</SelectItem>
+                    <SelectItem value="recent">⏰ 最新</SelectItem>
+                    <SelectItem value="clips">🎬 快拍</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "x":
         return (
-          <div className="grid grid-cols-1 gap-3">
-            <div>
-              <label className="text-xs font-medium mb-1 block">搜索类型</label>
-              <Select
-                value={xFilters.searchType}
-                onValueChange={(value) =>
-                  setXFilters((prev) => ({ ...prev, searchType: value }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Top">Top</SelectItem>
-                  <SelectItem value="Latest">Latest</SelectItem>
-                  <SelectItem value="Media">Media</SelectItem>
-                  <SelectItem value="Lists">Lists</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  搜索类型
+                </label>
+                <Select
+                  value={xFilters.searchType}
+                  onValueChange={(value) =>
+                    setXFilters((prev) => ({ ...prev, searchType: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors w-32">
+                    <SelectValue placeholder="选择搜索类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Top">🔝 Top</SelectItem>
+                    <SelectItem value="Latest">⏰ Latest</SelectItem>
+                    <SelectItem value="Media">🖼️ Media</SelectItem>
+                    <SelectItem value="Lists">📋 Lists</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
@@ -476,7 +531,7 @@ export default function KeywordContentSearch() {
   return (
     <DashboardLayout
       title="关键词作品查询"
-      subtitle="通过关键词搜索各平台相关��品内容"
+      subtitle="通过关键词搜索各平台相关作品内容"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -628,7 +683,7 @@ export default function KeywordContentSearch() {
                               </TableHead>
                               <TableHead className="w-[80px]">点赞</TableHead>
                               <TableHead className="w-[80px]">评论</TableHead>
-                              <TableHead className="w-[80px]">分��</TableHead>
+                              <TableHead className="w-[80px]">分享</TableHead>
                               <TableHead className="w-[60px]">操作</TableHead>
                             </TableRow>
                           </TableHeader>
