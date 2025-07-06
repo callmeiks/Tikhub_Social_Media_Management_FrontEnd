@@ -390,7 +390,7 @@ export default function AccountInteraction() {
         { width: 12 }, // 发���时间
         { width: 10 }, // 点赞数
         { width: 10 }, // 评论数
-        { width: 10 }, // 分享数
+        { width: 10 }, // ���享数
         { width: 12 }, // 播放量
         { width: 50 }, // 链接
       ];
@@ -648,7 +648,7 @@ https://weibo.com/u/123456789
                                 onClick={selectAllPlatforms}
                                 className="h-6 text-xs"
                               >
-                                全选
+                                ��选
                               </Button>
                               <Button
                                 variant="ghost"
@@ -828,7 +828,7 @@ https://weibo.com/u/123456789
                             </div>
                           </div>
 
-                          {isExpanded && (
+
                             <div className="border-t border-border">
                               <div className="p-4">
                                 <div className="mb-4">
