@@ -23,6 +23,7 @@ import AccountPK from "./pages/AccountPK";
 import CoverImageCreation from "./pages/CoverImageCreation";
 import DataCollection from "./pages/DataCollection";
 import AccountInteraction from "./pages/AccountInteraction";
+import AccountDetails from "./pages/AccountDetails";
 import ContentInteraction from "./pages/ContentInteraction";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import KeywordAccountSearch from "./pages/KeywordAccountSearch";
