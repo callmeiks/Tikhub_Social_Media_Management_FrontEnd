@@ -80,7 +80,7 @@ const mockResults = [
     followers: "89.3万",
     following: "256",
     works: "89",
-    likes: "1890��",
+    likes: "1890万",
     bio: "记录美好生活 | 收纳整理达人 | 分享生活小窍门",
     verified: false,
     userType: "普通用户",
@@ -269,7 +269,7 @@ export default function KeywordAccountSearch() {
   return (
     <DashboardLayout
       title="关键词账号查询"
-      subtitle="通过���键词搜索各平台相关账号"
+      subtitle="通过关键词搜索各平台相关账号"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -326,44 +326,77 @@ export default function KeywordAccountSearch() {
           {supportedPlatforms.map((platform) => (
             <TabsContent key={platform.id} value={platform.id} className="mt-6">
               <div className="space-y-4">
-                {/* Search Section */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Search className="mr-2 h-4 w-4" />
-                      {platform.name} 账号搜索
+                {/* Enhanced Search Section */}
+                <Card className="border-2 border-dashed border-muted bg-gradient-to-br from-green-50/50 to-blue-50/50 dark:from-green-950/20 dark:to-blue-950/20">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center justify-center">
+                      <div className="flex items-center gap-3 text-center">
+                        <div className="p-2 rounded-full bg-gradient-to-r from-green-500 to-blue-600 text-white">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent font-bold">
+                          {platform.name} 账号搜索
+                        </span>
+                      </div>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-3">
-                      <Input
-                        placeholder={`在${platform.name}搜索账号关键词...`}
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        className="flex-1"
-                        onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                      />
-                      <Button
-                        onClick={handleSearch}
-                        disabled={isSearching || !keyword.trim()}
-                        className="px-6"
-                      >
-                        {isSearching ? (
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Search className="mr-2 h-4 w-4" />
-                        )}
-                        搜索
-                      </Button>
+                  <CardContent className="space-y-6">
+                    {/* Enhanced Search Bar */}
+                    <div className="relative">
+                      <div className="flex gap-3 items-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="relative flex-1">
+                          <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder={`👤 在${platform.name}搜索您想找的账号...`}
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            className="pl-10 pr-4 py-3 text-base border-0 bg-transparent focus:ring-0 focus:outline-none"
+                            onKeyPress={(e) =>
+                              e.key === "Enter" && handleSearch()
+                            }
+                          />
+                        </div>
+                        <Button
+                          onClick={handleSearch}
+                          disabled={isSearching || !keyword.trim()}
+                          className="px-8 py-3 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                        >
+                          {isSearching ? (
+                            <>
+                              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                              搜索中...
+                            </>
+                          ) : (
+                            <>
+                              <Search className="mr-2 h-4 w-4" />
+                              发现账号
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {/* Search suggestions hint */}
+                      <div className="mt-2 text-center">
+                        <p className="text-xs text-gray-500">
+                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人"
+                          等热门创作者
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Platform-specific filters */}
-                    <div className="border-t pt-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Filter className="h-4 w-4" />
-                        <span className="text-sm font-medium">搜索筛选</span>
+                    {/* Enhanced Platform-specific filters */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-r from-purple-400 to-pink-500 text-white">
+                          <Filter className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          精准筛选条件
+                        </span>
+                        <div className="flex-1 h-px bg-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800"></div>
                       </div>
-                      {getPlatformFilterComponent()}
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                        {getPlatformFilterComponent()}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
