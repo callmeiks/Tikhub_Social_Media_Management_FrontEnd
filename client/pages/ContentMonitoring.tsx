@@ -120,10 +120,13 @@ const mockMonitoringData = [
 
 export default function ContentMonitoring() {
   const [monitoringData, setMonitoringData] = useState(mockMonitoringData);
-  const [newContentUrl, setNewContentUrl] = useState("");
+  const [batchUrls, setBatchUrls] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [isAddingContent, setIsAddingContent] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [validUrls, setValidUrls] = useState([]);
+  const [invalidUrls, setInvalidUrls] = useState([]);
 
   const validateUrl = (url: string) => {
     return supportedPlatforms.some((platform) => url.includes(platform.domain));
