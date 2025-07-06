@@ -185,7 +185,7 @@ export default function AccountInteraction() {
         .filter((url) => url.length > 0);
 
       // 这里应该调用实际的API来采集数据
-      console.log("采集账���:", urls);
+      console.log("采集账号:", urls);
       console.log("采集作品:", collectWorks);
       console.log("采集数量:", collectionQuantity);
 
@@ -404,7 +404,7 @@ export default function AccountInteraction() {
   return (
     <DashboardLayout
       title="账号数据采集"
-      subtitle="智能采集账号作品数��，支持多平台内容分析"
+      subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -475,7 +475,7 @@ export default function AccountInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    账号主页链接（每行一个，最多20���）
+                    账号主页链接（每行一个，最多20个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴账号主页链接，每行一个��
@@ -611,6 +611,20 @@ https://weibo.com/u/123456789
                     账号数据 ({filteredAccountData.length})
                   </span>
                   <div className="flex items-center space-x-2">
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-[160px] h-8">
+                        <SelectValue placeholder="排序方式" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="默认">默认排序</SelectItem>
+                        <SelectItem value="粉丝量-高到低">粉丝量 ↓</SelectItem>
+                        <SelectItem value="粉丝量-低到高">粉丝量 ↑</SelectItem>
+                        <SelectItem value="作品量-高到低">作品量 ↓</SelectItem>
+                        <SelectItem value="作品量-低到高">作品量 ↑</SelectItem>
+                        <SelectItem value="点赞量-高到低">点赞量 ↓</SelectItem>
+                        <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8">
