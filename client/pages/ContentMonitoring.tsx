@@ -137,26 +137,55 @@ export default function ContentMonitoring() {
     return platform ? platform.name : "未知";
   };
 
-  const handleAddContent = async () => {
-    if (!newContentUrl.trim()) {
-      alert("请输入作品链接");
-      return;
-    }
+  const processBatchUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
 
-    if (!validateUrl(newContentUrl)) {
-      alert("不支持的平台链接，请检查链接格式");
+    const valid = urlList.filter((url) => validateUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) && url.length > 0,
+    );
+
+    setValidUrls(valid);
+    setInvalidUrls(invalid);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setBatchUrls(content);
+        processBatchUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleBatchUrlsChange = (urls: string) => {
+    setBatchUrls(urls);
+    processBatchUrls(urls);
+  };
+
+  const handleAddBatchContent = async () => {
+    if (validUrls.length === 0) {
+      alert("请输入有效的作品链接");
       return;
     }
 
     setIsAddingContent(true);
-    // 模拟API调用
+    // 模拟批量API调用
     setTimeout(() => {
-      const newContent = {
-        id: Date.now(),
-        title: "新添加的作品监控",
-        platform: getPlatformFromUrl(newContentUrl),
+      const newContentItems = validUrls.map((url, index) => ({
+        id: Date.now() + index,
+        title: `批量添加的作品监控 ${index + 1}`,
+        platform: getPlatformFromUrl(url),
         author: "作者名称",
-        url: newContentUrl,
+        url: url,
         thumbnail: "/api/placeholder/120/120",
         addedAt: new Date().toLocaleString("zh-CN"),
         status: "active",
@@ -173,13 +202,16 @@ export default function ContentMonitoring() {
           shares: "0",
         },
         trendData: [],
-      };
+      }));
 
-      setMonitoringData((prev) => [newContent, ...prev]);
-      setNewContentUrl("");
+      setMonitoringData((prev) => [...newContentItems, ...prev]);
+      setBatchUrls("");
+      setValidUrls([]);
+      setInvalidUrls([]);
+      setUploadedFile(null);
       setSelectedPlatform("");
       setIsAddingContent(false);
-      alert("作品监控添加成功！");
+      alert(`成功添加 ${validUrls.length} 个作品监控！`);
     }, 2000);
   };
 
@@ -302,7 +334,7 @@ export default function ContentMonitoring() {
                       ) : (
                         <Plus className="mr-2 h-4 w-4" />
                       )}
-                      {isAddingContent ? "添加中..." : "添加监控"}
+                      {isAddingContent ? "添加中..." : "添加监��"}
                     </Button>
                   </div>
                   <div className="text-xs text-gray-500">
