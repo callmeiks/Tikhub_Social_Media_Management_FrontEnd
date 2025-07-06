@@ -68,7 +68,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: "数据采集",
+    title: "数据采��",
     icon: Database,
     href: "/data-collection",
     subItems: [
@@ -91,14 +91,10 @@ const menuItems: MenuItem[] = [
     href: "/data-monitoring",
     subItems: [
       {
-        title: "作品互动数据检测",
-        href: "/data-monitoring/content-interaction",
+        title: "指定作品监控",
+        href: "/data-monitoring/content-monitoring",
       },
-      { title: "账号指标检测", href: "/data-monitoring/account-metrics" },
-      {
-        title: "作品舆情评论检测",
-        href: "/data-monitoring/sentiment-analysis",
-      },
+      { title: "达人监控", href: "/data-monitoring/influencer-monitoring" },
       { title: "自定义监控榜单", href: "/data-monitoring/custom-rankings" },
       { title: "当前任务管理", href: "/data-monitoring/task-management" },
     ],
@@ -108,7 +104,7 @@ const menuItems: MenuItem[] = [
     icon: TrendingUp,
     href: "/hot-rankings",
     subItems: [
-      { title: "抖音�����账号", href: "/hot-rankings/dy-hot-accounts" },
+      { title: "抖��������账号", href: "/hot-rankings/dy-hot-accounts" },
       { title: "抖音上升热点榜", href: "/hot-rankings/dy-rising-trends" },
       { title: "抖音同城热点榜", href: "/hot-rankings/dy-local-trends" },
       { title: "抖音挑战热点榜", href: "/hot-rankings/dy-challenge-trends" },
@@ -359,7 +355,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                       : "bg-brand-accent",
                                   )}
                                 >
-                                  {subItem.badge === "HOT" && "🔥 "}
+                                  {subItem.badge === "HOT" && "���� "}
                                   {subItem.badge}
                                 </Badge>
                               )}
