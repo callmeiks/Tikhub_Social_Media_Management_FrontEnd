@@ -185,7 +185,7 @@ export default function AccountInteraction() {
         .filter((url) => url.length > 0);
 
       // 这里应该调用实际的API来采集数据
-      console.log("采集账号:", urls);
+      console.log("采集账���:", urls);
       console.log("采集作品:", collectWorks);
       console.log("采集数量:", collectionQuantity);
 
@@ -194,9 +194,38 @@ export default function AccountInteraction() {
     }, 3000);
   };
 
-  const filteredAccountData = accountData.filter((account) =>
-    selectedPlatforms.includes(account.platform),
-  );
+  const filteredAccountData = accountData
+    .filter((account) => selectedPlatforms.includes(account.platform))
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "粉丝量-高到低":
+          return parseNumber(b.followers) - parseNumber(a.followers);
+        case "粉丝量-低到高":
+          return parseNumber(a.followers) - parseNumber(b.followers);
+        case "作品量-高到低":
+          return b.totalWorks - a.totalWorks;
+        case "作品量-低到高":
+          return a.totalWorks - b.totalWorks;
+        case "点赞量-高到低":
+          return parseNumber(b.totalLikes) - parseNumber(a.totalLikes);
+        case "点赞量-低到高":
+          return parseNumber(a.totalLikes) - parseNumber(b.totalLikes);
+        default:
+          return 0; // 默认排序
+      }
+    });
+
+  // Helper function to parse numbers with Chinese units (万, 千)
+  const parseNumber = (str: string): number => {
+    if (!str) return 0;
+    const cleanStr = str.replace(/[^\d.万千]/g, "");
+    if (cleanStr.includes("万")) {
+      return parseFloat(cleanStr.replace("万", "")) * 10000;
+    } else if (cleanStr.includes("千")) {
+      return parseFloat(cleanStr.replace("千", "")) * 1000;
+    }
+    return parseFloat(cleanStr) || 0;
+  };
 
   // Clear selected accounts that are no longer visible due to platform filtering
   useEffect(() => {
@@ -375,7 +404,7 @@ export default function AccountInteraction() {
   return (
     <DashboardLayout
       title="账号数据采集"
-      subtitle="智能采集账号作品数据，支持多平台内容分析"
+      subtitle="智能采集账号作品数��，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -446,7 +475,7 @@ export default function AccountInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    账号主页链接（每行一个，最多20个）
+                    账号主页链接（每行一个，最多20���）
                   </label>
                   <Textarea
                     placeholder={`请粘贴账号主页链接，每行一个��
