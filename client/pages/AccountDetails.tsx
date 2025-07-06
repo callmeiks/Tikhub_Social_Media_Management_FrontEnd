@@ -62,7 +62,7 @@ const mockAccountDetails = {
     },
     {
       id: 2,
-      title: "5分钟快速护肤步骤分享",
+      title: "5分钟快���护肤步骤分享",
       publishedAt: "2024-01-18",
       likes: "12.3万",
       comments: "2.8万",
@@ -155,19 +155,20 @@ export default function AccountDetails() {
     <DashboardLayout
       title={`${accountData.name} - 账号详情`}
       subtitle="账号数据详情及作品分析"
-      actions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleBackClick}
-          className="h-8"
-        >
-          <ArrowLeft className="mr-2 h-3.5 w-3.5" />
-          返回列表
-        </Button>
-      }
     >
       <div className="space-y-6">
+        {/* Back Button */}
+        <div className="flex justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBackClick}
+            className="h-8"
+          >
+            <ArrowLeft className="mr-2 h-3.5 w-3.5" />
+            返回列表
+          </Button>
+        </div>
         {/* Account Profile Card */}
         <Card>
           <CardContent className="p-6">
