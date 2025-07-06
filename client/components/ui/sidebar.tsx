@@ -68,7 +68,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: "数据采��",
+    title: "数据采集",
     icon: Database,
     href: "/data-collection",
     subItems: [
