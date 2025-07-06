@@ -16,17 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -48,17 +37,13 @@ import {
   RefreshCw,
   CheckCircle,
   AlertTriangle,
-  ChevronDown,
-  ChevronUp,
   Download,
-  Copy,
-  Eye,
   Users,
   Heart,
-  Play,
   MessageCircle,
   Share2,
-  MoreHorizontal,
+  Eye,
+  ExternalLink,
   Filter,
 } from "lucide-react";
 
@@ -78,18 +63,18 @@ const sampleAccountData = [
   {
     id: 1,
     name: "美妆达人小丽",
-    platform: "抖���",
+    platform: "抖音",
     profileUrl: "https://www.douyin.com/user/123456",
     followers: "156.8万",
     addedAt: "2024-01-15 14:30",
     totalWorks: 127,
     totalLikes: "2340万",
     totalComments: "45.6万",
-    totalShares: "12.3���",
+    totalShares: "12.3万",
     works: [
       {
         id: 1,
-        title: "超火的韩式��妆教程！新手必���",
+        title: "超火的韩式裸妆教程！新手必看",
         publishedAt: "2024-01-20",
         likes: "15.6万",
         comments: "3.2万",
@@ -102,62 +87,35 @@ const sampleAccountData = [
         title: "5分钟快速护肤步骤分享",
         publishedAt: "2024-01-18",
         likes: "12.3万",
-        comments: "2.8��",
+        comments: "2.8万",
         shares: "6.2千",
         views: "180万",
         url: "https://www.douyin.com/video/124",
       },
-      // More works...
     ],
   },
   {
     id: 2,
-    name: "生活记录家",
-    platform: "小红书",
-    profileUrl: "https://www.xiaohongshu.com/user/789012",
-    followers: "89.3万",
-    addedAt: "2024-01-14 16:22",
-    totalWorks: 89,
-    totalLikes: "1890万",
-    totalComments: "28.9万",
-    totalShares: "9.8万",
-    works: [
-      {
-        id: 1,
-        title: "学生党宿舍收纳神器推荐",
-        publishedAt: "2024-01-19",
-        likes: "8.9万",
-        comments: "1.5万",
-        shares: "3.2千",
-        views: "120万",
-        url: "https://www.xiaohongshu.com/discovery/item/456",
-      },
-      // More works...
-    ],
-  },
-  {
-    id: 3,
-    name: "TechReviewer",
+    name: "科技评测师",
     platform: "TikTok",
     profileUrl: "https://www.tiktok.com/@techreviewer",
-    followers: "245.7万",
-    addedAt: "2024-01-13 09:15",
+    followers: "89.2万",
+    addedAt: "2024-01-14 16:20",
     totalWorks: 203,
-    totalLikes: "3580万",
-    totalComments: "67.8万",
-    totalShares: "23.4万",
+    totalLikes: "1580万",
+    totalComments: "28.9万",
+    totalShares: "15.6万",
     works: [
       {
         id: 1,
-        title: "iPhone 15 Pro Max Deep Review",
-        publishedAt: "2024-01-21",
+        title: "iPhone 15 Pro Max深度评测",
+        publishedAt: "2024-01-19",
         likes: "25.8万",
         comments: "8.9万",
         shares: "12.5千",
         views: "450万",
         url: "https://www.tiktok.com/video/789",
       },
-      // More works...
     ],
   },
 ];
@@ -167,8 +125,6 @@ export default function AccountInteraction() {
   const [batchUrls, setBatchUrls] = useState("");
   const [isCollecting, setIsCollecting] = useState(false);
   const [accountData, setAccountData] = useState(sampleAccountData);
-  const [expandedAccounts, setExpandedAccounts] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<{ [key: number]: number }>({});
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
     supportedPlatforms.map((p) => p.name),
   );
@@ -186,7 +142,7 @@ export default function AccountInteraction() {
       /douyin\.com\/user/,
       /xiaohongshu\.com\/user/,
       /kuaishou\.com\/profile/,
-      /weibo\.com\/u\//,
+      /weibo\.com\/u/,
       /bilibili\.com\/space/,
       /tiktok\.com\/@/,
       /instagram\.com\//,
@@ -204,69 +160,39 @@ export default function AccountInteraction() {
   const hasInvalidUrls = invalidUrls.length > 0;
 
   const handleCollect = async () => {
-    const urls = batchUrls
-      .split("\n")
-      .map((url) => url.trim())
-      .filter((url) => url.length > 0);
-
-    if (urls.length === 0) {
-      alert("请输入至少一个账号主页链接");
+    if (urlCount === 0) {
+      alert("请输入账号链接");
       return;
     }
 
-    if (urls.length > 20) {
-      alert("最多支持20个账号，请减少数量");
+    if (urlCount > 20) {
+      alert("账号数量不能超过20个");
       return;
     }
 
     if (hasInvalidUrls) {
-      alert("存在无��链接，请检查后重试");
+      alert("请修正无效的链接格式");
       return;
     }
 
     setIsCollecting(true);
     // 模拟API调用
     setTimeout(() => {
+      const urls = batchUrls
+        .split("\n")
+        .map((url) => url.trim())
+        .filter((url) => url.length > 0);
+
+      // 这里应该调用实际的API来采集数据
+      console.log("采集账号:", urls);
+      console.log("采集作品:", collectWorks);
+      console.log("采集数量:", collectionQuantity);
+
       setIsCollecting(false);
       alert(`成功添加 ${urls.length} 个账号到采集队列`);
     }, 3000);
   };
 
-  const toggleAccountExpansion = (accountId: number) => {
-    setExpandedAccounts((prev) =>
-      prev.includes(accountId)
-        ? prev.filter((id) => id !== accountId)
-        : [...prev, accountId],
-    );
-    if (!currentPage[accountId]) {
-      setCurrentPage((prev) => ({ ...prev, [accountId]: 1 }));
-    }
-  };
-
-  const changePage = (accountId: number, page: number) => {
-    setCurrentPage((prev) => ({ ...prev, [accountId]: page }));
-  };
-
-  const exportAccountData = (accountId: number) => {
-    const account = accountData.find((acc) => acc.id === accountId);
-    if (!account) return;
-
-    const csvContent = [
-      "标题,发布时间,点赞数,评论数,分享数,播放量,链接",
-      ...account.works.map(
-        (work) =>
-          `"${work.title}","${work.publishedAt}","${work.likes}","${work.comments}","${work.shares}","${work.views}","${work.url}"`,
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${account.name}_作品数据.csv`;
-    link.click();
-  };
-
-  // Filter accounts by selected platforms
   const filteredAccountData = accountData.filter((account) =>
     selectedPlatforms.includes(account.platform),
   );
@@ -297,15 +223,6 @@ export default function AccountInteraction() {
         )
       : null;
 
-  const getWorksForPage = (account: any, page: number) => {
-    const startIndex = (page - 1) * 10;
-    return account.works.slice(startIndex, startIndex + 10);
-  };
-
-  const getTotalPages = (totalWorks: number) => {
-    return Math.ceil(totalWorks / 10);
-  };
-
   const togglePlatform = (platformName: string) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platformName)
@@ -316,10 +233,6 @@ export default function AccountInteraction() {
 
   const selectAllPlatforms = () => {
     setSelectedPlatforms(supportedPlatforms.map((p) => p.name));
-  };
-
-  const handleAccountClick = (accountId: number) => {
-    navigate(`/data-collection/account-details/${accountId}`);
   };
 
   const clearAllPlatforms = () => {
@@ -340,6 +253,44 @@ export default function AccountInteraction() {
 
   const clearAllAccounts = () => {
     setSelectedAccounts([]);
+  };
+
+  const handleAccountClick = (accountId: number) => {
+    navigate(`/data-collection/account-details/${accountId}`);
+  };
+
+  const exportAccountData = (accountId: number) => {
+    const account = accountData.find((acc) => acc.id === accountId);
+    if (!account) return;
+
+    const csvContent = [
+      [
+        "作品标题",
+        "发布时间",
+        "点赞数",
+        "评论数",
+        "分享数",
+        "播放量",
+        "链接",
+      ].join(","),
+      ...account.works.map((work) =>
+        [
+          `"${work.title}"`,
+          work.publishedAt,
+          work.likes,
+          work.comments,
+          work.shares,
+          work.views,
+          work.url,
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${account.name}_作品数据.csv`;
+    link.click();
   };
 
   const exportSelectedAccounts = () => {
@@ -387,10 +338,10 @@ export default function AccountInteraction() {
       // Set column widths for better readability
       worksheet["!cols"] = [
         { width: 40 }, // 作品标题
-        { width: 12 }, // 发���时间
+        { width: 12 }, // 发布时间
         { width: 10 }, // 点赞数
         { width: 10 }, // 评论数
-        { width: 10 }, // ���享数
+        { width: 10 }, // 分享数
         { width: 12 }, // 播放量
         { width: 50 }, // 链接
       ];
@@ -423,7 +374,7 @@ export default function AccountInteraction() {
   return (
     <DashboardLayout
       title="账号数据采集"
-      subtitle="智能采集账号作品数据，支持多平���内容分析"
+      subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -497,7 +448,7 @@ export default function AccountInteraction() {
                     账号主页链接（每行一个，最多20个）
                   </label>
                   <Textarea
-                    placeholder={`请粘贴账���主页链接，每行一个：
+                    placeholder={`请粘贴账号主页链接，每行一个��
 
 https://www.douyin.com/user/123456789
 https://www.xiaohongshu.com/user/abcdef123
@@ -505,7 +456,7 @@ https://www.tiktok.com/@username
 https://www.bilibili.com/space/123456
 https://weibo.com/u/123456789
 
-支持抖音、小红书、快手、微���、B站、TikTok、Instagram、X等平台`}
+支持抖音、小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -570,7 +521,7 @@ https://weibo.com/u/123456789
                         </SelectContent>
                       </Select>
                       <div className="text-xs text-muted-foreground">
-                        ���置每个账号采集的作品数量
+                        设置每个账号采集的作品数量
                       </div>
                     </div>
                   )}
@@ -579,7 +530,7 @@ https://weibo.com/u/123456789
                 {urlCount > 20 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>账号数量超过限制，请删除多余的��接</span>
+                    <span>账号数量超过限制，请删除多余的链接</span>
                   </div>
                 )}
 
@@ -648,7 +599,7 @@ https://weibo.com/u/123456789
                                 onClick={selectAllPlatforms}
                                 className="h-6 text-xs"
                               >
-                                ��选
+                                全选
                               </Button>
                               <Button
                                 variant="ghost"
@@ -661,75 +612,55 @@ https://weibo.com/u/123456789
                             </div>
                           </div>
                           <div className="space-y-2">
-                            {supportedPlatforms.map((platform) => {
-                              const accountCount = accountData.filter(
-                                (acc) => acc.platform === platform.name,
-                              ).length;
-                              return (
-                                <div
-                                  key={platform.id}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <Checkbox
-                                    id={platform.id}
-                                    checked={selectedPlatforms.includes(
-                                      platform.name,
-                                    )}
-                                    onCheckedChange={() =>
-                                      togglePlatform(platform.name)
-                                    }
-                                  />
-                                  <label
-                                    htmlFor={platform.id}
-                                    className="flex items-center space-x-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                                  >
-                                    <span>{platform.emoji}</span>
-                                    <span>{platform.name}</span>
-                                    {accountCount > 0 && (
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs"
-                                      >
-                                        {accountCount}
-                                      </Badge>
-                                    )}
-                                  </label>
-                                </div>
-                              );
-                            })}
+                            {supportedPlatforms.map((platform) => (
+                              <div
+                                key={platform.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  checked={selectedPlatforms.includes(
+                                    platform.name,
+                                  )}
+                                  onCheckedChange={() =>
+                                    togglePlatform(platform.name)
+                                  }
+                                />
+                                <span className="text-sm flex items-center">
+                                  {platform.emoji} {platform.name}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={selectAllAccounts}
-                        className="h-6 text-xs"
-                        disabled={filteredAccountData.length === 0}
-                      >
-                        全选
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearAllAccounts}
-                        className="h-6 text-xs"
-                        disabled={selectedAccounts.length === 0}
-                      >
-                        清空
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={exportSelectedAccounts}
-                        disabled={selectedAccounts.length === 0}
-                        className="h-8 brand-accent"
-                      >
-                        <Download className="mr-2 h-3.5 w-3.5" />
-                        导出Excel ({selectedAccounts.length})
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={selectAllAccounts}
+                      className="h-8 text-xs"
+                      disabled={filteredAccountData.length === 0}
+                    >
+                      全选
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAllAccounts}
+                      className="h-8 text-xs"
+                      disabled={selectedAccounts.length === 0}
+                    >
+                      清空
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={exportSelectedAccounts}
+                      disabled={selectedAccounts.length === 0}
+                      className="h-8"
+                    >
+                      <Download className="mr-2 h-3.5 w-3.5" />
+                      导出Excel ({selectedAccounts.length})
+                    </Button>
                     <Badge variant="secondary" className="text-xs">
                       已添加 {accountData.length} 个账号
                     </Badge>
@@ -746,237 +677,84 @@ https://weibo.com/u/123456789
                       </p>
                     </div>
                   ) : (
-                    filteredAccountData.map((account) => {
-                      const isExpanded = expandedAccounts.includes(account.id);
-                      const currentAccountPage = currentPage[account.id] || 1;
-                      const worksForPage = getWorksForPage(
-                        account,
-                        currentAccountPage,
-                      );
-                      const totalPages = getTotalPages(account.works.length);
-
-                      return (
-                        <div
-                          key={account.id}
-                          className="border border-border rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
-                          onClick={() => handleAccountClick(account.id)}
-                        >
-                          <div className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <Checkbox
-                                  checked={selectedAccounts.includes(
-                                    account.id,
-                                  )}
-                                  onCheckedChange={(e) => {
-                                    e.stopPropagation();
-                                    toggleAccountSelection(account.id);
-                                  }}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="mr-1"
-                                />
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                                  {account.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-medium">
-                                    {account.name}
-                                  </h3>
-                                  <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      {account.platform}
-                                    </Badge>
-                                    <span className="flex items-center">
-                                      <Users className="h-3 w-3 mr-1" />
-                                      {account.followers} 粉丝
-                                    </span>
-                                    <span className="flex items-center">
-                                      <FileText className="h-3 w-3 mr-1" />
-                                      {account.totalWorks} 作品
-                                    </span>
-                                    <span className="flex items-center">
-                                      <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                      {account.totalLikes}
-                                    </span>
-                                  </div>
+                    filteredAccountData.map((account) => (
+                      <div
+                        key={account.id}
+                        className="border border-border rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
+                        onClick={() => handleAccountClick(account.id)}
+                      >
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <Checkbox
+                                checked={selectedAccounts.includes(account.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedAccounts((prev) => [
+                                      ...prev,
+                                      account.id,
+                                    ]);
+                                  } else {
+                                    setSelectedAccounts((prev) =>
+                                      prev.filter((id) => id !== account.id),
+                                    );
+                                  }
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="mr-1"
+                              />
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                {account.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-medium">
+                                  {account.name}
+                                </h3>
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    {account.platform}
+                                  </Badge>
+                                  <span className="flex items-center">
+                                    <Users className="h-3 w-3 mr-1" />
+                                    {account.followers} 粉丝
+                                  </span>
+                                  <span className="flex items-center">
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    {account.totalWorks} 作品
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                    {account.totalLikes}
+                                  </span>
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-2">
-                                <div className="text-right text-xs text-muted-foreground">
-                                  <div>添加于</div>
-                                  <div>{account.addedAt}</div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    exportAccountData(account.id);
-                                  }}
-                                  className="h-8"
-                                >
-                                  <Download className="h-3 w-3 mr-1" />
-                                  导出
-                                </Button>
-                                <div className="text-muted-foreground">
-                                  <ExternalLink className="h-4 w-4" />
-                                </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              <div className="text-right text-xs text-muted-foreground">
+                                <div>添加于</div>
+                                <div>{account.addedAt}</div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  exportAccountData(account.id);
+                                }}
+                                className="h-8"
+                              >
+                                <Download className="h-3 w-3 mr-1" />
+                                导出
+                              </Button>
+                              <div className="text-muted-foreground">
+                                <ExternalLink className="h-4 w-4" />
                               </div>
                             </div>
                           </div>
-
-
-
-                              <div className="p-4">
-                                <div className="mb-4">
-                                  <h4 className="text-sm font-medium mb-2">
-                                    作品列表
-                                  </h4>
-                                  <div className="rounded-md border">
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow>
-                                          <TableHead className="w-[300px]">
-                                            标题
-                                          </TableHead>
-                                          <TableHead className="w-[100px]">
-                                            发���时间
-                                          </TableHead>
-                                          <TableHead className="w-[80px]">
-                                            点赞
-                                          </TableHead>
-                                          <TableHead className="w-[80px]">
-                                            评论
-                                          </TableHead>
-                                          <TableHead className="w-[80px]">
-                                            分享
-                                          </TableHead>
-                                          <TableHead className="w-[80px]">
-                                            播放
-                                          </TableHead>
-                                          <TableHead className="w-[60px]">
-                                            操作
-                                          </TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {worksForPage.map((work) => (
-                                          <TableRow key={work.id}>
-                                            <TableCell className="font-medium">
-                                              <div
-                                                className="max-w-[280px] truncate"
-                                                title={work.title}
-                                              >
-                                                {work.title}
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">
-                                              {work.publishedAt}
-                                            </TableCell>
-                                            <TableCell className="text-sm">
-                                              <span className="flex items-center">
-                                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                                {work.likes}
-                                              </span>
-                                            </TableCell>
-                                            <TableCell className="text-sm">
-                                              <span className="flex items-center">
-                                                <MessageCircle className="h-3 w-3 mr-1 text-blue-500" />
-                                                {work.comments}
-                                              </span>
-                                            </TableCell>
-                                            <TableCell className="text-sm">
-                                              <span className="flex items-center">
-                                                <Share2 className="h-3 w-3 mr-1 text-green-500" />
-                                                {work.shares}
-                                              </span>
-                                            </TableCell>
-                                            <TableCell className="text-sm">
-                                              <span className="flex items-center">
-                                                <Play className="h-3 w-3 mr-1 text-purple-500" />
-                                                {work.views}
-                                              </span>
-                                            </TableCell>
-                                            <TableCell>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-6 w-6 p-0"
-                                                onClick={() =>
-                                                  window.open(
-                                                    work.url,
-                                                    "_blank",
-                                                  )
-                                                }
-                                              >
-                                                <Eye className="h-3 w-3" />
-                                              </Button>
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-                                </div>
-
-                                {/* Pagination */}
-                                {totalPages > 1 && (
-                                  <div className="flex items-center justify-between">
-                                    <div className="text-xs text-muted-foreground">
-                                      显示第 {(currentAccountPage - 1) * 10 + 1}{" "}
-                                      -{" "}
-                                      {Math.min(
-                                        currentAccountPage * 10,
-                                        account.works.length,
-                                      )}{" "}
-                                      项，共 {account.works.length} 项
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                          changePage(
-                                            account.id,
-                                            currentAccountPage - 1,
-                                          )
-                                        }
-                                        disabled={currentAccountPage === 1}
-                                        className="h-6"
-                                      >
-                                        上一页
-                                      </Button>
-                                      <span className="text-xs text-muted-foreground">
-                                        {currentAccountPage} / {totalPages}
-                                      </span>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                          changePage(
-                                            account.id,
-                                            currentAccountPage + 1,
-                                          )
-                                        }
-                                        disabled={
-                                          currentAccountPage === totalPages
-                                        }
-                                        className="h-6"
-                                      >
-                                        下一页
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      );
-                    })
+                      </div>
+                    ))
                   )}
                 </div>
               </CardContent>
@@ -1012,7 +790,9 @@ https://weibo.com/u/123456789
                     </div>
                     <div className="text-center p-4 border rounded-lg">
                       <div className="text-2xl font-bold text-orange-600 mb-2">
-                        {Math.round(totalWorks / totalAccounts)}
+                        {totalAccounts > 0
+                          ? Math.round(totalWorks / totalAccounts)
+                          : 0}
                       </div>
                       <div className="text-sm font-medium">平均作品数</div>
                       <div className="text-xs text-muted-foreground mt-1">
@@ -1084,15 +864,6 @@ https://weibo.com/u/123456789
                           >
                             <div className="flex items-center space-x-2">
                               <span>{platform.emoji}</span>
-                              <span className="text-sm">{platform.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-20 bg-gray-200 rounded-full h-2">
-                                <div
-                                  className="bg-blue-600 h-2 rounded-full"
-                                  style={{ width: `${percentage}%` }}
-                                />
-                              </div>
                               <span className="text-sm font-medium w-8">
                                 {count}
                               </span>
