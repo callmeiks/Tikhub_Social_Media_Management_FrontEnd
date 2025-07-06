@@ -80,7 +80,7 @@ const mockResults = [
     followers: "89.3万",
     following: "256",
     works: "89",
-    likes: "1890万",
+    likes: "1890��",
     bio: "记录美好生活 | 收纳整理达人 | 分享生活小窍门",
     verified: false,
     userType: "普通用户",
@@ -97,13 +97,13 @@ export default function KeywordAccountSearch() {
 
   // Platform-specific filters
   const [douyinFilters, setDouyinFilters] = useState({
-    userFans: "",
-    userType: "",
+    userFans: "all",
+    userType: "all",
   });
 
   const [tiktokFilters, setTiktokFilters] = useState({
-    followerCount: "",
-    profileType: "",
+    followerCount: "all",
+    profileType: "all",
   });
 
   const handleSearch = async () => {
@@ -269,7 +269,7 @@ export default function KeywordAccountSearch() {
   return (
     <DashboardLayout
       title="关键词账号查询"
-      subtitle="通过关键词搜索各平台相关账号"
+      subtitle="通过���键词搜索各平台相关账号"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
