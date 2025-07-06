@@ -123,29 +123,6 @@ export function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Header */}
-        {(title || subtitle || actions) && (
-          <div className="bg-background border-b border-border px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                {title && (
-                  <h1 className="text-xl font-semibold text-foreground">
-                    {title}
-                  </h1>
-                )}
-                {subtitle && (
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-              {actions && (
-                <div className="flex items-center space-x-2">{actions}</div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
           {children}
