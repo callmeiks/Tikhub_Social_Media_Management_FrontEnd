@@ -144,26 +144,55 @@ export default function InfluencerMonitoring() {
     return platform ? platform.name : "未知";
   };
 
-  const handleAddInfluencer = async () => {
-    if (!newInfluencerUrl.trim()) {
-      alert("请输入达人链接");
-      return;
-    }
+  const processBatchUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
 
-    if (!validateUrl(newInfluencerUrl)) {
-      alert("不支持的平台链接，请检查链接格式");
+    const valid = urlList.filter((url) => validateUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) && url.length > 0,
+    );
+
+    setValidUrls(valid);
+    setInvalidUrls(invalid);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setBatchUrls(content);
+        processBatchUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleBatchUrlsChange = (urls: string) => {
+    setBatchUrls(urls);
+    processBatchUrls(urls);
+  };
+
+  const handleAddBatchInfluencer = async () => {
+    if (validUrls.length === 0) {
+      alert("请输入有效的达人链接");
       return;
     }
 
     setIsAddingInfluencer(true);
-    // 模拟API调用
+    // 模拟批量API调用
     setTimeout(() => {
-      const newInfluencer = {
-        id: Date.now(),
-        username: "新添加的达人",
-        platform: getPlatformFromUrl(newInfluencerUrl),
+      const newInfluencers = validUrls.map((url, index) => ({
+        id: Date.now() + index,
+        username: `批量添加的达人 ${index + 1}`,
+        platform: getPlatformFromUrl(url),
         avatar: "/api/placeholder/60/60",
-        url: newInfluencerUrl,
+        url: url,
         addedAt: new Date().toLocaleString("zh-CN"),
         status: "active",
         verified: false,
@@ -187,12 +216,15 @@ export default function InfluencerMonitoring() {
           engagementRate: "0%",
         },
         trendData: [],
-      };
+      }));
 
-      setMonitoringData((prev) => [newInfluencer, ...prev]);
-      setNewInfluencerUrl("");
+      setMonitoringData((prev) => [...newInfluencers, ...prev]);
+      setBatchUrls("");
+      setValidUrls([]);
+      setInvalidUrls([]);
+      setUploadedFile(null);
       setIsAddingInfluencer(false);
-      alert("达人监控添加成功！");
+      alert(`成功添加 ${validUrls.length} 个达人监控！`);
     }, 2000);
   };
 
