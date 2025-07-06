@@ -414,7 +414,7 @@ export default function AccountInteraction() {
 
   return (
     <DashboardLayout
-      title="账号作品数据采集"
+      title="账号数据采集"
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
