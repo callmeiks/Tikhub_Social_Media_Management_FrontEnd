@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -43,6 +44,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Trash2,
+  Upload,
+  FileText,
 } from "lucide-react";
 
 const supportedPlatforms = [
