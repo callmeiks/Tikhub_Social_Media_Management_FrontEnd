@@ -32,6 +32,8 @@ import {
   ExternalLink,
   RefreshCw,
   CheckCircle,
+  FileText,
+  BarChart3,
 } from "lucide-react";
 
 const supportedPlatforms = [
