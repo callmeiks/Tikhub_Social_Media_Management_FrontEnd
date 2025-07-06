@@ -76,7 +76,7 @@ const menuItems: MenuItem[] = [
       { title: "图文提取", href: "/creator-tools/content-extract" },
       { title: "文案提取", href: "/creator-tools/video-note-extract" },
       {
-        title: "账号作品数据采集",
+        title: "账号作品数据查询",
         href: "/data-collection/account-interaction",
       },
 
