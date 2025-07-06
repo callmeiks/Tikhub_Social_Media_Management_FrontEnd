@@ -216,7 +216,7 @@ export default function KeywordAccountSearch() {
                   <SelectValue placeholder="不限制" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">不限制</SelectItem>
+                  <SelectItem value="all">不限制</SelectItem>
                   <SelectItem value="VERIFIED">认证用户</SelectItem>
                 </SelectContent>
               </Select>
