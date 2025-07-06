@@ -124,6 +124,27 @@ export default function KeywordAccountSearch() {
     }, 2000);
   };
 
+  const getQuantityFilterComponent = () => (
+    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <Hash className="h-4 w-4 text-indigo-500" />
+        返回数量
+      </label>
+      <Select value={quantityFilter} onValueChange={setQuantityFilter}>
+        <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-indigo-400 transition-colors w-full sm:w-48">
+          <SelectValue placeholder="选择返回数量" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="50">📊 50条结果</SelectItem>
+          <SelectItem value="100">📈 100条结果</SelectItem>
+          <SelectItem value="500">📉 500条结果</SelectItem>
+          <SelectItem value="1000">📋 1000条结果</SelectItem>
+          <SelectItem value="1000+">🚀 1000+条结果</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   const getPlatformFilterComponent = () => {
     switch (selectedPlatform) {
       case "douyin":
@@ -376,7 +397,7 @@ export default function KeywordAccountSearch() {
                       {/* Search suggestions hint */}
                       <div className="mt-2 text-center">
                         <p className="text-xs text-gray-500">
-                          💡 试试搜索: "美妆博主"、"科技up主"、"��食达人"
+                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人"
                           等热门创作者
                         </p>
                       </div>
