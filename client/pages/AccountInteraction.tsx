@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
@@ -852,7 +852,7 @@ https://weibo.com/u/123456789
                                             评论
                                           </TableHead>
                                           <TableHead className="w-[80px]">
-                                            分��
+                                            分享
                                           </TableHead>
                                           <TableHead className="w-[80px]">
                                             播放
@@ -1016,7 +1016,7 @@ https://weibo.com/u/123456789
                       </div>
                       <div className="text-sm font-medium">平均作品数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        每个账号平均���品数
+                        每个账号平均作品数
                       </div>
                     </div>
                   </div>
