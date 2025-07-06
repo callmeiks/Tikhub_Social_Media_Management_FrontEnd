@@ -417,7 +417,7 @@ export default function AccountInteraction() {
   return (
     <DashboardLayout
       title="账号数据采集"
-      subtitle="智能采集账号作品数据，支持多平台内容分析"
+      subtitle="智能采集账号作品数据，支持多平���内容分析"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -528,25 +528,46 @@ https://weibo.com/u/123456789
                   </div>
                 </div>
 
-                {/* Collection Quantity Setting */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">采集作品数量</label>
-                  <Select
-                    value={collectionQuantity}
-                    onValueChange={setCollectionQuantity}
-                  >
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="选择采集数量" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="最新50">最新50</SelectItem>
-                      <SelectItem value="最新100">最新100</SelectItem>
-                      <SelectItem value="最新200">最新200</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="text-xs text-muted-foreground">
-                    设置每个账号采集的作品数量
+                {/* Collect Works Setting */}
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium">
+                        是否采集账号作品
+                      </label>
+                      <div className="text-xs text-muted-foreground">
+                        开启后将采集账号的作品数据
+                      </div>
+                    </div>
+                    <Switch
+                      checked={collectWorks}
+                      onCheckedChange={setCollectWorks}
+                    />
                   </div>
+
+                  {collectWorks && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        采集作品数量
+                      </label>
+                      <Select
+                        value={collectionQuantity}
+                        onValueChange={setCollectionQuantity}
+                      >
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="选择采集数量" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="最新50">最新50</SelectItem>
+                          <SelectItem value="最新100">最新100</SelectItem>
+                          <SelectItem value="最新200">最新200</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="text-xs text-muted-foreground">
+                        设置每个账号采集的作品数量
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {urlCount > 20 && (
