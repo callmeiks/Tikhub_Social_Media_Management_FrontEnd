@@ -316,7 +316,7 @@ export default function KeywordContentSearch() {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block">发��时间</label>
+              <label className="text-xs font-medium mb-1 block">发布时间</label>
               <Select
                 value={xiaohongshuFilters.filterNoteTime}
                 onValueChange={(value) =>
@@ -423,7 +423,7 @@ export default function KeywordContentSearch() {
   const filteredResults = searchResults.filter((result) => {
     const platformMap = {
       douyin: "抖音",
-      xiaohongshu: "小红��",
+      xiaohongshu: "小红书",
       bilibili: "哔哩哔哩",
       tiktok: "TikTok",
       instagram: "Instagram",
@@ -492,44 +492,77 @@ export default function KeywordContentSearch() {
           {supportedPlatforms.map((platform) => (
             <TabsContent key={platform.id} value={platform.id} className="mt-6">
               <div className="space-y-4">
-                {/* Search Section */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Search className="mr-2 h-4 w-4" />
-                      {platform.name} 关键词搜索
+                {/* Enhanced Search Section */}
+                <Card className="border-2 border-dashed border-muted bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center justify-center">
+                      <div className="flex items-center gap-3 text-center">
+                        <div className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                          <Search className="h-5 w-5" />
+                        </div>
+                        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                          {platform.name} 关键词搜索
+                        </span>
+                      </div>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-3">
-                      <Input
-                        placeholder={`在${platform.name}搜索关键词...`}
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        className="flex-1"
-                        onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                      />
-                      <Button
-                        onClick={handleSearch}
-                        disabled={isSearching || !keyword.trim()}
-                        className="px-6"
-                      >
-                        {isSearching ? (
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Search className="mr-2 h-4 w-4" />
-                        )}
-                        搜索
-                      </Button>
+                  <CardContent className="space-y-6">
+                    {/* Enhanced Search Bar */}
+                    <div className="relative">
+                      <div className="flex gap-3 items-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="relative flex-1">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder={`🔍 在${platform.name}搜索您感兴趣的内容...`}
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            className="pl-10 pr-4 py-3 text-base border-0 bg-transparent focus:ring-0 focus:outline-none"
+                            onKeyPress={(e) =>
+                              e.key === "Enter" && handleSearch()
+                            }
+                          />
+                        </div>
+                        <Button
+                          onClick={handleSearch}
+                          disabled={isSearching || !keyword.trim()}
+                          className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                        >
+                          {isSearching ? (
+                            <>
+                              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                              搜索中...
+                            </>
+                          ) : (
+                            <>
+                              <Search className="mr-2 h-4 w-4" />
+                              开始搜索
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {/* Search suggestions hint */}
+                      <div className="mt-2 text-center">
+                        <p className="text-xs text-gray-500">
+                          💡 试试搜索: "美妆教程"、"科技评测"、"美食制作"
+                          等热门关键词
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Platform-specific filters */}
-                    <div className="border-t pt-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Filter className="h-4 w-4" />
-                        <span className="text-sm font-medium">搜索筛选</span>
+                    {/* Enhanced Platform-specific filters */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-r from-orange-400 to-pink-500 text-white">
+                          <Filter className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          高级筛选选项
+                        </span>
+                        <div className="flex-1 h-px bg-gradient-to-r from-orange-200 to-pink-200 dark:from-orange-800 dark:to-pink-800"></div>
                       </div>
-                      {getPlatformFilterComponent()}
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                        {getPlatformFilterComponent()}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
