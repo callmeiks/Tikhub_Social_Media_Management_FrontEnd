@@ -100,6 +100,10 @@ const App = () => (
             element={<AccountInteraction />}
           />
           <Route
+            path="/data-collection/account-details/:accountId"
+            element={<AccountDetails />}
+          />
+          <Route
             path="/data-collection/content-interaction"
             element={<ContentInteraction />}
           />
