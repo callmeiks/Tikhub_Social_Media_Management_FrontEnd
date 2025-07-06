@@ -236,11 +236,27 @@ export default function KeywordAccountSearch() {
       case "x":
       case "youtube":
         return (
-          <div className="text-center py-4">
-            <p className="text-sm text-muted-foreground">
-              {supportedPlatforms.find((p) => p.id === selectedPlatform)?.name}{" "}
-              平台暂无额外筛选条件
-            </p>
+          <div className="text-center py-8">
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-3 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+                <Filter className="h-6 w-6 text-gray-500" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {
+                    supportedPlatforms.find((p) => p.id === selectedPlatform)
+                      ?.emoji
+                  }{" "}
+                  {
+                    supportedPlatforms.find((p) => p.id === selectedPlatform)
+                      ?.name
+                  }
+                </p>
+                <p className="text-xs text-gray-500">
+                  该平台暂无额外筛选条件，使用基础关键词搜索即可
+                </p>
+              </div>
+            </div>
           </div>
         );
 
@@ -275,7 +291,7 @@ export default function KeywordAccountSearch() {
   return (
     <DashboardLayout
       title="关键词账号查询"
-      subtitle="通过关键词搜索各平台相关账号"
+      subtitle="通过关键词搜索各平台相关��号"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
