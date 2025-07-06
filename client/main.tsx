@@ -102,6 +102,10 @@ const App = () => (
             path="/data-collection/keyword-content"
             element={<KeywordContentSearch />}
           />
+          <Route
+            path="/data-collection/keyword-accounts"
+            element={<KeywordAccountSearch />}
+          />
 
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/data-monitoring/*" element={<DataCollection />} />
