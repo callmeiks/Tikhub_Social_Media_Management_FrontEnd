@@ -115,7 +115,7 @@ export default function KeywordAccountSearch() {
     }
 
     setIsSearching(true);
-    // 模拟API调用
+    // 模���API调用
     setTimeout(() => {
       setIsSearching(false);
       alert(
@@ -152,103 +152,116 @@ export default function KeywordAccountSearch() {
           <div className="space-y-4">
             {getQuantityFilterComponent()}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Users className="h-4 w-4 text-blue-500" />
-                粉丝数量筛选
-              </label>
-              <Select
-                value={douyinFilters.userFans}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({ ...prev, userFans: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
-                  <SelectValue placeholder="选择粉丝数量范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">🌟 不限制</SelectItem>
-                  <SelectItem value="0_1k">👤 1000以下</SelectItem>
-                  <SelectItem value="1k_1w">👥 1000到1万</SelectItem>
-                  <SelectItem value="1w_10w">🔥 1万到10万</SelectItem>
-                  <SelectItem value="10w_100w">⭐ 10万到100万</SelectItem>
-                  <SelectItem value="100w_">💎 100万以上</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Verified className="h-4 w-4 text-green-500" />
-                用户类型筛选
-              </label>
-              <Select
-                value={douyinFilters.userType}
-                onValueChange={(value) =>
-                  setDouyinFilters((prev) => ({ ...prev, userType: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
-                  <SelectValue placeholder="选择用户认证类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">🌟 不限制</SelectItem>
-                  <SelectItem value="common_user">👤 普通用户</SelectItem>
-                  <SelectItem value="enterprise_user">🏢 企业认证用户</SelectItem>
-                  <SelectItem value="personal_user">✅ 个人认证用户</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Users className="h-4 w-4 text-blue-500" />
+                  粉丝数量筛选
+                </label>
+                <Select
+                  value={douyinFilters.userFans}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({ ...prev, userFans: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
+                    <SelectValue placeholder="选择粉丝数量范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">🌟 不限制</SelectItem>
+                    <SelectItem value="0_1k">👤 1000以下</SelectItem>
+                    <SelectItem value="1k_1w">👥 1000到1万</SelectItem>
+                    <SelectItem value="1w_10w">🔥 1万到10万</SelectItem>
+                    <SelectItem value="10w_100w">⭐ 10万到100万</SelectItem>
+                    <SelectItem value="100w_">💎 100万以上</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Verified className="h-4 w-4 text-green-500" />
+                  用户类型筛选
+                </label>
+                <Select
+                  value={douyinFilters.userType}
+                  onValueChange={(value) =>
+                    setDouyinFilters((prev) => ({ ...prev, userType: value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                    <SelectValue placeholder="选择用户认证类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">🌟 不限制</SelectItem>
+                    <SelectItem value="common_user">👤 普通用户</SelectItem>
+                    <SelectItem value="enterprise_user">
+                      🏢 企业认证用户
+                    </SelectItem>
+                    <SelectItem value="personal_user">
+                      ✅ 个人认证用户
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
 
       case "tiktok":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Users className="h-4 w-4 text-pink-500" />
-                粉丝数排序
-              </label>
-              <Select
-                value={tiktokFilters.followerCount}
-                onValueChange={(value) =>
-                  setTiktokFilters((prev) => ({
-                    ...prev,
-                    followerCount: value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-pink-400 transition-colors">
-                  <SelectValue placeholder="选择粉丝数量范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">🌟 不限制</SelectItem>
-                  <SelectItem value="ZERO_TO_ONE_K">👤 0-1K</SelectItem>
-                  <SelectItem value="ONE_K_TO_TEN_K">👥 1K-10K</SelectItem>
-                  <SelectItem value="TEN_K_TO_ONE_H_K">🔥 10K-100K</SelectItem>
-                  <SelectItem value="ONE_H_K_PLUS">💎 100K以上</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Crown className="h-4 w-4 text-yellow-500" />
-                账号类型排序
-              </label>
-              <Select
-                value={tiktokFilters.profileType}
-                onValueChange={(value) =>
-                  setTiktokFilters((prev) => ({ ...prev, profileType: value }))
-                }
-              >
-                <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-yellow-400 transition-colors">
-                  <SelectValue placeholder="选择账号认证类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">🌟 不限制</SelectItem>
-                  <SelectItem value="VERIFIED">✅ 认证用户</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Users className="h-4 w-4 text-pink-500" />
+                  粉丝数排序
+                </label>
+                <Select
+                  value={tiktokFilters.followerCount}
+                  onValueChange={(value) =>
+                    setTiktokFilters((prev) => ({
+                      ...prev,
+                      followerCount: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-pink-400 transition-colors">
+                    <SelectValue placeholder="选择粉丝数量范围" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">🌟 不限制</SelectItem>
+                    <SelectItem value="ZERO_TO_ONE_K">👤 0-1K</SelectItem>
+                    <SelectItem value="ONE_K_TO_TEN_K">👥 1K-10K</SelectItem>
+                    <SelectItem value="TEN_K_TO_ONE_H_K">
+                      🔥 10K-100K
+                    </SelectItem>
+                    <SelectItem value="ONE_H_K_PLUS">💎 100K以上</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Crown className="h-4 w-4 text-yellow-500" />
+                  账号类型排序
+                </label>
+                <Select
+                  value={tiktokFilters.profileType}
+                  onValueChange={(value) =>
+                    setTiktokFilters((prev) => ({
+                      ...prev,
+                      profileType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-yellow-400 transition-colors">
+                    <SelectValue placeholder="选择账号认证类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">🌟 不限制</SelectItem>
+                    <SelectItem value="VERIFIED">✅ 认证用户</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         );
@@ -259,19 +272,28 @@ export default function KeywordAccountSearch() {
       case "x":
       case "youtube":
         return (
-          <div className="text-center py-8">
-            <div className="flex flex-col items-center gap-3">
-              <div className="p-3 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
-                <Filter className="h-6 w-6 text-gray-500" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {supportedPlatforms.find((p) => p.id === selectedPlatform)?.emoji}{" "}
-                  {supportedPlatforms.find((p) => p.id === selectedPlatform)?.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  该平台暂无额外筛选条件，使用基础关键词搜索即可
-                </p>
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="text-center py-8">
+              <div className="flex flex-col items-center gap-3">
+                <div className="p-3 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+                  <Filter className="h-6 w-6 text-gray-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {
+                      supportedPlatforms.find((p) => p.id === selectedPlatform)
+                        ?.emoji
+                    }{" "}
+                    {
+                      supportedPlatforms.find((p) => p.id === selectedPlatform)
+                        ?.name
+                    }
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    该平台暂无额外筛选条件，使用基础关键词搜索即可
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -307,7 +329,7 @@ export default function KeywordAccountSearch() {
 
   return (
     <DashboardLayout
-      title="关键词账号查询"
+      title="关键���账号查询"
       subtitle="通过关键词搜索各平台相关账号"
       actions={
         <div className="flex space-x-2">
@@ -365,7 +387,9 @@ export default function KeywordAccountSearch() {
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                             className="pl-10 pr-4 py-3 text-base border-0 bg-transparent focus:ring-0 focus:outline-none"
-                            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                            onKeyPress={(e) =>
+                              e.key === "Enter" && handleSearch()
+                            }
                           />
                         </div>
                         <Button
@@ -376,7 +400,7 @@ export default function KeywordAccountSearch() {
                           {isSearching ? (
                             <>
                               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                              搜索��...
+                              搜索中...
                             </>
                           ) : (
                             <>
@@ -389,7 +413,8 @@ export default function KeywordAccountSearch() {
                       {/* Search suggestions hint */}
                       <div className="mt-2 text-center">
                         <p className="text-xs text-gray-500">
-                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人" 等热门创作者
+                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人"
+                          等热门创作者
                         </p>
                       </div>
                     </div>
