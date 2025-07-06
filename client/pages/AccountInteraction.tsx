@@ -170,6 +170,7 @@ export default function AccountInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+  const [collectWorks, setCollectWorks] = useState(false);
   const [collectionQuantity, setCollectionQuantity] = useState("最新50");
 
   const urlCount = batchUrls
@@ -357,7 +358,7 @@ export default function AccountInteraction() {
           "发布时间",
           "点赞数",
           "评论数",
-          "分享数",
+          "分享��",
           "播放量",
           "链接",
         ],
@@ -473,7 +474,7 @@ export default function AccountInteraction() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Link className="mr-2 h-4 w-4" />
-                    批量添加账号主页链接
+                    批量添加账��主页链接
                   </span>
                   <Badge
                     variant={urlCount > 20 ? "destructive" : "secondary"}
@@ -537,7 +538,7 @@ https://weibo.com/u/123456789
                       <SelectValue placeholder="选择采集数量" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="最新50">最新50</SelectItem>
+                      <SelectItem value="最��50">最新50</SelectItem>
                       <SelectItem value="最新100">最新100</SelectItem>
                       <SelectItem value="最新200">最新200</SelectItem>
                     </SelectContent>
