@@ -141,7 +141,7 @@ export default function KeywordAccountSearch() {
                   <SelectValue placeholder="不限" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">不限</SelectItem>
+                  <SelectItem value="all">不限</SelectItem>
                   <SelectItem value="0_1k">1000以下</SelectItem>
                   <SelectItem value="1k_1w">1000到1万</SelectItem>
                   <SelectItem value="1w_10w">1万到10万</SelectItem>
