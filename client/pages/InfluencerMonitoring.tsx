@@ -334,58 +334,122 @@ export default function InfluencerMonitoring() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center">
                   <Plus className="mr-2 h-4 w-4" />
-                  添加达人监控
+                  批量添加达人监控
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* File Upload Option */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">达人主页链接</label>
-                  <div className="flex gap-3">
+                  <label className="text-sm font-medium">
+                    方式一：上传文件
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      选择包含达人链接的文本文件（每行一个链接）
+                    </p>
                     <Input
-                      placeholder="请粘贴达人主页链接..."
-                      value={newInfluencerUrl}
-                      onChange={(e) => setNewInfluencerUrl(e.target.value)}
-                      className="flex-1"
+                      type="file"
+                      accept=".txt,.csv"
+                      onChange={handleFileUpload}
+                      className="max-w-xs mx-auto"
                     />
-                    <Button
-                      onClick={handleAddInfluencer}
-                      disabled={isAddingInfluencer || !newInfluencerUrl.trim()}
-                      className="px-6"
-                    >
-                      {isAddingInfluencer ? (
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Plus className="mr-2 h-4 w-4" />
-                      )}
-                      {isAddingInfluencer ? "添加中..." : "添加监控"}
-                    </Button>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    💡
-                    支持抖音、小红书、快手、B站、微博、TikTok、Instagram、X、YouTube等平台
+                    {uploadedFile && (
+                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                        <FileText className="h-4 w-4 mr-1" />
+                        已上传：{uploadedFile.name}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* URL validation feedback */}
-                {newInfluencerUrl && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    {validateUrl(newInfluencerUrl) ? (
-                      <>
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-green-600">
-                          检测到 {getPlatformFromUrl(newInfluencerUrl)} 平台链接
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle className="h-4 w-4 text-red-600" />
-                        <span className="text-red-600">
-                          不支持的平台链接，请检查链接格式
-                        </span>
-                      </>
+                {/* Manual Input Option */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    方式二：手动输入
+                  </label>
+                  <div className="space-y-3">
+                    <Textarea
+                      placeholder="请输入达人主页链接，每行一个链接&#10;例如：&#10;https://www.douyin.com/user/123456&#10;https://www.tiktok.com/@username&#10;https://www.xiaohongshu.com/user/profile/123abc"
+                      value={batchUrls}
+                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
+                      className="min-h-[120px]"
+                    />
+                    <div className="text-xs text-gray-500">
+                      💡
+                      支持抖音、小红书、快手、B站、微博、TikTok、Instagram、X、YouTube等平台
+                    </div>
+                  </div>
+                </div>
+
+                {/* URL Validation Summary */}
+                {(validUrls.length > 0 || invalidUrls.length > 0) && (
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                    {validUrls.length > 0 && (
+                      <div className="flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm font-medium text-green-800">
+                            有效链接 ({validUrls.length} 个)
+                          </div>
+                          <div className="text-xs text-green-600 mt-1">
+                            {validUrls.slice(0, 3).map((url, index) => (
+                              <div key={index} className="truncate max-w-md">
+                                {getPlatformFromUrl(url)}: {url}
+                              </div>
+                            ))}
+                            {validUrls.length > 3 && (
+                              <div className="text-green-500">
+                                ...还有 {validUrls.length - 3} 个链接
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {invalidUrls.length > 0 && (
+                      <div className="flex items-start space-x-2">
+                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm font-medium text-red-800">
+                            无效链接 ({invalidUrls.length} 个)
+                          </div>
+                          <div className="text-xs text-red-600 mt-1">
+                            {invalidUrls.slice(0, 3).map((url, index) => (
+                              <div key={index} className="truncate max-w-md">
+                                {url}
+                              </div>
+                            ))}
+                            {invalidUrls.length > 3 && (
+                              <div className="text-red-500">
+                                ...还有 {invalidUrls.length - 3} 个链接
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
+
+                {/* Action Button */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleAddBatchInfluencer}
+                    disabled={isAddingInfluencer || validUrls.length === 0}
+                    className="px-8"
+                  >
+                    {isAddingInfluencer ? (
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Plus className="mr-2 h-4 w-4" />
+                    )}
+                    {isAddingInfluencer
+                      ? "批量添加中..."
+                      : `批量添加 (${validUrls.length})`}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
