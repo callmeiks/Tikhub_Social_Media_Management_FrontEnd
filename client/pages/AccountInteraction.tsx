@@ -387,7 +387,7 @@ export default function AccountInteraction() {
       // Set column widths for better readability
       worksheet["!cols"] = [
         { width: 40 }, // 作品标题
-        { width: 12 }, // 发���时间
+        { width: 12 }, // 发���时���
         { width: 10 }, // 点赞数
         { width: 10 }, // 评论数
         { width: 10 }, // 分享数
@@ -768,25 +768,16 @@ https://weibo.com/u/123456789
                                   checked={selectedAccounts.includes(
                                     account.id,
                                   )}
-                                  onCheckedChange={() =>
-                                    toggleAccountSelection(account.id)
-                                  }
+                                  onCheckedChange={(e) => {
+                                    e.stopPropagation();
+                                    toggleAccountSelection(account.id);
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
                                   className="mr-1"
                                 />
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    toggleAccountExpansion(account.id)
-                                  }
-                                  className="h-6 w-6 p-0"
-                                >
-                                  {isExpanded ? (
-                                    <ChevronUp className="h-3 w-3" />
-                                  ) : (
-                                    <ChevronDown className="h-3 w-3" />
-                                  )}
-                                </Button>
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                  {account.name.charAt(0)}
+                                </div>
                                 <div>
                                   <h3 className="text-sm font-medium">
                                     {account.name}
@@ -1050,7 +1041,7 @@ https://weibo.com/u/123456789
                                 ? "🎤"
                                 : highestLikesAccount.platform === "小红书"
                                   ? "📖"
-                                  : "🎵"}
+                                  : "����"}
                             </span>
                           </div>
                           <div>
