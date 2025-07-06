@@ -89,7 +89,7 @@ const sampleAccountData = [
     works: [
       {
         id: 1,
-        title: "超火的韩式��妆教程！新手必看",
+        title: "超火的韩式��妆教程！新手必���",
         publishedAt: "2024-01-20",
         likes: "15.6万",
         comments: "3.2万",
@@ -316,6 +316,10 @@ export default function AccountInteraction() {
 
   const selectAllPlatforms = () => {
     setSelectedPlatforms(supportedPlatforms.map((p) => p.name));
+  };
+
+  const handleAccountClick = (accountId: number) => {
+    navigate(`/data-collection/account-details/${accountId}`);
   };
 
   const clearAllPlatforms = () => {
