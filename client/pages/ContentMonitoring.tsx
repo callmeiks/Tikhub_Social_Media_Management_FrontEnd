@@ -318,15 +318,15 @@ export default function ContentMonitoring() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">作品链接</label>
                   <div className="flex gap-3">
-                    <Input
-                      placeholder="请粘贴作品链接..."
-                      value={newContentUrl}
-                      onChange={(e) => setNewContentUrl(e.target.value)}
-                      className="flex-1"
+                    <Textarea
+                      placeholder="请输入作品链接，每行一个链接&#10;例如：&#10;https://www.douyin.com/video/123456&#10;https://www.tiktok.com/@user/video/789012&#10;https://www.xiaohongshu.com/explore/123abc"
+                      value={batchUrls}
+                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
+                      className="min-h-[120px]"
                     />
                     <Button
-                      onClick={handleAddContent}
-                      disabled={isAddingContent || !newContentUrl.trim()}
+                      onClick={handleAddBatchContent}
+                      disabled={isAddingContent || validUrls.length === 0}
                       className="px-6"
                     >
                       {isAddingContent ? (
@@ -334,7 +334,9 @@ export default function ContentMonitoring() {
                       ) : (
                         <Plus className="mr-2 h-4 w-4" />
                       )}
-                      {isAddingContent ? "添加中..." : "添加监��"}
+                      {isAddingContent
+                        ? "批量添加中..."
+                        : `批量添加 (${validUrls.length})`}
                     </Button>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -400,7 +402,7 @@ export default function ContentMonitoring() {
                           <TableHead className="w-[300px]">作品信息</TableHead>
                           <TableHead className="w-[100px]">平台</TableHead>
                           <TableHead className="w-[120px]">
-                            当前播放量
+                            当前��放量
                           </TableHead>
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
