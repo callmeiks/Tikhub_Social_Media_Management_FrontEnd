@@ -31,6 +31,7 @@ import {
   CheckCircle,
   Crown,
   Verified,
+  Hash,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -375,7 +376,7 @@ export default function KeywordAccountSearch() {
                       {/* Search suggestions hint */}
                       <div className="mt-2 text-center">
                         <p className="text-xs text-gray-500">
-                          💡 试试搜索: "美妆博主"、"科技up主"、"美食达人"
+                          💡 试试搜索: "美妆博主"、"科技up主"、"��食达人"
                           等热门创作者
                         </p>
                       </div>
