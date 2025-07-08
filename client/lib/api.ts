@@ -79,10 +79,11 @@ interface XiaohongshuInfluencer extends BaseInfluencer {
   avatar_url: string;
   desc: string;
   share_url: string;
-  liked_acount: number;
-  collected_acount: number;
-  following_acount: number;
+  post_count: number;
+  liked_count: number;
+  collected_count: number;
   following_count: number;
+  fans_count: number;
   is_red_club: boolean;
   tags: string[];
   red_official_verified: boolean;
@@ -96,9 +97,9 @@ interface GetInfluencersParams {
   page?: number;
   limit?: number;
   nickname?: string;
-  sort_by_fans?: 'asc' | 'desc';
-  sort_by_likes?: 'asc' | 'desc';
-  sort_by_posts?: 'asc' | 'desc';
+  sort_by_fans?: 'ascending' | 'descending';
+  sort_by_likes?: 'ascending' | 'descending';
+  sort_by_posts?: 'ascending' | 'descending';
 }
 
 interface BasePost {

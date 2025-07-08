@@ -47,6 +47,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { AvatarImage } from "@/components/ui/avatar-image";
 
 const getPlatformUserIdKey = (platform: string): string => {
   switch (platform) {
@@ -77,6 +78,10 @@ const getPlatformDisplayName = (platform: string): string => {
     'tiktok': 'TikTok'
   };
   return platformMap[platform] || platform;
+};
+
+const getAvatarUrl = (account: Influencer): string => {
+  return (account as any).avatar_url || '';
 };
 
 const formatDateTime = (timestamp: string): string => {
@@ -187,8 +192,8 @@ const XiaohongshuAccountFields: React.FC<{ account: XiaohongshuInfluencer }> = (
           <div><span className="font-medium">性别:</span> {account.gender === 1 ? '男' : account.gender === 2 ? '女' : '未知'}</div>
           <div><span className="font-medium">IP位置:</span> {account.ip_location}</div>
           <div><span className="font-medium">关注数:</span> {formatNumber(account.following_count)}</div>
-          <div><span className="font-medium">获赞数:</span> {formatNumber(account.liked_acount)}</div>
-          <div><span className="font-medium">收藏数:</span> {formatNumber(account.collected_acount)}</div>
+          <div><span className="font-medium">获赞数:</span> {formatNumber(account.liked_count)}</div>
+          <div><span className="font-medium">收藏数:</span> {formatNumber(account.collected_count)}</div>
           <div><span className="font-medium">小红书会员:</span> {account.is_red_club ? '是' : '否'}</div>
           <div><span className="font-medium">官方认证:</span> {account.red_official_verified ? '是' : '否'}</div>
         </div>
@@ -360,16 +365,19 @@ export default function AccountDetails() {
   };
 
   const getDisplayFollowers = (account: Influencer): string => {
-    const count = account.follower_count || (account as any).fans_acount || 0;
+    // 小红书使用 fans_count, 抖音/TikTok使用 follower_count
+    const count = account.follower_count || (account as any).fans_count || 0;
     return formatNumber(count);
   };
 
   const getDisplayWorks = (account: Influencer): number => {
-    return account.aweme_count || (account as any).post_acount || 0;
+    // 小红书使用 post_count, 抖音/TikTok使用 aweme_count
+    return account.aweme_count || (account as any).post_count || 0;
   };
 
   const getDisplayLikes = (account: Influencer): string => {
-    const count = account.total_favorited || (account as any).liked_acount || 0;
+    // 小红书使用 liked_count, 抖音/TikTok使用 total_favorited
+    const count = account.total_favorited || (account as any).liked_count || 0;
     return formatNumber(count);
   };
 
@@ -455,9 +463,12 @@ export default function AccountDetails() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-start space-x-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                {accountData.nickname.charAt(0)}
-              </div>
+              <AvatarImage 
+                src={getAvatarUrl(accountData)}
+                alt={accountData.nickname}
+                fallbackText={accountData.nickname.charAt(0)}
+                size="xl"
+              />
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
                   <h2 className="text-xl font-semibold">{accountData.nickname}</h2>

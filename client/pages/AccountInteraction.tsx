@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { AvatarImage } from "@/components/ui/avatar-image";
 import {
   Search,
   Link,
@@ -47,7 +48,14 @@ import {
   ExternalLink,
   Filter,
 } from "lucide-react";
-import { apiClient, type Influencer, type GetInfluencersParams } from "@/lib/api";
+import { 
+  apiClient, 
+  type Influencer, 
+  type GetInfluencersParams,
+  type TikTokInfluencer,
+  type DouyinInfluencer,
+  type XiaohongshuInfluencer
+} from "@/lib/api";
 
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
@@ -117,22 +125,22 @@ export default function AccountInteraction() {
 
         switch (sortBy) {
           case "粉丝量-高到低":
-            sortParam.sort_by_fans = "desc";
+            sortParam.sort_by_fans = "descending";
             break;
           case "粉丝量-低到高":
-            sortParam.sort_by_fans = "asc";
+            sortParam.sort_by_fans = "ascending";
             break;
           case "作品量-高到低":
-            sortParam.sort_by_posts = "desc";
+            sortParam.sort_by_posts = "descending";
             break;
           case "作品量-低到高":
-            sortParam.sort_by_posts = "asc";
+            sortParam.sort_by_posts = "ascending";
             break;
           case "点赞量-高到低":
-            sortParam.sort_by_likes = "desc";
+            sortParam.sort_by_likes = "descending";
             break;
           case "点赞量-低到高":
-            sortParam.sort_by_likes = "asc";
+            sortParam.sort_by_likes = "ascending";
             break;
         }
 
@@ -168,16 +176,19 @@ export default function AccountInteraction() {
   };
 
   const getDisplayFollowers = (influencer: Influencer): string => {
-    const count = influencer.follower_count || influencer.fans_acount || 0;
+    // 小红书使用 fans_count, 抖音/TikTok使用 follower_count
+    const count = influencer.follower_count || (influencer as any).fans_count || 0;
     return formatNumber(count);
   };
 
   const getDisplayWorks = (influencer: Influencer): number => {
-    return influencer.aweme_count || influencer.post_acount || 0;
+    // 小红书使用 post_count, 抖音/TikTok使用 aweme_count
+    return influencer.aweme_count || (influencer as any).post_count || 0;
   };
 
   const getDisplayLikes = (influencer: Influencer): string => {
-    const count = influencer.total_favorited || influencer.liked_acount || 0;
+    // 小红书使用 liked_count, 抖音/TikTok使用 total_favorited
+    const count = influencer.total_favorited || (influencer as any).liked_count || 0;
     return formatNumber(count);
   };
 
@@ -188,6 +199,10 @@ export default function AccountInteraction() {
       'tiktok': 'TikTok'
     };
     return platformMap[platform] || platform;
+  };
+
+  const getAvatarUrl = (account: Influencer): string => {
+    return (account as any).avatar_url || '';
   };
 
   const invalidUrls = batchUrls
@@ -306,7 +321,7 @@ export default function AccountInteraction() {
     console.log("Export account data for:", accountId);
   };
 
-  const exportSelectedAccounts = () => {
+  const exportSelectedAccounts = async () => {
     const selectedAccountsData = accountData.filter((acc) =>
       selectedAccounts.includes(acc.id),
     );
@@ -316,48 +331,214 @@ export default function AccountInteraction() {
       return;
     }
 
-    // Create a new workbook with account basic information
-    const workbook = XLSX.utils.book_new();
+    setLoading(true);
+    try {
+      // Create a new workbook
+      const workbook = XLSX.utils.book_new();
 
-    // Create a summary sheet with account information
-    const summaryData = [
-      ["昵称", "平台", "粉丝数", "作品数", "点赞数", "添加时间"],
-      ...selectedAccountsData.map((account) => [
-        account.nickname,
-        getPlatformDisplayName(account.platform),
-        getDisplayFollowers(account),
-        getDisplayWorks(account),
-        getDisplayLikes(account),
-        account.created_at,
-      ]),
-    ];
+      // Group accounts by platform
+      const accountsByPlatform = selectedAccountsData.reduce((acc, account) => {
+        const platform = account.platform;
+        if (!acc[platform]) {
+          acc[platform] = [];
+        }
+        acc[platform].push(account);
+        return acc;
+      }, {} as Record<string, Influencer[]>);
 
-    const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryData);
-    summaryWorksheet["!cols"] = [
-      { width: 20 }, // 昵称
-      { width: 12 }, // 平台
-      { width: 12 }, // 粉丝数
-      { width: 10 }, // 作品数
-      { width: 12 }, // 点赞数
-      { width: 20 }, // 添加时间
-    ];
+      // Create a sheet for each platform
+      for (const [platform, accounts] of Object.entries(accountsByPlatform)) {
+        const platformDisplayName = getPlatformDisplayName(platform);
+        
+        // Create comprehensive data for this platform
+        const sheetData: any[][] = [];
+        
+        // Add platform-specific headers
+        if (platform === 'tiktok') {
+          sheetData.push([
+            "昵称", "用户ID", "唯一标识", "分类", "签名", "签名语言", "分享链接",
+            "Instagram", "Twitter", "YouTube频道", "粉丝数", "关注数", "获赞总数", "作品数",
+            "企业认证", "商务等级", "明星认证", "特效师", "直播带货", "消息聊天入口", 
+            "商品橱窗", "新商品", "添加时间", "更新时间"
+          ]);
+          
+          // Add TikTok account data
+          accounts.forEach(account => {
+            const tiktokAccount = account as TikTokInfluencer;
+            sheetData.push([
+              tiktokAccount.nickname,
+              tiktokAccount.uid,
+              tiktokAccount.unique_id,
+              tiktokAccount.category,
+              tiktokAccount.signature,
+              tiktokAccount.signature_language,
+              tiktokAccount.share_url,
+              tiktokAccount.ins_id,
+              tiktokAccount.twitter_id,
+              tiktokAccount.youtube_channel_title,
+              tiktokAccount.follower_count,
+              tiktokAccount.following_count,
+              tiktokAccount.total_favorited,
+              tiktokAccount.aweme_count,
+              tiktokAccount.is_enterprise_verify ? '是' : '否',
+              tiktokAccount.commerce_user_level,
+              tiktokAccount.is_star ? '是' : '否',
+              tiktokAccount.is_effect_artist ? '是' : '否',
+              tiktokAccount.live_commerce ? '是' : '否',
+              tiktokAccount.message_chat_entry ? '是' : '否',
+              tiktokAccount.with_commerce_entry ? '是' : '否',
+              tiktokAccount.with_new_goods ? '是' : '否',
+              new Date(tiktokAccount.created_at).toLocaleString('zh-CN'),
+              new Date(tiktokAccount.updated_at).toLocaleString('zh-CN')
+            ]);
+          });
+        } else if (platform === 'douyin') {
+          sheetData.push([
+            "昵称", "唯一标识", "年龄", "性别", "头像链接", "签名", "分享链接",
+            "粉丝数", "关注数", "获赞总数", "最高粉丝数", "作品数", "IP位置",
+            "明星认证", "特效师", "政务媒体", "直播带货", "星图达人", 
+            "商品橱窗", "融合商店", "新商品", "添加时间", "更新时间"
+          ]);
+          
+          // Add Douyin account data
+          accounts.forEach(account => {
+            const douyinAccount = account as DouyinInfluencer;
+            sheetData.push([
+              douyinAccount.nickname,
+              douyinAccount.unique_id,
+              douyinAccount.age,
+              douyinAccount.gender === 1 ? '男' : douyinAccount.gender === 2 ? '女' : '未知',
+              douyinAccount.avatar_url,
+              douyinAccount.signature,
+              douyinAccount.share_url,
+              douyinAccount.follower_count,
+              douyinAccount.following_count,
+              douyinAccount.total_favorited,
+              douyinAccount.max_follower_count,
+              douyinAccount.aweme_count,
+              douyinAccount.ip_location,
+              douyinAccount.is_star ? '是' : '否',
+              douyinAccount.is_effect_artist ? '是' : '否',
+              douyinAccount.is_gov_media_vip ? '是' : '否',
+              douyinAccount.is_live_commerce ? '是' : '否',
+              douyinAccount.is_xingtu_kol ? '是' : '否',
+              douyinAccount.with_commerce_entry ? '是' : '否',
+              douyinAccount.with_fusion_shop_entry ? '是' : '否',
+              douyinAccount.with_new_goods ? '是' : '否',
+              new Date(douyinAccount.created_at).toLocaleString('zh-CN'),
+              new Date(douyinAccount.updated_at).toLocaleString('zh-CN')
+            ]);
+          });
+        } else if (platform === 'xiaohongshu') {
+          sheetData.push([
+            "昵称", "用户ID", "小红书ID", "性别", "头像链接", "个人描述", "分享链接",
+            "作品数", "获赞数", "收藏数", "关注数", "粉丝数", "IP位置",
+            "小红书会员", "标签", "官方认证", "添加时间", "更新时间"
+          ]);
+          
+          // Add Xiaohongshu account data
+          accounts.forEach(account => {
+            const xhsAccount = account as XiaohongshuInfluencer;
+            sheetData.push([
+              xhsAccount.nickname,
+              xhsAccount.user_id,
+              xhsAccount.red_id,
+              xhsAccount.gender === 1 ? '男' : xhsAccount.gender === 2 ? '女' : '未知',
+              xhsAccount.avatar_url,
+              xhsAccount.desc,
+              xhsAccount.share_url,
+              xhsAccount.post_count,
+              xhsAccount.liked_count,
+              xhsAccount.collected_count,
+              xhsAccount.following_count,
+              xhsAccount.fans_count,
+              xhsAccount.ip_location,
+              xhsAccount.is_red_club ? '是' : '否',
+              xhsAccount.tags ? xhsAccount.tags.join(', ') : '',
+              xhsAccount.red_official_verified ? '是' : '否',
+              new Date(xhsAccount.created_at).toLocaleString('zh-CN'),
+              new Date(xhsAccount.updated_at).toLocaleString('zh-CN')
+            ]);
+          });
+        }
 
-    XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "账号汇总");
+        // Create worksheet for this platform
+        const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-    // Generate Excel file and download
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+        // Set appropriate column widths
+        const colWidths = sheetData[0].map((header, index) => {
+          if (header.includes('链接') || header.includes('URL')) return { width: 50 };
+          if (header.includes('时间')) return { width: 20 };
+          if (header.includes('昵称') || header.includes('描述') || header.includes('签名')) return { width: 25 };
+          if (header.includes('标签')) return { width: 30 };
+          return { width: 15 };
+        });
+        
+        worksheet["!cols"] = colWidths;
 
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+        // Add worksheet to workbook
+        const sheetName = `${platformDisplayName}账号 (${accounts.length})`;
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      }
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `账号数据_${selectedAccountsData.length}个账号.xlsx`;
-    link.click();
+      // Create summary sheet
+      const summaryData = [
+        ["昵称", "平台", "粉丝数", "作品数", "点赞数", "添加时间"],
+        ...selectedAccountsData.map((account) => [
+          account.nickname,
+          getPlatformDisplayName(account.platform),
+          getDisplayFollowers(account),
+          getDisplayWorks(account),
+          getDisplayLikes(account),
+          new Date(account.created_at).toLocaleString('zh-CN'),
+        ]),
+      ];
+
+      const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryData);
+      summaryWorksheet["!cols"] = [
+        { width: 20 }, // 昵称
+        { width: 12 }, // 平台
+        { width: 12 }, // 粉丝数
+        { width: 10 }, // 作品数
+        { width: 12 }, // 点赞数
+        { width: 20 }, // 添加时间
+      ];
+
+      // Insert summary sheet at the beginning
+      XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "📊 账号汇总");
+
+      // Reorder sheets to put summary first
+      const sheetNames = workbook.SheetNames;
+      const summaryIndex = sheetNames.indexOf("📊 账号汇总");
+      if (summaryIndex > 0) {
+        sheetNames.splice(summaryIndex, 1);
+        sheetNames.unshift("📊 账号汇总");
+      }
+
+      // Generate Excel file and download
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      
+      // Create filename with platform info
+      const platformNames = Object.keys(accountsByPlatform).map(p => getPlatformDisplayName(p)).join('_');
+      link.download = `账号完整数据_${platformNames}_${selectedAccountsData.length}个账号_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
+      link.click();
+
+    } catch (error) {
+      console.error("导出失败:", error);
+      alert("导出失败，请重试");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -443,7 +624,7 @@ export default function AccountInteraction() {
                     账号主页链接（每行一个，最多20个）
                   </label>
                   <Textarea
-                    placeholder={`请粘贴账号主页链接，每行一个��
+                    placeholder={`请粘贴账号主页链接，每行一个，支持以下格式：
 
 https://www.douyin.com/user/123456789
 https://www.xiaohongshu.com/user/abcdef123
@@ -451,7 +632,7 @@ https://www.tiktok.com/@username
 https://www.bilibili.com/space/123456
 https://weibo.com/u/123456789
 
-支持抖音、小红书、快手、���博、B站、TikTok、Instagram、X等平台`}
+支持抖音、小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -462,7 +643,7 @@ https://weibo.com/u/123456789
                       <>
                         <CheckCircle className="h-3 w-3 text-green-600" />
                         <span className="text-green-600">
-                          检测��� {urlCount} 个���效账号链接
+                          检测到 {urlCount} 个无效账号链接
                         </span>
                       </>
                     ) : hasInvalidUrls ? (
@@ -485,7 +666,7 @@ https://weibo.com/u/123456789
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <label className="text-sm font-medium">
-                        是否采集账号��品
+                        是否采集账号作品
                       </label>
                       <div className="text-xs text-muted-foreground">
                         开启后将采集账号的作品数据
@@ -593,7 +774,7 @@ https://weibo.com/u/123456789
                         <SelectItem value="默认">默认排序</SelectItem>
                         <SelectItem value="粉丝量-高到低">粉丝量 ↓</SelectItem>
                         <SelectItem value="粉丝量-低到高">粉丝量 ↑</SelectItem>
-                        <SelectItem value="作品量-高��低">作品量 ↓</SelectItem>
+                        <SelectItem value="作品量-高到低">作品量 ↓</SelectItem>
                         <SelectItem value="作品量-低到高">作品量 ↑</SelectItem>
                         <SelectItem value="点赞量-高到低">点赞量 ↓</SelectItem>
                         <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
@@ -686,11 +867,15 @@ https://weibo.com/u/123456789
                     <Button
                       size="sm"
                       onClick={exportSelectedAccounts}
-                      disabled={selectedAccounts.length === 0}
+                      disabled={selectedAccounts.length === 0 || loading}
                       className="h-8"
                     >
-                      <Download className="mr-2 h-3.5 w-3.5" />
-                      导出Excel ({selectedAccounts.length})
+                      {loading ? (
+                        <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Download className="mr-2 h-3.5 w-3.5" />
+                      )}
+                      {loading ? "导出中..." : `导出Excel (${selectedAccounts.length})`}
                     </Button>
                     <Badge variant="secondary" className="text-xs">
                       已添加 {accountData.length} 个账号
@@ -741,9 +926,12 @@ https://weibo.com/u/123456789
                                 onClick={(e) => e.stopPropagation()}
                                 className="mr-1"
                               />
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                                {account.nickname.charAt(0)}
-                              </div>
+                              <AvatarImage 
+                                src={getAvatarUrl(account)}
+                                alt={account.nickname}
+                                fallbackText={account.nickname.charAt(0)}
+                                size="md"
+                              />
                               <div>
                                 <h3 className="text-sm font-medium">
                                   {account.nickname}
