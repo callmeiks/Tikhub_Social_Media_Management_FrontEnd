@@ -608,7 +608,7 @@ https://weibo.com/u/123456789
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Users className="mr-2 h-4 w-4" />
-                    账号数据 ({filteredAccountData.length})
+                    历史账号数据 ({filteredAccountData.length})
                   </span>
                   <div className="flex items-center space-x-2">
                     <Select value={sortBy} onValueChange={setSortBy}>
