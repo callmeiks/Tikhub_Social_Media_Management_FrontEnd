@@ -50,7 +50,7 @@ import {
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
-  { id: "kuaishou", name: "快��", emoji: "⚡", active: true },
+  { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
   { id: "weibo", name: "微博", emoji: "🎭", active: true },
   { id: "bilibili", name: "哔哩哔哩", emoji: "📺", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
@@ -184,7 +184,7 @@ export default function AccountInteraction() {
         .map((url) => url.trim())
         .filter((url) => url.length > 0);
 
-      // 这里应该调用���际的API来采集数据
+      // 这里应该调用实际的API来采集数据
       console.log("采集账号:", urls);
       console.log("采集作品:", collectWorks);
       console.log("采集数量:", collectionQuantity);
@@ -403,7 +403,7 @@ export default function AccountInteraction() {
 
   return (
     <DashboardLayout
-      title="账号数���采集"
+      title="账号数据采集"
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
@@ -448,7 +448,7 @@ export default function AccountInteraction() {
             </TabsTrigger>
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              账号数据
+              历史账号数据
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -497,7 +497,7 @@ https://weibo.com/u/123456789
                       <>
                         <CheckCircle className="h-3 w-3 text-green-600" />
                         <span className="text-green-600">
-                          检测到 {urlCount} 个有效账号链接
+                          检测��� {urlCount} 个���效账号链接
                         </span>
                       </>
                     ) : hasInvalidUrls ? (
@@ -620,7 +620,7 @@ https://weibo.com/u/123456789
                         <SelectItem value="粉丝量-高到低">粉丝量 ↓</SelectItem>
                         <SelectItem value="粉丝量-低到高">粉丝量 ↑</SelectItem>
                         <SelectItem value="作品量-高到低">作品量 ↓</SelectItem>
-                        <SelectItem value="��品量-低到高">作品量 ↑</SelectItem>
+                        <SelectItem value="作品量-低到高">作品量 ↑</SelectItem>
                         <SelectItem value="点赞量-高到低">点赞量 ↓</SelectItem>
                         <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
                       </SelectContent>
