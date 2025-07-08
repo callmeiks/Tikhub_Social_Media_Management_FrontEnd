@@ -262,15 +262,20 @@ export default function AccountInteraction() {
       : null;
 
   const togglePlatform = (platformName: string) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(platformName)
-        ? prev.filter((p) => p !== platformName)
-        : [...prev, platformName],
-    );
+    if (platformName === "all") {
+      setSelectedPlatforms(["all"]);
+    } else {
+      setSelectedPlatforms((prev) => {
+        const filtered = prev.filter((p) => p !== "all");
+        return filtered.includes(platformName)
+          ? filtered.filter((p) => p !== platformName)
+          : [...filtered, platformName];
+      });
+    }
   };
 
   const selectAllPlatforms = () => {
-    setSelectedPlatforms(supportedPlatforms.map((p) => p.name));
+    setSelectedPlatforms(["all"]);
   };
 
   const clearAllPlatforms = () => {
