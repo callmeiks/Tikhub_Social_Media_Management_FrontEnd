@@ -678,6 +678,15 @@ https://weibo.com/u/123456789
                             </div>
                           </div>
                           <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={selectedPlatforms.includes("all")}
+                                onCheckedChange={() => togglePlatform("all")}
+                              />
+                              <span className="text-sm font-medium">
+                                🌐 全部平台
+                              </span>
+                            </div>
                             {supportedPlatforms.map((platform) => (
                               <div
                                 key={platform.id}
