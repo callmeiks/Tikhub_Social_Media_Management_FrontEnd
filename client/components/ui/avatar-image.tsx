@@ -24,6 +24,60 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [convertedSrc, setConvertedSrc] = useState<string | null>(null);
+
+  const convertToJPG = async (imageUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        ctx.drawImage(img, 0, 0);
+        
+        try {
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(jpgDataUrl);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = imageUrl;
+    });
+  };
+
+  React.useEffect(() => {
+    if (src) {
+      setLoading(true);
+      setImageError(false);
+      
+      convertToJPG(src)
+        .then((jpgSrc) => {
+          setConvertedSrc(jpgSrc);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.warn('Failed to convert image to JPG:', error);
+          setConvertedSrc(src);
+          setLoading(false);
+        });
+    }
+  }, [src]);
 
   const handleImageLoad = () => {
     setLoading(false);
@@ -56,14 +110,16 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
       {loading && (
         <div className="animate-pulse bg-gray-300 w-full h-full rounded-full" />
       )}
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-full object-cover rounded-full ${loading ? 'hidden' : ''}`}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-        loading="lazy"
-      />
+      {convertedSrc && (
+        <img
+          src={convertedSrc}
+          alt={alt}
+          className={`w-full h-full object-cover rounded-full ${loading ? 'hidden' : ''}`}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          loading="lazy"
+        />
+      )}
     </div>
   );
 };
