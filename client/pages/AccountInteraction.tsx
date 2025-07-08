@@ -4,6 +4,7 @@ import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -527,7 +528,7 @@ https://weibo.com/u/123456789
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <label className="text-sm font-medium">
-                        是否采集账号作品
+                        是否采集账号��品
                       </label>
                       <div className="text-xs text-muted-foreground">
                         开启后将采集账号的作品数据
