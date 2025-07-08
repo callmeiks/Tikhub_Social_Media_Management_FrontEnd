@@ -206,11 +206,15 @@ export default function AccountInteraction() {
   };
 
   const filteredAccountData = accountData
-    .filter(
-      (account) =>
+    .filter((account) => {
+      const platformMatch =
         selectedPlatforms.includes("all") ||
-        selectedPlatforms.includes(account.platform),
-    )
+        selectedPlatforms.includes(account.platform);
+      const searchMatch =
+        searchQuery.trim() === "" ||
+        account.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return platformMatch && searchMatch;
+    })
     .sort((a, b) => {
       switch (sortBy) {
         case "粉丝量-高到低":
