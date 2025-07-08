@@ -205,7 +205,11 @@ export default function AccountInteraction() {
   };
 
   const filteredAccountData = accountData
-    .filter((account) => selectedPlatforms.includes(account.platform))
+    .filter(
+      (account) =>
+        selectedPlatforms.includes("all") ||
+        selectedPlatforms.includes(account.platform),
+    )
     .sort((a, b) => {
       switch (sortBy) {
         case "粉丝量-高到低":
@@ -402,7 +406,7 @@ export default function AccountInteraction() {
   return (
     <DashboardLayout
       title="账号数据采集"
-      subtitle="智能��集账号作品数据，支持多平台内容分析"
+      subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -593,7 +597,7 @@ https://weibo.com/u/123456789
                   </div>
 
                   <div className="text-xs text-muted-foreground">
-                    {urlCount > 0 && <span>检测到 {urlCount} 个账号链��</span>}
+                    {urlCount > 0 && <span>检测到 {urlCount} 个账号链接</span>}
                   </div>
                 </div>
               </CardContent>
@@ -618,7 +622,7 @@ https://weibo.com/u/123456789
                         <SelectItem value="粉丝量-高到低">粉丝量 ↓</SelectItem>
                         <SelectItem value="粉丝量-低到高">粉丝量 ↑</SelectItem>
                         <SelectItem value="作品量-高到低">作品量 ↓</SelectItem>
-                        <SelectItem value="作品量-低��高">作品量 ↑</SelectItem>
+                        <SelectItem value="作品量-低到高">作品量 ↑</SelectItem>
                         <SelectItem value="点赞量-高到低">点赞量 ↓</SelectItem>
                         <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
                       </SelectContent>
