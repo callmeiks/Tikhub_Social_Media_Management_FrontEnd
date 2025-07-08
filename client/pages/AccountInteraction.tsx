@@ -493,7 +493,7 @@ https://www.tiktok.com/@username
 https://www.bilibili.com/space/123456
 https://weibo.com/u/123456789
 
-支持抖音、小红书、快手、微博、B站、TikTok、Instagram、X等平台`}
+支持抖音、小红书、快手、���博、B站、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -618,6 +618,15 @@ https://weibo.com/u/123456789
                     历史账号数据 ({filteredAccountData.length})
                   </span>
                   <div className="flex items-center space-x-2">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="搜索账号名称..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-8 w-[200px] pl-8"
+                      />
+                    </div>
                     <Select value={sortBy} onValueChange={setSortBy}>
                       <SelectTrigger className="w-[160px] h-8">
                         <SelectValue placeholder="排序方式" />
@@ -626,7 +635,7 @@ https://weibo.com/u/123456789
                         <SelectItem value="默认">默认排序</SelectItem>
                         <SelectItem value="粉丝量-高到低">粉丝量 ↓</SelectItem>
                         <SelectItem value="粉丝量-低到高">粉丝量 ↑</SelectItem>
-                        <SelectItem value="作品量-高到低">作品量 ↓</SelectItem>
+                        <SelectItem value="作品量-高��低">作品量 ↓</SelectItem>
                         <SelectItem value="作品量-低到高">作品量 ↑</SelectItem>
                         <SelectItem value="点赞量-高到低">点赞量 ↓</SelectItem>
                         <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
