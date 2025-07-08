@@ -621,7 +621,7 @@ https://weibo.com/u/123456789
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Users className="mr-2 h-4 w-4" />
-                    历史账号数据 ({filteredAccountData.length})
+                    历史账号���据 ({filteredAccountData.length})
                   </span>
                   <div className="flex items-center space-x-2">
                     <div className="relative">
@@ -651,7 +651,11 @@ https://weibo.com/u/123456789
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8">
                           <Filter className="mr-2 h-3.5 w-3.5" />
-                          平台筛选 ({selectedPlatforms.length})
+                          平台筛选 (
+                          {selectedPlatforms.includes("all")
+                            ? "全部"
+                            : selectedPlatforms.length}
+                          )
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-56" align="end">
