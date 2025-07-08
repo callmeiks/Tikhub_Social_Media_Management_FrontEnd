@@ -130,6 +130,7 @@ export default function AccountInteraction() {
   const [collectWorks, setCollectWorks] = useState(false);
   const [collectionQuantity, setCollectionQuantity] = useState("最新50");
   const [sortBy, setSortBy] = useState("默认");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const urlCount = batchUrls
     .split("\n")
