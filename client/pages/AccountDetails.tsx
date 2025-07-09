@@ -1339,7 +1339,7 @@ export default function AccountDetails() {
                                                 alt="Post preview"
                                               />
                                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100">
+                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100 shadow-lg">
                                                   <Image className="h-3 w-3 text-gray-700" />
                                                 </div>
                                               </div>
@@ -1360,7 +1360,7 @@ export default function AccountDetails() {
                                                 preload="metadata"
                                               />
                                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100">
+                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100 shadow-lg">
                                                   <Play className="h-3 w-3 text-gray-700" />
                                                 </div>
                                               </div>
