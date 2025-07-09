@@ -134,7 +134,7 @@ const sampleContentData = [
   },
   {
     id: 4,
-    title: "创意料理：���士焗红薯制作教程",
+    title: "创意料理：芝士焗红薯制作教程",
     platform: "哔哩哔哩",
     author: "��食up主",
     url: "https://www.bilibili.com/video/BV123456789",
@@ -814,174 +814,204 @@ https://www.youtube.com/watch?v=example123
                       </TableHeader>
                       <TableBody>
                         {filteredContentData.map((content) => (
-                          <TableRow key={content.id}>
-                            <TableCell>
-                              <Checkbox
-                                checked={selectedContent.includes(content.id)}
-                                onCheckedChange={() =>
-                                  toggleContentSelection(content.id)
-                                }
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div className="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
-                                {content.coverUrl ? (
-                                  <img
-                                    src={content.coverUrl}
-                                    alt={content.title}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                      const next = e.currentTarget
-                                        .nextElementSibling as HTMLElement;
-                                      if (next) next.style.display = "flex";
+                          <React.Fragment key={content.id}>
+                            <TableRow>
+                              <TableCell>
+                                <Checkbox
+                                  checked={selectedContent.includes(content.id)}
+                                  onCheckedChange={() =>
+                                    toggleContentSelection(content.id)
+                                  }
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <div className="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
+                                  {content.coverUrl ? (
+                                    <img
+                                      src={content.coverUrl}
+                                      alt={content.title}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                        const next = e.currentTarget
+                                          .nextElementSibling as HTMLElement;
+                                        if (next) next.style.display = "flex";
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div
+                                    className="w-full h-full flex items-center justify-center bg-gray-200"
+                                    style={{
+                                      display: content.coverUrl
+                                        ? "none"
+                                        : "flex",
                                     }}
-                                  />
-                                ) : null}
-                                <div
-                                  className="w-full h-full flex items-center justify-center bg-gray-200"
-                                  style={{
-                                    display: content.coverUrl ? "none" : "flex",
-                                  }}
-                                >
+                                  >
+                                    {content.duration &&
+                                    content.duration !== "-" ? (
+                                      <Play className="h-5 w-5 text-gray-500" />
+                                    ) : (
+                                      <Image className="h-5 w-5 text-gray-500" />
+                                    )}
+                                  </div>
                                   {content.duration &&
-                                  content.duration !== "-" ? (
-                                    <Play className="h-5 w-5 text-gray-500" />
-                                  ) : (
-                                    <Image className="h-5 w-5 text-gray-500" />
-                                  )}
+                                    content.duration !== "-" && (
+                                      <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                        {content.duration}
+                                      </div>
+                                    )}
                                 </div>
-                                {content.duration &&
-                                  content.duration !== "-" && (
-                                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
-                                      {content.duration}
-                                    </div>
-                                  )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              <div
-                                className="max-w-[260px] truncate"
-                                title={content.title}
-                              >
-                                {content.title}
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                by {content.author}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="text-xs">
-                                {content.platform}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {content.publishedAt}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {content.views}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {content.likes}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {content.comments}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                {content.shares}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Users className="h-3 w-3 mr-1 text-orange-500" />
-                                {content.collections}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="end"
-                                  className="w-48"
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                <div
+                                  className="max-w-[260px] truncate"
+                                  title={content.title}
                                 >
-                                  <DropdownMenuLabel>操作</DropdownMenuLabel>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("view", content.id)
-                                    }
+                                  {content.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  by {content.author}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {content.platform}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {content.publishedAt}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                                  {content.views}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                  {content.likes}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                                  {content.comments}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                  {content.shares}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Users className="h-3 w-3 mr-1 text-orange-500" />
+                                  {content.collections}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent
+                                    align="end"
+                                    className="w-48"
                                   >
-                                    <ExternalLink className="mr-2 h-4 w-4" />
-                                    查看原作品
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("copy", content.id)
-                                    }
-                                  >
-                                    <Copy className="mr-2 h-4 w-4" />
-                                    ��制链接
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("star", content.id)
-                                    }
-                                  >
-                                    <Star className="mr-2 h-4 w-4" />
-                                    收藏作品
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("analyze", content.id)
-                                    }
-                                  >
-                                    <BookOpen className="mr-2 h-4 w-4" />
-                                    详细分析
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("edit", content.id)
-                                    }
-                                  >
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    编辑信息
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleContentAction("delete", content.id)
-                                    }
-                                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    删除作品
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                            <TableCell>
-                              <ContentDetailsDropdown content={content} />
-                            </TableCell>
-                          </TableRow>
+                                    <DropdownMenuLabel>操作</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("view", content.id)
+                                      }
+                                    >
+                                      <ExternalLink className="mr-2 h-4 w-4" />
+                                      查看原作品
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("copy", content.id)
+                                      }
+                                    >
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      ��制链接
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("star", content.id)
+                                      }
+                                    >
+                                      <Star className="mr-2 h-4 w-4" />
+                                      收藏作品
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction(
+                                          "analyze",
+                                          content.id,
+                                        )
+                                      }
+                                    >
+                                      <BookOpen className="mr-2 h-4 w-4" />
+                                      详细分析
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("edit", content.id)
+                                      }
+                                    >
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      编辑信息
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction(
+                                          "delete",
+                                          content.id,
+                                        )
+                                      }
+                                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      删除作品
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() =>
+                                    toggleContentExpansion(content.id)
+                                  }
+                                >
+                                  {expandedContent.includes(content.id) ? (
+                                    <ChevronUp className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronDown className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                            {expandedContent.includes(content.id) && (
+                              <TableRow>
+                                <TableCell colSpan={12} className="p-0">
+                                  <ContentDetailsRow content={content} />
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </React.Fragment>
                         ))}
                       </TableBody>
                     </Table>
@@ -1007,7 +1037,7 @@ https://www.youtube.com/watch?v=example123
                       </div>
                       <div className="text-sm font-medium">总��品数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加的作品总数
+                        已添加的作品总��
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
