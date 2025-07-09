@@ -134,7 +134,7 @@ const sampleContentData = [
   },
   {
     id: 4,
-    title: "创意料理：芝士焗红薯制作教程",
+    title: "创意料理：���士焗红薯制作教程",
     platform: "哔哩哔哩",
     author: "��食up主",
     url: "https://www.bilibili.com/video/BV123456789",
@@ -371,6 +371,14 @@ export default function ContentInteraction() {
     setSelectedContent([]);
   };
 
+  const toggleContentExpansion = (contentId: number) => {
+    setExpandedContent((prev) =>
+      prev.includes(contentId)
+        ? prev.filter((id) => id !== contentId)
+        : [...prev, contentId],
+    );
+  };
+
   const handleContentAction = (action: string, contentId: number) => {
     const content = contentData.find((c) => c.id === contentId);
     if (!content) return;
@@ -381,7 +389,7 @@ export default function ContentInteraction() {
         break;
       case "copy":
         navigator.clipboard.writeText(content.url);
-        alert("链��已��制到剪贴板");
+        alert("链��已复制到剪贴板");
         break;
       case "edit":
         // TODO: 实现编辑功能
@@ -428,7 +436,7 @@ export default function ContentInteraction() {
         "作者",
         "发布时间",
         "播放量",
-        "��赞数",
+        "点赞数",
         "评论数",
         "分享数",
         "收藏数",
