@@ -111,12 +111,8 @@ const TikTokAccountFields: React.FC<{ account: TikTokInfluencer }> = ({
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
-          <span className="font-medium">Task ID:</span>{" "}
-          {account.task_id || "N/A"}
-        </div>
-        <div>
           <span className="font-medium">Sec User ID:</span>{" "}
-          {account.sec_user_id || "N/A"}
+          <span className="break-all text-xs">{account.sec_user_id || "N/A"}</span>
         </div>
         <div>
           <span className="font-medium">用户ID:</span> {account.uid || "N/A"}
@@ -254,12 +250,8 @@ const DouyinAccountFields: React.FC<{ account: DouyinInfluencer }> = ({
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
-          <span className="font-medium">Task ID:</span>{" "}
-          {account.task_id || "N/A"}
-        </div>
-        <div>
           <span className="font-medium">Sec User ID:</span>{" "}
-          {account.sec_user_id || "N/A"}
+          <span className="break-all text-xs">{account.sec_user_id || "N/A"}</span>
         </div>
         <div>
           <span className="font-medium">唯一标识:</span>{" "}
@@ -348,12 +340,8 @@ const XiaohongshuAccountFields: React.FC<{
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
-          <span className="font-medium">Task ID:</span>{" "}
-          {account.task_id || "N/A"}
-        </div>
-        <div>
           <span className="font-medium">User ID:</span>{" "}
-          {account.user_id || "N/A"}
+          <span className="break-all text-xs">{account.user_id || "N/A"}</span>
         </div>
         <div>
           <span className="font-medium">小红书ID:</span>{" "}
@@ -443,124 +431,204 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
       case "tiktok":
         const tiktokPost = post as TikTokPost;
         return (
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">内容类型:</span>{" "}
-              {tiktokPost.content_type}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">内容类型:</span>
+                    <span className="font-medium">{tiktokPost.content_type || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">时长:</span>
+                    <span className="font-medium">{formatDuration(tiktokPost.duration)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">语言:</span>
+                    <span className="font-medium">{tiktokPost.desc_language || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">AI创作:</span>
+                    <Badge variant={tiktokPost.created_by_ai ? "secondary" : "outline"} className="text-xs">
+                      {tiktokPost.created_by_ai ? "是" : "否"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">广告:</span>
+                    <Badge variant={tiktokPost.is_ads ? "destructive" : "outline"} className="text-xs">
+                      {tiktokPost.is_ads ? "是" : "否"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">置顶:</span>
+                    <Badge variant={tiktokPost.is_top ? "default" : "outline"} className="text-xs">
+                      {tiktokPost.is_top ? "是" : "否"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">下载次数:</span>
+                    <span className="font-medium">{formatNumber(tiktokPost.download_count)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">播放次数:</span>
+                    <span className="font-medium">{formatNumber(tiktokPost.play_count)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="font-medium">时长:</span>{" "}
-              {formatDuration(tiktokPost.duration)}
-            </div>
-            <div>
-              <span className="font-medium">语言:</span>{" "}
-              {tiktokPost.desc_language}
-            </div>
-            <div>
-              <span className="font-medium">AI创作:</span>{" "}
-              {tiktokPost.created_by_ai ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">广告:</span>{" "}
-              {tiktokPost.is_ads ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">置顶:</span>{" "}
-              {tiktokPost.is_top ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">音乐作者:</span>{" "}
-              {tiktokPost.music_author}
-            </div>
-            <div>
-              <span className="font-medium">音乐时长:</span>{" "}
-              {formatDuration(tiktokPost.music_duration * 1000)}
-            </div>
-            <div>
-              <span className="font-medium">下载次数:</span>{" "}
-              {formatNumber(tiktokPost.download_count)}
-            </div>
-            <div>
-              <span className="font-medium">播放次数:</span>{" "}
-              {formatNumber(tiktokPost.play_count)}
-            </div>
+            {tiktokPost.music_author && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">音乐作者:</span>
+                    <span className="font-medium">{tiktokPost.music_author}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">音乐时长:</span>
+                    <span className="font-medium">{formatDuration(tiktokPost.music_duration * 1000)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
       case "douyin":
         const douyinPost = post as DouyinPost;
         return (
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">时长:</span>{" "}
-              {formatDuration(douyinPost.duration)}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">时长:</span>
+                    <span className="font-medium">{formatDuration(douyinPost.duration)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">拍摄方式:</span>
+                    <span className="font-medium">{douyinPost.shoot_way || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">播放次数:</span>
+                    <span className="font-medium">{formatNumber(douyinPost.play_count)}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">广告:</span>
+                    <Badge variant={douyinPost.is_ads ? "destructive" : "outline"} className="text-xs">
+                      {douyinPost.is_ads ? "是" : "否"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">置顶:</span>
+                    <Badge variant={douyinPost.is_top ? "default" : "outline"} className="text-xs">
+                      {douyinPost.is_top ? "是" : "否"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">带货:</span>
+                    <Badge variant={douyinPost.with_goods ? "secondary" : "outline"} className="text-xs">
+                      {douyinPost.with_goods ? "是" : "否"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="font-medium">城市:</span> {douyinPost.city}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">位置信息</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">城市:</span>
+                  <span className="font-medium">{douyinPost.city || "未知"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">地区:</span>
+                  <span className="font-medium">{douyinPost.region || "未知"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">IP归属:</span>
+                  <span className="font-medium">{douyinPost.ip_attribution || "未知"}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="font-medium">IP归属:</span>{" "}
-              {douyinPost.ip_attribution}
-            </div>
-            <div>
-              <span className="font-medium">地区:</span> {douyinPost.region}
-            </div>
-            <div>
-              <span className="font-medium">广告:</span>{" "}
-              {douyinPost.is_ads ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">置顶:</span>{" "}
-              {douyinPost.is_top ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">带货:</span>{" "}
-              {douyinPost.with_goods ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">拍摄方式:</span>{" "}
-              {douyinPost.shoot_way}
-            </div>
-            <div>
-              <span className="font-medium">音乐作者:</span>{" "}
-              {douyinPost.music_author}
-            </div>
-            <div>
-              <span className="font-medium">播放次数:</span>{" "}
-              {formatNumber(douyinPost.play_count)}
-            </div>
+            {douyinPost.music_author && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
+                <div className="text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">音乐作者:</span>
+                    <span className="font-medium">{douyinPost.music_author}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
       case "xiaohongshu":
         const xhsPost = post as XiaohongshuPost;
         return (
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">类型:</span> {xhsPost.type}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">类型:</span>
+                    <Badge variant="outline" className="text-xs">{xhsPost.type || "未知"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">等级:</span>
+                    <Badge variant="secondary" className="text-xs">{xhsPost.level || "未知"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">最后更新:</span>
+                    <span className="font-medium text-xs">{formatDateTime(xhsPost.last_update_time)}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">精选笔记:</span>
+                    <Badge variant={xhsPost.is_good_note ? "default" : "outline"} className="text-xs">
+                      {xhsPost.is_good_note ? "是" : "否"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">有音乐:</span>
+                    <Badge variant={xhsPost.has_music ? "secondary" : "outline"} className="text-xs">
+                      {xhsPost.has_music ? "是" : "否"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="font-medium">等级:</span> {xhsPost.level}
-            </div>
-            <div>
-              <span className="font-medium">精选笔记:</span>{" "}
-              {xhsPost.is_good_note ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">有音乐:</span>{" "}
-              {xhsPost.has_music ? "是" : "否"}
-            </div>
-            <div>
-              <span className="font-medium">获赞数:</span>{" "}
-              {formatNumber(xhsPost.likes_count)}
-            </div>
-            <div>
-              <span className="font-medium">点赞数:</span>{" "}
-              {formatNumber(xhsPost.nice_count)}
-            </div>
-            <div>
-              <span className="font-medium">最后更新:</span>{" "}
-              {formatDateTime(xhsPost.last_update_time)}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">互动数据</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">获赞数:</span>
+                  <span className="font-medium">{formatNumber(xhsPost.likes_count)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">点赞数:</span>
+                  <span className="font-medium">{formatNumber(xhsPost.nice_count)}</span>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -573,7 +641,7 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-gray-100">
           {isOpen ? (
             <ChevronUp className="h-3 w-3" />
           ) : (
@@ -581,8 +649,10 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
           )}
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 p-3 bg-gray-50 rounded-lg">
-        {renderPostDetails()}
+      <CollapsibleContent className="mt-2">
+        <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+          {renderPostDetails()}
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );
