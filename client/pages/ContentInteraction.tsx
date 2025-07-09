@@ -98,7 +98,7 @@ const sampleContentData = [
   },
   {
     id: 2,
-    title: "学生党宿舍收纳神器推荐",
+    title: "学生党宿舍收���神器推荐",
     platform: "小红书",
     author: "生活记录家",
     url: "https://www.xiaohongshu.com/discovery/item/456789",
@@ -151,6 +151,110 @@ const sampleContentData = [
     contentType: "美食制作",
   },
 ];
+
+// 作品详情组件
+const ContentDetailsDropdown: React.FC<{ content: any }> = ({ content }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+          {isOpen ? (
+            <ChevronUp className="h-3 w-3" />
+          ) : (
+            <ChevronDown className="h-3 w-3" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 p-3 bg-muted/30 rounded-lg">
+        <div className="space-y-4">
+          {/* 作品详情 */}
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center">
+              <BookOpen className="h-4 w-4 mr-2" />
+              作品详情
+            </h4>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium">内容类型:</span>{" "}
+                {content.contentType}
+              </div>
+              <div>
+                <span className="font-medium">时长:</span> {content.duration}
+              </div>
+              <div>
+                <span className="font-medium">发布时间:</span>{" "}
+                {content.publishedAt}
+              </div>
+              <div>
+                <span className="font-medium">添加时间:</span> {content.addedAt}
+              </div>
+              <div className="col-span-2">
+                <span className="font-medium">作品链接:</span>
+                <a
+                  href={content.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-1 text-blue-600 hover:underline text-xs break-all"
+                >
+                  {content.url}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 作者信息 */}
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center">
+              <User className="h-4 w-4 mr-2" />
+              作者信息
+            </h4>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium">作者名称:</span> {content.author}
+              </div>
+              <div>
+                <span className="font-medium">发布平台:</span>{" "}
+                {content.platform}
+              </div>
+            </div>
+          </div>
+
+          {/* 数据统计 */}
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              数据统计
+            </h4>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center">
+                <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                <span className="font-medium">播放量:</span> {content.views}
+              </div>
+              <div className="flex items-center">
+                <Heart className="h-3 w-3 mr-1 text-red-500" />
+                <span className="font-medium">点赞:</span> {content.likes}
+              </div>
+              <div className="flex items-center">
+                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                <span className="font-medium">评论:</span> {content.comments}
+              </div>
+              <div className="flex items-center">
+                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                <span className="font-medium">分享:</span> {content.shares}
+              </div>
+              <div className="flex items-center col-span-2">
+                <Users className="h-3 w-3 mr-1 text-orange-500" />
+                <span className="font-medium">收藏:</span> {content.collections}
+              </div>
+            </div>
+          </div>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
 
 export default function ContentInteraction() {
   const [batchUrls, setBatchUrls] = useState("");
@@ -461,7 +565,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作���链接（每行一个，最多50个）
+                    作品链接（每行一个，最多50个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
