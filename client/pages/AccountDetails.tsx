@@ -1039,7 +1039,7 @@ export default function AccountDetails() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
         // Add delay to avoid overwhelming the browser
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     } catch (error) {
       console.error('Error downloading images:', error);
@@ -1158,7 +1158,8 @@ export default function AccountDetails() {
           <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-xl font-medium mb-2">无法加载账号数据</h3>
           <p className="text-gray-600 mb-6 text-center max-w-md">
-            请从账号列表页面点击进入，或者账号数据可能已过期
+            请从账号列表页面点击进入，或者账号数据可能已过期。
+            如需查看账号详情，请先选择账号。
           </p>
           <Button onClick={handleBackClick} className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
