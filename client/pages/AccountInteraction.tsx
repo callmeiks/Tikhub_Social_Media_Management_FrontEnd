@@ -54,7 +54,9 @@ import {
   type GetInfluencersParams,
   type TikTokInfluencer,
   type DouyinInfluencer,
-  type XiaohongshuInfluencer
+  type XiaohongshuInfluencer,
+  type CollectAccountsParams,
+  type CollectAccountsResponse
 } from "@/lib/api";
 
 const supportedPlatforms = [
@@ -78,20 +80,20 @@ export default function AccountInteraction() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 20;
+  
+  // 采集结果状态
+  const [collectResult, setCollectResult] = useState<{
+    total_successful: number;
+    total_failed: number;
+    failed_urls: string[];
+    show: boolean;
+  } | null>(null);
 
   const urlCount = batchUrls
     .split("\n")
     .map((url) => url.trim())
     .filter((url) => url.length > 0).length;
 
-  const validateUrl = (url: string) => {
-    const platformPatterns = [
-      /douyin\.com\/user/,
-      /xiaohongshu\.com\/user/,
-      /tiktok\.com\/@/,
-    ];
-    return platformPatterns.some((pattern) => pattern.test(url));
-  };
 
   const fetchInfluencers = async () => {
     if (selectedPlatforms.length === 0 || (selectedPlatforms.length === 1 && !selectedPlatforms.includes("all"))) {
@@ -240,12 +242,6 @@ export default function AccountInteraction() {
     return (account as any).avatar_url || '';
   };
 
-  const invalidUrls = batchUrls
-    .split("\n")
-    .map((url) => url.trim())
-    .filter((url) => url.length > 0 && !validateUrl(url));
-
-  const hasInvalidUrls = invalidUrls.length > 0;
 
   const handleCollect = async () => {
     if (urlCount === 0) {
@@ -258,27 +254,52 @@ export default function AccountInteraction() {
       return;
     }
 
-    if (hasInvalidUrls) {
-      alert("请修正无效的链接格式");
-      return;
-    }
 
     setIsCollecting(true);
-    // 模拟API调用
-    setTimeout(() => {
+    // 隐藏之前的结果
+    setCollectResult(null);
+    
+    try {
       const urls = batchUrls
         .split("\n")
         .map((url) => url.trim())
         .filter((url) => url.length > 0);
 
-      // 这里应该调用实际的API来采集数据
-      console.log("采集账号:", urls);
-      console.log("采集作品:", collectWorks);
-      console.log("采集数量:", collectionQuantity);
+      // 转换 collectionQuantity 为数字
+      const collectCountMap: { [key: string]: number } = {
+        "最新50": 50,
+        "最新100": 100,
+        "最新200": 200,
+      };
 
+      const collectParams: CollectAccountsParams = {
+        urls: urls,
+        collectPosts: collectWorks,
+        collectCount: collectCountMap[collectionQuantity] || 50,
+      };
+
+      const response: CollectAccountsResponse = await apiClient.collectAccounts(collectParams);
+      
       setIsCollecting(false);
-      alert(`成功添加 ${urls.length} 个账号到采集队列`);
-    }, 3000);
+      
+      // 显示采集结果
+      setCollectResult({
+        total_successful: response.total_successful,
+        total_failed: response.total_failed,
+        failed_urls: response.failed_urls,
+        show: true,
+      });
+      
+      // 清空输入框
+      setBatchUrls("");
+      
+      // 刷新账户列表
+      fetchInfluencers();
+    } catch (error) {
+      setIsCollecting(false);
+      console.error("采集账号失败:", error);
+      alert("采集失败，请检查网络连接或稍后重试");
+    }
   };
 
   const filteredAccountData = accountData;
@@ -674,27 +695,12 @@ https://weibo.com/u/123456789
                     maxLength={10000}
                   />
                   <div className="flex items-center space-x-2 text-xs">
-                    {urlCount > 0 && !hasInvalidUrls ? (
-                      <>
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-green-600">
-                          检测到 {urlCount} 个无效账号链接
-                        </span>
-                      </>
-                    ) : hasInvalidUrls ? (
-                      <>
-                        <AlertTriangle className="h-3 w-3 text-red-600" />
-                        <span className="text-red-600">
-                          发现 {invalidUrls.length} 个无效链接，请检查格式
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        支持主页链接和用户名，每行一个
-                      </span>
-                    )}
+                    <span className="text-muted-foreground">
+                      支持主页链接和用户名，每行一个
+                    </span>
                   </div>
                 </div>
+
 
                 {/* Collect Works Setting */}
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
@@ -752,7 +758,6 @@ https://weibo.com/u/123456789
                       disabled={
                         urlCount === 0 ||
                         urlCount > 20 ||
-                        hasInvalidUrls ||
                         isCollecting
                       }
                       className="h-8"
@@ -775,12 +780,73 @@ https://weibo.com/u/123456789
                     </Button>
                   </div>
 
+
                   <div className="text-xs text-muted-foreground">
                     {urlCount > 0 && <span>检测到 {urlCount} 个账号链接</span>}
                   </div>
                 </div>
               </CardContent>
             </Card>
+            
+            {/* 采集结果显示 */}
+            {collectResult && collectResult.show && (
+              <Card className="mt-4">
+                <CardContent className="p-4">
+                  <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-blue-900">采集结果</h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCollectResult(null)}
+                        className="h-6 w-6 p-0 text-blue-700 hover:text-blue-900"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-green-800">
+                          成功添加 {collectResult.total_successful} 个账号到采集队列
+                        </span>
+                      </div>
+                      
+                      {collectResult.total_failed > 0 && (
+                        <div className="flex items-center space-x-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                          <span className="text-sm text-red-800">
+                            失败 {collectResult.total_failed} 个账号
+                          </span>
+                        </div>
+                      )}
+                      
+                      {collectResult.failed_urls.length > 0 && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                          <p className="text-xs font-medium text-red-800 mb-1">失败的URL:</p>
+                          <div className="space-y-1">
+                            {collectResult.failed_urls.map((url, index) => (
+                              <div key={index} className="text-xs text-red-700 font-mono break-all">
+                                {url}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {collectResult.total_successful > 0 && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                          <p className="text-xs text-green-800">
+                            💡 成功添加后请到 <strong>历史账号数据</strong> 查看
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="accounts" className="mt-6">

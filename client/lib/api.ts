@@ -102,6 +102,19 @@ interface GetInfluencersParams {
   sort_by_posts?: 'ascending' | 'descending';
 }
 
+interface CollectAccountsParams {
+  urls: string[];
+  collectPosts: boolean;
+  collectCount: number;
+}
+
+interface CollectAccountsResponse {
+  total_successful: number;
+  total_failed: number;
+  failed_urls: string[];
+  celery_tasks: string[];
+}
+
 interface BasePost {
   id: string;
   task_id: string;
@@ -277,6 +290,19 @@ class ApiClient {
     
     return this.request<ApiResponse<Post>>(
       `/account-interaction/posts/${platform}/${platform_user_id}${query}`
+    );
+  }
+
+  async collectAccounts(params: CollectAccountsParams): Promise<CollectAccountsResponse> {
+    return this.request<CollectAccountsResponse>(
+      '/account-interaction/collect',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      }
     );
   }
 
