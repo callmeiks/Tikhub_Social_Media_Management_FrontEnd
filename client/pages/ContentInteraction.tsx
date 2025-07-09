@@ -367,7 +367,7 @@ export default function ContentInteraction() {
         break;
       case "copy":
         navigator.clipboard.writeText(content.url);
-        alert("链接已复制到剪贴板");
+        alert("链接已��制到剪贴板");
         break;
       case "edit":
         // TODO: 实现编辑功能
@@ -414,7 +414,7 @@ export default function ContentInteraction() {
         "作者",
         "发布时间",
         "播放量",
-        "点赞数",
+        "点赞��",
         "评论数",
         "分享数",
         "收藏数",
@@ -594,7 +594,7 @@ https://www.youtube.com/watch?v=example123
                       <>
                         <AlertTriangle className="h-3 w-3 text-red-600" />
                         <span className="text-red-600">
-                          发现 {invalidUrls.length} 个无效链接，请检查格式
+                          发现 {invalidUrls.length} 个无���链接，请检查格式
                         </span>
                       </>
                     ) : (
@@ -777,7 +777,8 @@ https://www.youtube.com/watch?v=example123
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[50px]">选择</TableHead>
-                          <TableHead className="w-[280px]">作品标题</TableHead>
+                          <TableHead className="w-[120px]">作品展示</TableHead>
+                          <TableHead className="w-[200px]">作品标题</TableHead>
                           <TableHead className="w-[80px]">平台</TableHead>
                           <TableHead className="w-[100px]">发布���间</TableHead>
                           <TableHead className="w-[100px]">播放量</TableHead>
