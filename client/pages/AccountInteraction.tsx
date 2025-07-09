@@ -94,11 +94,7 @@ export default function AccountInteraction() {
   };
 
   const fetchInfluencers = async () => {
-    const platformsToFetch = selectedPlatforms.includes("all") 
-      ? supportedPlatforms.map(p => p.name)
-      : selectedPlatforms;
-
-    if (platformsToFetch.length === 0) {
+    if (selectedPlatforms.length === 0 || (selectedPlatforms.length === 1 && !selectedPlatforms.includes("all"))) {
       setAccountData([]);
       setTotalItems(0);
       return;
@@ -106,15 +102,10 @@ export default function AccountInteraction() {
 
     setLoading(true);
     try {
-      const allInfluencers: Influencer[] = [];
-      let totalCount = 0;
-      
-      for (const platformName of platformsToFetch) {
-        const platform = supportedPlatforms.find(p => p.name === platformName);
-        if (!platform) continue;
-
+      if (selectedPlatforms.includes("all")) {
+        // When "all" is selected, make a single request with platform=all
         let sortParam: GetInfluencersParams = {
-          platform: platform.id as 'tiktok' | 'douyin' | 'xiaohongshu',
+          platform: 'all',
           page: currentPage,
           limit: itemsPerPage,
         };
@@ -144,17 +135,61 @@ export default function AccountInteraction() {
             break;
         }
 
-        try {
-          const response = await apiClient.getInfluencers(sortParam);
-          allInfluencers.push(...response.items);
-          totalCount += response.total;
-        } catch (error) {
-          console.warn(`Failed to fetch from ${platform.name}:`, error);
-        }
-      }
+        const response = await apiClient.getInfluencers(sortParam);
+        setAccountData(response.items);
+        setTotalItems(response.total);
+      } else {
+        // When specific platforms are selected, iterate through them
+        const allInfluencers: Influencer[] = [];
+        let totalCount = 0;
+        
+        for (const platformName of selectedPlatforms) {
+          const platform = supportedPlatforms.find(p => p.name === platformName);
+          if (!platform) continue;
 
-      setAccountData(allInfluencers);
-      setTotalItems(totalCount);
+          let sortParam: GetInfluencersParams = {
+            platform: platform.id as 'tiktok' | 'douyin' | 'xiaohongshu',
+            page: currentPage,
+            limit: itemsPerPage,
+          };
+
+          if (searchQuery.trim()) {
+            sortParam.nickname = searchQuery.trim();
+          }
+
+          switch (sortBy) {
+            case "粉丝量-高到低":
+              sortParam.sort_by_fans = "descending";
+              break;
+            case "粉丝量-低到高":
+              sortParam.sort_by_fans = "ascending";
+              break;
+            case "作品量-高到低":
+              sortParam.sort_by_posts = "descending";
+              break;
+            case "作品量-低到高":
+              sortParam.sort_by_posts = "ascending";
+              break;
+            case "点赞量-高到低":
+              sortParam.sort_by_likes = "descending";
+              break;
+            case "点赞量-低到高":
+              sortParam.sort_by_likes = "ascending";
+              break;
+          }
+
+          try {
+            const response = await apiClient.getInfluencers(sortParam);
+            allInfluencers.push(...response.items);
+            totalCount += response.total;
+          } catch (error) {
+            console.warn(`Failed to fetch from ${platform.name}:`, error);
+          }
+        }
+
+        setAccountData(allInfluencers);
+        setTotalItems(totalCount);
+      }
     } catch (error) {
       console.error("Failed to fetch influencers:", error);
     } finally {

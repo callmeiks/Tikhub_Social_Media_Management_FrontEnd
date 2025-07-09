@@ -93,7 +93,7 @@ interface XiaohongshuInfluencer extends BaseInfluencer {
 type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer;
 
 interface GetInfluencersParams {
-  platform: 'tiktok' | 'douyin' | 'xiaohongshu';
+  platform: 'tiktok' | 'douyin' | 'xiaohongshu' | 'all';
   page?: number;
   limit?: number;
   nickname?: string;
