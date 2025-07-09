@@ -399,7 +399,7 @@ export default function ContentInteraction() {
     );
 
     if (selectedContentData.length === 0) {
-      alert("请选择要导出的作品数据");
+      alert("请选择要导出的作���数据");
       return;
     }
 
@@ -800,6 +800,41 @@ https://www.youtube.com/watch?v=example123
                                   toggleContentSelection(content.id)
                                 }
                               />
+                            </TableCell>
+                            <TableCell>
+                              <div className="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
+                                {content.coverUrl ? (
+                                  <img
+                                    src={content.coverUrl}
+                                    alt={content.title}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                      e.currentTarget.nextElementSibling?.style.display =
+                                        "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <div
+                                  className="w-full h-full flex items-center justify-center bg-gray-200"
+                                  style={{
+                                    display: content.coverUrl ? "none" : "flex",
+                                  }}
+                                >
+                                  {content.duration &&
+                                  content.duration !== "-" ? (
+                                    <Play className="h-5 w-5 text-gray-500" />
+                                  ) : (
+                                    <Image className="h-5 w-5 text-gray-500" />
+                                  )}
+                                </div>
+                                {content.duration &&
+                                  content.duration !== "-" && (
+                                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                      {content.duration}
+                                    </div>
+                                  )}
+                              </div>
                             </TableCell>
                             <TableCell className="font-medium">
                               <div
