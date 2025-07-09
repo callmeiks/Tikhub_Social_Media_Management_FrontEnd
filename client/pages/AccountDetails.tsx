@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import douyinCityList from "../../douyin_city_list.json";
+import * as XLSX from 'xlsx';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Image,
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   apiClient,
@@ -839,23 +841,15 @@ const ImageGalleryModal: React.FC<{
   postTitle: string;
   onDownloadAll: () => void;
 }> = ({ isOpen, onClose, images, currentIndex, onIndexChange, postTitle, onDownloadAll }) => {
-  const nextImage = () => {
-    onIndexChange((currentIndex + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    onIndexChange(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span className="truncate pr-4">{postTitle}</span>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">
-                {currentIndex + 1} / {images.length}
+                共 {images.length} 张图片
               </span>
               <Button
                 variant="outline"
@@ -869,52 +863,56 @@ const ImageGalleryModal: React.FC<{
             </div>
           </DialogTitle>
         </DialogHeader>
-        <div className="relative">
-          <div className="flex items-center justify-center bg-gray-100 rounded-lg" style={{ minHeight: "60vh" }}>
-            <img
-              src={images[currentIndex]}
-              alt={`Image ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain rounded-lg"
-            />
-          </div>
-          {images.length > 1 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                onClick={prevImage}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                onClick={nextImage}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
-        {images.length > 1 && (
-          <div className="flex justify-center space-x-2 mt-4 max-h-20 overflow-x-auto">
+        <div className="overflow-y-auto max-h-[70vh] pr-2">
+          <div className="grid grid-cols-3 gap-4">
             {images.map((image, index) => (
-              <button
+              <div
                 key={index}
-                onClick={() => onIndexChange(index)}
-                className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 ${
-                  index === currentIndex ? 'border-blue-500' : 'border-gray-200'
+                className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer group border-2 transition-all duration-200 ${
+                  index === currentIndex ? 'border-blue-500 shadow-lg' : 'border-gray-200 hover:border-gray-300'
                 }`}
+                onClick={() => onIndexChange(index)}
               >
                 <img
                   src={image}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  alt={`Image ${index + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 />
-              </button>
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                  <div className="bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <Eye className="h-4 w-4 text-gray-700" />
+                  </div>
+                </div>
+                <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  {index + 1}
+                </div>
+              </div>
             ))}
+          </div>
+        </div>
+        {currentIndex >= 0 && currentIndex < images.length && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">
+                当前查看: 第 {currentIndex + 1} 张图片
+              </span>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = images[currentIndex];
+                    link.download = `${postTitle}_image_${currentIndex + 1}.jpg`;
+                    link.click();
+                  }}
+                  className="flex items-center space-x-1"
+                >
+                  <Download className="h-3 w-3" />
+                  <span>下载当前图片</span>
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </DialogContent>
@@ -1053,6 +1051,95 @@ export default function AccountDetails() {
       setSelectedVideoTitle(getPostTitle(post));
       setVideoModalOpen(true);
     }
+  };
+
+  const exportToExcel = () => {
+    if (!accountData) return;
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+
+    // User Info Sheet
+    const userInfoData = [
+      ['字段', '值'],
+      ['平台', getPlatformDisplayName(accountData.platform)],
+      ['昵称', accountData.nickname || ''],
+      ['粉丝数', getDisplayFollowers(accountData)],
+      ['作品数', getDisplayWorks(accountData)],
+      ['获赞总数', getDisplayLikes(accountData)],
+      ['创建时间', new Date(accountData.created_at).toLocaleDateString()],
+    ];
+
+    // Add platform-specific fields
+    switch (accountData.platform) {
+      case 'tiktok':
+        const tiktokAccount = accountData as TikTokInfluencer;
+        userInfoData.push(
+          ['Sec User ID', tiktokAccount.sec_user_id || ''],
+          ['用户ID', tiktokAccount.uid || ''],
+          ['唯一标识', tiktokAccount.unique_id || ''],
+          ['分类', tiktokAccount.category || ''],
+          ['企业认证', tiktokAccount.is_enterprise_verify ? '是' : '否'],
+          ['明星认证', tiktokAccount.is_star ? '是' : '否'],
+          ['个人简介', tiktokAccount.signature || '']
+        );
+        break;
+      case 'douyin':
+        const douyinAccount = accountData as DouyinInfluencer;
+        userInfoData.push(
+          ['Sec User ID', douyinAccount.sec_user_id || ''],
+          ['唯一标识', douyinAccount.unique_id || ''],
+          ['年龄', douyinAccount.age || ''],
+          ['性别', douyinAccount.gender === 1 ? '男' : douyinAccount.gender === 2 ? '女' : '未知'],
+          ['IP位置', douyinAccount.ip_location || ''],
+          ['明星认证', douyinAccount.is_star ? '是' : '否'],
+          ['个人简介', douyinAccount.signature || '']
+        );
+        break;
+      case 'xiaohongshu':
+        const xhsAccount = accountData as XiaohongshuInfluencer;
+        userInfoData.push(
+          ['User ID', xhsAccount.user_id || ''],
+          ['小红书ID', xhsAccount.red_id || ''],
+          ['性别', xhsAccount.gender === 1 ? '女' : xhsAccount.gender === 2 ? '男' : '未知'],
+          ['IP位置', xhsAccount.ip_location || ''],
+          ['小红书会员', xhsAccount.is_red_club ? '是' : '否'],
+          ['官方认证', xhsAccount.red_official_verified ? '是' : '否'],
+          ['个人简介', xhsAccount.desc || '']
+        );
+        break;
+    }
+
+    const userInfoWS = XLSX.utils.aoa_to_sheet(userInfoData);
+    XLSX.utils.book_append_sheet(wb, userInfoWS, 'User Info');
+
+    // User Posts Sheet
+    const postsData = [
+      ['作品标题', '平台', '发布时间', '点赞数', '评论数', '分享数', '播放量', '收藏数', '内容描述', '分享链接']
+    ];
+
+    posts.forEach(post => {
+      const stats = getPostStats(post);
+      postsData.push([
+        getPostTitle(post),
+        getPlatformDisplayName(post.platform),
+        formatDateTime(post.create_time),
+        stats.likes,
+        stats.comments,
+        stats.shares,
+        stats.views,
+        stats.collects,
+        post.desc || '',
+        getPostUrl(post)
+      ]);
+    });
+
+    const postsWS = XLSX.utils.aoa_to_sheet(postsData);
+    XLSX.utils.book_append_sheet(wb, postsWS, 'User Posts');
+
+    // Generate and download file
+    const fileName = `${accountData.nickname}_账号详情_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   };
 
   const getPlatformBadge = (platform: string) => {
@@ -1197,8 +1284,8 @@ export default function AccountDetails() {
       subtitle="账号数据详情及作品分析"
     >
       <div className="space-y-6">
-        {/* Back Button */}
-        <div className="flex justify-start">
+        {/* Back Button and Actions */}
+        <div className="flex justify-between items-center">
           <Button
             variant="outline"
             size="sm"
@@ -1207,6 +1294,15 @@ export default function AccountDetails() {
           >
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
             返回列表
+          </Button>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={exportToExcel}
+            className="h-8"
+          >
+            <FileSpreadsheet className="mr-2 h-3.5 w-3.5" />
+            导出Excel
           </Button>
         </div>
 
