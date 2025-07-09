@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,12 @@ import {
 
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", domain: "douyin.com" },
-  { id: "xiaohongshu", name: "小红书", emoji: "📖", domain: "xiaohongshu.com" },
+  {
+    id: "xiaohongshu",
+    name: "小红书",
+    emoji: "����",
+    domain: "xiaohongshu.com",
+  },
   { id: "kuaishou", name: "快手", emoji: "⚡", domain: "kuaishou.com" },
   { id: "bilibili", name: "哔哩哔哩", emoji: "📺", domain: "bilibili.com" },
   { id: "youtube", name: "YouTube", emoji: "📹", domain: "youtube.com" },
@@ -555,7 +560,7 @@ export default function ContentInteraction() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加作品
+              添加作��
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
@@ -587,7 +592,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品链接（每行一个���最多50个）
+                    作品��接（每行一个���最多50个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
@@ -1037,7 +1042,7 @@ https://www.youtube.com/watch?v=example123
                       </div>
                       <div className="text-sm font-medium">总��品数</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        已添加的作品总��
+                        已添加的作品总数
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
@@ -1046,7 +1051,7 @@ https://www.youtube.com/watch?v=example123
                       </div>
                       <div className="text-sm font-medium">总播放量</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        所有作品播放量总和
+                        所有作���播放量总和
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
