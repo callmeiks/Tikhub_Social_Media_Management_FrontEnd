@@ -565,7 +565,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品链接（每行一个，最多50个）
+                    作品链接（每行一个���最多50个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
@@ -810,8 +810,9 @@ https://www.youtube.com/watch?v=example123
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                       e.currentTarget.style.display = "none";
-                                      e.currentTarget.nextElementSibling?.style.display =
-                                        "flex";
+                                      const next = e.currentTarget
+                                        .nextElementSibling as HTMLElement;
+                                      if (next) next.style.display = "flex";
                                     }}
                                   />
                                 ) : null}
