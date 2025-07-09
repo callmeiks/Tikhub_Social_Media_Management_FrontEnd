@@ -27,6 +27,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search,
@@ -50,6 +55,14 @@ import {
   Edit,
   Star,
   BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Image,
+  User,
+  Calendar,
+  Clock,
+  MapPin,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -78,6 +91,10 @@ const sampleContentData = [
     shares: "8.5千",
     collections: "12.3万",
     addedAt: "2024-01-21 10:30",
+    coverUrl:
+      "https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?w=400&h=600&fit=crop",
+    duration: "00:15",
+    contentType: "美妆教程",
   },
   {
     id: 2,
@@ -92,6 +109,10 @@ const sampleContentData = [
     shares: "3.2千",
     collections: "25.6万",
     addedAt: "2024-01-21 09:15",
+    coverUrl:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop",
+    duration: "-",
+    contentType: "生活分享",
   },
   {
     id: 3,
@@ -106,6 +127,10 @@ const sampleContentData = [
     shares: "12.5千",
     collections: "18.7万",
     addedAt: "2024-01-21 14:20",
+    coverUrl:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=600&fit=crop",
+    duration: "03:25",
+    contentType: "数码评测",
   },
   {
     id: 4,
@@ -120,6 +145,10 @@ const sampleContentData = [
     shares: "4.1千",
     collections: "8.9万",
     addedAt: "2024-01-21 16:45",
+    coverUrl:
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=600&fit=crop",
+    duration: "05:30",
+    contentType: "美食制作",
   },
 ];
 
@@ -432,7 +461,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品链接（每行一个，最多50个）
+                    作���链接（每行一个，最多50个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
