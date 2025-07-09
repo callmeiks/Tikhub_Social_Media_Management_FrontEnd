@@ -367,7 +367,7 @@ export default function ContentInteraction() {
         break;
       case "copy":
         navigator.clipboard.writeText(content.url);
-        alert("链接已复制到剪贴板");
+        alert("链��已复制到剪贴板");
         break;
       case "edit":
         // TODO: 实现编辑功能
@@ -916,7 +916,7 @@ https://www.youtube.com/watch?v=example123
                                     }
                                   >
                                     <Copy className="mr-2 h-4 w-4" />
-                                    复制链接
+                                    ��制链接
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={() =>
@@ -954,6 +954,9 @@ https://www.youtube.com/watch?v=example123
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
+                            </TableCell>
+                            <TableCell>
+                              <ContentDetailsDropdown content={content} />
                             </TableCell>
                           </TableRow>
                         ))}
