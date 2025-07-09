@@ -367,7 +367,7 @@ export default function ContentInteraction() {
         break;
       case "copy":
         navigator.clipboard.writeText(content.url);
-        alert("链接已��制到剪贴板");
+        alert("链接已复制到剪贴板");
         break;
       case "edit":
         // TODO: 实现编辑功能
@@ -414,7 +414,7 @@ export default function ContentInteraction() {
         "作者",
         "发布时间",
         "播放量",
-        "点赞��",
+        "点赞数",
         "评论数",
         "分享数",
         "收藏数",
@@ -509,7 +509,7 @@ export default function ContentInteraction() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
               <Users className="mr-2 h-4 w-4" />
-              支持平台
+              支��平台
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -576,7 +576,7 @@ https://www.tiktok.com/@username/video/123
 https://www.bilibili.com/video/BV123456789
 https://www.youtube.com/watch?v=example123
 
-支持抖音、小红书、快手、B站、YouTube、TikTok、Instagram、X等平台`}
+支持抖音、小���书、快手、B站、YouTube、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -594,7 +594,7 @@ https://www.youtube.com/watch?v=example123
                       <>
                         <AlertTriangle className="h-3 w-3 text-red-600" />
                         <span className="text-red-600">
-                          发现 {invalidUrls.length} 个无���链接，请检查格式
+                          发现 {invalidUrls.length} 个无效链接，请检查格式
                         </span>
                       </>
                     ) : (
@@ -786,7 +786,8 @@ https://www.youtube.com/watch?v=example123
                           <TableHead className="w-[80px]">评论</TableHead>
                           <TableHead className="w-[80px]">分享</TableHead>
                           <TableHead className="w-[80px]">收藏</TableHead>
-                          <TableHead className="w-[60px]">操作</TableHead>
+                          <TableHead className="w-[50px]">操作</TableHead>
+                          <TableHead className="w-[50px]">详情</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
