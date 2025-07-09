@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import douyinCityList from "../../douyin_city_list.json";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,11 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
+  Download,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Image,
 } from "lucide-react";
 import {
   apiClient,
@@ -48,6 +54,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AvatarImage } from "@/components/ui/avatar-image";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const getPlatformUserIdKey = (platform: string): string => {
   switch (platform) {
@@ -349,7 +361,7 @@ const XiaohongshuAccountFields: React.FC<{
         </div>
         <div>
           <span className="font-medium">性别:</span>{" "}
-          {account.gender === 1 ? "男" : account.gender === 2 ? "女" : "未知"}
+          {account.gender === 1 ? "女" : account.gender === 2 ? "男" : "未知"}
         </div>
         <div>
           <span className="font-medium">IP位置:</span>{" "}
@@ -423,8 +435,7 @@ const XiaohongshuAccountFields: React.FC<{
   );
 };
 
-const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () => void }> = ({ post, isOpen, onToggle }) => {
 
   const renderPostDetails = () => {
     switch (post.platform) {
@@ -448,6 +459,19 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                     <span className="text-gray-600">语言:</span>
                     <span className="font-medium">{tiktokPost.desc_language || "未知"}</span>
                   </div>
+                  {tiktokPost.video_url && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">播放链接:</span>
+                      <a
+                        href={tiktokPost.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-xs"
+                      >
+                        查看视频
+                      </a>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">AI创作:</span>
                     <Badge variant={tiktokPost.created_by_ai ? "secondary" : "outline"} className="text-xs">
@@ -482,6 +506,52 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                 </div>
               </div>
             </div>
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">商业信息</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">商业音乐:</span>
+                  <Badge variant={tiktokPost.with_promotional_music ? "secondary" : "outline"} className="text-xs">
+                    {tiktokPost.with_promotional_music ? "是" : "否"}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">商业推广:</span>
+                  <Badge variant={tiktokPost.has_promote_entry ? "secondary" : "outline"} className="text-xs">
+                    {tiktokPost.has_promote_entry ? "是" : "否"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">技术信息</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">剪映制作:</span>
+                  <Badge variant={tiktokPost.is_capcut ? "secondary" : "outline"} className="text-xs">
+                    {tiktokPost.is_capcut ? "是" : "否"}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">内容类型:</span>
+                  <Badge variant={!tiktokPost.is_pgcshow ? "default" : "outline"} className="text-xs">
+                    {!tiktokPost.is_pgcshow ? "UGC" : "PGC"}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">VR内容:</span>
+                  <Badge variant={tiktokPost.is_vr ? "secondary" : "outline"} className="text-xs">
+                    {tiktokPost.is_vr ? "是" : "否"}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">弹幕支持:</span>
+                  <Badge variant={tiktokPost.support_danmaku ? "secondary" : "outline"} className="text-xs">
+                    {tiktokPost.support_danmaku ? "是" : "否"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
             {tiktokPost.music_author && (
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
@@ -494,6 +564,31 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                     <span className="text-gray-600">音乐时长:</span>
                     <span className="font-medium">{formatDuration(tiktokPost.music_duration * 1000)}</span>
                   </div>
+                  {tiktokPost.music_play_url && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">音乐链接:</span>
+                      <a
+                        href={tiktokPost.music_play_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-xs"
+                      >
+                        播放音乐
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {tiktokPost.cha_list && tiktokPost.cha_list.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">参与挑战</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {tiktokPost.cha_list.map((cha, index) => (
+                    <Badge key={cha.cid || index} variant="secondary" className="text-xs">
+                      #{cha.name}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             )}
@@ -520,6 +615,19 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                     <span className="text-gray-600">播放次数:</span>
                     <span className="font-medium">{formatNumber(douyinPost.play_count)}</span>
                   </div>
+                  {douyinPost.video_url && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">播放链接:</span>
+                      <a
+                        href={douyinPost.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-xs"
+                      >
+                        查看视频
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="space-y-3">
@@ -543,6 +651,12 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                       {douyinPost.with_goods ? "是" : "否"}
                     </Badge>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">作品警告:</span>
+                    <Badge variant={(douyinPost as any).is_warned ? "destructive" : "outline"} className="text-xs">
+                      {(douyinPost as any).is_warned ? "是" : "否"}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </div>
@@ -551,7 +665,11 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">城市:</span>
-                  <span className="font-medium">{douyinPost.city || "未知"}</span>
+                  <span className="font-medium">
+                    {douyinPost.city && douyinCityList[douyinPost.city as keyof typeof douyinCityList] 
+                      ? douyinCityList[douyinPost.city as keyof typeof douyinCityList]
+                      : douyinPost.city || "未知"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">地区:</span>
@@ -566,11 +684,42 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
             {douyinPost.music_author && (
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
-                <div className="text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">音乐作者:</span>
                     <span className="font-medium">{douyinPost.music_author}</span>
                   </div>
+                  {douyinPost.music_duration && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">音乐时长:</span>
+                      <span className="font-medium">{formatDuration(douyinPost.music_duration * 1000)}</span>
+                    </div>
+                  )}
+                  {douyinPost.music_play_url && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">音乐链接:</span>
+                      <a
+                        href={douyinPost.music_play_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-xs"
+                      >
+                        播放音乐
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {(douyinPost as any).cha_list && (douyinPost as any).cha_list.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">参与挑战</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {(douyinPost as any).cha_list.map((cha: any, index: number) => (
+                    <Badge key={cha.cid || index} variant="secondary" className="text-xs">
+                      #{cha.cha_name || cha.name}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             )}
@@ -628,6 +777,12 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
                   <span className="text-gray-600">点赞数:</span>
                   <span className="font-medium">{formatNumber(xhsPost.nice_count)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">高质量笔记:</span>
+                  <Badge variant={xhsPost.nice_count > 1000 ? "default" : "outline"} className="text-xs">
+                    {xhsPost.nice_count > 1000 ? "是" : "否"}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
@@ -638,23 +793,132 @@ const PostDetailsDropdown: React.FC<{ post: Post }> = ({ post }) => {
     }
   };
 
+  if (!isOpen) return null;
+  
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-gray-100">
-          {isOpen ? (
-            <ChevronUp className="h-3 w-3" />
-          ) : (
-            <ChevronDown className="h-3 w-3" />
-          )}
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2">
-        <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
-          {renderPostDetails()}
+    <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 mx-4 mb-2">
+      {renderPostDetails()}
+    </div>
+  );
+};
+
+const VideoModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  videoUrl: string;
+  title: string;
+}> = ({ isOpen, onClose, videoUrl, title }) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+          <video
+            className="absolute top-0 left-0 w-full h-full rounded-lg bg-black"
+            controls
+            autoPlay
+            src={videoUrl}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            您的浏览器不支持视频播放。
+          </video>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const ImageGalleryModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  images: string[];
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
+  postTitle: string;
+  onDownloadAll: () => void;
+}> = ({ isOpen, onClose, images, currentIndex, onIndexChange, postTitle, onDownloadAll }) => {
+  const nextImage = () => {
+    onIndexChange((currentIndex + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    onIndexChange(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            <span className="truncate pr-4">{postTitle}</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">
+                {currentIndex + 1} / {images.length}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDownloadAll}
+                className="flex items-center space-x-1"
+              >
+                <Download className="h-4 w-4" />
+                <span>下载全部</span>
+              </Button>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="relative">
+          <div className="flex items-center justify-center bg-gray-100 rounded-lg" style={{ minHeight: "60vh" }}>
+            <img
+              src={images[currentIndex]}
+              alt={`Image ${currentIndex + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          </div>
+          {images.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
+        {images.length > 1 && (
+          <div className="flex justify-center space-x-2 mt-4 max-h-20 overflow-x-auto">
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => onIndexChange(index)}
+                className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 ${
+                  index === currentIndex ? 'border-blue-500' : 'border-gray-200'
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -663,19 +927,35 @@ export default function AccountDetails() {
   const navigate = useNavigate();
   const [accountData, setAccountData] = useState<Influencer | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string>("");
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const postsPerPage = 20;
 
   useEffect(() => {
     // Get account data from sessionStorage
     const storedAccount = sessionStorage.getItem("selectedAccount");
     if (storedAccount) {
-      const account = JSON.parse(storedAccount) as Influencer;
-      setAccountData(account);
-      fetchPosts(account);
+      try {
+        const account = JSON.parse(storedAccount) as Influencer;
+        setAccountData(account);
+        fetchPosts(account);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to parse stored account data:", error);
+        setLoading(false);
+      }
+    } else {
+      // No account data found in sessionStorage
+      setLoading(false);
     }
   }, []);
 
@@ -712,6 +992,67 @@ export default function AccountDetails() {
 
   const handleBackClick = () => {
     navigate("/data-collection/account-interaction");
+  };
+
+  const getVideoUrl = (post: Post): string => {
+    switch (post.platform) {
+      case "tiktok":
+        return (post as TikTokPost).video_url || "";
+      case "douyin":
+        return (post as DouyinPost).video_url || "";
+      case "xiaohongshu":
+        return (post as any).video_url || "";
+      default:
+        return "";
+    }
+  };
+
+  const getXiaohongshuImages = (post: Post): string[] => {
+    if (post.platform === "xiaohongshu") {
+      return (post as XiaohongshuPost).images_list || [];
+    }
+    return [];
+  };
+
+
+  const handleImageGalleryOpen = (post: Post) => {
+    const images = getXiaohongshuImages(post);
+    if (images.length > 0) {
+      setSelectedImages(images);
+      setCurrentImageIndex(0);
+      setImageGalleryOpen(true);
+    }
+  };
+
+  const downloadAllImages = async (images: string[], postTitle: string) => {
+    try {
+      for (let i = 0; i < images.length; i++) {
+        const imageUrl = images[i];
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${postTitle}_image_${i + 1}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        // Add delay to avoid overwhelming the browser
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    } catch (error) {
+      console.error('Error downloading images:', error);
+    }
+  };
+
+  const handlePlayVideo = (post: Post) => {
+    const videoUrl = getVideoUrl(post);
+    if (videoUrl) {
+      setSelectedVideoUrl(videoUrl);
+      setSelectedVideoTitle(getPostTitle(post));
+      setVideoModalOpen(true);
+    }
   };
 
   const getPlatformBadge = (platform: string) => {
@@ -777,7 +1118,7 @@ export default function AccountDetails() {
       case "douyin":
         return (post as DouyinPost).share_url || "";
       case "xiaohongshu":
-        return (post as XiaohongshuPost).share_url || "";
+        return (post as any).share_url || "";
       default:
         return "";
     }
@@ -800,11 +1141,29 @@ export default function AccountDetails() {
     };
   };
 
-  if (!accountData) {
+  if (loading) {
     return (
       <DashboardLayout title="加载中..." subtitle="正在加载账号详情">
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!accountData) {
+    return (
+      <DashboardLayout title="账号详情" subtitle="账号数据详情">
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
+          <h3 className="text-xl font-medium mb-2">无法加载账号数据</h3>
+          <p className="text-gray-600 mb-6 text-center max-w-md">
+            请从账号列表页面点击进入，或者账号数据可能已过期
+          </p>
+          <Button onClick={handleBackClick} className="flex items-center">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            返回账号列表
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -935,7 +1294,7 @@ export default function AccountDetails() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[300px]">作品信息</TableHead>
-                        <TableHead className="w-[120px]">���布时间</TableHead>
+                        <TableHead className="w-[120px]">发布时间</TableHead>
                         <TableHead className="w-[100px]">点赞数</TableHead>
                         <TableHead className="w-[100px]">评论数</TableHead>
                         <TableHead className="w-[100px]">分享数</TableHead>
@@ -947,69 +1306,175 @@ export default function AccountDetails() {
                     <TableBody>
                       {posts.map((post) => {
                         const stats = getPostStats(post);
+                        const isExpanded = expandedPostId === post.id;
                         return (
-                          <TableRow key={post.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-16 h-12 rounded bg-gray-200 flex items-center justify-center">
-                                  <Play className="h-4 w-4 text-gray-500" />
-                                </div>
-                                <div>
-                                  <div
-                                    className="max-w-[200px] truncate font-medium"
-                                    title={getPostTitle(post)}
-                                  >
-                                    {getPostTitle(post)}
+                          <React.Fragment key={post.id}>
+                            <TableRow className={isExpanded ? "bg-gray-50" : ""}>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center space-x-3">
+                                  <div className="relative w-20 h-14 rounded overflow-hidden bg-gray-200 cursor-pointer group"
+                                       onClick={() => {
+                                         if (post.platform === "xiaohongshu") {
+                                           const images = getXiaohongshuImages(post);
+                                           const videoUrl = getVideoUrl(post);
+                                           if (images.length > 0) {
+                                             handleImageGalleryOpen(post);
+                                           } else if (videoUrl) {
+                                             handlePlayVideo(post);
+                                           }
+                                         } else {
+                                           handlePlayVideo(post);
+                                         }
+                                       }}>
+                                    {post.platform === "xiaohongshu" ? (
+                                      (() => {
+                                        const images = getXiaohongshuImages(post);
+                                        const videoUrl = getVideoUrl(post);
+                                        if (images.length > 0) {
+                                          return (
+                                            <>
+                                              <img
+                                                className="absolute top-0 left-0 w-full h-full object-cover"
+                                                src={images[0]}
+                                                alt="Post preview"
+                                              />
+                                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100">
+                                                  <Image className="h-3 w-3 text-gray-700" />
+                                                </div>
+                                              </div>
+                                              {images.length > 1 && (
+                                                <div className="absolute top-1 right-1 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded">
+                                                  {images.length}
+                                                </div>
+                                              )}
+                                            </>
+                                          );
+                                        } else if (videoUrl) {
+                                          return (
+                                            <>
+                                              <video
+                                                className="absolute top-0 left-0 w-full h-full object-cover"
+                                                src={videoUrl}
+                                                muted
+                                                preload="metadata"
+                                              />
+                                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                                                <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100">
+                                                  <Play className="h-3 w-3 text-gray-700" />
+                                                </div>
+                                              </div>
+                                            </>
+                                          );
+                                        } else {
+                                          return (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                              <Image className="h-4 w-4 text-gray-500" />
+                                            </div>
+                                          );
+                                        }
+                                      })()
+                                    ) : getVideoUrl(post) ? (
+                                      <>
+                                        <video
+                                          className="absolute top-0 left-0 w-full h-full object-cover"
+                                          src={getVideoUrl(post)}
+                                          muted
+                                          preload="metadata"
+                                        />
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                                          <div className="bg-white rounded-full p-1.5 opacity-80 group-hover:opacity-100">
+                                            <Play className="h-3 w-3 text-gray-700" />
+                                          </div>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <Play className="h-4 w-4 text-gray-500" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div
+                                      className="max-w-[180px] truncate font-medium text-sm"
+                                      title={getPostTitle(post)}
+                                    >
+                                      {getPostTitle(post)}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1 text-gray-400" />
-                                {formatDateTime(post.create_time)}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {stats.likes}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {stats.comments}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                {stats.shares}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {stats.views}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() =>
-                                  window.open(getPostUrl(post), "_blank")
-                                }
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </Button>
-                            </TableCell>
-                            <TableCell>
-                              <PostDetailsDropdown post={post} />
-                            </TableCell>
-                          </TableRow>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                                  {formatDateTime(post.create_time)}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="flex items-center">
+                                  <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                  {stats.likes}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="flex items-center">
+                                  <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                                  {stats.comments}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="flex items-center">
+                                  <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                  {stats.shares}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="flex items-center">
+                                  <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                                  {stats.views}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() =>
+                                    window.open(getPostUrl(post), "_blank")
+                                  }
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                                  onClick={() =>
+                                    setExpandedPostId(isExpanded ? null : post.id)
+                                  }
+                                >
+                                  {isExpanded ? (
+                                    <ChevronUp className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronDown className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                            {isExpanded && (
+                              <TableRow>
+                                <TableCell colSpan={8} className="p-0 border-0">
+                                  <PostDetailsDropdown
+                                    post={post}
+                                    isOpen={isExpanded}
+                                    onToggle={() => setExpandedPostId(null)}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </React.Fragment>
                         );
                       })}
                     </TableBody>
@@ -1054,6 +1519,25 @@ export default function AccountDetails() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        videoUrl={selectedVideoUrl}
+        title={selectedVideoTitle}
+      />
+
+      {/* Image Gallery Modal */}
+      <ImageGalleryModal
+        isOpen={imageGalleryOpen}
+        onClose={() => setImageGalleryOpen(false)}
+        images={selectedImages}
+        currentIndex={currentImageIndex}
+        onIndexChange={setCurrentImageIndex}
+        postTitle={selectedVideoTitle}
+        onDownloadAll={() => downloadAllImages(selectedImages, selectedVideoTitle)}
+      />
     </DashboardLayout>
   );
 }
