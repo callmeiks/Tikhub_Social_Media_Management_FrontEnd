@@ -19,6 +19,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search,
@@ -36,6 +44,12 @@ import {
   Link,
   BarChart3,
   Plus,
+  MoreVertical,
+  Copy,
+  Trash2,
+  Edit,
+  Star,
+  BookOpen,
 } from "lucide-react";
 
 const supportedPlatforms = [
@@ -97,7 +111,7 @@ const sampleContentData = [
     id: 4,
     title: "创意料理：芝士焗红薯制作教程",
     platform: "哔哩哔哩",
-    author: "美食up主",
+    author: "��食up主",
     url: "https://www.bilibili.com/video/BV123456789",
     publishedAt: "2024-01-18",
     views: "89万",
@@ -208,6 +222,42 @@ export default function ContentInteraction() {
 
   const clearAllContent = () => {
     setSelectedContent([]);
+  };
+
+  const handleContentAction = (action: string, contentId: number) => {
+    const content = contentData.find((c) => c.id === contentId);
+    if (!content) return;
+
+    switch (action) {
+      case "view":
+        window.open(content.url, "_blank");
+        break;
+      case "copy":
+        navigator.clipboard.writeText(content.url);
+        alert("链接已复制到剪贴板");
+        break;
+      case "edit":
+        // TODO: 实现编辑功能
+        alert(`编辑作品: ${content.title}`);
+        break;
+      case "star":
+        // TODO: 实现收藏功能
+        alert(`收藏作品: ${content.title}`);
+        break;
+      case "analyze":
+        // TODO: 实现详细分析功能
+        alert(`分析作品: ${content.title}`);
+        break;
+      case "delete":
+        if (confirm(`确定要删除作品"${content.title}"吗？`)) {
+          setContentData((prev) => prev.filter((c) => c.id !== contentId));
+          setSelectedContent((prev) => prev.filter((id) => id !== contentId));
+          alert("作品已删除");
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   const exportContentData = () => {
@@ -425,7 +475,7 @@ https://www.youtube.com/watch?v=example123
                 {urlCount > 50 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>链接数量超过限制，请删除多余的链接</span>
+                    <span>链接数量超过限制，请删除多余的链��</span>
                   </div>
                 )}
 
@@ -596,7 +646,7 @@ https://www.youtube.com/watch?v=example123
                           <TableHead className="w-[50px]">选择</TableHead>
                           <TableHead className="w-[280px]">作品标题</TableHead>
                           <TableHead className="w-[80px]">平台</TableHead>
-                          <TableHead className="w-[100px]">发布时间</TableHead>
+                          <TableHead className="w-[100px]">发布���间</TableHead>
                           <TableHead className="w-[100px]">播放量</TableHead>
                           <TableHead className="w-[80px]">点赞</TableHead>
                           <TableHead className="w-[80px]">评论</TableHead>
@@ -666,16 +716,74 @@ https://www.youtube.com/watch?v=example123
                               </span>
                             </TableCell>
                             <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() =>
-                                  window.open(content.url, "_blank")
-                                }
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="w-48"
+                                >
+                                  <DropdownMenuLabel>操作</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("view", content.id)
+                                    }
+                                  >
+                                    <ExternalLink className="mr-2 h-4 w-4" />
+                                    查看原作品
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("copy", content.id)
+                                    }
+                                  >
+                                    <Copy className="mr-2 h-4 w-4" />
+                                    复制链接
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("star", content.id)
+                                    }
+                                  >
+                                    <Star className="mr-2 h-4 w-4" />
+                                    收藏作品
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("analyze", content.id)
+                                    }
+                                  >
+                                    <BookOpen className="mr-2 h-4 w-4" />
+                                    详细分析
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("edit", content.id)
+                                    }
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    编辑信息
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleContentAction("delete", content.id)
+                                    }
+                                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    删除作品
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         ))}
