@@ -450,6 +450,10 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                 <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
+                    <span className="text-gray-600">作品ID:</span>
+                    <span className="font-medium text-xs break-all">{tiktokPost.aweme_id || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-600">内容类型:</span>
                     <span className="font-medium">{tiktokPost.content_type || "未知"}</span>
                   </div>
@@ -606,6 +610,10 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                 <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
+                    <span className="text-gray-600">作品ID:</span>
+                    <span className="font-medium text-xs break-all">{(douyinPost as any).aweme_id || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-600">时长:</span>
                     <span className="font-medium">{formatDuration(douyinPost.duration)}</span>
                   </div>
@@ -737,16 +745,16 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                 <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
+                    <span className="text-gray-600">笔记ID:</span>
+                    <span className="font-medium text-xs break-all">{xhsPost.note_id || "未知"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-600">类型:</span>
                     <Badge variant="outline" className="text-xs">{xhsPost.type || "未知"}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">等级:</span>
                     <Badge variant="secondary" className="text-xs">{xhsPost.level || "未知"}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">最后更新:</span>
-                    <span className="font-medium text-xs">{formatDateTime(xhsPost.last_update_time)}</span>
                   </div>
                 </div>
               </div>
@@ -772,21 +780,31 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
               <h4 className="font-medium text-sm text-gray-700 border-b pb-1">互动数据</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">获赞数:</span>
+                  <span className="text-gray-600">点赞数:</span>
                   <span className="font-medium">{formatNumber(xhsPost.likes_count)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">点赞数:</span>
-                  <span className="font-medium">{formatNumber(xhsPost.nice_count)}</span>
+                  <span className="text-gray-600">分享数:</span>
+                  <span className="font-medium">{formatNumber(xhsPost.share_count)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">高质量笔记:</span>
-                  <Badge variant={xhsPost.nice_count > 1000 ? "default" : "outline"} className="text-xs">
-                    {xhsPost.nice_count > 1000 ? "是" : "否"}
-                  </Badge>
+                  <span className="text-gray-600">评论数:</span>
+                  <span className="font-medium">{formatNumber(xhsPost.comment_count)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">收藏数:</span>
+                  <span className="font-medium">{formatNumber(xhsPost.collect_count)}</span>
                 </div>
               </div>
             </div>
+            {xhsPost.desc && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">笔记内容</h4>
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+                  <p className="whitespace-pre-wrap">{xhsPost.desc}</p>
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -1059,86 +1077,60 @@ export default function AccountDetails() {
     // Create workbook
     const wb = XLSX.utils.book_new();
 
-    // User Info Sheet
-    const userInfoData = [
-      ['字段', '值'],
-      ['平台', getPlatformDisplayName(accountData.platform)],
-      ['昵称', accountData.nickname || ''],
-      ['粉丝数', getDisplayFollowers(accountData)],
-      ['作品数', getDisplayWorks(accountData)],
-      ['获赞总数', getDisplayLikes(accountData)],
-      ['创建时间', new Date(accountData.created_at).toLocaleDateString()],
-    ];
-
-    // Add platform-specific fields
-    switch (accountData.platform) {
-      case 'tiktok':
-        const tiktokAccount = accountData as TikTokInfluencer;
-        userInfoData.push(
-          ['Sec User ID', tiktokAccount.sec_user_id || ''],
-          ['用户ID', tiktokAccount.uid || ''],
-          ['唯一标识', tiktokAccount.unique_id || ''],
-          ['分类', tiktokAccount.category || ''],
-          ['企业认证', tiktokAccount.is_enterprise_verify ? '是' : '否'],
-          ['明星认证', tiktokAccount.is_star ? '是' : '否'],
-          ['个人简介', tiktokAccount.signature || '']
-        );
-        break;
-      case 'douyin':
-        const douyinAccount = accountData as DouyinInfluencer;
-        userInfoData.push(
-          ['Sec User ID', douyinAccount.sec_user_id || ''],
-          ['唯一标识', douyinAccount.unique_id || ''],
-          ['年龄', douyinAccount.age || ''],
-          ['性别', douyinAccount.gender === 1 ? '男' : douyinAccount.gender === 2 ? '女' : '未知'],
-          ['IP位置', douyinAccount.ip_location || ''],
-          ['明星认证', douyinAccount.is_star ? '是' : '否'],
-          ['个人简介', douyinAccount.signature || '']
-        );
-        break;
-      case 'xiaohongshu':
-        const xhsAccount = accountData as XiaohongshuInfluencer;
-        userInfoData.push(
-          ['User ID', xhsAccount.user_id || ''],
-          ['小红书ID', xhsAccount.red_id || ''],
-          ['性别', xhsAccount.gender === 1 ? '女' : xhsAccount.gender === 2 ? '男' : '未知'],
-          ['IP位置', xhsAccount.ip_location || ''],
-          ['小红书会员', xhsAccount.is_red_club ? '是' : '否'],
-          ['官方认证', xhsAccount.red_official_verified ? '是' : '否'],
-          ['个人简介', xhsAccount.desc || '']
-        );
-        break;
-    }
+    // User Info Sheet - Export all user data
+    const userInfoHeaders = Object.keys(accountData);
+    const userInfoData = [userInfoHeaders];
+    
+    // Convert account data to row format
+    const userInfoRow = userInfoHeaders.map(key => {
+      const value = (accountData as any)[key];
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'boolean') return value ? '是' : '否';
+      if (typeof value === 'object') return JSON.stringify(value);
+      return String(value);
+    });
+    userInfoData.push(userInfoRow);
 
     const userInfoWS = XLSX.utils.aoa_to_sheet(userInfoData);
     XLSX.utils.book_append_sheet(wb, userInfoWS, 'User Info');
 
-    // User Posts Sheet
-    const postsData = [
-      ['作品标题', '平台', '发布时间', '点赞数', '评论数', '分享数', '播放量', '收藏数', '内容描述', '分享链接']
-    ];
-
-    posts.forEach(post => {
-      const stats = getPostStats(post);
-      postsData.push([
-        getPostTitle(post),
-        getPlatformDisplayName(post.platform),
-        formatDateTime(post.create_time),
-        stats.likes,
-        stats.comments,
-        stats.shares,
-        stats.views,
-        stats.collects,
-        post.desc || '',
-        getPostUrl(post)
-      ]);
-    });
-
-    const postsWS = XLSX.utils.aoa_to_sheet(postsData);
-    XLSX.utils.book_append_sheet(wb, postsWS, 'User Posts');
+    // User Posts Sheet - Export all posts data
+    if (posts.length > 0) {
+      // Get all unique keys from all posts
+      const allPostKeys = new Set<string>();
+      posts.forEach(post => {
+        Object.keys(post).forEach(key => allPostKeys.add(key));
+      });
+      
+      const postsHeaders = Array.from(allPostKeys);
+      const postsData = [postsHeaders];
+      
+      // Convert each post to row format
+      posts.forEach(post => {
+        const postRow = postsHeaders.map(key => {
+          const value = (post as any)[key];
+          if (value === null || value === undefined) return '';
+          if (typeof value === 'boolean') return value ? '是' : '否';
+          if (typeof value === 'object') {
+            // Special handling for arrays and objects
+            if (Array.isArray(value)) {
+              return value.map(item => 
+                typeof item === 'object' ? JSON.stringify(item) : String(item)
+              ).join('; ');
+            }
+            return JSON.stringify(value);
+          }
+          return String(value);
+        });
+        postsData.push(postRow);
+      });
+      
+      const postsWS = XLSX.utils.aoa_to_sheet(postsData);
+      XLSX.utils.book_append_sheet(wb, postsWS, 'User Posts');
+    }
 
     // Generate and download file
-    const fileName = `${accountData.nickname}_账号详情_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `${accountData.nickname}_完整数据_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
   };
 
@@ -1328,7 +1320,7 @@ export default function AccountDetails() {
                     <div className="font-medium text-lg">
                       {getDisplayFollowers(accountData)}
                     </div>
-                    <div className="text-muted-foreground">粉��数</div>
+                    <div className="text-muted-foreground">粉丝数</div>
                   </div>
                   <div>
                     <div className="font-medium text-lg">
