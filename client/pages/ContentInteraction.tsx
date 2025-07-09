@@ -152,107 +152,120 @@ const sampleContentData = [
   },
 ];
 
-// 作品详情组件
-const ContentDetailsDropdown: React.FC<{ content: any }> = ({ content }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+// 作品详情展示组件
+const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          {isOpen ? (
-            <ChevronUp className="h-3 w-3" />
-          ) : (
-            <ChevronDown className="h-3 w-3" />
-          )}
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 p-3 bg-muted/30 rounded-lg">
-        <div className="space-y-4">
-          {/* 作品详情 */}
-          <div>
-            <h4 className="text-sm font-medium mb-2 flex items-center">
-              <BookOpen className="h-4 w-4 mr-2" />
-              作品详情
-            </h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="font-medium">内容类型:</span>{" "}
-                {content.contentType}
-              </div>
-              <div>
-                <span className="font-medium">时长:</span> {content.duration}
-              </div>
-              <div>
-                <span className="font-medium">发布时间:</span>{" "}
-                {content.publishedAt}
-              </div>
-              <div>
-                <span className="font-medium">添加时间:</span> {content.addedAt}
-              </div>
-              <div className="col-span-2">
-                <span className="font-medium">作品链接:</span>
-                <a
-                  href={content.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-1 text-blue-600 hover:underline text-xs break-all"
-                >
-                  {content.url}
-                </a>
-              </div>
+    <div className="p-4 bg-muted/30 border-t">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 作品详情 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <BookOpen className="h-4 w-4 mr-2" />
+            作品详情
+          </h4>
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-muted-foreground">
+                内容类型:
+              </span>
+              <span className="ml-2">{content.contentType}</span>
             </div>
-          </div>
-
-          {/* 作者信息 */}
-          <div>
-            <h4 className="text-sm font-medium mb-2 flex items-center">
-              <User className="h-4 w-4 mr-2" />
-              作者信息
-            </h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="font-medium">作者名称:</span> {content.author}
-              </div>
-              <div>
-                <span className="font-medium">发布平台:</span>{" "}
-                {content.platform}
-              </div>
+            <div>
+              <span className="font-medium text-muted-foreground">时长:</span>
+              <span className="ml-2">{content.duration}</span>
             </div>
-          </div>
-
-          {/* 数据统计 */}
-          <div>
-            <h4 className="text-sm font-medium mb-2 flex items-center">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              数据统计
-            </h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center">
-                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                <span className="font-medium">播放量:</span> {content.views}
-              </div>
-              <div className="flex items-center">
-                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                <span className="font-medium">点赞:</span> {content.likes}
-              </div>
-              <div className="flex items-center">
-                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                <span className="font-medium">评论:</span> {content.comments}
-              </div>
-              <div className="flex items-center">
-                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                <span className="font-medium">分享:</span> {content.shares}
-              </div>
-              <div className="flex items-center col-span-2">
-                <Users className="h-3 w-3 mr-1 text-orange-500" />
-                <span className="font-medium">收藏:</span> {content.collections}
-              </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                发布时间:
+              </span>
+              <span className="ml-2">{content.publishedAt}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                添加时间:
+              </span>
+              <span className="ml-2">{content.addedAt}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                作品链接:
+              </span>
+              <a
+                href={content.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-blue-600 hover:underline text-xs break-all"
+              >
+                {content.url.length > 60
+                  ? content.url.substring(0, 60) + "..."
+                  : content.url}
+              </a>
             </div>
           </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+
+        {/* 作者信息 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <User className="h-4 w-4 mr-2" />
+            作者信息
+          </h4>
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-muted-foreground">
+                作者名称:
+              </span>
+              <span className="ml-2">{content.author}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                发布平台:
+              </span>
+              <span className="ml-2">{content.platform}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">作品ID:</span>
+              <span className="ml-2 font-mono text-xs">{content.id}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 数据统计 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            数据统计
+          </h4>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center">
+              <Eye className="h-3 w-3 mr-1 text-blue-500" />
+              <span className="font-medium text-muted-foreground">播放:</span>
+              <span className="ml-1">{content.views}</span>
+            </div>
+            <div className="flex items-center">
+              <Heart className="h-3 w-3 mr-1 text-red-500" />
+              <span className="font-medium text-muted-foreground">点赞:</span>
+              <span className="ml-1">{content.likes}</span>
+            </div>
+            <div className="flex items-center">
+              <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+              <span className="font-medium text-muted-foreground">评论:</span>
+              <span className="ml-1">{content.comments}</span>
+            </div>
+            <div className="flex items-center">
+              <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+              <span className="font-medium text-muted-foreground">分享:</span>
+              <span className="ml-1">{content.shares}</span>
+            </div>
+            <div className="flex items-center col-span-2">
+              <Users className="h-3 w-3 mr-1 text-orange-500" />
+              <span className="font-medium text-muted-foreground">收藏:</span>
+              <span className="ml-1">{content.collections}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -264,6 +277,7 @@ export default function ContentInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedContent, setSelectedContent] = useState<number[]>([]);
+  const [expandedContent, setExpandedContent] = useState<number[]>([]);
 
   const urlCount = batchUrls
     .split("\n")
@@ -367,7 +381,7 @@ export default function ContentInteraction() {
         break;
       case "copy":
         navigator.clipboard.writeText(content.url);
-        alert("链��已复制到剪贴板");
+        alert("链��已��制到剪贴板");
         break;
       case "edit":
         // TODO: 实现编辑功能
@@ -414,7 +428,7 @@ export default function ContentInteraction() {
         "作者",
         "发布时间",
         "播放量",
-        "点赞数",
+        "��赞数",
         "评论数",
         "分享数",
         "收藏数",
