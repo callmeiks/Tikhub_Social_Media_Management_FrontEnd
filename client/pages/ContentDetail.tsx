@@ -80,7 +80,7 @@ const sampleContentData: Record<number, any> = {
     duration: "00:15",
     contentType: "美妆教程",
     description:
-      "新手必看的韩式裸妆教程，简单易学，让你轻松拥有清透自然的妆容效果。视频详细展示了底妆、眉毛、眼���、唇妆等各个步骤。",
+      "新手必看的韩式裸妆教程，简单易学，让你轻松拥有清透自然的妆容效果。视频详细展示了底妆、眉毛、眼妆、唇妆等各个步骤。",
     tags: ["美妆", "教程", "韩式", "裸妆", "新手"],
     location: "上海市",
     musicTitle: "Sweet Dreams",
@@ -152,6 +152,264 @@ const sampleContentData: Record<number, any> = {
         { factor: "机器人评论", level: "低", percentage: 3.8 },
         { factor: "虚假点赞", level: "低", percentage: 1.2 },
         { factor: "异常分享", level: "极低", percentage: 0.5 },
+      ],
+    },
+  },
+  2: {
+    id: 2,
+    title: "学生党宿舍收纳神器推荐",
+    platform: "小红书",
+    author: "生活记录家",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    authorFollowers: "86.2万",
+    authorVerified: true,
+    url: "https://www.xiaohongshu.com/discovery/item/456789",
+    publishedAt: "2024-01-19",
+    views: "120万",
+    likes: "8.9万",
+    comments: "1.5万",
+    shares: "3.2千",
+    collections: "25.6万",
+    addedAt: "2024-01-21 09:15",
+    coverUrl:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop",
+    duration: "-",
+    contentType: "生活分享",
+    description:
+      "专为学生党设计的宿舍收纳神器推荐，超实用的收纳技巧和产品分享，让你的宿舍变得整洁有序。",
+    tags: ["收纳", "宿舍", "学生党", "整理", "神器"],
+    location: "北京市",
+    musicTitle: "轻音乐",
+    engagement: 12.8,
+    trendData: [
+      { time: "00:00", views: 800, likes: 40, comments: 8 },
+      { time: "01:00", views: 3500, likes: 180, comments: 35 },
+      { time: "02:00", views: 8900, likes: 520, comments: 89 },
+      { time: "03:00", views: 18500, likes: 1200, comments: 180 },
+      { time: "06:00", views: 35000, likes: 2800, comments: 420 },
+      { time: "12:00", views: 68000, likes: 5200, comments: 950 },
+      { time: "24:00", views: 120000, likes: 8900, comments: 1500 },
+    ],
+    audienceGender: [
+      { name: "女性", value: 85, color: "#ff6b9d" },
+      { name: "男性", value: 15, color: "#4dabf7" },
+    ],
+    audienceAge: [
+      { age: "18-24", percentage: 68, color: "#ff9f43" },
+      { age: "25-30", percentage: 22, color: "#10ac84" },
+      { age: "31-35", percentage: 8, color: "#54a0ff" },
+      { age: "36+", percentage: 2, color: "#a55eea" },
+    ],
+    wordCloud: [
+      { text: "收纳", size: 95 },
+      { text: "宿舍", size: 88 },
+      { text: "学生党", size: 75 },
+      { text: "整理", size: 68 },
+      { text: "神器", size: 62 },
+      { text: "实用", size: 55 },
+      { text: "推荐", size: 50 },
+      { text: "技巧", size: 45 },
+    ],
+    relatedProducts: [
+      {
+        name: "折叠收纳箱",
+        price: "¥39",
+        sales: "8.5万",
+        image:
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop",
+      },
+      {
+        name: "桌面整理架",
+        price: "¥59",
+        sales: "5.2万",
+        image:
+          "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=100&h=100&fit=crop",
+      },
+    ],
+    trafficAnalysis: {
+      suspiciousLevel: "低风险",
+      suspiciousPercentage: 5,
+      realEngagement: 95,
+      botComments: 8,
+      spamLikes: 89,
+      qualityScore: 96,
+      riskFactors: [
+        { factor: "机器人评论", level: "极低", percentage: 2.1 },
+        { factor: "虚假点赞", level: "低", percentage: 0.8 },
+        { factor: "异常分享", level: "极低", percentage: 0.2 },
+      ],
+    },
+  },
+  3: {
+    id: 3,
+    title: "iPhone 15 Pro Max Deep Review",
+    platform: "TikTok",
+    author: "TechReviewer",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    authorFollowers: "205.8万",
+    authorVerified: true,
+    url: "https://www.tiktok.com/@techreviewer/video/789012",
+    publishedAt: "2024-01-21",
+    views: "450万",
+    likes: "25.8万",
+    comments: "8.9万",
+    shares: "12.5千",
+    collections: "18.7万",
+    addedAt: "2024-01-21 14:20",
+    coverUrl:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=600&fit=crop",
+    duration: "03:25",
+    contentType: "数码评测",
+    description:
+      "全面深度评测iPhone 15 Pro Max，从性能、拍照、续航等多个维度详细分析，为购买决策提供参考。",
+    tags: ["iPhone", "评测", "数码", "科技", "深度"],
+    location: "深圳市",
+    musicTitle: "Tech Beat",
+    engagement: 16.5,
+    trendData: [
+      { time: "00:00", views: 2000, likes: 120, comments: 25 },
+      { time: "01:00", views: 8500, likes: 580, comments: 125 },
+      { time: "02:00", views: 22000, likes: 1800, comments: 380 },
+      { time: "03:00", views: 58000, likes: 4200, comments: 890 },
+      { time: "06:00", views: 125000, likes: 8900, comments: 2200 },
+      { time: "12:00", views: 280000, likes: 18500, comments: 5800 },
+      { time: "24:00", views: 450000, likes: 25800, comments: 8900 },
+    ],
+    audienceGender: [
+      { name: "男性", value: 72, color: "#4dabf7" },
+      { name: "女性", value: 28, color: "#ff6b9d" },
+    ],
+    audienceAge: [
+      { age: "18-24", percentage: 35, color: "#ff9f43" },
+      { age: "25-30", percentage: 42, color: "#10ac84" },
+      { age: "31-35", percentage: 18, color: "#54a0ff" },
+      { age: "36+", percentage: 5, color: "#a55eea" },
+    ],
+    wordCloud: [
+      { text: "iPhone", size: 100 },
+      { text: "评测", size: 90 },
+      { text: "深度", size: 78 },
+      { text: "性能", size: 70 },
+      { text: "拍照", size: 65 },
+      { text: "续航", size: 58 },
+      { text: "科技", size: 52 },
+      { text: "分析", size: 48 },
+    ],
+    relatedProducts: [
+      {
+        name: "iPhone 15 Pro Max",
+        price: "¥9999",
+        sales: "12.8万",
+        image:
+          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop",
+      },
+      {
+        name: "苹果手机壳",
+        price: "¥199",
+        sales: "25.6万",
+        image:
+          "https://images.unsplash.com/photo-1604467794349-0b74285de7e7?w=100&h=100&fit=crop",
+      },
+    ],
+    trafficAnalysis: {
+      suspiciousLevel: "低风险",
+      suspiciousPercentage: 12,
+      realEngagement: 88,
+      botComments: 52,
+      spamLikes: 380,
+      qualityScore: 91,
+      riskFactors: [
+        { factor: "机器人评论", level: "低", percentage: 5.8 },
+        { factor: "虚假点赞", level: "低", percentage: 1.5 },
+        { factor: "异常分享", level: "极低", percentage: 0.3 },
+      ],
+    },
+  },
+  4: {
+    id: 4,
+    title: "创意料理：芝士焗红薯制作教程",
+    platform: "哔哩哔哩",
+    author: "美食up主",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    authorFollowers: "156.8万",
+    authorVerified: true,
+    url: "https://www.bilibili.com/video/BV123456789",
+    publishedAt: "2024-01-18",
+    views: "89万",
+    likes: "12.5万",
+    comments: "2.8万",
+    shares: "4.1千",
+    collections: "8.9万",
+    addedAt: "2024-01-21 16:45",
+    coverUrl:
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=600&fit=crop",
+    duration: "05:30",
+    contentType: "美食制作",
+    description:
+      "创意美食制作教程，教你如何制作美味的芝士焗红薯，简单易学，营养丰富，适合居家制作。",
+    tags: ["美食", "料理", "芝士", "红薯", "教程"],
+    location: "广州市",
+    musicTitle: "Cooking Music",
+    engagement: 20.2,
+    trendData: [
+      { time: "00:00", views: 1500, likes: 85, comments: 18 },
+      { time: "01:00", views: 6800, likes: 420, comments: 95 },
+      { time: "02:00", views: 15600, likes: 1200, comments: 285 },
+      { time: "03:00", views: 32000, likes: 2800, comments: 680 },
+      { time: "06:00", views: 52000, likes: 5200, comments: 1200 },
+      { time: "12:00", views: 71000, likes: 8900, comments: 1980 },
+      { time: "24:00", views: 89000, likes: 12500, comments: 2800 },
+    ],
+    audienceGender: [
+      { name: "女性", value: 68, color: "#ff6b9d" },
+      { name: "男性", value: 32, color: "#4dabf7" },
+    ],
+    audienceAge: [
+      { age: "18-24", percentage: 28, color: "#ff9f43" },
+      { age: "25-30", percentage: 38, color: "#10ac84" },
+      { age: "31-35", percentage: 24, color: "#54a0ff" },
+      { age: "36+", percentage: 10, color: "#a55eea" },
+    ],
+    wordCloud: [
+      { text: "美食", size: 95 },
+      { text: "芝士", size: 88 },
+      { text: "红薯", size: 82 },
+      { text: "料理", size: 75 },
+      { text: "教程", size: 68 },
+      { text: "创意", size: 62 },
+      { text: "制作", size: 55 },
+      { text: "简单", size: 48 },
+    ],
+    relatedProducts: [
+      {
+        name: "芝士片",
+        price: "¥25",
+        sales: "18.5万",
+        image:
+          "https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=100&h=100&fit=crop",
+      },
+      {
+        name: "烤箱",
+        price: "¥899",
+        sales: "2.8万",
+        image:
+          "https://images.unsplash.com/photo-1585515656892-6b8a62a65889?w=100&h=100&fit=crop",
+      },
+    ],
+    trafficAnalysis: {
+      suspiciousLevel: "低风险",
+      suspiciousPercentage: 6,
+      realEngagement: 94,
+      botComments: 15,
+      spamLikes: 125,
+      qualityScore: 95,
+      riskFactors: [
+        { factor: "机器人评论", level: "极低", percentage: 1.8 },
+        { factor: "虚假点赞", level: "极低", percentage: 1.0 },
+        { factor: "异常分享", level: "极低", percentage: 0.1 },
       ],
     },
   },
@@ -365,7 +623,7 @@ export default function ContentDetail() {
                     </div>
                     <div className="flex items-center">
                       <BarChart3 className="h-4 w-4 mr-2" />
-                      互动率: {content.engagement}%
+                      ���动率: {content.engagement}%
                     </div>
                   </div>
                 </div>
@@ -428,7 +686,7 @@ export default function ContentDetail() {
                         dataKey="likes"
                         stroke="#ef4444"
                         strokeWidth={2}
-                        name="点���数"
+                        name="点赞数"
                       />
                       <Line
                         type="monotone"
