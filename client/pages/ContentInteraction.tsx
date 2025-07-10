@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -635,7 +636,7 @@ https://www.youtube.com/watch?v=example123
                 {urlCount > 50 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>链接数量超过限制，请删除多余的链��</span>
+                    <span>链接数量超过限制，请删除��余的链��</span>
                   </div>
                 )}
 
