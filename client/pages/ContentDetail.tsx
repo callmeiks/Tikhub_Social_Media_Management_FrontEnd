@@ -662,41 +662,208 @@ export default function ContentDetail() {
 
           {/* 数据趋势 */}
           <TabsContent value="trends" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>作品数据趋势</CardTitle>
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  作品数据趋势分析
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  实时数据变化趋势，助力内容策略优化
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-96 p-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={content.trendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="time" />
-                      <YAxis />
-                      <Tooltip />
+                    <LineChart
+                      data={content.trendData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="viewsGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="likesGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="commentsGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#10b981"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#10b981"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="4 4"
+                        stroke="hsl(var(--muted-foreground))"
+                        strokeOpacity={0.2}
+                        horizontal={true}
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="time"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fill: "hsl(var(--muted-foreground))",
+                          fontSize: 12,
+                        }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fill: "hsl(var(--muted-foreground))",
+                          fontSize: 12,
+                        }}
+                        dx={-10}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--background))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                          boxShadow:
+                            "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                          fontSize: "12px",
+                        }}
+                        labelStyle={{
+                          color: "hsl(var(--foreground))",
+                          fontWeight: "bold",
+                          marginBottom: "4px",
+                        }}
+                      />
                       <Line
                         type="monotone"
                         dataKey="views"
                         stroke="#3b82f6"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         name="播放量"
+                        dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#3b82f6",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                       <Line
                         type="monotone"
                         dataKey="likes"
                         stroke="#ef4444"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         name="点赞数"
+                        dot={{ fill: "#ef4444", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#ef4444",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                       <Line
                         type="monotone"
                         dataKey="comments"
                         stroke="#10b981"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         name="评论数"
+                        dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#10b981",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                </div>
+
+                {/* 图例和统计信息 */}
+                <div className="mt-6 p-4 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-blue-600">
+                          播放量
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          实时播放数据
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-red-600">
+                          点赞数
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          用户互动反馈
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-green-600">
+                          评论数
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          深度参与度
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
