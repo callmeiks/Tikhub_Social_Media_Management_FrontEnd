@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -228,7 +229,7 @@ const sampleContentData: Record<number, any> = {
       },
     ],
     trafficAnalysis: {
-      suspiciousLevel: "低风险",
+      suspiciousLevel: "低风��",
       suspiciousPercentage: 5,
       realEngagement: 95,
       botComments: 8,
@@ -812,7 +813,7 @@ export default function ContentDetail() {
                         dataKey="comments"
                         stroke="#10b981"
                         strokeWidth={3}
-                        name="评论数"
+                        name="评��数"
                         dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
                         activeDot={{
                           r: 6,
