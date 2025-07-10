@@ -158,7 +158,7 @@ const sampleContentData: Record<number, any> = {
   },
   2: {
     id: 2,
-    title: "学生党宿舍收纳神器推荐",
+    title: "学生��宿舍收纳神器推荐",
     platform: "小红书",
     author: "生活记录家",
     authorAvatar:
@@ -264,7 +264,7 @@ const sampleContentData: Record<number, any> = {
     duration: "03:25",
     contentType: "数码评测",
     description:
-      "全面深度评测iPhone 15 Pro Max，从性能、拍照、续航等多个维度详细分析，为购买决策提供参考。",
+      "全面深度评��iPhone 15 Pro Max，从性能、拍照、续航等多个维度详细分析，为购买决策提供参考。",
     tags: ["iPhone", "评测", "数码", "科技", "深度"],
     location: "深圳市",
     musicTitle: "Tech Beat",
@@ -408,7 +408,7 @@ const sampleContentData: Record<number, any> = {
       spamLikes: 125,
       qualityScore: 95,
       riskFactors: [
-        { factor: "机器人评论", level: "极低", percentage: 1.8 },
+        { factor: "机器人评论", level: "��低", percentage: 1.8 },
         { factor: "虚假点赞", level: "极低", percentage: 1.0 },
         { factor: "异常分享", level: "极低", percentage: 0.1 },
       ],
@@ -464,6 +464,126 @@ export default function ContentDetail() {
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(content.url);
     alert("链接已复制到剪贴板");
+  };
+
+  const handleExportExcel = () => {
+    try {
+      // 创建工作簿
+      const workbook = XLSX.utils.book_new();
+
+      // 基本作品信息
+      const basicInfo = [
+        ["项目", "内容"],
+        ["作品标题", content.title],
+        ["作者", content.author],
+        ["平台", content.platform],
+        ["发布时间", content.publishedAt],
+        ["添加时间", content.addedAt],
+        ["作品链接", content.url],
+        ["内容类型", content.contentType],
+        ["时长", content.duration],
+        ["地点", content.location],
+        ["背景音乐", content.musicTitle],
+        ["作品描述", content.description],
+      ];
+
+      // 互动数据
+      const interactionData = [
+        ["指标", "数值"],
+        ["播放量", content.views],
+        ["点赞数", content.likes],
+        ["评论数", content.comments],
+        ["分享数", content.shares],
+        ["收藏��", content.collections],
+        ["互动率", `${content.engagement}%`],
+      ];
+
+      // 标签信息
+      const tagsData = [["标签"], ...content.tags.map((tag: string) => [tag])];
+
+      // 趋势数据
+      const trendData = [
+        ["时间", "播放量", "点赞数", "评论数"],
+        ...content.trendData.map((item: any) => [
+          item.time,
+          item.views,
+          item.likes,
+          item.comments,
+        ]),
+      ];
+
+      // 受众性别分析
+      const audienceData = [
+        ["性别", "占比%", "颜色"],
+        ...content.audienceGender.map((item: any) => [
+          item.name,
+          item.value,
+          item.color,
+        ]),
+      ];
+
+      // 年龄分布
+      const ageData = [
+        ["年龄段", "占比%"],
+        ...content.audienceAge.map((item: any) => [item.age, item.percentage]),
+      ];
+
+      // 地域分布
+      const locationData = [
+        ["地区", "占比%"],
+        ...content.audienceLocation.map((item: any) => [
+          item.province,
+          item.percentage,
+        ]),
+      ];
+
+      // 词云数据
+      const wordCloudData = [
+        ["关键词", "权重"],
+        ...content.wordCloud.map((item: any) => [item.text, item.size]),
+      ];
+
+      // 创建工作表
+      const basicSheet = XLSX.utils.aoa_to_sheet(basicInfo);
+      const interactionSheet = XLSX.utils.aoa_to_sheet(interactionData);
+      const tagsSheet = XLSX.utils.aoa_to_sheet(tagsData);
+      const trendSheet = XLSX.utils.aoa_to_sheet(trendData);
+      const audienceSheet = XLSX.utils.aoa_to_sheet(audienceData);
+      const ageSheet = XLSX.utils.aoa_to_sheet(ageData);
+      const locationSheet = XLSX.utils.aoa_to_sheet(locationData);
+      const wordCloudSheet = XLSX.utils.aoa_to_sheet(wordCloudData);
+
+      // 设置列宽
+      basicSheet["!cols"] = [{ width: 15 }, { width: 50 }];
+      interactionSheet["!cols"] = [{ width: 15 }, { width: 20 }];
+      trendSheet["!cols"] = [
+        { width: 10 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+      ];
+
+      // 添加工作表到工作簿
+      XLSX.utils.book_append_sheet(workbook, basicSheet, "基本信息");
+      XLSX.utils.book_append_sheet(workbook, interactionSheet, "互动数据");
+      XLSX.utils.book_append_sheet(workbook, trendSheet, "数据趋势");
+      XLSX.utils.book_append_sheet(workbook, audienceSheet, "受众性别");
+      XLSX.utils.book_append_sheet(workbook, ageSheet, "年龄分布");
+      XLSX.utils.book_append_sheet(workbook, locationSheet, "地域分布");
+      XLSX.utils.book_append_sheet(workbook, wordCloudSheet, "关键词云");
+      XLSX.utils.book_append_sheet(workbook, tagsSheet, "标签信息");
+
+      // 生成文件名
+      const fileName = `作品详情数据_${content.title.replace(/[^\w\s]/gi, "")}_${new Date().toLocaleDateString("zh-CN").replace(/\//g, "-")}.xlsx`;
+
+      // 导出文件
+      XLSX.writeFile(workbook, fileName);
+
+      alert("数据导出成功！");
+    } catch (error) {
+      console.error("导出失败:", error);
+      alert("导出失败，请重试");
+    }
   };
 
   return (
@@ -616,7 +736,7 @@ export default function ContentDetail() {
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      视频时长: {content.duration}
+                      视频���长: {content.duration}
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
@@ -860,7 +980,7 @@ export default function ContentDetail() {
                           评论数
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          深度参与度
+                          深��参与度
                         </div>
                       </div>
                     </div>
