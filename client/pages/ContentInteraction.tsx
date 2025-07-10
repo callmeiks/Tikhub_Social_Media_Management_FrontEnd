@@ -872,8 +872,9 @@ https://www.youtube.com/watch?v=example123
                               </TableCell>
                               <TableCell className="font-medium">
                                 <div
-                                  className="max-w-[260px] truncate"
+                                  className="max-w-[260px] truncate cursor-pointer hover:text-blue-600 transition-colors"
                                   title={content.title}
+                                  onClick={() => handleContentClick(content.id)}
                                 >
                                   {content.title}
                                 </div>
