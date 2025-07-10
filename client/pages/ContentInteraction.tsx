@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search,
@@ -36,11 +49,30 @@ import {
   Link,
   BarChart3,
   Plus,
+  MoreVertical,
+  Copy,
+  Trash2,
+  Edit,
+  Star,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Image,
+  User,
+  Calendar,
+  Clock,
+  MapPin,
 } from "lucide-react";
 
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", domain: "douyin.com" },
-  { id: "xiaohongshu", name: "小红书", emoji: "📖", domain: "xiaohongshu.com" },
+  {
+    id: "xiaohongshu",
+    name: "小红书",
+    emoji: "����",
+    domain: "xiaohongshu.com",
+  },
   { id: "kuaishou", name: "快手", emoji: "⚡", domain: "kuaishou.com" },
   { id: "bilibili", name: "哔哩哔哩", emoji: "📺", domain: "bilibili.com" },
   { id: "youtube", name: "YouTube", emoji: "📹", domain: "youtube.com" },
@@ -64,10 +96,14 @@ const sampleContentData = [
     shares: "8.5千",
     collections: "12.3万",
     addedAt: "2024-01-21 10:30",
+    coverUrl:
+      "https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?w=400&h=600&fit=crop",
+    duration: "00:15",
+    contentType: "美妆教程",
   },
   {
     id: 2,
-    title: "学生党宿舍收纳神器推荐",
+    title: "学生党宿舍收���神器推荐",
     platform: "小红书",
     author: "生活记录家",
     url: "https://www.xiaohongshu.com/discovery/item/456789",
@@ -78,6 +114,10 @@ const sampleContentData = [
     shares: "3.2千",
     collections: "25.6万",
     addedAt: "2024-01-21 09:15",
+    coverUrl:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop",
+    duration: "-",
+    contentType: "生活分享",
   },
   {
     id: 3,
@@ -92,12 +132,16 @@ const sampleContentData = [
     shares: "12.5千",
     collections: "18.7万",
     addedAt: "2024-01-21 14:20",
+    coverUrl:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=600&fit=crop",
+    duration: "03:25",
+    contentType: "数码评测",
   },
   {
     id: 4,
     title: "创意料理：芝士焗红薯制作教程",
     platform: "哔哩哔哩",
-    author: "美食up主",
+    author: "��食up主",
     url: "https://www.bilibili.com/video/BV123456789",
     publishedAt: "2024-01-18",
     views: "89万",
@@ -106,8 +150,129 @@ const sampleContentData = [
     shares: "4.1千",
     collections: "8.9万",
     addedAt: "2024-01-21 16:45",
+    coverUrl:
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=600&fit=crop",
+    duration: "05:30",
+    contentType: "美食制作",
   },
 ];
+
+// 作品详情展示组件
+const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
+  return (
+    <div className="p-4 bg-muted/30 border-t">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 作品详情 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <BookOpen className="h-4 w-4 mr-2" />
+            作品详情
+          </h4>
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-muted-foreground">
+                内容类型:
+              </span>
+              <span className="ml-2">{content.contentType}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">时长:</span>
+              <span className="ml-2">{content.duration}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                发布时间:
+              </span>
+              <span className="ml-2">{content.publishedAt}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                添加时间:
+              </span>
+              <span className="ml-2">{content.addedAt}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                作品链接:
+              </span>
+              <a
+                href={content.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-blue-600 hover:underline text-xs break-all"
+              >
+                {content.url.length > 60
+                  ? content.url.substring(0, 60) + "..."
+                  : content.url}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* 作者信息 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <User className="h-4 w-4 mr-2" />
+            作者信息
+          </h4>
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-muted-foreground">
+                作者名称:
+              </span>
+              <span className="ml-2">{content.author}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">
+                发布平台:
+              </span>
+              <span className="ml-2">{content.platform}</span>
+            </div>
+            <div>
+              <span className="font-medium text-muted-foreground">作品ID:</span>
+              <span className="ml-2 font-mono text-xs">{content.id}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 数据统计 */}
+        <div>
+          <h4 className="text-sm font-medium mb-3 flex items-center">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            数据统计
+          </h4>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center">
+              <Eye className="h-3 w-3 mr-1 text-blue-500" />
+              <span className="font-medium text-muted-foreground">播放:</span>
+              <span className="ml-1">{content.views}</span>
+            </div>
+            <div className="flex items-center">
+              <Heart className="h-3 w-3 mr-1 text-red-500" />
+              <span className="font-medium text-muted-foreground">点赞:</span>
+              <span className="ml-1">{content.likes}</span>
+            </div>
+            <div className="flex items-center">
+              <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+              <span className="font-medium text-muted-foreground">评论:</span>
+              <span className="ml-1">{content.comments}</span>
+            </div>
+            <div className="flex items-center">
+              <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+              <span className="font-medium text-muted-foreground">分享:</span>
+              <span className="ml-1">{content.shares}</span>
+            </div>
+            <div className="flex items-center col-span-2">
+              <Users className="h-3 w-3 mr-1 text-orange-500" />
+              <span className="font-medium text-muted-foreground">收藏:</span>
+              <span className="ml-1">{content.collections}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function ContentInteraction() {
   const [batchUrls, setBatchUrls] = useState("");
@@ -117,6 +282,7 @@ export default function ContentInteraction() {
     supportedPlatforms.map((p) => p.name),
   );
   const [selectedContent, setSelectedContent] = useState<number[]>([]);
+  const [expandedContent, setExpandedContent] = useState<number[]>([]);
 
   const urlCount = batchUrls
     .split("\n")
@@ -210,13 +376,57 @@ export default function ContentInteraction() {
     setSelectedContent([]);
   };
 
+  const toggleContentExpansion = (contentId: number) => {
+    setExpandedContent((prev) =>
+      prev.includes(contentId)
+        ? prev.filter((id) => id !== contentId)
+        : [...prev, contentId],
+    );
+  };
+
+  const handleContentAction = (action: string, contentId: number) => {
+    const content = contentData.find((c) => c.id === contentId);
+    if (!content) return;
+
+    switch (action) {
+      case "view":
+        window.open(content.url, "_blank");
+        break;
+      case "copy":
+        navigator.clipboard.writeText(content.url);
+        alert("链��已复制到剪贴板");
+        break;
+      case "edit":
+        // TODO: 实现编辑功能
+        alert(`编辑作品: ${content.title}`);
+        break;
+      case "star":
+        // TODO: 实现收藏功能
+        alert(`收藏作品: ${content.title}`);
+        break;
+      case "analyze":
+        // TODO: 实现详细分析功能
+        alert(`分析作品: ${content.title}`);
+        break;
+      case "delete":
+        if (confirm(`确定要删除作品"${content.title}"吗？`)) {
+          setContentData((prev) => prev.filter((c) => c.id !== contentId));
+          setSelectedContent((prev) => prev.filter((id) => id !== contentId));
+          alert("作品已删除");
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   const exportContentData = () => {
     const selectedContentData = contentData.filter((content) =>
       selectedContent.includes(content.id),
     );
 
     if (selectedContentData.length === 0) {
-      alert("请选择要导出的作品数据");
+      alert("请选择要导出的作���数据");
       return;
     }
 
@@ -326,7 +536,7 @@ export default function ContentInteraction() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
               <Users className="mr-2 h-4 w-4" />
-              支持平台
+              支��平台
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -350,7 +560,7 @@ export default function ContentInteraction() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加作品
+              添加作��
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
@@ -382,7 +592,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品链接（每行一个，最多50个）
+                    作品��接（每行一个���最多50个）
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
@@ -393,7 +603,7 @@ https://www.tiktok.com/@username/video/123
 https://www.bilibili.com/video/BV123456789
 https://www.youtube.com/watch?v=example123
 
-支持抖音、小红书、快手、B站、YouTube、TikTok、Instagram、X等平台`}
+支持抖音、小���书、快手、B站、YouTube、TikTok、Instagram、X等平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
@@ -425,7 +635,7 @@ https://www.youtube.com/watch?v=example123
                 {urlCount > 50 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>链接数量超过限制，请删除多余的链接</span>
+                    <span>链接数量超过限制，请删除多余的链��</span>
                   </div>
                 )}
 
@@ -594,90 +804,219 @@ https://www.youtube.com/watch?v=example123
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[50px]">选择</TableHead>
-                          <TableHead className="w-[280px]">作品标题</TableHead>
+                          <TableHead className="w-[120px]">作品展示</TableHead>
+                          <TableHead className="w-[200px]">作品标题</TableHead>
                           <TableHead className="w-[80px]">平台</TableHead>
-                          <TableHead className="w-[100px]">发布时间</TableHead>
+                          <TableHead className="w-[100px]">发布���间</TableHead>
                           <TableHead className="w-[100px]">播放量</TableHead>
                           <TableHead className="w-[80px]">点赞</TableHead>
                           <TableHead className="w-[80px]">评论</TableHead>
                           <TableHead className="w-[80px]">分享</TableHead>
                           <TableHead className="w-[80px]">收藏</TableHead>
-                          <TableHead className="w-[60px]">操作</TableHead>
+                          <TableHead className="w-[50px]">操作</TableHead>
+                          <TableHead className="w-[50px]">详情</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredContentData.map((content) => (
-                          <TableRow key={content.id}>
-                            <TableCell>
-                              <Checkbox
-                                checked={selectedContent.includes(content.id)}
-                                onCheckedChange={() =>
-                                  toggleContentSelection(content.id)
-                                }
-                              />
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              <div
-                                className="max-w-[260px] truncate"
-                                title={content.title}
-                              >
-                                {content.title}
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                by {content.author}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="text-xs">
-                                {content.platform}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {content.publishedAt}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {content.views}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {content.likes}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {content.comments}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                {content.shares}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Users className="h-3 w-3 mr-1 text-orange-500" />
-                                {content.collections}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() =>
-                                  window.open(content.url, "_blank")
-                                }
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
+                          <React.Fragment key={content.id}>
+                            <TableRow>
+                              <TableCell>
+                                <Checkbox
+                                  checked={selectedContent.includes(content.id)}
+                                  onCheckedChange={() =>
+                                    toggleContentSelection(content.id)
+                                  }
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <div className="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
+                                  {content.coverUrl ? (
+                                    <img
+                                      src={content.coverUrl}
+                                      alt={content.title}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                        const next = e.currentTarget
+                                          .nextElementSibling as HTMLElement;
+                                        if (next) next.style.display = "flex";
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div
+                                    className="w-full h-full flex items-center justify-center bg-gray-200"
+                                    style={{
+                                      display: content.coverUrl
+                                        ? "none"
+                                        : "flex",
+                                    }}
+                                  >
+                                    {content.duration &&
+                                    content.duration !== "-" ? (
+                                      <Play className="h-5 w-5 text-gray-500" />
+                                    ) : (
+                                      <Image className="h-5 w-5 text-gray-500" />
+                                    )}
+                                  </div>
+                                  {content.duration &&
+                                    content.duration !== "-" && (
+                                      <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                        {content.duration}
+                                      </div>
+                                    )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                <div
+                                  className="max-w-[260px] truncate"
+                                  title={content.title}
+                                >
+                                  {content.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  by {content.author}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {content.platform}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {content.publishedAt}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                                  {content.views}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                  {content.likes}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                                  {content.comments}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                  {content.shares}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Users className="h-3 w-3 mr-1 text-orange-500" />
+                                  {content.collections}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent
+                                    align="end"
+                                    className="w-48"
+                                  >
+                                    <DropdownMenuLabel>操作</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("view", content.id)
+                                      }
+                                    >
+                                      <ExternalLink className="mr-2 h-4 w-4" />
+                                      查看原作品
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("copy", content.id)
+                                      }
+                                    >
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      ��制链接
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("star", content.id)
+                                      }
+                                    >
+                                      <Star className="mr-2 h-4 w-4" />
+                                      收藏作品
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction(
+                                          "analyze",
+                                          content.id,
+                                        )
+                                      }
+                                    >
+                                      <BookOpen className="mr-2 h-4 w-4" />
+                                      详细分析
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction("edit", content.id)
+                                      }
+                                    >
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      编辑信息
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleContentAction(
+                                          "delete",
+                                          content.id,
+                                        )
+                                      }
+                                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      删除作品
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() =>
+                                    toggleContentExpansion(content.id)
+                                  }
+                                >
+                                  {expandedContent.includes(content.id) ? (
+                                    <ChevronUp className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronDown className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                            {expandedContent.includes(content.id) && (
+                              <TableRow>
+                                <TableCell colSpan={12} className="p-0">
+                                  <ContentDetailsRow content={content} />
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </React.Fragment>
                         ))}
                       </TableBody>
                     </Table>
@@ -712,7 +1051,7 @@ https://www.youtube.com/watch?v=example123
                       </div>
                       <div className="text-sm font-medium">总播放量</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        所有作品播放量总和
+                        所有作���播放量总和
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
