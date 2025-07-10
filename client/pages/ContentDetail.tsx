@@ -56,7 +56,7 @@ import {
 } from "lucide-react";
 
 // Sample data - in a real app this would come from an API
-const sampleContentData = {
+const sampleContentData: Record<number, any> = {
   1: {
     id: 1,
     title: "超火的韩式裸妆教程！新手必看",
@@ -80,7 +80,7 @@ const sampleContentData = {
     duration: "00:15",
     contentType: "美妆教程",
     description:
-      "新手必看的韩式裸妆教程，简单易学，让你轻松拥有清透自然的妆容效果。视频详细展示了底妆、眉毛、眼妆、唇妆等各个步骤。",
+      "新手必看的韩式裸妆教程，简单易学，让你轻松拥有清透自然的妆容效果。视频详细展示了底妆、眉毛、眼���、唇妆等各个步骤。",
     tags: ["美妆", "教程", "韩式", "裸妆", "新手"],
     location: "上海市",
     musicTitle: "Sweet Dreams",
@@ -428,7 +428,7 @@ export default function ContentDetail() {
                         dataKey="likes"
                         stroke="#ef4444"
                         strokeWidth={2}
-                        name="点赞数"
+                        name="点���数"
                       />
                       <Line
                         type="monotone"
