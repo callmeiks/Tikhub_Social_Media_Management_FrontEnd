@@ -219,7 +219,7 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
           <div className="space-y-2 text-sm">
             <div>
               <span className="font-medium text-muted-foreground">
-                作者名称:
+                ���者名称:
               </span>
               <span className="ml-2">{content.author}</span>
             </div>
@@ -476,7 +476,7 @@ export default function ContentInteraction() {
       { width: 15 }, // 作者
       { width: 12 }, // 发布时间
       { width: 12 }, // 播放量
-      { width: 10 }, // 点赞数
+      { width: 10 }, // 点���数
       { width: 10 }, // 评论数
       { width: 10 }, // 分享数
       { width: 10 }, // 收藏数
@@ -960,17 +960,6 @@ https://www.youtube.com/watch?v=example123
                                     >
                                       <Star className="mr-2 h-4 w-4" />
                                       收藏作品
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction(
-                                          "analyze",
-                                          content.id,
-                                        )
-                                      }
-                                    >
-                                      <BookOpen className="mr-2 h-4 w-4" />
-                                      详细分析
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
