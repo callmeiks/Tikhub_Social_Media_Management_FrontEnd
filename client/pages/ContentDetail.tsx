@@ -158,7 +158,7 @@ const sampleContentData: Record<number, any> = {
   },
   2: {
     id: 2,
-    title: "学生��宿舍收纳神器推荐",
+    title: "学生党宿舍收纳神器推荐",
     platform: "小红书",
     author: "生活记录家",
     authorAvatar:
@@ -264,7 +264,7 @@ const sampleContentData: Record<number, any> = {
     duration: "03:25",
     contentType: "数码评测",
     description:
-      "全面深度评��iPhone 15 Pro Max，从性能、拍照、续航等多个维度详细分析，为购买决策提供参考。",
+      "全面深度评测iPhone 15 Pro Max，从性能、拍照、续航等多个维度详细分析，为购买决策提供参考。",
     tags: ["iPhone", "评测", "数码", "科技", "深度"],
     location: "深圳市",
     musicTitle: "Tech Beat",
@@ -408,7 +408,7 @@ const sampleContentData: Record<number, any> = {
       spamLikes: 125,
       qualityScore: 95,
       riskFactors: [
-        { factor: "机器人评论", level: "��低", percentage: 1.8 },
+        { factor: "机器人评论", level: "极低", percentage: 1.8 },
         { factor: "虚假点赞", level: "极低", percentage: 1.0 },
         { factor: "异常分享", level: "极低", percentage: 0.1 },
       ],
@@ -494,7 +494,7 @@ export default function ContentDetail() {
         ["点赞数", content.likes],
         ["评论数", content.comments],
         ["分享数", content.shares],
-        ["收藏��", content.collections],
+        ["收藏数", content.collections],
         ["互动率", `${content.engagement}%`],
       ];
 
@@ -595,11 +595,20 @@ export default function ContentDetail() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/data-collection/content-interaction")}
             className="h-8"
           >
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
-            返回列表
+            返回作品列表
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportExcel}
+            className="h-8 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+          >
+            <Download className="mr-2 h-3.5 w-3.5" />
+            导出Excel
           </Button>
           <Button
             variant="outline"
@@ -736,11 +745,11 @@ export default function ContentDetail() {
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      视频���长: {content.duration}
+                      视频时长: {content.duration}
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
-                      发布地点: {content.location}
+                      ���布地点: {content.location}
                     </div>
                     <div className="flex items-center">
                       <BarChart3 className="h-4 w-4 mr-2" />
@@ -980,7 +989,7 @@ export default function ContentDetail() {
                           评论数
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          深��参与度
+                          深度参与度
                         </div>
                       </div>
                     </div>
@@ -1054,7 +1063,7 @@ export default function ContentDetail() {
             </Card>
           </TabsContent>
 
-          {/* 词云分析 */}
+          {/* 词云��析 */}
           <TabsContent value="wordcloud" className="mt-6">
             <Card>
               <CardHeader>
