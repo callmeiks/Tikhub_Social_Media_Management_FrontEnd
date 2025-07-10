@@ -276,6 +276,7 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
 };
 
 export default function ContentInteraction() {
+  const navigate = useNavigate();
   const [batchUrls, setBatchUrls] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [contentData, setContentData] = useState(sampleContentData);
@@ -636,7 +637,7 @@ https://www.youtube.com/watch?v=example123
                 {urlCount > 50 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>链接数量超过限制，请删除��余的链��</span>
+                    <span>链接数量超过限制，请删除多余的链��</span>
                   </div>
                 )}
 
