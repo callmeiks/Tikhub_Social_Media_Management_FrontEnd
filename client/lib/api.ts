@@ -351,5 +351,7 @@ export type {
   XiaohongshuPost,
   GetInfluencersParams,
   GetPostsParams,
+  CollectAccountsParams,
+  CollectAccountsResponse,
   ApiResponse,
 };
