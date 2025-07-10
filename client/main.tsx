@@ -109,6 +109,10 @@ const App = () => (
             element={<ContentInteraction />}
           />
           <Route
+            path="/data-collection/content-detail/:contentId"
+            element={<ContentDetail />}
+          />
+          <Route
             path="/data-collection/keyword-content"
             element={<KeywordContentSearch />}
           />
