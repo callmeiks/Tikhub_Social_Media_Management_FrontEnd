@@ -25,6 +25,7 @@ import DataCollection from "./pages/DataCollection";
 import AccountInteraction from "./pages/AccountInteraction";
 import AccountDetails from "./pages/AccountDetails";
 import ContentInteraction from "./pages/ContentInteraction";
+import ContentDetail from "./pages/ContentDetail";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
@@ -106,6 +107,10 @@ const App = () => (
           <Route
             path="/data-collection/content-interaction"
             element={<ContentInteraction />}
+          />
+          <Route
+            path="/data-collection/content-detail/:contentId"
+            element={<ContentDetail />}
           />
           <Route
             path="/data-collection/keyword-content"

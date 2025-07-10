@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -218,7 +219,7 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
           <div className="space-y-2 text-sm">
             <div>
               <span className="font-medium text-muted-foreground">
-                作者名称:
+                ���者名称:
               </span>
               <span className="ml-2">{content.author}</span>
             </div>
@@ -275,6 +276,7 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
 };
 
 export default function ContentInteraction() {
+  const navigate = useNavigate();
   const [batchUrls, setBatchUrls] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [contentData, setContentData] = useState(sampleContentData);
@@ -404,10 +406,7 @@ export default function ContentInteraction() {
         // TODO: 实现收藏功能
         alert(`收藏作品: ${content.title}`);
         break;
-      case "analyze":
-        // TODO: 实现详细分析功能
-        alert(`分析作品: ${content.title}`);
-        break;
+
       case "delete":
         if (confirm(`确定要删除作品"${content.title}"吗？`)) {
           setContentData((prev) => prev.filter((c) => c.id !== contentId));
@@ -418,6 +417,10 @@ export default function ContentInteraction() {
       default:
         break;
     }
+  };
+
+  const handleContentClick = (contentId: number) => {
+    navigate(`/data-collection/content-detail/${contentId}`);
   };
 
   const exportContentData = () => {
@@ -473,7 +476,7 @@ export default function ContentInteraction() {
       { width: 15 }, // 作者
       { width: 12 }, // 发布时间
       { width: 12 }, // 播放量
-      { width: 10 }, // 点赞数
+      { width: 10 }, // 点���数
       { width: 10 }, // 评论数
       { width: 10 }, // 分享数
       { width: 10 }, // 收藏数
@@ -869,8 +872,9 @@ https://www.youtube.com/watch?v=example123
                               </TableCell>
                               <TableCell className="font-medium">
                                 <div
-                                  className="max-w-[260px] truncate"
+                                  className="max-w-[260px] truncate cursor-pointer hover:text-blue-600 transition-colors"
                                   title={content.title}
+                                  onClick={() => handleContentClick(content.id)}
                                 >
                                   {content.title}
                                 </div>
@@ -956,17 +960,6 @@ https://www.youtube.com/watch?v=example123
                                     >
                                       <Star className="mr-2 h-4 w-4" />
                                       收藏作品
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction(
-                                          "analyze",
-                                          content.id,
-                                        )
-                                      }
-                                    >
-                                      <BookOpen className="mr-2 h-4 w-4" />
-                                      详细分析
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
