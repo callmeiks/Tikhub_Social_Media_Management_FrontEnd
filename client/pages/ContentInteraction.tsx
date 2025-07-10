@@ -67,7 +67,7 @@ import {
 } from "lucide-react";
 
 const supportedPlatforms = [
-  { id: "douyin", name: "��音", emoji: "🎤", domain: "douyin.com" },
+  { id: "douyin", name: "抖音", emoji: "🎤", domain: "douyin.com" },
   {
     id: "xiaohongshu",
     name: "小红书",
@@ -219,7 +219,7 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
           <div className="space-y-2 text-sm">
             <div>
               <span className="font-medium text-muted-foreground">
-                作者名���:
+                作者名称:
               </span>
               <span className="ml-2">{content.author}</span>
             </div>
@@ -419,6 +419,10 @@ export default function ContentInteraction() {
     }
   };
 
+  const handleContentClick = (contentId: number) => {
+    navigate(`/data-collection/content-detail/${contentId}`);
+  };
+
   const exportContentData = () => {
     const selectedContentData = contentData.filter((content) =>
       selectedContent.includes(content.id),
@@ -470,13 +474,13 @@ export default function ContentInteraction() {
       { width: 40 }, // 作品标题
       { width: 10 }, // 平台
       { width: 15 }, // 作者
-      { width: 12 }, // 发布时��
+      { width: 12 }, // 发布时间
       { width: 12 }, // 播放量
       { width: 10 }, // 点赞数
       { width: 10 }, // 评论数
       { width: 10 }, // 分享数
       { width: 10 }, // 收藏数
-      { width: 16 }, // 添加���间
+      { width: 16 }, // 添加时间
       { width: 50 }, // 链接
     ];
 
