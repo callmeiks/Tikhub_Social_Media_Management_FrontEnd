@@ -2445,56 +2445,90 @@ export default function ContentDetailDouyin() {
                     </div>
                     
                     {relatedVideosData && relatedVideosData.data.aweme_list.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="h-96 overflow-y-auto space-y-3 pr-2">
                         {relatedVideosData.data.aweme_list.map((video, index) => (
-                          <Card key={video.aweme_id} className="hover:shadow-md transition-shadow cursor-pointer"
-                                onClick={() => window.open(video.share_url, '_blank')}>
-                            <CardContent className="p-4">
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                  <Avatar className="h-8 w-8">
-                                    <AvatarImage src={video.author_avatar} />
-                                    <AvatarFallback>{video.author_nickname[0]}</AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm truncate">{video.author_nickname}</p>
-                                    <p className="text-xs text-muted-foreground">@{video.author_unique_id}</p>
-                                  </div>
+                          <div key={video.aweme_id} 
+                               className="flex gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                               onClick={() => window.open(video.share_url, '_blank')}>
+                            {/* 视频预览 */}
+                            <div className="flex-shrink-0">
+                              <div className="relative w-16 h-16 bg-black rounded-lg overflow-hidden">
+                                <video 
+                                  className="w-full h-full object-cover"
+                                  poster={video.author_avatar}
+                                  preload="metadata"
+                                  muted
+                                  onMouseEnter={(e) => {
+                                    const videoElement = e.target as HTMLVideoElement;
+                                    videoElement.currentTime = 0;
+                                    videoElement.play().catch(() => {});
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    const videoElement = e.target as HTMLVideoElement;
+                                    videoElement.pause();
+                                    videoElement.currentTime = 0;
+                                  }}
+                                >
+                                  <source src={video.video_url} type="video/mp4" />
+                                </video>
+                                
+                                {/* 播放按钮 */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                  <Play className="h-4 w-4 text-white" />
                                 </div>
                                 
-                                <p className="text-sm line-clamp-2">{video.desc || "无描述"}</p>
-                                
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                {/* 时长 */}
+                                <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
+                                  {Math.floor(video.duration / 1000)}s
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* 内容信息 */}
+                            <div className="flex-1 min-w-0 space-y-1">
+                              {/* 作者信息 */}
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-6 w-6">
+                                  <AvatarImage src={video.author_avatar} />
+                                  <AvatarFallback className="text-xs">{video.author_nickname[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-xs truncate">{video.author_nickname}</p>
+                                  <p className="text-xs text-muted-foreground">@{video.author_unique_id}</p>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {new Date(video.create_time * 1000).toLocaleDateString()}
+                                </Badge>
+                              </div>
+                              
+                              {/* 视频描述和互动数据在同一行 */}
+                              <div className="flex items-start gap-3">
+                                <p className="text-xs text-gray-700 line-clamp-1 flex-1">{video.desc || "无描述"}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                                   <div className="flex items-center gap-1">
-                                    <Heart className="h-3 w-3" />
+                                    <Heart className="h-3 w-3 text-red-500" />
                                     <span>{(video.digg_count / 10000).toFixed(1)}w</span>
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <MessageCircle className="h-3 w-3" />
+                                    <MessageCircle className="h-3 w-3 text-blue-500" />
                                     <span>{video.comment_count}</span>
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <Share2 className="h-3 w-3" />
+                                    <Share2 className="h-3 w-3 text-green-500" />
                                     <span>{video.share_count}</span>
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    <span>{Math.floor(video.duration / 1000)}s</span>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex items-center justify-between pt-2">
-                                  <Badge variant="outline" className="text-xs">
-                                    {new Date(video.create_time * 1000).toLocaleDateString()}
-                                  </Badge>
-                                  <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
-                                    <ExternalLink className="h-3 w-3 mr-1" />
-                                    打开
-                                  </Button>
                                 </div>
                               </div>
-                            </CardContent>
-                          </Card>
+                            </div>
+                            
+                            {/* 打开按钮 */}
+                            <div className="flex-shrink-0 flex items-center">
+                              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                打开
+                              </Button>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     ) : relatedVideosData ? (
