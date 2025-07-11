@@ -292,14 +292,39 @@ interface TikTokContent extends BaseContent {
   desc: string;
   author_nickname: string;
   author_unique_id: string;
+  author_uid: string;
+  author_sec_user_id: string;
   video_url: string;
   play_count: number;
   comment_count: number;
   share_count: number;
   collect_count: number;
   digg_count: number;
+  download_count: number;
   duration: number;
   share_url: string;
+  created_by_ai: boolean;
+  is_ads: boolean;
+  is_top: boolean;
+  is_pgcshow: boolean;
+  support_danmaku: boolean;
+  adv_promotable: boolean;
+  with_promotional_music: boolean;
+  music_play_url: string;
+  music_author: string;
+  music_duration: number;
+  mid: string;
+  create_time: number;
+  content_type?: string;
+  desc_language?: string;
+  is_capcut?: boolean;
+  is_vr?: boolean;
+  last_aigc_src?: string;
+  first_aigc_src?: string;
+  aigc_src?: string;
+  has_promote_entry?: boolean;
+  cha_list?: any[];
+  group_id?: string;
 }
 
 interface DouyinContent extends BaseContent {
@@ -535,6 +560,26 @@ export default function ContentInteraction() {
   const getPlatformDisplayName = (platform: string): string => {
     const platformInfo = supportedPlatforms.find(p => p.id === platform);
     return platformInfo?.name || platform;
+  };
+
+  // Helper function to handle content row click and navigate to appropriate detail page
+  const handleContentRowClick = (content: ContentItem) => {
+    const platformRoutes = {
+      "tiktok": "tiktok",
+      "douyin": "douyin", 
+      "kuaishou": "kuaishou",
+      "youtube": "youtube",
+      "x": "x",
+      "weibo": "weibo",
+      "wechat": "wechat"
+    };
+    
+    const routeName = platformRoutes[content.platform as keyof typeof platformRoutes] || "content";
+    
+    // Navigate to platform-specific content detail page with content data
+    navigate(`/data-collection/content-detail-${routeName}`, {
+      state: { contentData: content }
+    });
   };
 
   // Helper function to get preview content for different platforms
@@ -1290,7 +1335,11 @@ https://www.youtube.com/watch?v=example123
                           const previewContent = getPreviewContent(content);
                           
                           return (
-                            <TableRow key={content.id}>
+                            <TableRow 
+                              key={content.id}
+                              className="cursor-pointer hover:bg-muted/50 transition-colors"
+                              onClick={() => handleContentRowClick(content)}
+                            >
                               {/* 作品展示列 */}
                               <TableCell>
                                 <div className="w-24 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
@@ -1420,15 +1469,9 @@ https://www.youtube.com/watch?v=example123
                                   variant="ghost"
                                   size="sm"
                                   className="h-8"
-                                  onClick={() => {
-                                    const platformPath = content.platform === "wechat" ? "wechat" : 
-                                                         content.platform === "weibo" ? "weibo" : 
-                                                         content.platform === "x" ? "x" : 
-                                                         content.platform === "youtube" ? "youtube" : 
-                                                         content.platform === "kuaishou" ? "kuaishou" : 
-                                                         content.platform === "douyin" ? "douyin" : 
-                                                         content.platform === "tiktok" ? "tiktok" : "content";
-                                    navigate(`/data-collection/content-detail/${content.id}?platform=${platformPath}`);
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // 防止触发行点击事件
+                                    handleContentRowClick(content);
                                   }}
                                 >
                                   <ExternalLink className="h-4 w-4" />

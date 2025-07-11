@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -63,51 +63,88 @@ interface XPostData {
 }
 
 export default function ContentDetailX() {
-  const { contentId } = useParams<{ contentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<XPostData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      // Mock data for X (Twitter) post
-      const mockData: XPostData = {
-        id: "x_1",
-        task_id: "task_001",
-        tweet_id: "1750123456789012345",
-        created_time: "2024-01-01T15:30:00Z",
-        like_count: 15600,
-        status: "published",
-        text: "Just witnessed an incredible breakthrough in AI technology! The future is happening faster than we thought. This will change everything about how we interact with machines. #AI #Technology #Innovation #Future",
-        retweet_count: 2840,
-        bookmarks_count: 1250,
-        quotes_count: 380,
-        replies_count: 890,
-        lang: "en",
-        view_count: 125000,
-        sensitive: false,
-        conversation_id: "1750123456789012345",
-        images_url: [
-          "https://pbs.twimg.com/media/image1.jpg",
-          "https://pbs.twimg.com/media/image2.jpg",
-        ],
-        video_url: "",
-        author_rest_id: "1234567890123456789",
-        author_screen_name: "TechInfluencer",
-        author_avatar: "https://pbs.twimg.com/profile_images/avatar.jpg",
-        author_blue_verified: true,
-        author_follower_count: 856000,
-        display_url: "tech-news.com/ai-breakthrough",
-        expanded_url: "https://tech-news.com/ai-breakthrough-2024",
-        media_type: "photo",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+    // Check if content data was passed via navigation state
+    if (location.state?.contentData) {
+      const contentData = location.state.contentData;
+      
+      // Map the API data to XPostData format
+      const mappedData: XPostData = {
+        id: contentData.id,
+        task_id: contentData.task_id,
+        tweet_id: contentData.tweet_id,
+        created_time: contentData.created_time,
+        status: contentData.status,
+        text: contentData.text,
+        retweet_count: contentData.retweet_count,
+        bookmarks_count: contentData.bookmarks_count,
+        quotes_count: contentData.quotes_count,
+        replies_count: contentData.replies_count,
+        lang: contentData.lang,
+        view_count: contentData.view_count,
+        sensitive: contentData.sensitive,
+        conversation_id: contentData.conversation_id,
+        images_url: contentData.images_url || [],
+        video_url: contentData.video_url,
+        author_rest_id: contentData.author_rest_id,
+        author_screen_name: contentData.author_screen_name,
+        author_avatar: contentData.author_avatar,
+        author_blue_verified: contentData.author_blue_verified,
+        author_follower_count: contentData.author_follower_count,
+        display_url: contentData.display_url,
+        expanded_url: contentData.expanded_url,
+        media_type: contentData.media_type,
+        created_at: contentData.created_at,
+        updated_at: contentData.updated_at,
       };
-      setContent(mockData);
+      
+      setContent(mappedData);
       setLoading(false);
-    }, 500);
-  }, [contentId]);
+    } else {
+      // Fallback to mock data if no data was passed
+      setTimeout(() => {
+        const mockData: XPostData = {
+          id: "x_1",
+          task_id: "task_001",
+          tweet_id: "1750123456789012345",
+          created_time: "2024-01-01T15:30:00Z",
+          like_count: 15600,
+          status: "published",
+          text: "Just witnessed an incredible breakthrough in AI technology! The future is happening faster than we thought. This will change everything about how we interact with machines. #AI #Technology #Innovation #Future",
+          retweet_count: 2840,
+          bookmarks_count: 1250,
+          quotes_count: 380,
+          replies_count: 890,
+          lang: "en",
+          view_count: 125000,
+          sensitive: false,
+          conversation_id: "1750123456789012345",
+          images_url: [
+            "https://pbs.twimg.com/media/image1.jpg",
+            "https://pbs.twimg.com/media/image2.jpg",
+          ],
+          video_url: "",
+          author_rest_id: "1234567890123456789",
+          author_screen_name: "TechInfluencer",
+          author_avatar: "https://pbs.twimg.com/profile_images/avatar.jpg",
+          author_blue_verified: true,
+          author_follower_count: 856000,
+          display_url: "tech-news.com/ai-breakthrough",
+          expanded_url: "https://tech-news.com/ai-breakthrough-2024",
+          media_type: "photo",
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        };
+        setContent(mockData);
+        setLoading(false);
+      }, 500);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (

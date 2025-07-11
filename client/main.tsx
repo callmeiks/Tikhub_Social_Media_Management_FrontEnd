@@ -26,6 +26,13 @@ import AccountInteraction from "./pages/AccountInteraction";
 import AccountDetails from "./pages/AccountDetails";
 import ContentInteraction from "./pages/ContentInteraction";
 import ContentDetail from "./pages/ContentDetail";
+import ContentDetailTiktok from "./pages/ContentDetailTiktok";
+import ContentDetailDouyin from "./pages/ContentDetailDouyin";
+import ContentDetailKuaishou from "./pages/ContentDetailKuaishou";
+import ContentDetailYoutube from "./pages/ContentDetailYoutube";
+import ContentDetailX from "./pages/ContentDetailX";
+import ContentDetailWeibo from "./pages/ContentDetailWeibo";
+import ContentDetailWechat from "./pages/ContentDetailWechat";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
@@ -111,6 +118,34 @@ const App = () => (
           <Route
             path="/data-collection/content-detail/:contentId"
             element={<ContentDetail />}
+          />
+          <Route
+            path="/data-collection/content-detail-tiktok"
+            element={<ContentDetailTiktok />}
+          />
+          <Route
+            path="/data-collection/content-detail-douyin"
+            element={<ContentDetailDouyin />}
+          />
+          <Route
+            path="/data-collection/content-detail-kuaishou"
+            element={<ContentDetailKuaishou />}
+          />
+          <Route
+            path="/data-collection/content-detail-youtube"
+            element={<ContentDetailYoutube />}
+          />
+          <Route
+            path="/data-collection/content-detail-x"
+            element={<ContentDetailX />}
+          />
+          <Route
+            path="/data-collection/content-detail-weibo"
+            element={<ContentDetailWeibo />}
+          />
+          <Route
+            path="/data-collection/content-detail-wechat"
+            element={<ContentDetailWechat />}
           />
           <Route
             path="/data-collection/keyword-content"

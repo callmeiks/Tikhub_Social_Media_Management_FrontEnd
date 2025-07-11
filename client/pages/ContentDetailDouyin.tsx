@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -105,59 +105,105 @@ interface DouyinVideoData {
 }
 
 export default function ContentDetailDouyin() {
-  const { contentId } = useParams<{ contentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<DouyinVideoData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      // Mock data for Douyin video
-      const mockData: DouyinVideoData = {
-        id: "douyin_1",
-        task_id: "task_001",
-        aweme_id: "7234567890123456789",
-        group_id: "group_123",
-        desc: "超级好吃的家常菜制作教程 #美食 #家常菜 #教程",
-        create_time: "2024-01-01 10:30:00",
-        city: "北京市",
-        ip_attribution: "北京",
-        region: "华北",
-        duration: 45,
-        share_url: "https://www.douyin.com/video/7234567890123456789",
-        digg_count: 25680,
-        comment_count: 3456,
-        share_count: 1234,
-        collect_count: 8900,
-        play_count: 456789,
-        download_count: 567,
-        is_ads: false,
-        is_warned: false,
-        is_top: true,
-        with_goods: true,
-        cha_list: [
-          { cid: "123", cha_name: "美食" },
-          { cid: "456", cha_name: "家常菜" },
-          { cid: "789", cha_name: "教程" },
-        ],
-        author_nickname: "美食达人小张",
-        author_unique_id: "cooking_master",
-        author_sec_user_id: "MS4wLjABAAAA...",
-        author_uid: "123456789",
-        mid: "music_123",
-        music_play_url: "https://music.douyin.com/123.mp3",
-        music_duration: 60,
-        music_author: "轻音乐",
-        video_url: "https://video.douyin.com/video.mp4",
-        shoot_way: "normal",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+    // Check if content data was passed via navigation state
+    if (location.state?.contentData) {
+      const contentData = location.state.contentData;
+      
+      // Map the API data to DouyinVideoData format (assuming similar structure to TikTok)
+      const mappedData: DouyinVideoData = {
+        id: contentData.id,
+        task_id: contentData.task_id,
+        aweme_id: contentData.aweme_id,
+        group_id: contentData.group_id,
+        desc: contentData.desc,
+        create_time: contentData.create_time,
+        city: contentData.city,
+        ip_attribution: contentData.ip_attribution,
+        region: contentData.region,
+        duration: contentData.duration,
+        share_url: contentData.share_url,
+        digg_count: contentData.digg_count || contentData.like_count,
+        comment_count: contentData.comment_count,
+        share_count: contentData.share_count,
+        collect_count: contentData.collect_count,
+        play_count: contentData.play_count,
+        download_count: contentData.download_count,
+        is_ads: contentData.is_ads || false,
+        is_warned: contentData.is_warned || false,
+        is_top: contentData.is_top || false,
+        with_goods: contentData.with_goods || false,
+        cha_list: contentData.cha_list || [],
+        author_nickname: contentData.author_nickname,
+        author_unique_id: contentData.author_unique_id,
+        author_sec_user_id: contentData.author_sec_user_id,
+        author_uid: contentData.author_uid,
+        mid: contentData.mid,
+        music_play_url: contentData.music_play_url,
+        music_duration: contentData.music_duration,
+        music_author: contentData.music_author,
+        image_urls: contentData.image_urls || [],
+        video_url: contentData.video_url,
+        shoot_way: contentData.shoot_way,
+        created_at: contentData.created_at,
+        updated_at: contentData.updated_at,
       };
-      setContent(mockData);
+      
+      setContent(mappedData);
       setLoading(false);
-    }, 500);
-  }, [contentId]);
+    } else {
+      // Fallback to mock data if no data was passed
+      setTimeout(() => {
+        const mockData: DouyinVideoData = {
+          id: "douyin_1",
+          task_id: "task_001",
+          aweme_id: "7234567890123456789",
+          group_id: "group_123",
+          desc: "超级好吃的家常菜制作教程 #美食 #家常菜 #教程",
+          create_time: "2024-01-01 10:30:00",
+          city: "北京市",
+          ip_attribution: "北京",
+          region: "华北",
+          duration: 45,
+          share_url: "https://www.douyin.com/video/7234567890123456789",
+          digg_count: 25680,
+          comment_count: 3456,
+          share_count: 1234,
+          collect_count: 8900,
+          play_count: 456789,
+          download_count: 567,
+          is_ads: false,
+          is_warned: false,
+          is_top: true,
+          with_goods: true,
+          cha_list: [
+            { cid: "123", cha_name: "美食" },
+            { cid: "456", cha_name: "家常菜" },
+            { cid: "789", cha_name: "教程" },
+          ],
+          author_nickname: "美食达人小张",
+          author_unique_id: "cooking_master",
+          author_sec_user_id: "MS4wLjABAAAA...",
+          author_uid: "123456789",
+          mid: "music_123",
+          music_play_url: "https://music.douyin.com/123.mp3",
+          music_duration: 60,
+          music_author: "轻音乐",
+          video_url: "https://video.douyin.com/video.mp4",
+          shoot_way: "normal",
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        };
+        setContent(mockData);
+        setLoading(false);
+      }, 500);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (

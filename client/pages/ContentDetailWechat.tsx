@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -54,16 +54,48 @@ interface WechatArticleData {
 }
 
 export default function ContentDetailWechat() {
-  const { contentId } = useParams<{ contentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<WechatArticleData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      // Mock data for WeChat article
-      const mockData: WechatArticleData = {
+    // Check if content data was passed via navigation state
+    if (location.state?.contentData) {
+      const contentData = location.state.contentData;
+      
+      // Map the API data to WechatArticleData format
+      const mappedData: WechatArticleData = {
+        id: contentData.id,
+        task_id: contentData.task_id,
+        title: contentData.title,
+        author: contentData.author,
+        publish_type: contentData.publish_type,
+        publish_source: contentData.publish_source,
+        author_user_id: contentData.author_user_id,
+        summary: contentData.summary,
+        full_text: contentData.full_text,
+        images_url: contentData.images_url || [],
+        word_count: contentData.word_count,
+        image_count: contentData.image_count,
+        has_reference: contentData.has_reference,
+        read_count: contentData.read_count,
+        like_count: contentData.like_count,
+        old_like_count: contentData.old_like_count,
+        comment_count: contentData.comment_count,
+        collect_count: contentData.collect_count,
+        share_count: contentData.share_count,
+        article_url: contentData.article_url,
+        created_at: contentData.created_at,
+        updated_at: contentData.updated_at,
+      };
+      
+      setContent(mappedData);
+      setLoading(false);
+    } else {
+      // Fallback to mock data if no data was passed
+      setTimeout(() => {
+        const mockData: WechatArticleData = {
         id: "wechat_1",
         task_id: "task_001",
         title: "深度解析：2024年互联网行业发展趋势与机遇",
@@ -92,11 +124,12 @@ export default function ContentDetailWechat() {
           "https://mp.weixin.qq.com/s/abcdefghijklmnopqrstuvwxyz123456",
         created_at: "2024-01-01T00:00:00Z",
         updated_at: "2024-01-01T00:00:00Z",
-      };
-      setContent(mockData);
-      setLoading(false);
-    }, 500);
-  }, [contentId]);
+        };
+        setContent(mockData);
+        setLoading(false);
+      }, 500);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (
