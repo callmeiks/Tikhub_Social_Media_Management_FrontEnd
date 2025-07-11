@@ -34,6 +34,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Search,
   RefreshCw,
@@ -67,19 +68,14 @@ import {
 } from "lucide-react";
 
 const supportedPlatforms = [
+  { id: "all", name: "全部平台", emoji: "🌐" },
   { id: "douyin", name: "抖音", emoji: "🎤", domain: "douyin.com" },
-  {
-    id: "xiaohongshu",
-    name: "小红书",
-    emoji: "����",
-    domain: "xiaohongshu.com",
-  },
-  { id: "kuaishou", name: "快手", emoji: "⚡", domain: "kuaishou.com" },
-  { id: "bilibili", name: "哔哩哔哩", emoji: "📺", domain: "bilibili.com" },
-  { id: "youtube", name: "YouTube", emoji: "📹", domain: "youtube.com" },
   { id: "tiktok", name: "TikTok", emoji: "🎵", domain: "tiktok.com" },
+  { id: "kuaishou", name: "快手", emoji: "⚡", domain: "kuaishou.com" },
+  { id: "youtube", name: "YouTube", emoji: "📹", domain: "youtube.com" },
   { id: "x", name: "X", emoji: "🐦", domain: "x.com" },
-  { id: "instagram", name: "Instagram", emoji: "📷", domain: "instagram.com" },
+  { id: "weibo", name: "微博", emoji: "📝", domain: "weibo.com" },
+  { id: "wechat", name: "微信公众号", emoji: "💬", domain: "mp.weixin.qq.com" },
 ];
 
 // Sample data for demonstration
@@ -275,6 +271,120 @@ const ContentDetailsRow: React.FC<{ content: any }> = ({ content }) => {
   );
 };
 
+interface ApiAnalysisResult {
+  total_successful: number;
+  total_failed: number;
+  failed_urls: string[];
+}
+
+interface BaseContent {
+  id: string;
+  platform: string;
+  like_count: number;
+  task_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface TikTokContent extends BaseContent {
+  platform: "tiktok";
+  aweme_id: string;
+  desc: string;
+  author_nickname: string;
+  author_unique_id: string;
+  video_url: string;
+  play_count: number;
+  comment_count: number;
+  share_count: number;
+  collect_count: number;
+  digg_count: number;
+  duration: number;
+  share_url: string;
+}
+
+interface DouyinContent extends BaseContent {
+  platform: "douyin";
+  aweme_id: string;
+  desc: string;
+  author_nickname: string;
+  author_unique_id: string;
+  video_url: string;
+  play_count: number;
+  comment_count: number;
+  share_count: number;
+  collect_count: number;
+  digg_count: number;
+  duration: number;
+  share_url: string;
+}
+
+interface KuaishouContent extends BaseContent {
+  platform: "kuaishou";
+  photo_id: string;
+  video_caption: string;
+  author_name: string;
+  view_count: number;
+  comment_count: number;
+  share_count: number;
+  collect_count: number;
+  video_duration: number;
+  video_url: string;
+}
+
+interface WechatContent extends BaseContent {
+  platform: "wechat";
+  title: string;
+  author: string;
+  summary: string;
+  article_url: string;
+  read_count: number;
+  comment_count: number;
+  share_count: number;
+  collect_count: number;
+}
+
+interface WeiboContent extends BaseContent {
+  platform: "weibo";
+  post_id: string;
+  text_raw: string;
+  author_screen_name: string;
+  reposts_count: number;
+  comments_count: number;
+  attitudes_count: number;
+  images_urls: string[];
+  video_play_urls: string[];
+}
+
+interface YoutubeContent extends BaseContent {
+  platform: "youtube";
+  video_id: string;
+  title: string;
+  channel_name: string;
+  view_count: number;
+  comment_count: number;
+  video_play_url: string;
+}
+
+interface XContent extends BaseContent {
+  platform: "x";
+  tweet_id: string;
+  text: string;
+  author_screen_name: string;
+  retweet_count: number;
+  replies_count: number;
+  bookmarks_count: number;
+  view_count: number;
+}
+
+type ContentItem = TikTokContent | DouyinContent | KuaishouContent | WechatContent | WeiboContent | YoutubeContent | XContent;
+
+interface ContentApiResponse {
+  items: ContentItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export default function ContentInteraction() {
   const navigate = useNavigate();
   const [batchUrls, setBatchUrls] = useState("");
@@ -285,6 +395,17 @@ export default function ContentInteraction() {
   );
   const [selectedContent, setSelectedContent] = useState<number[]>([]);
   const [expandedContent, setExpandedContent] = useState<number[]>([]);
+  const [analysisResult, setAnalysisResult] = useState<ApiAnalysisResult | null>(null);
+  const [showResultAlert, setShowResultAlert] = useState(false);
+  
+  // New states for API content
+  const [apiContentData, setApiContentData] = useState<ContentItem[]>([]);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [selectedPlatform, setSelectedPlatform] = useState("all");
+  const [sortByLikes, setSortByLikes] = useState<"" | "ascending" | "descending">("");
+  const [activeTab, setActiveTab] = useState("add");
 
   const urlCount = batchUrls
     .split("\n")
@@ -292,7 +413,125 @@ export default function ContentInteraction() {
     .filter((url) => url.length > 0).length;
 
   const validateUrl = (url: string) => {
-    return supportedPlatforms.some((platform) => url.includes(platform.domain));
+    return supportedPlatforms.some((platform) => platform.domain && url.includes(platform.domain));
+  };
+
+  // Helper function to format numbers
+  const formatNumber = (num: number): string => {
+    if (num >= 100000000) {
+      return (num / 100000000).toFixed(1) + "亿";
+    } else if (num >= 10000) {
+      return (num / 10000).toFixed(1) + "万";
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "千";
+    }
+    return num.toString();
+  };
+
+  // Helper function to get content title/description
+  const getContentTitle = (content: ContentItem): string => {
+    switch (content.platform) {
+      case "tiktok":
+      case "douyin":
+        return (content as TikTokContent | DouyinContent).desc || "无描述";
+      case "kuaishou":
+        return (content as KuaishouContent).video_caption || "无描述";
+      case "wechat":
+        return (content as WechatContent).title || "无标题";
+      case "weibo":
+        return (content as WeiboContent).text_raw || "无内容";
+      case "youtube":
+        return (content as YoutubeContent).title || "无标题";
+      case "x":
+        return (content as XContent).text || "无内容";
+      default:
+        return "无描述";
+    }
+  };
+
+  // Helper function to get author name
+  const getAuthorName = (content: ContentItem): string => {
+    switch (content.platform) {
+      case "tiktok":
+      case "douyin":
+        return (content as TikTokContent | DouyinContent).author_nickname || "未知作者";
+      case "kuaishou":
+        return (content as KuaishouContent).author_name || "未知作者";
+      case "wechat":
+        return (content as WechatContent).author || "未知作者";
+      case "weibo":
+        return (content as WeiboContent).author_screen_name || "未知作者";
+      case "youtube":
+        return (content as YoutubeContent).channel_name || "未知频道";
+      case "x":
+        return (content as XContent).author_screen_name || "未知作者";
+      default:
+        return "未知作者";
+    }
+  };
+
+  // Helper function to get view/play count
+  const getViewCount = (content: ContentItem): number => {
+    switch (content.platform) {
+      case "tiktok":
+      case "douyin":
+        return (content as TikTokContent | DouyinContent).play_count || 0;
+      case "kuaishou":
+        return (content as KuaishouContent).view_count || 0;
+      case "wechat":
+        return (content as WechatContent).read_count || 0;
+      case "youtube":
+        return (content as YoutubeContent).view_count || 0;
+      case "x":
+        return (content as XContent).view_count || 0;
+      case "weibo":
+        return 0; // Weibo doesn't have view count in the data
+      default:
+        return 0;
+    }
+  };
+
+  // Helper function to get share URL
+  const getShareUrl = (content: ContentItem): string => {
+    switch (content.platform) {
+      case "tiktok":
+      case "douyin":
+        return (content as TikTokContent | DouyinContent).share_url || "";
+      case "wechat":
+        return (content as WechatContent).article_url || "";
+      default:
+        return "";
+    }
+  };
+
+  // Helper function to get comment count
+  const getCommentCount = (content: ContentItem): number => {
+    switch (content.platform) {
+      case "weibo":
+        return (content as WeiboContent).comments_count || 0;
+      case "x":
+        return (content as XContent).replies_count || 0;
+      default:
+        return (content as any).comment_count || 0;
+    }
+  };
+
+  // Helper function to get share count
+  const getShareCount = (content: ContentItem): number => {
+    switch (content.platform) {
+      case "weibo":
+        return (content as WeiboContent).reposts_count || 0;
+      case "x":
+        return (content as XContent).retweet_count || 0;
+      default:
+        return (content as any).share_count || 0;
+    }
+  };
+
+  // Helper function to get platform display name
+  const getPlatformDisplayName = (platform: string): string => {
+    const platformInfo = supportedPlatforms.find(p => p.id === platform);
+    return platformInfo?.name || platform;
   };
 
   const invalidUrls = batchUrls
@@ -317,6 +556,53 @@ export default function ContentInteraction() {
     );
   }, [selectedPlatforms, contentData]);
 
+  // Fetch content data from API
+  const fetchContentData = async () => {
+    setIsLoadingContent(true);
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
+      
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: "20",
+        platform: selectedPlatform
+      });
+      
+      if (sortByLikes) {
+        params.append("sort_by_likes", sortByLikes);
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/content-interaction/content?${params}`, {
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data: ContentApiResponse = await response.json();
+      setApiContentData(data.items);
+      setTotalItems(data.total);
+      
+    } catch (error) {
+      console.error("Error fetching content data:", error);
+      alert("获取作品数据失败，请稍后重试");
+    } finally {
+      setIsLoadingContent(false);
+    }
+  };
+
+  // Trigger fetch when tab changes to "data" or when filters change
+  useEffect(() => {
+    if (activeTab === "data") {
+      fetchContentData();
+    }
+  }, [activeTab, currentPage, selectedPlatform, sortByLikes]);
+
   const handleAnalyze = async () => {
     const urls = batchUrls
       .split("\n")
@@ -339,11 +625,50 @@ export default function ContentInteraction() {
     }
 
     setIsAnalyzing(true);
-    // 模拟API调用
-    setTimeout(() => {
+    setShowResultAlert(false);
+    setAnalysisResult(null);
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
+      
+      const response = await fetch(`${API_BASE_URL}/api/content-interaction/create-tasks`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          urls: urls
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      setAnalysisResult({
+        total_successful: data.total_successful,
+        total_failed: data.total_failed,
+        failed_urls: data.failed_urls || []
+      });
+      
+      setShowResultAlert(true);
+      
+      // Clear the input if all successful
+      if (data.total_failed === 0) {
+        setBatchUrls("");
+      }
+      
+    } catch (error) {
+      console.error("Error analyzing content:", error);
+      alert("分析失败，请稍后重试");
+    } finally {
       setIsAnalyzing(false);
-      alert(`成功添加 ${urls.length} 个作品到分析队列`);
-    }, 3000);
+    }
   };
 
   const togglePlatform = (platformName: string) => {
@@ -503,22 +828,35 @@ export default function ContentInteraction() {
     link.click();
   };
 
-  // Statistics calculations
-  const totalContent = filteredContentData.length;
-  const totalViews = filteredContentData.reduce((sum, content) => {
-    const views = parseInt(
-      content.views.replace(/[万千]/g, "").replace(/\D/g, ""),
-    );
-    return sum + (isNaN(views) ? 0 : views);
+  // Statistics calculations - use API data when available
+  const displayData = activeTab === "data" ? apiContentData : contentData;
+  const totalContent = displayData.length;
+  const totalViews = displayData.reduce((sum, content) => {
+    if ('like_count' in content) {
+      // API data
+      return sum + getViewCount(content);
+    } else {
+      // Sample data
+      const views = parseInt(
+        (content as any).views.replace(/[万千]/g, "").replace(/\D/g, ""),
+      );
+      return sum + (isNaN(views) ? 0 : views);
+    }
   }, 0);
-  const totalLikes = filteredContentData.reduce((sum, content) => {
-    const likes = parseInt(
-      content.likes.replace(/[万千]/g, "").replace(/\D/g, ""),
-    );
-    return sum + (isNaN(likes) ? 0 : likes);
+  const totalLikes = displayData.reduce((sum, content) => {
+    if ('like_count' in content) {
+      // API data
+      return sum + content.like_count;
+    } else {
+      // Sample data
+      const likes = parseInt(
+        (content as any).likes.replace(/[万千]/g, "").replace(/\D/g, ""),
+      );
+      return sum + (isNaN(likes) ? 0 : likes);
+    }
   }, 0);
   const avgEngagementRate =
-    totalContent > 0 ? ((totalLikes / totalViews) * 100).toFixed(2) : "0";
+    totalViews > 0 ? ((totalLikes / totalViews) * 100).toFixed(2) : "0";
 
   return (
     <DashboardLayout
@@ -559,11 +897,11 @@ export default function ContentInteraction() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="add" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加作��
+              添加作品
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
@@ -642,6 +980,37 @@ https://www.youtube.com/watch?v=example123
                   </div>
                 )}
 
+                {showResultAlert && analysisResult && (
+                  <Alert className={analysisResult.total_failed > 0 ? "border-orange-200 bg-orange-50" : "border-green-200 bg-green-50"}>
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span className="text-sm font-medium">成功: {analysisResult.total_successful}</span>
+                          </div>
+                          {analysisResult.total_failed > 0 && (
+                            <div className="flex items-center space-x-2">
+                              <AlertTriangle className="h-4 w-4 text-orange-600" />
+                              <span className="text-sm font-medium">失败: {analysisResult.total_failed}</span>
+                            </div>
+                          )}
+                        </div>
+                        {analysisResult.failed_urls.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-medium text-orange-600 mb-1">失败的链接:</p>
+                            <ul className="text-xs text-orange-600 space-y-1">
+                              {analysisResult.failed_urls.map((url, index) => (
+                                <li key={index} className="break-all">• {url}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex space-x-2">
                     <Button
@@ -665,7 +1034,11 @@ https://www.youtube.com/watch?v=example123
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setBatchUrls("")}
+                      onClick={() => {
+                        setBatchUrls("");
+                        setShowResultAlert(false);
+                        setAnalysisResult(null);
+                      }}
                       className="h-8"
                     >
                       清空
@@ -687,114 +1060,133 @@ https://www.youtube.com/watch?v=example123
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Eye className="mr-2 h-4 w-4" />
-                    作品互动数据 ({filteredContentData.length})
+                    作品互动数据 ({apiContentData.length})
+                    {isLoadingContent && <RefreshCw className="ml-2 h-3 w-3 animate-spin" />}
                   </span>
                   <div className="flex items-center space-x-2">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8">
                           <Filter className="mr-2 h-3.5 w-3.5" />
-                          平台筛选 ({selectedPlatforms.length})
+                          平台筛选
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-56" align="end">
                         <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium">选择平台</h4>
-                            <div className="flex space-x-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={selectAllPlatforms}
-                                className="h-6 text-xs"
-                              >
-                                全选
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={clearAllPlatforms}
-                                className="h-6 text-xs"
-                              >
-                                清空
-                              </Button>
-                            </div>
-                          </div>
+                          <h4 className="text-sm font-medium">选择平台</h4>
                           <div className="space-y-2">
-                            {supportedPlatforms.map((platform) => {
-                              const contentCount = contentData.filter(
-                                (content) => content.platform === platform.name,
-                              ).length;
-                              return (
-                                <div
-                                  key={platform.id}
-                                  className="flex items-center space-x-2"
+                            {supportedPlatforms.map((platform) => (
+                              <div
+                                key={platform.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={platform.id}
+                                  checked={selectedPlatform === platform.id}
+                                  onCheckedChange={() => {
+                                    setSelectedPlatform(platform.id);
+                                    setCurrentPage(1);
+                                  }}
+                                />
+                                <label
+                                  htmlFor={platform.id}
+                                  className="flex items-center space-x-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                                 >
-                                  <Checkbox
-                                    id={platform.id}
-                                    checked={selectedPlatforms.includes(
-                                      platform.name,
-                                    )}
-                                    onCheckedChange={() =>
-                                      togglePlatform(platform.name)
-                                    }
-                                  />
-                                  <label
-                                    htmlFor={platform.id}
-                                    className="flex items-center space-x-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                                  >
-                                    <span>{platform.emoji}</span>
-                                    <span>{platform.name}</span>
-                                    {contentCount > 0 && (
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs"
-                                      >
-                                        {contentCount}
-                                      </Badge>
-                                    )}
-                                  </label>
-                                </div>
-                              );
-                            })}
+                                  <span>{platform.emoji}</span>
+                                  <span>{platform.name}</span>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8">
+                          <BarChart3 className="mr-2 h-3.5 w-3.5" />
+                          点赞排序
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48" align="end">
+                        <div className="space-y-4">
+                          <h4 className="text-sm font-medium">排序方式</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="no-sort"
+                                checked={sortByLikes === ""}
+                                onCheckedChange={() => {
+                                  setSortByLikes("");
+                                  setCurrentPage(1);
+                                }}
+                              />
+                              <label htmlFor="no-sort" className="text-sm font-medium">
+                                默认排序
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="desc-sort"
+                                checked={sortByLikes === "descending"}
+                                onCheckedChange={() => {
+                                  setSortByLikes("descending");
+                                  setCurrentPage(1);
+                                }}
+                              />
+                              <label htmlFor="desc-sort" className="text-sm font-medium">
+                                点赞数降序
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="asc-sort"
+                                checked={sortByLikes === "ascending"}
+                                onCheckedChange={() => {
+                                  setSortByLikes("ascending");
+                                  setCurrentPage(1);
+                                }}
+                              />
+                              <label htmlFor="asc-sort" className="text-sm font-medium">
+                                点赞数升序
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </PopoverContent>
                     </Popover>
                     <div className="flex items-center space-x-2">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        onClick={selectAllContent}
-                        className="h-6 text-xs"
-                        disabled={filteredContentData.length === 0}
+                        onClick={() => {
+                          setCurrentPage(1);
+                          fetchContentData();
+                        }}
+                        className="h-8"
+                        disabled={isLoadingContent}
                       >
-                        全选
+                        <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                        刷新
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearAllContent}
-                        className="h-6 text-xs"
-                        disabled={selectedContent.length === 0}
-                      >
-                        清空
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={exportContentData}
-                        disabled={selectedContent.length === 0}
-                        className="h-8 brand-accent"
-                      >
-                        <Download className="mr-2 h-3.5 w-3.5" />
-                        导出选中 ({selectedContent.length})
-                      </Button>
+                      
+                      <div className="text-xs text-muted-foreground">
+                        总计: {totalItems} 条数据
+                      </div>
                     </div>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {filteredContentData.length === 0 ? (
+                {isLoadingContent ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-8 w-8 mx-auto text-muted-foreground mb-2 animate-spin" />
+                    <p className="text-sm text-muted-foreground">
+                      正在加载作品数据...
+                    </p>
+                  </div>
+                ) : apiContentData.length === 0 ? (
                   <div className="text-center py-8">
                     <Eye className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
@@ -806,213 +1198,116 @@ https://www.youtube.com/watch?v=example123
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[50px]">选择</TableHead>
-                          <TableHead className="w-[120px]">作品展示</TableHead>
                           <TableHead className="w-[200px]">作品标题</TableHead>
                           <TableHead className="w-[80px]">平台</TableHead>
-                          <TableHead className="w-[100px]">发布���间</TableHead>
+                          <TableHead className="w-[120px]">作者</TableHead>
                           <TableHead className="w-[100px]">播放量</TableHead>
                           <TableHead className="w-[80px]">点赞</TableHead>
                           <TableHead className="w-[80px]">评论</TableHead>
                           <TableHead className="w-[80px]">分享</TableHead>
-                          <TableHead className="w-[80px]">收藏</TableHead>
-                          <TableHead className="w-[50px]">操作</TableHead>
-                          <TableHead className="w-[50px]">详情</TableHead>
+                          <TableHead className="w-[100px]">创建时间</TableHead>
+                          <TableHead className="w-[80px]">查看详情</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredContentData.map((content) => (
-                          <React.Fragment key={content.id}>
-                            <TableRow>
-                              <TableCell>
-                                <Checkbox
-                                  checked={selectedContent.includes(content.id)}
-                                  onCheckedChange={() =>
-                                    toggleContentSelection(content.id)
-                                  }
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <div className="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
-                                  {content.coverUrl ? (
-                                    <img
-                                      src={content.coverUrl}
-                                      alt={content.title}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.style.display = "none";
-                                        const next = e.currentTarget
-                                          .nextElementSibling as HTMLElement;
-                                        if (next) next.style.display = "flex";
-                                      }}
-                                    />
-                                  ) : null}
-                                  <div
-                                    className="w-full h-full flex items-center justify-center bg-gray-200"
-                                    style={{
-                                      display: content.coverUrl
-                                        ? "none"
-                                        : "flex",
-                                    }}
-                                  >
-                                    {content.duration &&
-                                    content.duration !== "-" ? (
-                                      <Play className="h-5 w-5 text-gray-500" />
-                                    ) : (
-                                      <Image className="h-5 w-5 text-gray-500" />
-                                    )}
-                                  </div>
-                                  {content.duration &&
-                                    content.duration !== "-" && (
-                                      <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
-                                        {content.duration}
-                                      </div>
-                                    )}
-                                </div>
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                <div
-                                  className="max-w-[260px] truncate cursor-pointer hover:text-blue-600 transition-colors"
-                                  title={content.title}
-                                  onClick={() => handleContentClick(content.id)}
-                                >
-                                  {content.title}
-                                </div>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  by {content.author}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className="text-xs">
-                                  {content.platform}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {content.publishedAt}
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                <span className="flex items-center">
-                                  <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                  {content.views}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                <span className="flex items-center">
-                                  <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                  {content.likes}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                <span className="flex items-center">
-                                  <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                  {content.comments}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                <span className="flex items-center">
-                                  <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                  {content.shares}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                <span className="flex items-center">
-                                  <Users className="h-3 w-3 mr-1 text-orange-500" />
-                                  {content.collections}
-                                </span>
-                              </TableCell>
-                              <TableCell>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent
-                                    align="end"
-                                    className="w-48"
-                                  >
-                                    <DropdownMenuLabel>操作</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction("view", content.id)
-                                      }
-                                    >
-                                      <ExternalLink className="mr-2 h-4 w-4" />
-                                      查看原作品
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction("copy", content.id)
-                                      }
-                                    >
-                                      <Copy className="mr-2 h-4 w-4" />
-                                      ��制链接
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction("star", content.id)
-                                      }
-                                    >
-                                      <Star className="mr-2 h-4 w-4" />
-                                      收藏作品
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction("edit", content.id)
-                                      }
-                                    >
-                                      <Edit className="mr-2 h-4 w-4" />
-                                      编辑信息
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleContentAction(
-                                          "delete",
-                                          content.id,
-                                        )
-                                      }
-                                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                                    >
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      删除作品
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() =>
-                                    toggleContentExpansion(content.id)
-                                  }
-                                >
-                                  {expandedContent.includes(content.id) ? (
-                                    <ChevronUp className="h-3 w-3" />
-                                  ) : (
-                                    <ChevronDown className="h-3 w-3" />
-                                  )}
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                            {expandedContent.includes(content.id) && (
-                              <TableRow>
-                                <TableCell colSpan={12} className="p-0">
-                                  <ContentDetailsRow content={content} />
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </React.Fragment>
+                        {apiContentData.map((content) => (
+                          <TableRow key={content.id}>
+                            <TableCell className="font-medium">
+                              <div
+                                className="max-w-[200px] truncate cursor-pointer hover:text-blue-600 transition-colors"
+                                title={getContentTitle(content)}
+                              >
+                                {getContentTitle(content)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="text-xs">
+                                {getPlatformDisplayName(content.platform)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {getAuthorName(content)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <span className="flex items-center">
+                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                                {formatNumber(getViewCount(content))}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <span className="flex items-center">
+                                <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                {formatNumber(content.like_count)}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <span className="flex items-center">
+                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                                {formatNumber(getCommentCount(content))}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <span className="flex items-center">
+                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                {formatNumber(getShareCount(content))}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {new Date(content.created_at).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8"
+                                onClick={() => {
+                                  const platformPath = content.platform === "wechat" ? "wechat" : 
+                                                       content.platform === "weibo" ? "weibo" : 
+                                                       content.platform === "x" ? "x" : 
+                                                       content.platform === "youtube" ? "youtube" : 
+                                                       content.platform === "kuaishou" ? "kuaishou" : 
+                                                       content.platform === "douyin" ? "douyin" : 
+                                                       content.platform === "tiktok" ? "tiktok" : "content";
+                                  navigate(`/data-collection/content-detail/${content.id}?platform=${platformPath}`);
+                                }}
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
                         ))}
                       </TableBody>
                     </Table>
+                    
+                    {/* Pagination */}
+                    {totalItems > 20 && (
+                      <div className="flex items-center justify-between p-4 border-t">
+                        <div className="text-sm text-muted-foreground">
+                          第 {(currentPage - 1) * 20 + 1} - {Math.min(currentPage * 20, totalItems)} 条，共 {totalItems} 条
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1 || isLoadingContent}
+                          >
+                            上一页
+                          </Button>
+                          <span className="text-sm">
+                            第 {currentPage} 页，共 {Math.ceil(totalItems / 20)} 页
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            disabled={currentPage >= Math.ceil(totalItems / 20) || isLoadingContent}
+                          >
+                            下一页
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
