@@ -363,6 +363,7 @@ interface YoutubeContent extends BaseContent {
   view_count: number;
   comment_count: number;
   video_play_url: string;
+  length_seconds: number;
 }
 
 interface XContent extends BaseContent {
@@ -374,6 +375,8 @@ interface XContent extends BaseContent {
   replies_count: number;
   bookmarks_count: number;
   view_count: number;
+  images_url: string[];
+  video_url: string;
 }
 
 type ContentItem = TikTokContent | DouyinContent | KuaishouContent | WechatContent | WeiboContent | YoutubeContent | XContent;
@@ -532,6 +535,78 @@ export default function ContentInteraction() {
   const getPlatformDisplayName = (platform: string): string => {
     const platformInfo = supportedPlatforms.find(p => p.id === platform);
     return platformInfo?.name || platform;
+  };
+
+  // Helper function to get preview content for different platforms
+  const getPreviewContent = (content: ContentItem) => {
+    switch (content.platform) {
+      case "tiktok":
+      case "douyin":
+        const videoContent = content as TikTokContent | DouyinContent;
+        return {
+          type: "video",
+          url: videoContent.video_url,
+          duration: videoContent.duration ? Math.floor(videoContent.duration / 1000) : 0
+        };
+      case "kuaishou":
+        const kuaishouContent = content as KuaishouContent;
+        return {
+          type: "video",
+          url: kuaishouContent.video_url,
+          duration: kuaishouContent.video_duration ? Math.floor(kuaishouContent.video_duration / 1000) : 0
+        };
+      case "youtube":
+        const youtubeContent = content as YoutubeContent;
+        return {
+          type: "video",
+          url: youtubeContent.video_play_url,
+          duration: youtubeContent.length_seconds || 0
+        };
+      case "wechat":
+        const wechatContent = content as WechatContent;
+        return {
+          type: "image",
+          urls: wechatContent.images_url || []
+        };
+      case "weibo":
+        const weiboContent = content as WeiboContent;
+        if (weiboContent.video_play_urls && weiboContent.video_play_urls.length > 0) {
+          return {
+            type: "video",
+            url: weiboContent.video_play_urls[0]
+          };
+        } else if (weiboContent.images_urls && weiboContent.images_urls.length > 0) {
+          return {
+            type: "image",
+            urls: weiboContent.images_urls
+          };
+        }
+        return { type: "none" };
+      case "x":
+        const xContent = content as XContent;
+        if (xContent.video_url && xContent.video_url.trim()) {
+          return {
+            type: "video",
+            url: xContent.video_url
+          };
+        } else if (xContent.images_url && xContent.images_url.length > 0) {
+          return {
+            type: "image",
+            urls: xContent.images_url
+          };
+        }
+        return { type: "none" };
+      default:
+        return { type: "none" };
+    }
+  };
+
+  // Helper function to format duration
+  const formatDuration = (seconds: number): string => {
+    if (seconds === 0) return "";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const invalidUrls = batchUrls
@@ -1198,6 +1273,7 @@ https://www.youtube.com/watch?v=example123
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead className="w-[120px]">作品展示</TableHead>
                           <TableHead className="w-[200px]">作品标题</TableHead>
                           <TableHead className="w-[80px]">平台</TableHead>
                           <TableHead className="w-[120px]">作者</TableHead>
@@ -1210,72 +1286,157 @@ https://www.youtube.com/watch?v=example123
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {apiContentData.map((content) => (
-                          <TableRow key={content.id}>
-                            <TableCell className="font-medium">
-                              <div
-                                className="max-w-[200px] truncate cursor-pointer hover:text-blue-600 transition-colors"
-                                title={getContentTitle(content)}
-                              >
-                                {getContentTitle(content)}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="text-xs">
-                                {getPlatformDisplayName(content.platform)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {getAuthorName(content)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {formatNumber(getViewCount(content))}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {formatNumber(content.like_count)}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {formatNumber(getCommentCount(content))}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <span className="flex items-center">
-                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                {formatNumber(getShareCount(content))}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {new Date(content.created_at).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8"
-                                onClick={() => {
-                                  const platformPath = content.platform === "wechat" ? "wechat" : 
-                                                       content.platform === "weibo" ? "weibo" : 
-                                                       content.platform === "x" ? "x" : 
-                                                       content.platform === "youtube" ? "youtube" : 
-                                                       content.platform === "kuaishou" ? "kuaishou" : 
-                                                       content.platform === "douyin" ? "douyin" : 
-                                                       content.platform === "tiktok" ? "tiktok" : "content";
-                                  navigate(`/data-collection/content-detail/${content.id}?platform=${platformPath}`);
-                                }}
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {apiContentData.map((content) => {
+                          const previewContent = getPreviewContent(content);
+                          
+                          return (
+                            <TableRow key={content.id}>
+                              {/* 作品展示列 */}
+                              <TableCell>
+                                <div className="w-24 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
+                                  {previewContent.type === "video" && previewContent.url ? (
+                                    <>
+                                      <video
+                                        src={previewContent.url}
+                                        className="w-full h-full object-cover"
+                                        preload="metadata"
+                                        muted
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = "none";
+                                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                                          if (next) next.style.display = "flex";
+                                        }}
+                                      />
+                                      <div
+                                        className="w-full h-full flex items-center justify-center bg-gray-200"
+                                        style={{ display: "none" }}
+                                      >
+                                        <Play className="h-6 w-6 text-gray-500" />
+                                      </div>
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                        <Play className="h-6 w-6 text-white drop-shadow-lg" />
+                                      </div>
+                                      {previewContent.duration && previewContent.duration > 0 && (
+                                        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                          {formatDuration(previewContent.duration)}
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : previewContent.type === "image" && previewContent.urls && previewContent.urls.length > 0 ? (
+                                    <>
+                                      <img
+                                        src={previewContent.urls[0]}
+                                        alt="内容预览"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = "none";
+                                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                                          if (next) next.style.display = "flex";
+                                        }}
+                                      />
+                                      <div
+                                        className="w-full h-full flex items-center justify-center bg-gray-200"
+                                        style={{ display: "none" }}
+                                      >
+                                        <Image className="h-6 w-6 text-gray-500" />
+                                      </div>
+                                      {previewContent.urls.length > 1 && (
+                                        <div className="absolute top-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                          +{previewContent.urls.length - 1}
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center text-gray-400">
+                                      <Image className="h-6 w-6 mb-1" />
+                                      <span className="text-xs">无预览</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              
+                              {/* 作品标题列 */}
+                              <TableCell className="font-medium">
+                                <div
+                                  className="max-w-[200px] truncate cursor-pointer hover:text-blue-600 transition-colors"
+                                  title={getContentTitle(content)}
+                                >
+                                  {getContentTitle(content)}
+                                </div>
+                              </TableCell>
+                              
+                              {/* 平台列 */}
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {getPlatformDisplayName(content.platform)}
+                                </Badge>
+                              </TableCell>
+                              
+                              {/* 作者列 */}
+                              <TableCell className="text-sm">
+                                {getAuthorName(content)}
+                              </TableCell>
+                              
+                              {/* 播放量列 */}
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Eye className="h-3 w-3 mr-1 text-blue-500" />
+                                  {formatNumber(getViewCount(content))}
+                                </span>
+                              </TableCell>
+                              
+                              {/* 点赞列 */}
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Heart className="h-3 w-3 mr-1 text-red-500" />
+                                  {formatNumber(content.like_count)}
+                                </span>
+                              </TableCell>
+                              
+                              {/* 评论列 */}
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
+                                  {formatNumber(getCommentCount(content))}
+                                </span>
+                              </TableCell>
+                              
+                              {/* 分享列 */}
+                              <TableCell className="text-sm">
+                                <span className="flex items-center">
+                                  <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                  {formatNumber(getShareCount(content))}
+                                </span>
+                              </TableCell>
+                              
+                              {/* 创建时间列 */}
+                              <TableCell className="text-sm text-muted-foreground">
+                                {new Date(content.created_at).toLocaleDateString()}
+                              </TableCell>
+                              
+                              {/* 查看详情列 */}
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8"
+                                  onClick={() => {
+                                    const platformPath = content.platform === "wechat" ? "wechat" : 
+                                                         content.platform === "weibo" ? "weibo" : 
+                                                         content.platform === "x" ? "x" : 
+                                                         content.platform === "youtube" ? "youtube" : 
+                                                         content.platform === "kuaishou" ? "kuaishou" : 
+                                                         content.platform === "douyin" ? "douyin" : 
+                                                         content.platform === "tiktok" ? "tiktok" : "content";
+                                    navigate(`/data-collection/content-detail/${content.id}?platform=${platformPath}`);
+                                  }}
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                     
