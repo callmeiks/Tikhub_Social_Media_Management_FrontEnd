@@ -787,48 +787,68 @@ export default function ContentDetailTiktok() {
                   <div className="p-4 bg-muted/20 rounded-lg mb-4">
                     <h3 className="font-semibold mb-2">TikTok特性</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {content.created_by_ai && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Bot className="mr-1 h-3 w-3" />
-                          AI生成
+                      {/* AI生成 */}
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">AI生成:</span>
+                        <Badge variant={content.created_by_ai ? "secondary" : "outline"} className="text-xs">
+                          {content.created_by_ai ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.is_ads && (
-                        <Badge variant="destructive" className="text-xs">
-                          <Target className="mr-1 h-3 w-3" />
-                          广告内容
+                      </div>
+                      
+                      {/* 广告内容 */}
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4 text-red-500" />
+                        <span className="text-sm">广告:</span>
+                        <Badge variant={content.is_ads ? "destructive" : "outline"} className="text-xs">
+                          {content.is_ads ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.is_top && (
-                        <Badge variant="default" className="text-xs bg-red-500">
-                          <Pin className="mr-1 h-3 w-3" />
-                          置顶作品
+                      </div>
+                      
+                      {/* 置顶作品 */}
+                      <div className="flex items-center gap-2">
+                        <Pin className="h-4 w-4 text-red-500" />
+                        <span className="text-sm">置顶:</span>
+                        <Badge variant={content.is_top ? "default" : "outline"} className="text-xs">
+                          {content.is_top ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.is_pgcshow && (
-                        <Badge variant="outline" className="text-xs">
-                          <Star className="mr-1 h-3 w-3" />
-                          专业内容
+                      </div>
+                      
+                      {/* 专业内容 */}
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm">专业内容:</span>
+                        <Badge variant={content.is_pgcshow ? "secondary" : "outline"} className="text-xs">
+                          {content.is_pgcshow ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.support_danmaku && (
-                        <Badge variant="outline" className="text-xs">
-                          <MessageCircle className="mr-1 h-3 w-3" />
-                          支持弹幕
+                      </div>
+                      
+                      {/* 支持弹幕 */}
+                      <div className="flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-sm">弹幕:</span>
+                        <Badge variant={content.support_danmaku ? "secondary" : "outline"} className="text-xs">
+                          {content.support_danmaku ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.adv_promotable && (
-                        <Badge variant="outline" className="text-xs">
-                          <TrendingUp className="mr-1 h-3 w-3" />
-                          可推广
+                      </div>
+                      
+                      {/* 可推广 */}
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm">可推广:</span>
+                        <Badge variant={content.adv_promotable ? "secondary" : "outline"} className="text-xs">
+                          {content.adv_promotable ? "是" : "否"}
                         </Badge>
-                      )}
-                      {content.with_promotional_music && (
-                        <Badge variant="outline" className="text-xs">
-                          <Music className="mr-1 h-3 w-3" />
-                          推广音乐
+                      </div>
+                      
+                      {/* 推广音乐 */}
+                      <div className="flex items-center gap-2">
+                        <Music className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm">推广音乐:</span>
+                        <Badge variant={content.with_promotional_music ? "secondary" : "outline"} className="text-xs">
+                          {content.with_promotional_music ? "是" : "否"}
                         </Badge>
-                      )}
+                      </div>
                     </div>
                   </div>
 
