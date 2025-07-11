@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import douyinCityList from "../../douyin_city_list.json";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -126,7 +126,9 @@ const TikTokAccountFields: React.FC<{ account: TikTokInfluencer }> = ({
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
           <span className="font-medium">Sec User ID:</span>{" "}
-          <span className="break-all text-xs">{account.sec_user_id || "N/A"}</span>
+          <span className="break-all text-xs">
+            {account.sec_user_id || "N/A"}
+          </span>
         </div>
         <div>
           <span className="font-medium">用户ID:</span> {account.uid || "N/A"}
@@ -265,7 +267,9 @@ const DouyinAccountFields: React.FC<{ account: DouyinInfluencer }> = ({
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
           <span className="font-medium">Sec User ID:</span>{" "}
-          <span className="break-all text-xs">{account.sec_user_id || "N/A"}</span>
+          <span className="break-all text-xs">
+            {account.sec_user_id || "N/A"}
+          </span>
         </div>
         <div>
           <span className="font-medium">唯一标识:</span>{" "}
@@ -379,13 +383,11 @@ const XiaohongshuAccountFields: React.FC<{
         </div>
         <div>
           <span className="font-medium">收藏数:</span>{" "}
-          {formatNumber(account.collected_acount || 0)}
+          {formatNumber(account.collected_count || 0)}
         </div>
         <div>
           <span className="font-medium">关注数:</span>{" "}
-          {formatNumber(
-            account.following_acount || account.following_count || 0,
-          )}
+          {formatNumber(account.following_count || 0)}
         </div>
         <div>
           <span className="font-medium">粉丝数:</span>{" "}
@@ -437,8 +439,11 @@ const XiaohongshuAccountFields: React.FC<{
   );
 };
 
-const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () => void }> = ({ post, isOpen, onToggle }) => {
-
+const PostDetailsDropdown: React.FC<{
+  post: Post;
+  isOpen: boolean;
+  onToggle: () => void;
+}> = ({ post, isOpen, onToggle }) => {
   const renderPostDetails = () => {
     switch (post.platform) {
       case "tiktok":
@@ -447,23 +452,33 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  基本信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">作品ID:</span>
-                    <span className="font-medium text-xs break-all">{tiktokPost.aweme_id || "未知"}</span>
+                    <span className="font-medium text-xs break-all">
+                      {tiktokPost.aweme_id || "未知"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">内容类型:</span>
-                    <span className="font-medium">{tiktokPost.content_type || "未知"}</span>
+                    <span className="font-medium">
+                      {tiktokPost.content_type || "未知"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">时长:</span>
-                    <span className="font-medium">{formatDuration(tiktokPost.duration)}</span>
+                    <span className="font-medium">
+                      {formatDuration(tiktokPost.duration)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">语言:</span>
-                    <span className="font-medium">{tiktokPost.desc_language || "未知"}</span>
+                    <span className="font-medium">
+                      {tiktokPost.desc_language || "未知"}
+                    </span>
                   </div>
                   {tiktokPost.video_url && (
                     <div className="flex justify-between">
@@ -480,79 +495,126 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                   )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">AI创作:</span>
-                    <Badge variant={tiktokPost.created_by_ai ? "secondary" : "outline"} className="text-xs">
+                    <Badge
+                      variant={
+                        tiktokPost.created_by_ai ? "secondary" : "outline"
+                      }
+                      className="text-xs"
+                    >
                       {tiktokPost.created_by_ai ? "是" : "否"}
                     </Badge>
                   </div>
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  状态信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">广告:</span>
-                    <Badge variant={tiktokPost.is_ads ? "destructive" : "outline"} className="text-xs">
+                    <Badge
+                      variant={tiktokPost.is_ads ? "destructive" : "outline"}
+                      className="text-xs"
+                    >
                       {tiktokPost.is_ads ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">置顶:</span>
-                    <Badge variant={tiktokPost.is_top ? "default" : "outline"} className="text-xs">
+                    <Badge
+                      variant={tiktokPost.is_top ? "default" : "outline"}
+                      className="text-xs"
+                    >
                       {tiktokPost.is_top ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">下载次数:</span>
-                    <span className="font-medium">{formatNumber(tiktokPost.download_count)}</span>
+                    <span className="font-medium">
+                      {formatNumber(tiktokPost.download_count)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">播放次数:</span>
-                    <span className="font-medium">{formatNumber(tiktokPost.play_count)}</span>
+                    <span className="font-medium">
+                      {formatNumber(tiktokPost.play_count)}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">商业信息</h4>
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                商业信息
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">商业音乐:</span>
-                  <Badge variant={tiktokPost.with_promotional_music ? "secondary" : "outline"} className="text-xs">
+                  <Badge
+                    variant={
+                      tiktokPost.with_promotional_music
+                        ? "secondary"
+                        : "outline"
+                    }
+                    className="text-xs"
+                  >
                     {tiktokPost.with_promotional_music ? "是" : "否"}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">商业推广:</span>
-                  <Badge variant={tiktokPost.has_promote_entry ? "secondary" : "outline"} className="text-xs">
+                  <Badge
+                    variant={
+                      tiktokPost.has_promote_entry ? "secondary" : "outline"
+                    }
+                    className="text-xs"
+                  >
                     {tiktokPost.has_promote_entry ? "是" : "否"}
                   </Badge>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">技术信息</h4>
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                技术信息
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">剪映制作:</span>
-                  <Badge variant={tiktokPost.is_capcut ? "secondary" : "outline"} className="text-xs">
+                  <Badge
+                    variant={tiktokPost.is_capcut ? "secondary" : "outline"}
+                    className="text-xs"
+                  >
                     {tiktokPost.is_capcut ? "是" : "否"}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">内容类型:</span>
-                  <Badge variant={!tiktokPost.is_pgcshow ? "default" : "outline"} className="text-xs">
+                  <Badge
+                    variant={!tiktokPost.is_pgcshow ? "default" : "outline"}
+                    className="text-xs"
+                  >
                     {!tiktokPost.is_pgcshow ? "UGC" : "PGC"}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">VR内容:</span>
-                  <Badge variant={tiktokPost.is_vr ? "secondary" : "outline"} className="text-xs">
+                  <Badge
+                    variant={tiktokPost.is_vr ? "secondary" : "outline"}
+                    className="text-xs"
+                  >
                     {tiktokPost.is_vr ? "是" : "否"}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">弹幕支持:</span>
-                  <Badge variant={tiktokPost.support_danmaku ? "secondary" : "outline"} className="text-xs">
+                  <Badge
+                    variant={
+                      tiktokPost.support_danmaku ? "secondary" : "outline"
+                    }
+                    className="text-xs"
+                  >
                     {tiktokPost.support_danmaku ? "是" : "否"}
                   </Badge>
                 </div>
@@ -560,15 +622,21 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
             </div>
             {tiktokPost.music_author && (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  音乐信息
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">音乐作者:</span>
-                    <span className="font-medium">{tiktokPost.music_author}</span>
+                    <span className="font-medium">
+                      {tiktokPost.music_author}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">音乐时长:</span>
-                    <span className="font-medium">{formatDuration(tiktokPost.music_duration * 1000)}</span>
+                    <span className="font-medium">
+                      {formatDuration(tiktokPost.music_duration * 1000)}
+                    </span>
                   </div>
                   {tiktokPost.music_play_url && (
                     <div className="flex justify-between">
@@ -588,10 +656,16 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
             )}
             {tiktokPost.cha_list && tiktokPost.cha_list.length > 0 && (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">参与挑战</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  参与挑战
+                </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {tiktokPost.cha_list.map((cha, index) => (
-                    <Badge key={cha.cid || index} variant="secondary" className="text-xs">
+                    <Badge
+                      key={cha.cid || index}
+                      variant="secondary"
+                      className="text-xs"
+                    >
                       #{cha.name}
                     </Badge>
                   ))}
@@ -607,23 +681,33 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  基本信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">作品ID:</span>
-                    <span className="font-medium text-xs break-all">{(douyinPost as any).aweme_id || "未知"}</span>
+                    <span className="font-medium text-xs break-all">
+                      {(douyinPost as any).aweme_id || "未知"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">时长:</span>
-                    <span className="font-medium">{formatDuration(douyinPost.duration)}</span>
+                    <span className="font-medium">
+                      {formatDuration(douyinPost.duration)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">拍摄方式:</span>
-                    <span className="font-medium">{douyinPost.shoot_way || "未知"}</span>
+                    <span className="font-medium">
+                      {douyinPost.shoot_way || "未知"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">播放次数:</span>
-                    <span className="font-medium">{formatNumber(douyinPost.play_count)}</span>
+                    <span className="font-medium">
+                      {formatNumber(douyinPost.play_count)}
+                    </span>
                   </div>
                   {douyinPost.video_url && (
                     <div className="flex justify-between">
@@ -641,29 +725,47 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  状态信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">广告:</span>
-                    <Badge variant={douyinPost.is_ads ? "destructive" : "outline"} className="text-xs">
+                    <Badge
+                      variant={douyinPost.is_ads ? "destructive" : "outline"}
+                      className="text-xs"
+                    >
                       {douyinPost.is_ads ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">置顶:</span>
-                    <Badge variant={douyinPost.is_top ? "default" : "outline"} className="text-xs">
+                    <Badge
+                      variant={douyinPost.is_top ? "default" : "outline"}
+                      className="text-xs"
+                    >
                       {douyinPost.is_top ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">带货:</span>
-                    <Badge variant={douyinPost.with_goods ? "secondary" : "outline"} className="text-xs">
+                    <Badge
+                      variant={douyinPost.with_goods ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
                       {douyinPost.with_goods ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">作品警告:</span>
-                    <Badge variant={(douyinPost as any).is_warned ? "destructive" : "outline"} className="text-xs">
+                    <Badge
+                      variant={
+                        (douyinPost as any).is_warned
+                          ? "destructive"
+                          : "outline"
+                      }
+                      className="text-xs"
+                    >
                       {(douyinPost as any).is_warned ? "是" : "否"}
                     </Badge>
                   </div>
@@ -671,38 +773,55 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">位置信息</h4>
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                位置信息
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">城市:</span>
                   <span className="font-medium">
-                    {douyinPost.city && douyinCityList[douyinPost.city as keyof typeof douyinCityList] 
-                      ? douyinCityList[douyinPost.city as keyof typeof douyinCityList]
+                    {douyinPost.city &&
+                    douyinCityList[
+                      douyinPost.city as keyof typeof douyinCityList
+                    ]
+                      ? douyinCityList[
+                          douyinPost.city as keyof typeof douyinCityList
+                        ]
                       : douyinPost.city || "未知"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">地区:</span>
-                  <span className="font-medium">{douyinPost.region || "未知"}</span>
+                  <span className="font-medium">
+                    {douyinPost.region || "未知"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">IP归属:</span>
-                  <span className="font-medium">{douyinPost.ip_attribution || "未知"}</span>
+                  <span className="font-medium">
+                    {douyinPost.ip_attribution || "未知"}
+                  </span>
                 </div>
               </div>
             </div>
             {douyinPost.music_author && (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">音乐信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  音乐信息
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">音乐作者:</span>
-                    <span className="font-medium">{douyinPost.music_author}</span>
+                    <span className="font-medium">
+                      {douyinPost.music_author}
+                    </span>
                   </div>
                   {douyinPost.music_duration && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">音乐时长:</span>
-                      <span className="font-medium">{formatDuration(douyinPost.music_duration * 1000)}</span>
+                      <span className="font-medium">
+                        {formatDuration(douyinPost.music_duration * 1000)}
+                      </span>
                     </div>
                   )}
                   {douyinPost.music_play_url && (
@@ -721,18 +840,27 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
                 </div>
               </div>
             )}
-            {(douyinPost as any).cha_list && (douyinPost as any).cha_list.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">参与挑战</h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {(douyinPost as any).cha_list.map((cha: any, index: number) => (
-                    <Badge key={cha.cid || index} variant="secondary" className="text-xs">
-                      #{cha.cha_name || cha.name}
-                    </Badge>
-                  ))}
+            {(douyinPost as any).cha_list &&
+              (douyinPost as any).cha_list.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                    参与挑战
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(douyinPost as any).cha_list.map(
+                      (cha: any, index: number) => (
+                        <Badge
+                          key={cha.cid || index}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          #{cha.cha_name || cha.name}
+                        </Badge>
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         );
 
@@ -742,34 +870,50 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">基本信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  基本信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">笔记ID:</span>
-                    <span className="font-medium text-xs break-all">{xhsPost.note_id || "未知"}</span>
+                    <span className="font-medium text-xs break-all">
+                      {xhsPost.note_id || "未知"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">类型:</span>
-                    <Badge variant="outline" className="text-xs">{xhsPost.type || "未知"}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {xhsPost.type || "未知"}
+                    </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">等级:</span>
-                    <Badge variant="secondary" className="text-xs">{xhsPost.level || "未知"}</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {xhsPost.level || "未知"}
+                    </Badge>
                   </div>
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">状态信息</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  状态信息
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">精选笔记:</span>
-                    <Badge variant={xhsPost.is_good_note ? "default" : "outline"} className="text-xs">
+                    <Badge
+                      variant={xhsPost.is_good_note ? "default" : "outline"}
+                      className="text-xs"
+                    >
                       {xhsPost.is_good_note ? "是" : "否"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">有音乐:</span>
-                    <Badge variant={xhsPost.has_music ? "secondary" : "outline"} className="text-xs">
+                    <Badge
+                      variant={xhsPost.has_music ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
                       {xhsPost.has_music ? "是" : "否"}
                     </Badge>
                   </div>
@@ -777,29 +921,41 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">互动数据</h4>
+              <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                互动数据
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">点赞数:</span>
-                  <span className="font-medium">{formatNumber(xhsPost.likes_count)}</span>
+                  <span className="font-medium">
+                    {formatNumber(xhsPost.likes_count)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">分享数:</span>
-                  <span className="font-medium">{formatNumber(xhsPost.share_count)}</span>
+                  <span className="font-medium">
+                    {formatNumber(xhsPost.share_count)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">评论数:</span>
-                  <span className="font-medium">{formatNumber(xhsPost.comment_count)}</span>
+                  <span className="font-medium">
+                    {formatNumber(xhsPost.comment_count)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">收藏数:</span>
-                  <span className="font-medium">{formatNumber(xhsPost.collect_count)}</span>
+                  <span className="font-medium">
+                    {formatNumber(xhsPost.collect_count)}
+                  </span>
                 </div>
               </div>
             </div>
             {xhsPost.desc && (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">笔记内容</h4>
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                  笔记内容
+                </h4>
                 <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
                   <p className="whitespace-pre-wrap">{xhsPost.desc}</p>
                 </div>
@@ -814,7 +970,7 @@ const PostDetailsDropdown: React.FC<{ post: Post; isOpen: boolean; onToggle: () 
   };
 
   if (!isOpen) return null;
-  
+
   return (
     <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 mx-4 mb-2">
       {renderPostDetails()}
@@ -858,7 +1014,15 @@ const ImageGalleryModal: React.FC<{
   onIndexChange: (index: number) => void;
   postTitle: string;
   onDownloadAll: () => void;
-}> = ({ isOpen, onClose, images, currentIndex, onIndexChange, postTitle, onDownloadAll }) => {
+}> = ({
+  isOpen,
+  onClose,
+  images,
+  currentIndex,
+  onIndexChange,
+  postTitle,
+  onDownloadAll,
+}) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
@@ -887,7 +1051,9 @@ const ImageGalleryModal: React.FC<{
               <div
                 key={index}
                 className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer group border-2 transition-all duration-200 ${
-                  index === currentIndex ? 'border-blue-500 shadow-lg' : 'border-gray-200 hover:border-gray-300'
+                  index === currentIndex
+                    ? "border-blue-500 shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
                 onClick={() => onIndexChange(index)}
               >
@@ -919,7 +1085,7 @@ const ImageGalleryModal: React.FC<{
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const link = document.createElement('a');
+                    const link = document.createElement("a");
                     link.href = images[currentIndex];
                     link.download = `${postTitle}_image_${currentIndex + 1}.jpg`;
                     link.click();
@@ -1030,7 +1196,6 @@ export default function AccountDetails() {
     return [];
   };
 
-
   const handleImageGalleryOpen = (post: Post) => {
     const images = getXiaohongshuImages(post);
     if (images.length > 0) {
@@ -1047,7 +1212,7 @@ export default function AccountDetails() {
         const response = await fetch(imageUrl);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
         link.download = `${postTitle}_image_${i + 1}.jpg`;
         document.body.appendChild(link);
@@ -1055,10 +1220,10 @@ export default function AccountDetails() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
         // Add delay to avoid overwhelming the browser
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
     } catch (error) {
-      console.error('Error downloading images:', error);
+      console.error("Error downloading images:", error);
     }
   };
 
@@ -1080,43 +1245,47 @@ export default function AccountDetails() {
     // User Info Sheet - Export all user data
     const userInfoHeaders = Object.keys(accountData);
     const userInfoData = [userInfoHeaders];
-    
+
     // Convert account data to row format
-    const userInfoRow = userInfoHeaders.map(key => {
+    const userInfoRow = userInfoHeaders.map((key) => {
       const value = (accountData as any)[key];
-      if (value === null || value === undefined) return '';
-      if (typeof value === 'boolean') return value ? '是' : '否';
-      if (typeof value === 'object') return JSON.stringify(value);
+      if (value === null || value === undefined) return "";
+      if (typeof value === "boolean") return value ? "是" : "否";
+      if (typeof value === "object") return JSON.stringify(value);
       return String(value);
     });
     userInfoData.push(userInfoRow);
 
     const userInfoWS = XLSX.utils.aoa_to_sheet(userInfoData);
-    XLSX.utils.book_append_sheet(wb, userInfoWS, 'User Info');
+    XLSX.utils.book_append_sheet(wb, userInfoWS, "User Info");
 
     // User Posts Sheet - Export all posts data
     if (posts.length > 0) {
       // Get all unique keys from all posts
       const allPostKeys = new Set<string>();
-      posts.forEach(post => {
-        Object.keys(post).forEach(key => allPostKeys.add(key));
+      posts.forEach((post) => {
+        Object.keys(post).forEach((key) => allPostKeys.add(key));
       });
-      
+
       const postsHeaders = Array.from(allPostKeys);
       const postsData = [postsHeaders];
-      
+
       // Convert each post to row format
-      posts.forEach(post => {
-        const postRow = postsHeaders.map(key => {
+      posts.forEach((post) => {
+        const postRow = postsHeaders.map((key) => {
           const value = (post as any)[key];
-          if (value === null || value === undefined) return '';
-          if (typeof value === 'boolean') return value ? '是' : '否';
-          if (typeof value === 'object') {
+          if (value === null || value === undefined) return "";
+          if (typeof value === "boolean") return value ? "是" : "否";
+          if (typeof value === "object") {
             // Special handling for arrays and objects
             if (Array.isArray(value)) {
-              return value.map(item => 
-                typeof item === 'object' ? JSON.stringify(item) : String(item)
-              ).join('; ');
+              return value
+                .map((item) =>
+                  typeof item === "object"
+                    ? JSON.stringify(item)
+                    : String(item),
+                )
+                .join("; ");
             }
             return JSON.stringify(value);
           }
@@ -1124,13 +1293,13 @@ export default function AccountDetails() {
         });
         postsData.push(postRow);
       });
-      
+
       const postsWS = XLSX.utils.aoa_to_sheet(postsData);
-      XLSX.utils.book_append_sheet(wb, postsWS, 'User Posts');
+      XLSX.utils.book_append_sheet(wb, postsWS, "User Posts");
     }
 
     // Generate and download file
-    const fileName = `${accountData.nickname}_完整数据_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `${accountData.nickname}_完整数据_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
   };
 
@@ -1398,26 +1567,32 @@ export default function AccountDetails() {
                         const isExpanded = expandedPostId === post.id;
                         return (
                           <React.Fragment key={post.id}>
-                            <TableRow className={isExpanded ? "bg-gray-50" : ""}>
+                            <TableRow
+                              className={isExpanded ? "bg-gray-50" : ""}
+                            >
                               <TableCell className="font-medium">
                                 <div className="flex items-center space-x-3">
-                                  <div className="relative w-20 h-14 rounded overflow-hidden bg-gray-200 cursor-pointer group"
-                                       onClick={() => {
-                                         if (post.platform === "xiaohongshu") {
-                                           const images = getXiaohongshuImages(post);
-                                           const videoUrl = getVideoUrl(post);
-                                           if (images.length > 0) {
-                                             handleImageGalleryOpen(post);
-                                           } else if (videoUrl) {
-                                             handlePlayVideo(post);
-                                           }
-                                         } else {
-                                           handlePlayVideo(post);
-                                         }
-                                       }}>
+                                  <div
+                                    className="relative w-20 h-14 rounded overflow-hidden bg-gray-200 cursor-pointer group"
+                                    onClick={() => {
+                                      if (post.platform === "xiaohongshu") {
+                                        const images =
+                                          getXiaohongshuImages(post);
+                                        const videoUrl = getVideoUrl(post);
+                                        if (images.length > 0) {
+                                          handleImageGalleryOpen(post);
+                                        } else if (videoUrl) {
+                                          handlePlayVideo(post);
+                                        }
+                                      } else {
+                                        handlePlayVideo(post);
+                                      }
+                                    }}
+                                  >
                                     {post.platform === "xiaohongshu" ? (
                                       (() => {
-                                        const images = getXiaohongshuImages(post);
+                                        const images =
+                                          getXiaohongshuImages(post);
                                         const videoUrl = getVideoUrl(post);
                                         if (images.length > 0) {
                                           return (
@@ -1541,7 +1716,9 @@ export default function AccountDetails() {
                                   size="sm"
                                   className="h-6 w-6 p-0 hover:bg-gray-100"
                                   onClick={() =>
-                                    setExpandedPostId(isExpanded ? null : post.id)
+                                    setExpandedPostId(
+                                      isExpanded ? null : post.id,
+                                    )
                                   }
                                 >
                                   {isExpanded ? (
@@ -1625,7 +1802,9 @@ export default function AccountDetails() {
         currentIndex={currentImageIndex}
         onIndexChange={setCurrentImageIndex}
         postTitle={selectedVideoTitle}
-        onDownloadAll={() => downloadAllImages(selectedImages, selectedVideoTitle)}
+        onDownloadAll={() =>
+          downloadAllImages(selectedImages, selectedVideoTitle)
+        }
       />
     </DashboardLayout>
   );

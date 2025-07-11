@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://127.0.0.1:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : "http://127.0.0.1:8000/api";
 
 interface ApiResponse<T> {
   items: T[];
@@ -23,7 +25,7 @@ interface BaseInfluencer {
 }
 
 interface TikTokInfluencer extends BaseInfluencer {
-  platform: 'tiktok';
+  platform: "tiktok";
   sec_user_id: string;
   unique_id: string;
   uid: string;
@@ -50,7 +52,7 @@ interface TikTokInfluencer extends BaseInfluencer {
 }
 
 interface DouyinInfluencer extends BaseInfluencer {
-  platform: 'douyin';
+  platform: "douyin";
   sec_user_id: string;
   unique_id: string;
   age: number;
@@ -72,7 +74,7 @@ interface DouyinInfluencer extends BaseInfluencer {
 }
 
 interface XiaohongshuInfluencer extends BaseInfluencer {
-  platform: 'xiaohongshu';
+  platform: "xiaohongshu";
   user_id: string;
   red_id: string;
   gender: number;
@@ -93,13 +95,13 @@ interface XiaohongshuInfluencer extends BaseInfluencer {
 type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer;
 
 interface GetInfluencersParams {
-  platform: 'tiktok' | 'douyin' | 'xiaohongshu' | 'all';
+  platform: "tiktok" | "douyin" | "xiaohongshu" | "all";
   page?: number;
   limit?: number;
   nickname?: string;
-  sort_by_fans?: 'ascending' | 'descending';
-  sort_by_likes?: 'ascending' | 'descending';
-  sort_by_posts?: 'ascending' | 'descending';
+  sort_by_fans?: "ascending" | "descending";
+  sort_by_likes?: "ascending" | "descending";
+  sort_by_posts?: "ascending" | "descending";
 }
 
 interface CollectAccountsParams {
@@ -126,7 +128,7 @@ interface BasePost {
 }
 
 interface TikTokPost extends BasePost {
-  platform: 'tiktok';
+  platform: "tiktok";
   aweme_id: string;
   content_type: string;
   duration: number;
@@ -164,7 +166,7 @@ interface TikTokPost extends BasePost {
 }
 
 interface DouyinPost extends BasePost {
-  platform: 'douyin';
+  platform: "douyin";
   aweme_id: string;
   group_id: string;
   city: string;
@@ -196,7 +198,7 @@ interface DouyinPost extends BasePost {
 }
 
 interface XiaohongshuPost extends BasePost {
-  platform: 'xiaohongshu';
+  platform: "xiaohongshu";
   note_id: string;
   last_update_time: string;
   title: string;
@@ -219,7 +221,7 @@ interface XiaohongshuPost extends BasePost {
 type Post = TikTokPost | DouyinPost | XiaohongshuPost;
 
 interface GetPostsParams {
-  platform: 'tiktok' | 'douyin' | 'xiaohongshu';
+  platform: "tiktok" | "douyin" | "xiaohongshu";
   platform_user_id: string;
   page?: number;
   limit?: number;
@@ -233,17 +235,19 @@ class ApiClient {
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;
     // 优先使用环境变量中的token，如果没有则从localStorage获取
-    this.token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem('auth_token');
+    this.token =
+      import.meta.env.VITE_BACKEND_API_TOKEN ||
+      localStorage.getItem("auth_token");
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
@@ -256,53 +260,65 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getInfluencers(params: GetInfluencersParams): Promise<ApiResponse<Influencer>> {
+  async getInfluencers(
+    params: GetInfluencersParams,
+  ): Promise<ApiResponse<Influencer>> {
     const searchParams = new URLSearchParams();
-    
-    searchParams.append('platform', params.platform);
-    if (params.page) searchParams.append('page', params.page.toString());
-    if (params.limit) searchParams.append('limit', params.limit.toString());
-    if (params.nickname) searchParams.append('nickname', params.nickname);
-    if (params.sort_by_fans) searchParams.append('sort_by_fans', params.sort_by_fans);
-    if (params.sort_by_likes) searchParams.append('sort_by_likes', params.sort_by_likes);
-    if (params.sort_by_posts) searchParams.append('sort_by_posts', params.sort_by_posts);
+
+    searchParams.append("platform", params.platform);
+    if (params.page) searchParams.append("page", params.page.toString());
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+    if (params.nickname) searchParams.append("nickname", params.nickname);
+    if (params.sort_by_fans)
+      searchParams.append("sort_by_fans", params.sort_by_fans);
+    if (params.sort_by_likes)
+      searchParams.append("sort_by_likes", params.sort_by_likes);
+    if (params.sort_by_posts)
+      searchParams.append("sort_by_posts", params.sort_by_posts);
 
     return this.request<ApiResponse<Influencer>>(
-      `/account-interaction/influencers?${searchParams.toString()}`
+      `/account-interaction/influencers?${searchParams.toString()}`,
     );
   }
 
   async getPosts(params: GetPostsParams): Promise<ApiResponse<Post>> {
     const { platform, platform_user_id, ...queryParams } = params;
     const searchParams = new URLSearchParams();
-    
-    if (queryParams.page) searchParams.append('page', queryParams.page.toString());
-    if (queryParams.limit) searchParams.append('limit', queryParams.limit.toString());
-    if (queryParams.sort_by_time !== undefined) searchParams.append('sort_by_time', queryParams.sort_by_time.toString());
 
-    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    
+    if (queryParams.page)
+      searchParams.append("page", queryParams.page.toString());
+    if (queryParams.limit)
+      searchParams.append("limit", queryParams.limit.toString());
+    if (queryParams.sort_by_time !== undefined)
+      searchParams.append("sort_by_time", queryParams.sort_by_time.toString());
+
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
+
     return this.request<ApiResponse<Post>>(
-      `/account-interaction/posts/${platform}/${platform_user_id}${query}`
+      `/account-interaction/posts/${platform}/${platform_user_id}${query}`,
     );
   }
 
-  async collectAccounts(params: CollectAccountsParams): Promise<CollectAccountsResponse> {
+  async collectAccounts(
+    params: CollectAccountsParams,
+  ): Promise<CollectAccountsResponse> {
     return this.request<CollectAccountsResponse>(
-      '/account-interaction/collect',
+      "/account-interaction/collect",
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(params),
-      }
+      },
     );
   }
 
@@ -310,7 +326,7 @@ class ApiClient {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
     if (!import.meta.env.VITE_BACKEND_API_TOKEN) {
-      localStorage.setItem('auth_token', token);
+      localStorage.setItem("auth_token", token);
     }
   }
 
@@ -318,16 +334,16 @@ class ApiClient {
     this.token = import.meta.env.VITE_BACKEND_API_TOKEN || null;
     // 只有在没有环境变量token时才清除localStorage
     if (!import.meta.env.VITE_BACKEND_API_TOKEN) {
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem("auth_token");
     }
   }
 }
 
 export const apiClient = new ApiClient();
-export type { 
-  Influencer, 
-  TikTokInfluencer, 
-  DouyinInfluencer, 
+export type {
+  Influencer,
+  TikTokInfluencer,
+  DouyinInfluencer,
   XiaohongshuInfluencer,
   Post,
   TikTokPost,
@@ -335,5 +351,7 @@ export type {
   XiaohongshuPost,
   GetInfluencersParams,
   GetPostsParams,
-  ApiResponse
+  CollectAccountsParams,
+  CollectAccountsResponse,
+  ApiResponse,
 };

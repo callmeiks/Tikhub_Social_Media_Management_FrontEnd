@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -228,7 +229,7 @@ const sampleContentData: Record<number, any> = {
       },
     ],
     trafficAnalysis: {
-      suspiciousLevel: "低风险",
+      suspiciousLevel: "低风��",
       suspiciousPercentage: 5,
       realEngagement: 95,
       botComments: 8,
@@ -465,6 +466,126 @@ export default function ContentDetail() {
     alert("链接已复制到剪贴板");
   };
 
+  const handleExportExcel = () => {
+    try {
+      // 创建工作簿
+      const workbook = XLSX.utils.book_new();
+
+      // 基本作品信息
+      const basicInfo = [
+        ["项目", "内容"],
+        ["作品标题", content.title],
+        ["作者", content.author],
+        ["平台", content.platform],
+        ["发布时间", content.publishedAt],
+        ["添加时间", content.addedAt],
+        ["作品链接", content.url],
+        ["内容类型", content.contentType],
+        ["时长", content.duration],
+        ["地点", content.location],
+        ["背景音乐", content.musicTitle],
+        ["作品描述", content.description],
+      ];
+
+      // 互动数据
+      const interactionData = [
+        ["指标", "数值"],
+        ["播放量", content.views],
+        ["点赞数", content.likes],
+        ["评论数", content.comments],
+        ["分享数", content.shares],
+        ["收藏数", content.collections],
+        ["互动率", `${content.engagement}%`],
+      ];
+
+      // 标签信息
+      const tagsData = [["标签"], ...content.tags.map((tag: string) => [tag])];
+
+      // 趋势数据
+      const trendData = [
+        ["时间", "播放量", "点赞数", "评论数"],
+        ...content.trendData.map((item: any) => [
+          item.time,
+          item.views,
+          item.likes,
+          item.comments,
+        ]),
+      ];
+
+      // 受众性别分析
+      const audienceData = [
+        ["性别", "占比%", "颜色"],
+        ...content.audienceGender.map((item: any) => [
+          item.name,
+          item.value,
+          item.color,
+        ]),
+      ];
+
+      // 年龄分布
+      const ageData = [
+        ["年龄段", "占比%"],
+        ...content.audienceAge.map((item: any) => [item.age, item.percentage]),
+      ];
+
+      // 地域分布
+      const locationData = [
+        ["地区", "占比%"],
+        ...content.audienceLocation.map((item: any) => [
+          item.province,
+          item.percentage,
+        ]),
+      ];
+
+      // 词云数据
+      const wordCloudData = [
+        ["关键词", "权重"],
+        ...content.wordCloud.map((item: any) => [item.text, item.size]),
+      ];
+
+      // 创建工作表
+      const basicSheet = XLSX.utils.aoa_to_sheet(basicInfo);
+      const interactionSheet = XLSX.utils.aoa_to_sheet(interactionData);
+      const tagsSheet = XLSX.utils.aoa_to_sheet(tagsData);
+      const trendSheet = XLSX.utils.aoa_to_sheet(trendData);
+      const audienceSheet = XLSX.utils.aoa_to_sheet(audienceData);
+      const ageSheet = XLSX.utils.aoa_to_sheet(ageData);
+      const locationSheet = XLSX.utils.aoa_to_sheet(locationData);
+      const wordCloudSheet = XLSX.utils.aoa_to_sheet(wordCloudData);
+
+      // 设置列宽
+      basicSheet["!cols"] = [{ width: 15 }, { width: 50 }];
+      interactionSheet["!cols"] = [{ width: 15 }, { width: 20 }];
+      trendSheet["!cols"] = [
+        { width: 10 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+      ];
+
+      // 添加工作表到工作簿
+      XLSX.utils.book_append_sheet(workbook, basicSheet, "基本信息");
+      XLSX.utils.book_append_sheet(workbook, interactionSheet, "互动数据");
+      XLSX.utils.book_append_sheet(workbook, trendSheet, "数据趋势");
+      XLSX.utils.book_append_sheet(workbook, audienceSheet, "受众性别");
+      XLSX.utils.book_append_sheet(workbook, ageSheet, "年龄分布");
+      XLSX.utils.book_append_sheet(workbook, locationSheet, "地域分布");
+      XLSX.utils.book_append_sheet(workbook, wordCloudSheet, "关键词云");
+      XLSX.utils.book_append_sheet(workbook, tagsSheet, "标签信息");
+
+      // 生成文件名
+      const fileName = `作品详情数据_${content.title.replace(/[^\w\s]/gi, "")}_${new Date().toLocaleDateString("zh-CN").replace(/\//g, "-")}.xlsx`;
+
+      // 导出文件
+      XLSX.writeFile(workbook, fileName);
+
+      alert("数据导出成功！");
+    } catch (error) {
+      console.error("导出失败:", error);
+      alert("导出失败，请重试");
+    }
+  };
+
   return (
     <DashboardLayout
       title="作品详情"
@@ -474,11 +595,20 @@ export default function ContentDetail() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/data-collection/content-interaction")}
             className="h-8"
           >
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
-            返回列表
+            返回作品列表
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportExcel}
+            className="h-8 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+          >
+            <Download className="mr-2 h-3.5 w-3.5" />
+            导出Excel
           </Button>
           <Button
             variant="outline"
@@ -619,7 +749,7 @@ export default function ContentDetail() {
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
-                      发布地点: {content.location}
+                      ���布地点: {content.location}
                     </div>
                     <div className="flex items-center">
                       <BarChart3 className="h-4 w-4 mr-2" />
@@ -662,41 +792,208 @@ export default function ContentDetail() {
 
           {/* 数据趋势 */}
           <TabsContent value="trends" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>作品数据趋势</CardTitle>
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  作品数据趋势分析
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  实时数据变化趋势，助力内容策略优化
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-96 p-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={content.trendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="time" />
-                      <YAxis />
-                      <Tooltip />
+                    <LineChart
+                      data={content.trendData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="viewsGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="likesGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="commentsGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#10b981"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#10b981"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="4 4"
+                        stroke="hsl(var(--muted-foreground))"
+                        strokeOpacity={0.2}
+                        horizontal={true}
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="time"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fill: "hsl(var(--muted-foreground))",
+                          fontSize: 12,
+                        }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fill: "hsl(var(--muted-foreground))",
+                          fontSize: 12,
+                        }}
+                        dx={-10}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--background))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                          boxShadow:
+                            "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                          fontSize: "12px",
+                        }}
+                        labelStyle={{
+                          color: "hsl(var(--foreground))",
+                          fontWeight: "bold",
+                          marginBottom: "4px",
+                        }}
+                      />
                       <Line
                         type="monotone"
                         dataKey="views"
                         stroke="#3b82f6"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         name="播放量"
+                        dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#3b82f6",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                       <Line
                         type="monotone"
                         dataKey="likes"
                         stroke="#ef4444"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         name="点赞数"
+                        dot={{ fill: "#ef4444", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#ef4444",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                       <Line
                         type="monotone"
                         dataKey="comments"
                         stroke="#10b981"
-                        strokeWidth={2}
-                        name="评论数"
+                        strokeWidth={3}
+                        name="评��数"
+                        dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                        activeDot={{
+                          r: 6,
+                          stroke: "#10b981",
+                          strokeWidth: 2,
+                          fill: "#fff",
+                        }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                </div>
+
+                {/* 图例和统计信息 */}
+                <div className="mt-6 p-4 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-blue-600">
+                          播放量
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          实时播放数据
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-red-600">
+                          点赞数
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          用户互动反馈
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <div>
+                        <div className="text-sm font-medium text-green-600">
+                          评论数
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          深度参与度
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -766,7 +1063,7 @@ export default function ContentDetail() {
             </Card>
           </TabsContent>
 
-          {/* 词云分析 */}
+          {/* 词云��析 */}
           <TabsContent value="wordcloud" className="mt-6">
             <Card>
               <CardHeader>
