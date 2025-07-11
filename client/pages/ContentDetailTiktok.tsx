@@ -493,10 +493,165 @@ export default function ContentDetailTiktok() {
     return new Date(timestamp * 1000).toLocaleDateString("zh-CN");
   };
 
-  const formatDuration = (seconds: number) => {
+  const formatDuration = (duration: number) => {
+    // 如果duration很大（超过3600），很可能是毫秒单位，需要转换为秒
+    // TikTok视频一般不会超过10分钟（600秒），所以大于1000的值可能是毫秒
+    let seconds = duration;
+    if (duration > 1000) {
+      seconds = Math.floor(duration / 1000);
+    }
+    
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // 导出数据到Excel
+  const handleExportData = () => {
+    const workbook = XLSX.utils.book_new();
+    
+    // 1. 基本信息工作表
+    const basicInfoData = [
+      ['字段', '值'],
+      ['作品ID', content.aweme_id],
+      ['描述', content.desc],
+      ['作者昵称', content.author_nickname],
+      ['作者ID', content.author_unique_id],
+      ['作者UID', content.author_uid],
+      ['内容类型', content.content_type === "video" ? "视频" : "图片"],
+      ['描述语言', content.desc_language],
+      ['视频时长', formatDuration(content.duration)],
+      ['发布时间', formatDate(content.create_time)],
+      ['分享链接', content.share_url],
+      ['播放量', content.play_count.toLocaleString()],
+      ['点赞数', content.digg_count.toLocaleString()],
+      ['评论数', content.comment_count.toLocaleString()],
+      ['分享数', content.share_count.toLocaleString()],
+      ['收藏数', content.collect_count.toLocaleString()],
+      ['下载数', content.download_count.toLocaleString()],
+    ];
+    const basicInfoSheet = XLSX.utils.aoa_to_sheet(basicInfoData);
+    XLSX.utils.book_append_sheet(workbook, basicInfoSheet, "基本信息");
+
+    // 2. TikTok特性工作表
+    const featuresData = [
+      ['特性', '状态'],
+      ['AI生成', content.created_by_ai ? '是' : '否'],
+      ['广告内容', content.is_ads ? '是' : '否'],
+      ['置顶作品', content.is_top ? '是' : '否'],
+      ['专业内容', content.is_pgcshow ? '是' : '否'],
+      ['支持弹幕', content.support_danmaku ? '是' : '否'],
+      ['可推广', content.adv_promotable ? '是' : '否'],
+      ['推广音乐', content.with_promotional_music ? '是' : '否'],
+      ['VR内容', content.is_vr ? '是' : '否'],
+      ['剪映制作', content.is_capcut ? '是' : '否'],
+    ];
+    const featuresSheet = XLSX.utils.aoa_to_sheet(featuresData);
+    XLSX.utils.book_append_sheet(workbook, featuresSheet, "TikTok特性");
+
+    // 3. 音乐信息工作表
+    const musicData = [
+      ['字段', '值'],
+      ['音乐作者', content.music_author],
+      ['音乐时长', formatDuration(content.music_duration)],
+      ['音乐ID', content.mid],
+      ['音乐链接', content.music_play_url],
+      ['推广音乐', content.with_promotional_music ? '是' : '否'],
+    ];
+    const musicSheet = XLSX.utils.aoa_to_sheet(musicData);
+    XLSX.utils.book_append_sheet(workbook, musicSheet, "音乐信息");
+
+    // 4. 标签信息工作表
+    if (content.cha_list && content.cha_list.length > 0) {
+      const tagsData = [
+        ['序号', '标签名称'],
+        ...content.cha_list.map((tag: any, index: number) => [index + 1, tag.cha_name])
+      ];
+      const tagsSheet = XLSX.utils.aoa_to_sheet(tagsData);
+      XLSX.utils.book_append_sheet(workbook, tagsSheet, "标签信息");
+    }
+
+    // 5. 数据趋势分析工作表（如果有数据）
+    if (analyticsData) {
+      const analyticsDataArray = [
+        ['字段', '值', '消息'],
+        ['视频播放量', analyticsData.data.video_views?.value || 0, analyticsData.data.video_views?.message || ''],
+        ['点赞数', analyticsData.data.likes?.value || 0, analyticsData.data.likes?.message || ''],
+        ['评论数', analyticsData.data.comments?.value || 0, analyticsData.data.comments?.message || ''],
+        ['分享数', analyticsData.data.shares?.value || 0, analyticsData.data.shares?.message || ''],
+        ['收藏数', analyticsData.data.collects?.value || 0, analyticsData.data.collects?.message || ''],
+      ];
+      
+      // 添加视频摘要
+      if (analyticsData.data.video_summary) {
+        analyticsDataArray.push(['视频摘要标题', analyticsData.data.video_summary.title, '']);
+        analyticsDataArray.push(['视频摘要内容', analyticsData.data.video_summary.content, '']);
+      }
+      
+      // 添加14天数据趋势
+      if (analyticsData.data.comments_14_days?.value) {
+        analyticsDataArray.push(['', '', '']);
+        analyticsDataArray.push(['14天数据趋势', '', '']);
+        analyticsDataArray.push(['日期', '评论数', '备注']);
+        analyticsData.data.comments_14_days.value.forEach((item: any, index: number) => {
+          analyticsDataArray.push([`第${index + 1}天`, item.value, item.message || '']);
+        });
+      }
+      
+      const analyticsSheet = XLSX.utils.aoa_to_sheet(analyticsDataArray);
+      XLSX.utils.book_append_sheet(workbook, analyticsSheet, "数据趋势分析");
+    }
+
+    // 6. 作者信息工作表（如果有数据）
+    if (creatorData) {
+      const creatorDataArray = [
+        ['字段', '值'],
+        ['作者昵称', creatorData.data.author_nickname],
+        ['作者ID', creatorData.data.author_unique_id],
+        ['作者UID', creatorData.data.author_uid],
+        ['粉丝数', creatorData.data.follower_count?.toLocaleString() || 0],
+        ['关注数', creatorData.data.following_count?.toLocaleString() || 0],
+        ['作品数', creatorData.data.aweme_count?.toLocaleString() || 0],
+        ['获赞数', creatorData.data.total_favorited?.toLocaleString() || 0],
+      ];
+      
+      // 添加里程碑信息
+      if (creatorData.data.milestones && creatorData.data.milestones.length > 0) {
+        creatorDataArray.push(['', '']);
+        creatorDataArray.push(['成长里程碑', '']);
+        creatorDataArray.push(['里程碑', '标题', '日期', '描述']);
+        creatorData.data.milestones.forEach((milestone: any) => {
+          creatorDataArray.push([
+            milestone.milestone,
+            milestone.milestone_title.value,
+            `${milestone.milestone_year.value}/${milestone.milestone_month_day.value}`,
+            milestone.creator_summary?.value || ''
+          ]);
+        });
+      }
+      
+      const creatorSheet = XLSX.utils.aoa_to_sheet(creatorDataArray);
+      XLSX.utils.book_append_sheet(workbook, creatorSheet, "作者信息");
+    }
+
+    // 7. 词云分析工作表（如果有数据）
+    if (wordCloudData) {
+      const wordCloudDataArray = [
+        ['关键词', '评论数量', '热门评论'],
+      ];
+      
+      wordCloudData.data.key_words.comment_key_words.forEach((item: any) => {
+        const topComment = item.comments[0]?.text || '';
+        wordCloudDataArray.push([item.key_word, item.comments.length, topComment]);
+      });
+      
+      const wordCloudSheet = XLSX.utils.aoa_to_sheet(wordCloudDataArray);
+      XLSX.utils.book_append_sheet(workbook, wordCloudSheet, "词云分析");
+    }
+
+    // 导出Excel文件
+    const fileName = `TikTok作品数据_${content.aweme_id}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   };
 
   return (
@@ -539,9 +694,20 @@ export default function ContentDetailTiktok() {
         {/* 作品基本信息 */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Video className="mr-2 h-5 w-5" />
-              TikTok作品信息
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Video className="mr-2 h-5 w-5" />
+                TikTok作品信息
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportData}
+                className="ml-auto"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                导出数据
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
