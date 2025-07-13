@@ -60,7 +60,7 @@ const menuItems: MenuItem[] = [
       { title: "标题生成", href: "/creator-tools/title-generator" },
       { title: "拍摄脚本生成", href: "/creator-tools/shooting-script" },
       { title: "AI视频生成", href: "/creator-tools/ai-video", badge: "NEW" },
-      { title: "封面图制作", href: "/creator-tools/image-recreation" },
+      { title: "��面图制作", href: "/creator-tools/image-recreation" },
 
       { title: "音视频���取文字", href: "/creator-tools/audio-extract" },
       { title: "账号PK", href: "/creator-tools/account-analysis" },
@@ -107,7 +107,7 @@ const menuItems: MenuItem[] = [
       { title: "抖音热度榜单", href: "/hot-rankings/douyin" },
       { title: "TikTok热度榜单", href: "/hot-rankings/tiktok" },
       { title: "快手热门榜单", href: "/hot-rankings/kuaishou" },
-      { title: "小红书热门榜单", href: "/hot-rankings#xiaohongshu" },
+      { title: "小红书热门榜单", href: "/hot-rankings/xiaohongshu" },
       { title: "皮皮虾热门榜单", href: "/hot-rankings#pipixia" },
       { title: "X趋势内容", href: "/hot-rankings#x" },
       { title: "YouTube趋势内容", href: "/hot-rankings#youtube" },
