@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -50,7 +51,7 @@ const platformRankings = {
   ],
   pipixia: [
     { title: "皮皮虾热门视频", icon: Play, count: "30+" },
-    { title: "皮皮虾热���话题", icon: Hash, count: "20+" },
+    { title: "皮皮虾热门话题", icon: Hash, count: "20+" },
     { title: "皮皮虾搞笑榜", icon: MessageCircle, count: "25+" },
   ],
   x: [
@@ -98,7 +99,7 @@ const mockRankingData = [
   },
   {
     rank: 4,
-    title: "减肥健身日记",
+    title: "减肥健身��记",
     author: "@健身小姐姐",
     views: "1.2M",
     likes: "65K",
