@@ -146,6 +146,10 @@ const App = () => (
           <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
           <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
           <Route path="/hot-rankings/kuaishou" element={<KuaishouRankings />} />
+          <Route
+            path="/hot-rankings/xiaohongshu"
+            element={<XiaohongshuRankings />}
+          />
           <Route path="/kol-analysis/*" element={<DataCollection />} />
           <Route path="/ads-products/*" element={<DataCollection />} />
 
