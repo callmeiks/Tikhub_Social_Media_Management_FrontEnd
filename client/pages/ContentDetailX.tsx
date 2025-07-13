@@ -75,32 +75,33 @@ export default function ContentDetailX() {
       
       // Map the API data to XPostData format
       const mappedData: XPostData = {
-        id: contentData.id,
-        task_id: contentData.task_id,
-        tweet_id: contentData.tweet_id,
-        created_time: contentData.created_time,
-        status: contentData.status,
-        text: contentData.text,
-        retweet_count: contentData.retweet_count,
-        bookmarks_count: contentData.bookmarks_count,
-        quotes_count: contentData.quotes_count,
-        replies_count: contentData.replies_count,
-        lang: contentData.lang,
-        view_count: contentData.view_count,
-        sensitive: contentData.sensitive,
-        conversation_id: contentData.conversation_id,
+        id: contentData.id || "x_" + Date.now(),
+        task_id: contentData.task_id || "",
+        tweet_id: contentData.tweet_id || "",
+        created_time: contentData.created_time || new Date().toISOString(),
+        like_count: contentData.like_count || 0,
+        status: contentData.status || "unknown",
+        text: contentData.text || "无内容",
+        retweet_count: contentData.retweet_count || 0,
+        bookmarks_count: contentData.bookmarks_count || 0,
+        quotes_count: contentData.quotes_count || 0,
+        replies_count: contentData.replies_count || 0,
+        lang: contentData.lang || "en",
+        view_count: contentData.view_count || 0,
+        sensitive: contentData.sensitive || false,
+        conversation_id: contentData.conversation_id || "",
         images_url: contentData.images_url || [],
-        video_url: contentData.video_url,
-        author_rest_id: contentData.author_rest_id,
-        author_screen_name: contentData.author_screen_name,
-        author_avatar: contentData.author_avatar,
-        author_blue_verified: contentData.author_blue_verified,
-        author_follower_count: contentData.author_follower_count,
-        display_url: contentData.display_url,
-        expanded_url: contentData.expanded_url,
-        media_type: contentData.media_type,
-        created_at: contentData.created_at,
-        updated_at: contentData.updated_at,
+        video_url: contentData.video_url || "",
+        author_rest_id: contentData.author_rest_id || "",
+        author_screen_name: contentData.author_screen_name || "未知用户",
+        author_avatar: contentData.author_avatar || "",
+        author_blue_verified: contentData.author_blue_verified || false,
+        author_follower_count: contentData.author_follower_count || 0,
+        display_url: contentData.display_url || "",
+        expanded_url: contentData.expanded_url || "",
+        media_type: contentData.media_type || "",
+        created_at: contentData.created_at || new Date().toISOString(),
+        updated_at: contentData.updated_at || new Date().toISOString(),
       };
       
       setContent(mappedData);
@@ -201,17 +202,18 @@ export default function ContentDetailX() {
     return text.match(mentionRegex) || [];
   };
 
-  const hashtags = extractHashtags(content.text);
-  const mentions = extractMentions(content.text);
+  const hashtags = content ? extractHashtags(content.text || "") : [];
+  const mentions = content ? extractMentions(content.text || "") : [];
 
   const getEngagementRate = () => {
+    if (!content) return 0;
     const totalEngagements =
       content.like_count +
       content.retweet_count +
       content.replies_count +
       content.quotes_count +
       content.bookmarks_count;
-    return (totalEngagements / content.view_count) * 100;
+    return content.view_count > 0 ? (totalEngagements / content.view_count) * 100 : 0;
   };
 
   const getLanguageName = (code: string) => {
@@ -553,7 +555,7 @@ export default function ContentDetailX() {
                   )}
 
                   {/* 视频资源 */}
-                  {content.video_url && (
+                  {content.video_url && content.video_url.trim() !== "" && (
                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg mb-4">
                       <h3 className="font-semibold mb-2 flex items-center">
                         <Video className="mr-2 h-4 w-4" />
@@ -577,7 +579,7 @@ export default function ContentDetailX() {
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
                       发布时间:{" "}
-                      {new Date(content.created_time).toLocaleString("zh-CN")}
+                      {/^\d+$/.test(content.created_time) ? new Date(parseInt(content.created_time)).toLocaleString("zh-CN") : new Date(content.created_time).toLocaleString("zh-CN")}
                     </div>
                     <div className="flex items-center">
                       <Globe className="h-4 w-4 mr-2" />
@@ -705,7 +707,7 @@ export default function ContentDetailX() {
                   )}
 
                   {/* 视频资源 */}
-                  {content.video_url && (
+                  {content.video_url && content.video_url.trim() !== "" && (
                     <div>
                       <h4 className="font-medium mb-3 flex items-center">
                         <Video className="mr-2 h-4 w-4" />
@@ -763,7 +765,7 @@ export default function ContentDetailX() {
 
                   {/* 无媒体资源 */}
                   {(!content.images_url || content.images_url.length === 0) &&
-                    !content.video_url &&
+                    (!content.video_url || content.video_url.trim() === "") &&
                     !content.display_url &&
                     !content.expanded_url && (
                       <div className="text-center py-8 text-muted-foreground">
