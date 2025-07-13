@@ -104,7 +104,7 @@ const menuItems: MenuItem[] = [
     icon: TrendingUp,
     href: "/hot-rankings",
     subItems: [
-      { title: "抖音热度榜单", href: "/hot-rankings#douyin" },
+      { title: "抖音热度榜单", href: "/hot-rankings/douyin" },
       { title: "TikTok热度榜单", href: "/hot-rankings#tiktok" },
       { title: "快手热门榜单", href: "/hot-rankings#kuaishou" },
       { title: "小红书热门榜单", href: "/hot-rankings#xiaohongshu" },
