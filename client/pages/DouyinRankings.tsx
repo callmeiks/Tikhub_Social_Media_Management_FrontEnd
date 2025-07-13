@@ -110,7 +110,7 @@ const rankingTabs = [
   { id: "rising", name: "上升热点榜", icon: TrendingUp },
   { id: "local", name: "同城热点榜", icon: MapPin },
   { id: "challenge", name: "挑战热点榜", icon: Hash },
-  { id: "search", name: "搜索热点��", icon: Search },
+  { id: "search", name: "搜索热点榜", icon: Search },
   { id: "accounts", name: "热门账号榜单", icon: Users },
   { id: "video", name: "视频热点榜", icon: Play },
   { id: "lowfan", name: "低粉爆款榜", icon: TrendingUp },
@@ -121,6 +121,9 @@ const rankingTabs = [
   { id: "risingtopic", name: "热度飙升话题榜", icon: Hash },
   { id: "hotwords", name: "热门词列表", icon: MessageCircle },
   { id: "calendar", name: "抖音活动日历", icon: Calendar },
+  { id: "music", name: "音乐热度榜", icon: Music },
+  { id: "brand", name: "品牌热度榜", icon: Award },
+  { id: "livestream", name: "直播热度榜", icon: Video },
 ];
 
 // 模拟排行榜数据
@@ -293,7 +296,7 @@ export default function DouyinRankings() {
           {
             type: "select",
             key: "count",
-            label: "���集数量",
+            label: "采集数量",
             options: [
               { value: "50", label: "50" },
               { value: "100", label: "100" },
@@ -467,7 +470,7 @@ export default function DouyinRankings() {
 
   return (
     <DashboardLayout
-      title="抖音热度榜单"
+      title="抖音热度榜���"
       subtitle="实时追踪抖音平台各类热门内容和趋势数据"
       actions={
         <div className="flex space-x-2">
