@@ -153,6 +153,7 @@ const App = () => (
             element={<XiaohongshuRankings />}
           />
           <Route path="/hot-rankings/x" element={<XRankings />} />
+          <Route path="/hot-rankings/youtube" element={<YouTubeRankings />} />
           <Route path="/kol-analysis/*" element={<DataCollection />} />
           <Route path="/ads-products/*" element={<DataCollection />} />
 
