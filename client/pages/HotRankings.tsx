@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,7 +33,7 @@ const platformRankings = {
     { title: "TikTok热门产品", icon: TrendingUp, count: "100+" },
     { title: "TikTok热门标签", icon: Hash, count: "200+" },
     { title: "TikTok创意模式排行榜", icon: Play, count: "50+" },
-    { title: "TikTok热门音乐", icon: Music, count: "150+" },
+    { title: "TikTok热��音乐", icon: Music, count: "150+" },
     { title: "TikTok创作者排行", icon: Users, count: "100+" },
   ],
   kuaishou: [
@@ -154,7 +154,7 @@ export default function HotRankings() {
               皮皮虾热门榜单
             </TabsTrigger>
             <TabsTrigger value="x" className="text-sm">
-              X趋势内容
+              X趋势内���
             </TabsTrigger>
             <TabsTrigger value="youtube" className="text-sm">
               YouTube趋势内容
