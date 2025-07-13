@@ -144,6 +144,7 @@ const App = () => (
           <Route path="/hot-rankings" element={<HotRankings />} />
           <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
           <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
+          <Route path="/hot-rankings/kuaishou" element={<KuaishouRankings />} />
           <Route path="/kol-analysis/*" element={<DataCollection />} />
           <Route path="/ads-products/*" element={<DataCollection />} />
 
