@@ -33,7 +33,7 @@ const platformRankings = {
     { title: "TikTok热门产品", icon: TrendingUp, count: "100+" },
     { title: "TikTok热门标签", icon: Hash, count: "200+" },
     { title: "TikTok创意模式排行榜", icon: Play, count: "50+" },
-    { title: "TikTok热��音乐", icon: Music, count: "150+" },
+    { title: "TikTok热门音乐", icon: Music, count: "150+" },
     { title: "TikTok创作者排行", icon: Users, count: "100+" },
   ],
   kuaishou: [
@@ -50,7 +50,7 @@ const platformRankings = {
   ],
   pipixia: [
     { title: "皮皮虾热门视频", icon: Play, count: "30+" },
-    { title: "皮皮虾热门话题", icon: Hash, count: "20+" },
+    { title: "皮皮虾热���话题", icon: Hash, count: "20+" },
     { title: "皮皮虾搞笑榜", icon: MessageCircle, count: "25+" },
   ],
   x: [
@@ -120,6 +120,14 @@ export default function HotRankings() {
   const [activeTab, setActiveTab] = useState("douyin");
   const [selectedRanking, setSelectedRanking] = useState<string>("");
 
+  // Handle URL hash navigation
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash && platformRankings[hash as keyof typeof platformRankings]) {
+      setActiveTab(hash);
+    }
+  }, []);
+
   const handleRankingClick = (ranking: string) => {
     setSelectedRanking(ranking);
   };
@@ -154,7 +162,7 @@ export default function HotRankings() {
               皮皮虾热门榜单
             </TabsTrigger>
             <TabsTrigger value="x" className="text-sm">
-              X趋势内���
+              X趋势内容
             </TabsTrigger>
             <TabsTrigger value="youtube" className="text-sm">
               YouTube趋势内容
