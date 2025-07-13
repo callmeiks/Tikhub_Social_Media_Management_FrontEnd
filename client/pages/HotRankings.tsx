@@ -38,7 +38,7 @@ const platformRankings = {
     { title: "TikTok创作者排行", icon: Users, count: "100+" },
   ],
   kuaishou: [
-    { title: "快手热门视频", icon: Play, count: "50+" },
+    { title: "快��热门视频", icon: Play, count: "50+" },
     { title: "快手热门话题", icon: Hash, count: "30+" },
     { title: "快手热门音乐", icon: Music, count: "40+" },
     { title: "快手新星榜", icon: TrendingUp, count: "20+" },
@@ -143,6 +143,8 @@ export default function HotRankings() {
       navigate("/hot-rankings/x");
     } else if (platform === "youtube") {
       navigate("/hot-rankings/youtube");
+    } else if (platform === "pipixia") {
+      navigate("/hot-rankings/pipixia");
     } else {
       setSelectedRanking(ranking);
     }
