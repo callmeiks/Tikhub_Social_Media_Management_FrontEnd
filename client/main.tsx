@@ -142,6 +142,7 @@ const App = () => (
           <Route path="/data-monitoring/*" element={<DataCollection />} />
           <Route path="/hot-rankings" element={<HotRankings />} />
           <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
+          <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
           <Route path="/kol-analysis/*" element={<DataCollection />} />
           <Route path="/ads-products/*" element={<DataCollection />} />
 
