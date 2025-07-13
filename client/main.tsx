@@ -33,6 +33,8 @@ import ContentDetailYoutube from "./pages/ContentDetailYoutube";
 import ContentDetailX from "./pages/ContentDetailX";
 import ContentDetailWeibo from "./pages/ContentDetailWeibo";
 import ContentDetailWechat from "./pages/ContentDetailWechat";
+import ContentDetailInstagram from "./pages/ContentDetailInstagram";
+import ContentDetailBilibili from "./pages/ContentDetailBilibili";
 import KeywordContentSearch from "./pages/KeywordContentSearch";
 import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
@@ -146,6 +148,14 @@ const App = () => (
           <Route
             path="/data-collection/content-detail-wechat"
             element={<ContentDetailWechat />}
+          />
+          <Route
+            path="/data-collection/content-detail-instagram"
+            element={<ContentDetailInstagram />}
+          />
+          <Route
+            path="/data-collection/content-detail-bilibili"
+            element={<ContentDetailBilibili />}
           />
           <Route
             path="/data-collection/keyword-content"
