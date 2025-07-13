@@ -28,7 +28,7 @@ const platformRankings = {
     { title: "抖音视频热榜", icon: Play, count: "50+" },
     { title: "抖音搜索热榜", icon: TrendingUp, count: "50+" },
     { title: "抖音热度飙升搜索榜", icon: TrendingUp, count: "30+" },
-    { title: "抖音热度飙升话题榜", icon: Hash, count: "40+" },
+    { title: "抖音热度飙���话题榜", icon: Hash, count: "40+" },
   ],
   tiktok: [
     { title: "TikTok热门产品", icon: TrendingUp, count: "100+" },
@@ -109,7 +109,7 @@ const mockRankingData = [
   {
     rank: 5,
     title: "宠物搞笑日常",
-    author: "@萌宠乐园",
+    author: "@萌宠���园",
     views: "980K",
     likes: "52K",
     growth: "+18%",
@@ -133,6 +133,8 @@ export default function HotRankings() {
   const handleRankingClick = (ranking: string, platform: string) => {
     if (platform === "douyin") {
       navigate("/hot-rankings/douyin");
+    } else if (platform === "tiktok") {
+      navigate("/hot-rankings/tiktok");
     } else {
       setSelectedRanking(ranking);
     }
