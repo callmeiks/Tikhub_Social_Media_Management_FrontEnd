@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -57,41 +57,74 @@ interface YoutubePostData {
 export default function ContentDetailYoutube() {
   const { contentId } = useParams<{ contentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<YoutubePostData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      // Mock data for YouTube video
-      const mockData: YoutubePostData = {
-        id: "youtube_1",
-        task_id: "task_001",
-        video_id: "dQw4w9WgXcQ",
-        title: "Amazing Technology Review 2024 - Must Watch!",
-        description:
-          "In this comprehensive technology review, we explore the latest innovations in AI, robotics, and consumer electronics. From breakthrough smartphones to cutting-edge laptops, this video covers everything you need to know about tech in 2024. Don't forget to like and subscribe for more tech content!",
-        channel_id: "UCxxxxxxxxxxxxxxxx",
-        channel_name: "TechReviewer Pro",
-        is_channel_verified: true,
-        channel_avatar: "https://yt3.ggpht.com/channel_avatar.jpg",
-        length_seconds: 720,
-        view_count: 1250000,
-        like_count: 85000,
-        published_time: "2024-01-01T10:00:00Z",
-        is_live_stream: false,
-        is_live_now: false,
-        is_regionally_restricted: false,
-        comment_count: 5400,
-        video_play_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        audio_play_url: "https://youtube.com/audio/dQw4w9WgXcQ.mp3",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+    // Check if content data was passed via navigation state
+    if (location.state?.contentData) {
+      const contentData = location.state.contentData;
+      
+      // Map the API data to YoutubePostData format
+      const mappedData: YoutubePostData = {
+        id: contentData.id || "youtube_" + Date.now(),
+        task_id: contentData.task_id || "",
+        video_id: contentData.video_id || "",
+        title: contentData.title || "无标题",
+        description: contentData.description || "无描述",
+        channel_id: contentData.channel_id || "",
+        channel_name: contentData.channel_name || "未知频道",
+        is_channel_verified: contentData.is_channel_verified || false,
+        channel_avatar: contentData.channel_avatar || "",
+        length_seconds: contentData.length_seconds || 0,
+        view_count: contentData.view_count || 0,
+        like_count: contentData.like_count || 0,
+        published_time: contentData.published_time || new Date().toISOString(),
+        is_live_stream: contentData.is_live_stream || false,
+        is_live_now: contentData.is_live_now || false,
+        is_regionally_restricted: contentData.is_regionally_restricted || false,
+        comment_count: contentData.comment_count || 0,
+        video_play_url: contentData.video_play_url || "",
+        audio_play_url: contentData.audio_play_url || "",
+        created_at: contentData.created_at || new Date().toISOString(),
+        updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      setContent(mockData);
+      
+      setContent(mappedData);
       setLoading(false);
-    }, 500);
-  }, [contentId]);
+    } else {
+      // Fallback to mock data if no data was passed
+      setTimeout(() => {
+        const mockData: YoutubePostData = {
+          id: "youtube_1",
+          task_id: "task_001",
+          video_id: "dQw4w9WgXcQ",
+          title: "Amazing Technology Review 2024 - Must Watch!",
+          description:
+            "In this comprehensive technology review, we explore the latest innovations in AI, robotics, and consumer electronics. From breakthrough smartphones to cutting-edge laptops, this video covers everything you need to know about tech in 2024. Don't forget to like and subscribe for more tech content!",
+          channel_id: "UCxxxxxxxxxxxxxxxx",
+          channel_name: "TechReviewer Pro",
+          is_channel_verified: true,
+          channel_avatar: "https://yt3.ggpht.com/channel_avatar.jpg",
+          length_seconds: 720,
+          view_count: 1250000,
+          like_count: 85000,
+          published_time: "2024-01-01T10:00:00Z",
+          is_live_stream: false,
+          is_live_now: false,
+          is_regionally_restricted: false,
+          comment_count: 5400,
+          video_play_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          audio_play_url: "https://youtube.com/audio/dQw4w9WgXcQ.mp3",
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        };
+        setContent(mockData);
+        setLoading(false);
+      }, 500);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (
@@ -424,76 +457,12 @@ export default function ContentDetailYoutube() {
         </Card>
 
         {/* Tabs for additional information */}
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="basic">基本信息</TabsTrigger>
+        <Tabs defaultValue="channel" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="channel">频道详情</TabsTrigger>
             <TabsTrigger value="analytics">数据分析</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basic" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>技术信息</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">任务ID: </span>
-                    <span>{content.task_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">视频ID: </span>
-                    <span>{content.video_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">频道ID: </span>
-                    <span>{content.channel_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">视频时长: </span>
-                    <span>{content.length_seconds} 秒</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">是否直播: </span>
-                    <span>{content.is_live_stream ? "是" : "否"}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">
-                      当前直播状态:{" "}
-                    </span>
-                    <span>{content.is_live_now ? "直播中" : "非直播"}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">地区限制: </span>
-                    <span>
-                      {content.is_regionally_restricted ? "有限制" : "无限制"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">视频URL: </span>
-                    <span className="truncate">{content.video_play_url}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">音频URL: </span>
-                    <span className="truncate">{content.audio_play_url}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">创建时间: </span>
-                    <span>
-                      {new Date(content.created_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">更新时间: </span>
-                    <span>
-                      {new Date(content.updated_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="channel" className="mt-6">
             <Card>
@@ -537,7 +506,7 @@ export default function ContentDetailYoutube() {
                   </div>
 
                   <div className="p-4 bg-muted/20 rounded-lg">
-                    <h4 className="font-medium mb-2">频道状���</h4>
+                    <h4 className="font-medium mb-2">频道状态</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">认证状态</span>
