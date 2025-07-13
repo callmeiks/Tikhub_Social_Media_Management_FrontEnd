@@ -105,7 +105,7 @@ const menuItems: MenuItem[] = [
     href: "/hot-rankings",
     subItems: [
       { title: "抖音热度榜单", href: "/hot-rankings/douyin" },
-      { title: "TikTok热度榜单", href: "/hot-rankings#tiktok" },
+      { title: "TikTok热度榜单", href: "/hot-rankings/tiktok" },
       { title: "快手热门榜单", href: "/hot-rankings#kuaishou" },
       { title: "小红书热门榜单", href: "/hot-rankings#xiaohongshu" },
       { title: "皮皮虾热门榜单", href: "/hot-rankings#pipixia" },
@@ -123,7 +123,7 @@ const menuItems: MenuItem[] = [
       { title: "粉丝画像", href: "/kol-analysis/fan-profile" },
       { title: "粉丝趋势", href: "/kol-analysis/fan-trends" },
       { title: "性价比分析", href: "/kol-analysis/roi-analysis" },
-      { title: "星图指标", href: "/kol-analysis/star-metrics" },
+      { title: "星图��标", href: "/kol-analysis/star-metrics" },
       { title: "KOL相关热��分析", href: "/kol-analysis/keyword-analysis" },
       { title: "KOL视频表现分析", href: "/kol-analysis/video-performance" },
       { title: "KOL转化能力分析", href: "/kol-analysis/conversion-analysis" },
