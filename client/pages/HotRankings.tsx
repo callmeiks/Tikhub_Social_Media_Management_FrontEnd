@@ -141,6 +141,8 @@ export default function HotRankings() {
       navigate("/hot-rankings/xiaohongshu");
     } else if (platform === "x") {
       navigate("/hot-rankings/x");
+    } else if (platform === "youtube") {
+      navigate("/hot-rankings/youtube");
     } else {
       setSelectedRanking(ranking);
     }
