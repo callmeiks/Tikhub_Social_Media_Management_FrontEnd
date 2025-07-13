@@ -38,6 +38,7 @@ import KuaishouRankings from "./pages/KuaishouRankings";
 import XiaohongshuRankings from "./pages/XiaohongshuRankings";
 import XRankings from "./pages/XRankings";
 import YouTubeRankings from "./pages/YouTubeRankings";
+import PipixiaRankings from "./pages/PipixiaRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
