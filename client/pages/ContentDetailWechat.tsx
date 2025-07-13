@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
+import ReactMarkdown from "react-markdown";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -452,7 +453,12 @@ export default function ContentDetailWechat() {
                     </div>
                     <div className="flex items-center">
                       <Link className="h-4 w-4 mr-2" />
-                      文章链接已收录
+                      <button
+                        onClick={() => window.open(content.article_url, "_blank")}
+                        className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                      >
+                        查看文章链接
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -463,103 +469,56 @@ export default function ContentDetailWechat() {
 
         {/* Tabs for additional information */}
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="content">内容详情</TabsTrigger>
-            <TabsTrigger value="basic">基本信息</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="content">文章内容</TabsTrigger>
             <TabsTrigger value="analytics">数据分析</TabsTrigger>
           </TabsList>
 
           <TabsContent value="content" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>文章内容</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">文章摘要</h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {content.summary}
-                    </p>
+            <div className="space-y-6">
+
+              {/* 文章正文内容 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    文章正文
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown
+                      className="text-sm leading-relaxed"
+                      components={{
+                        h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-xl font-semibold mt-5 mb-3 text-gray-800">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2 text-gray-700">{children}</h3>,
+                        p: ({ children }) => <p className="mb-4 text-gray-600 leading-relaxed">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal list-inside mb-4 space-y-1">{children}</ol>,
+                        li: ({ children }) => <li className="text-gray-600">{children}</li>,
+                        blockquote: ({ children }) => <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 text-gray-700 italic">{children}</blockquote>,
+                        code: ({ children }) => <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">{children}</code>,
+                        pre: ({ children }) => <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>,
+                        a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">{children}</a>,
+                        img: ({ src, alt }) => (
+                          <img 
+                            src={src} 
+                            alt={alt} 
+                            className="max-w-full h-auto rounded-lg my-4 cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => window.open(src, '_blank')}
+                          />
+                        ),
+                      }}
+                    >
+                      {content.full_text}
+                    </ReactMarkdown>
                   </div>
-                  <div>
-                    <h4 className="font-medium mb-2">正文内���（节选）</h4>
-                    <div className="p-4 bg-muted/20 rounded-lg">
-                      <p className="text-sm leading-relaxed line-clamp-6">
-                        {content.full_text}
-                      </p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="mt-2 p-0 h-auto"
-                        onClick={() =>
-                          window.open(content.article_url, "_blank")
-                        }
-                      >
-                        查看完整文章 →
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          <TabsContent value="basic" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>技术信息</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">任务ID: </span>
-                    <span>{content.task_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">作者用户ID: </span>
-                    <span>{content.author_user_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">发布类型: </span>
-                    <span>{content.publish_type}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">发布来源: </span>
-                    <span>{content.publish_source}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">字数统计: </span>
-                    <span>{content.word_count} 字</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">图片数量: </span>
-                    <span>{content.image_count} 张</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">有引用: </span>
-                    <span>{content.has_reference ? "是" : "否"}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">文章URL: </span>
-                    <span className="truncate">{content.article_url}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">创建时间: </span>
-                    <span>
-                      {new Date(content.created_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">更新时间: </span>
-                    <span>
-                      {new Date(content.updated_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="analytics" className="mt-6">
             <Card>
