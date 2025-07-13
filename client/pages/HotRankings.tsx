@@ -28,7 +28,7 @@ const platformRankings = {
     { title: "抖音视频热榜", icon: Play, count: "50+" },
     { title: "抖音搜索热榜", icon: TrendingUp, count: "50+" },
     { title: "抖音热度飙升搜索榜", icon: TrendingUp, count: "30+" },
-    { title: "抖音热度飙���话题榜", icon: Hash, count: "40+" },
+    { title: "抖音热度飙升话题榜", icon: Hash, count: "40+" },
   ],
   tiktok: [
     { title: "TikTok热门产品", icon: TrendingUp, count: "100+" },
@@ -51,7 +51,7 @@ const platformRankings = {
   ],
   pipixia: [
     { title: "皮皮虾热门视频", icon: Play, count: "30+" },
-    { title: "皮皮虾热门话题", icon: Hash, count: "20+" },
+    { title: "皮皮虾热门话��", icon: Hash, count: "20+" },
     { title: "皮皮虾搞笑榜", icon: MessageCircle, count: "25+" },
   ],
   x: [
@@ -135,6 +135,8 @@ export default function HotRankings() {
       navigate("/hot-rankings/douyin");
     } else if (platform === "tiktok") {
       navigate("/hot-rankings/tiktok");
+    } else if (platform === "kuaishou") {
+      navigate("/hot-rankings/kuaishou");
     } else {
       setSelectedRanking(ranking);
     }
