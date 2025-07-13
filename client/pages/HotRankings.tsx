@@ -182,7 +182,7 @@ export default function HotRankings() {
                   <Card
                     key={index}
                     className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleRankingClick(ranking.title)}
+                    onClick={() => handleRankingClick(ranking.title, platform)}
                   >
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
