@@ -76,6 +76,8 @@ const supportedPlatforms = [
   { id: "x", name: "X", emoji: "🐦", domain: "x.com" },
   { id: "weibo", name: "微博", emoji: "📝", domain: "weibo.com" },
   { id: "wechat", name: "微信公众号", emoji: "💬", domain: "mp.weixin.qq.com" },
+  { id: "instagram", name: "Instagram", emoji: "📷", domain: "instagram.com" },
+  { id: "bilibili", name: "哔哩哔哩", emoji: "📺", domain: "bilibili.com" },
 ];
 
 // Sample data for demonstration
@@ -348,12 +350,14 @@ interface KuaishouContent extends BaseContent {
   photo_id: string;
   video_caption: string;
   author_name: string;
+  author_avatar?: string;
   view_count: number;
   comment_count: number;
   share_count: number;
   collect_count: number;
   video_duration: number;
   video_url: string;
+  video_play_url: string;
 }
 
 interface WechatContent extends BaseContent {
@@ -366,6 +370,7 @@ interface WechatContent extends BaseContent {
   comment_count: number;
   share_count: number;
   collect_count: number;
+  images_url?: string[];
 }
 
 interface WeiboContent extends BaseContent {
@@ -404,7 +409,37 @@ interface XContent extends BaseContent {
   video_url: string;
 }
 
-type ContentItem = TikTokContent | DouyinContent | KuaishouContent | WechatContent | WeiboContent | YoutubeContent | XContent;
+interface InstagramContent extends BaseContent {
+  platform: "instagram";
+  post_id: string;
+  caption: string;
+  author_username: string;
+  author_full_name: string;
+  view_count: number;
+  comment_count: number;
+  media_type: string;
+  video_url?: string;
+  image_urls?: string[];
+  carousel_media?: any[];
+}
+
+interface BilibiliContent extends BaseContent {
+  platform: "bilibili";
+  bvid: string;
+  title: string;
+  author_name: string;
+  author_mid: string;
+  view_count: number;
+  danmaku_count: number;
+  reply_count: number;
+  favorite_count: number;
+  coin_count: number;
+  share_count: number;
+  video_url: string;
+  duration: number;
+}
+
+type ContentItem = TikTokContent | DouyinContent | KuaishouContent | WechatContent | WeiboContent | YoutubeContent | XContent | InstagramContent | BilibiliContent;
 
 interface ContentApiResponse {
   items: ContentItem[];
@@ -472,6 +507,10 @@ export default function ContentInteraction() {
         return (content as YoutubeContent).title || "无标题";
       case "x":
         return (content as XContent).text || "无内容";
+      case "instagram":
+        return (content as InstagramContent).caption || "无描述";
+      case "bilibili":
+        return (content as BilibiliContent).title || "无标题";
       default:
         return "无描述";
     }
@@ -493,6 +532,10 @@ export default function ContentInteraction() {
         return (content as YoutubeContent).channel_name || "未知频道";
       case "x":
         return (content as XContent).author_screen_name || "未知作者";
+      case "instagram":
+        return (content as InstagramContent).author_username || "未知作者";
+      case "bilibili":
+        return (content as BilibiliContent).author_name || "未知作者";
       default:
         return "未知作者";
     }
@@ -514,6 +557,10 @@ export default function ContentInteraction() {
         return (content as XContent).view_count || 0;
       case "weibo":
         return 0; // Weibo doesn't have view count in the data
+      case "instagram":
+        return (content as InstagramContent).view_count || 0;
+      case "bilibili":
+        return (content as BilibiliContent).view_count || 0;
       default:
         return 0;
     }
@@ -539,6 +586,8 @@ export default function ContentInteraction() {
         return (content as WeiboContent).comments_count || 0;
       case "x":
         return (content as XContent).replies_count || 0;
+      case "bilibili":
+        return (content as BilibiliContent).reply_count || 0;
       default:
         return (content as any).comment_count || 0;
     }
@@ -551,6 +600,8 @@ export default function ContentInteraction() {
         return (content as WeiboContent).reposts_count || 0;
       case "x":
         return (content as XContent).retweet_count || 0;
+      case "bilibili":
+        return (content as BilibiliContent).share_count || 0;
       default:
         return (content as any).share_count || 0;
     }
@@ -571,7 +622,9 @@ export default function ContentInteraction() {
       "youtube": "youtube",
       "x": "x",
       "weibo": "weibo",
-      "wechat": "wechat"
+      "wechat": "wechat",
+      "instagram": "instagram",
+      "bilibili": "bilibili"
     };
     
     const routeName = platformRoutes[content.platform as keyof typeof platformRoutes] || "content";
@@ -584,10 +637,19 @@ export default function ContentInteraction() {
 
   // Helper function to get preview content for different platforms
   const getPreviewContent = (content: ContentItem) => {
+    console.log("Processing content:", content.platform, content);
     switch (content.platform) {
       case "tiktok":
+        const video2Content = content as TikTokContent ;
+        console.log("TikTok video URL:", video2Content.video_url);
+        return {
+          type: "video",
+          url: video2Content.video_url,
+          duration: video2Content.duration ? Math.floor(video2Content.duration / 1000) : 0
+        };
       case "douyin":
-        const videoContent = content as TikTokContent | DouyinContent;
+        const videoContent = content as DouyinContent;
+        console.log("TikTok video URL:", videoContent.video_url);
         return {
           type: "video",
           url: videoContent.video_url,
@@ -597,7 +659,7 @@ export default function ContentInteraction() {
         const kuaishouContent = content as KuaishouContent;
         return {
           type: "video",
-          url: kuaishouContent.video_url,
+          url: kuaishouContent.video_play_url || kuaishouContent.video_url,
           duration: kuaishouContent.video_duration ? Math.floor(kuaishouContent.video_duration / 1000) : 0
         };
       case "youtube":
@@ -641,6 +703,32 @@ export default function ContentInteraction() {
           };
         }
         return { type: "none" };
+      case "instagram":
+        const instagramContent = content as InstagramContent;
+        if (instagramContent.media_type === "VIDEO" && instagramContent.video_url) {
+          return {
+            type: "video",
+            url: instagramContent.video_url
+          };
+        } else if (instagramContent.image_urls && instagramContent.image_urls.length > 0) {
+          return {
+            type: "image",
+            urls: instagramContent.image_urls
+          };
+        } else if (instagramContent.carousel_media && instagramContent.carousel_media.length > 0) {
+          return {
+            type: "image",
+            urls: instagramContent.carousel_media.map((media: any) => media.image_url || media.video_url).filter(Boolean)
+          };
+        }
+        return { type: "none" };
+      case "bilibili":
+        const bilibiliContent = content as BilibiliContent;
+        return {
+          type: "video",
+          url: bilibiliContent.video_url,
+          duration: bilibiliContent.duration || 0
+        };
       default:
         return { type: "none" };
     }
@@ -991,13 +1079,27 @@ export default function ContentInteraction() {
         </div>
       }
     >
+      {/* Notice about Xiaohongshu bulk content extraction */}
+      <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <p className="text-sm text-amber-800">
+          小红书作品批量获取请到
+          <a 
+            href="http://localhost:3000/creator-tools/content-extract" 
+            className="ml-1 font-medium text-amber-900 underline hover:text-amber-700 transition-colors"
+          >
+            图文提取
+          </a>
+          页面
+        </p>
+      </div>
+      
       <div className="space-y-6">
         {/* Platform Support */}
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
               <Users className="mr-2 h-4 w-4" />
-              支��平台
+              支持平台
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1053,7 +1155,7 @@ export default function ContentInteraction() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品��接（每行一个���最多50个）
+                    作品链接（每行一个，最多50个链接）:
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
@@ -1064,7 +1166,7 @@ https://www.tiktok.com/@username/video/123
 https://www.bilibili.com/video/BV123456789
 https://www.youtube.com/watch?v=example123
 
-支持抖音、小���书、快手、B站、YouTube、TikTok、Instagram、X等平台`}
+支持抖音、快手、B站、微博，微信公众号，YouTube、TikTok、Instagram、X平台`}
                     value={batchUrls}
                     onChange={(e) => setBatchUrls(e.target.value)}
                     className="min-h-[200px] resize-none font-mono text-sm"
