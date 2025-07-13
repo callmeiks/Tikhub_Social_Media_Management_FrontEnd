@@ -37,6 +37,7 @@ import TikTokRankings from "./pages/TikTokRankings";
 import KuaishouRankings from "./pages/KuaishouRankings";
 import XiaohongshuRankings from "./pages/XiaohongshuRankings";
 import XRankings from "./pages/XRankings";
+import YouTubeRankings from "./pages/YouTubeRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
