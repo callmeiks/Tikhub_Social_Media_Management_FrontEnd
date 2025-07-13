@@ -95,7 +95,7 @@ const menuItems: MenuItem[] = [
         href: "/data-monitoring/content-monitoring",
       },
       { title: "达人监控", href: "/data-monitoring/influencer-monitoring" },
-      { title: "自定��监控榜单", href: "/data-monitoring/custom-rankings" },
+      { title: "自定义监控榜单", href: "/data-monitoring/custom-rankings" },
       { title: "当前任务管理", href: "/data-monitoring/task-management" },
     ],
   },
@@ -110,7 +110,7 @@ const menuItems: MenuItem[] = [
       { title: "小红书热门榜单", href: "/hot-rankings/xiaohongshu" },
       { title: "皮皮虾热门榜单", href: "/hot-rankings#pipixia" },
       { title: "X趋势内容", href: "/hot-rankings/x" },
-      { title: "YouTube趋势内容", href: "/hot-rankings#youtube" },
+      { title: "YouTube趋势内容", href: "/hot-rankings/youtube" },
     ],
   },
   {
