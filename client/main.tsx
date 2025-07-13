@@ -32,6 +32,7 @@ import ContentMonitoring from "./pages/ContentMonitoring";
 import InfluencerMonitoring from "./pages/InfluencerMonitoring";
 import CustomRankings from "./pages/CustomRankings";
 import HotRankings from "./pages/HotRankings";
+import DouyinRankings from "./pages/DouyinRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
