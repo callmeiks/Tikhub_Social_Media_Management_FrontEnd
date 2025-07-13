@@ -23,7 +23,7 @@ const platformRankings = {
   douyin: [
     { title: "抖音热门账号", icon: Users, count: "50+" },
     { title: "抖音上升热点榜", icon: TrendingUp, count: "100+" },
-    { title: "抖音同城热点榜", icon: TrendingUp, count: "30+" },
+    { title: "抖音同城热��榜", icon: TrendingUp, count: "30+" },
     { title: "抖音挑战热点榜", icon: Hash, count: "20+" },
     { title: "抖音视频热榜", icon: Play, count: "50+" },
     { title: "抖音搜索热榜", icon: TrendingUp, count: "50+" },
@@ -51,7 +51,7 @@ const platformRankings = {
   ],
   pipixia: [
     { title: "皮皮虾热门视频", icon: Play, count: "30+" },
-    { title: "皮皮虾热门话��", icon: Hash, count: "20+" },
+    { title: "皮皮虾热门话题", icon: Hash, count: "20+" },
     { title: "皮皮虾搞笑榜", icon: MessageCircle, count: "25+" },
   ],
   x: [
@@ -137,6 +137,8 @@ export default function HotRankings() {
       navigate("/hot-rankings/tiktok");
     } else if (platform === "kuaishou") {
       navigate("/hot-rankings/kuaishou");
+    } else if (platform === "xiaohongshu") {
+      navigate("/hot-rankings/xiaohongshu");
     } else {
       setSelectedRanking(ranking);
     }
@@ -172,7 +174,7 @@ export default function HotRankings() {
               皮皮虾热门榜单
             </TabsTrigger>
             <TabsTrigger value="x" className="text-sm">
-              X趋势内容
+              X趋���内容
             </TabsTrigger>
             <TabsTrigger value="youtube" className="text-sm">
               YouTube趋势内容
