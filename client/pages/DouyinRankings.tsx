@@ -32,6 +32,9 @@ import {
   Eye,
   ArrowUpIcon,
   ArrowDownIcon,
+  Music,
+  Award,
+  Video,
 } from "lucide-react";
 
 // 36个类型选项
@@ -107,7 +110,7 @@ const rankingTabs = [
   { id: "rising", name: "上升热点榜", icon: TrendingUp },
   { id: "local", name: "同城热点榜", icon: MapPin },
   { id: "challenge", name: "挑战热点榜", icon: Hash },
-  { id: "search", name: "搜索热点榜", icon: Search },
+  { id: "search", name: "搜索热点��", icon: Search },
   { id: "accounts", name: "热门账号榜单", icon: Users },
   { id: "video", name: "视频热点榜", icon: Play },
   { id: "lowfan", name: "低粉爆款榜", icon: TrendingUp },
@@ -243,7 +246,7 @@ export default function DouyinRankings() {
   const [data, setData] = useState(mockRankingData);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 获取当前��签的过滤器配置
+  // 获取当前标签的过滤器配置
   const getFiltersForTab = (tabId: string) => {
     const baseFilters = [];
 
@@ -290,7 +293,7 @@ export default function DouyinRankings() {
           {
             type: "select",
             key: "count",
-            label: "采集数量",
+            label: "���集数量",
             options: [
               { value: "50", label: "50" },
               { value: "100", label: "100" },
