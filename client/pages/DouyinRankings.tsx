@@ -327,6 +327,22 @@ export default function DouyinRankings() {
           { type: "select", key: "city", label: "城市名字", options: cities },
         ];
 
+      case "music":
+      case "brand":
+      case "livestream":
+        return [
+          {
+            type: "select",
+            key: "count",
+            label: "采集数量",
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+          },
+        ];
+
       default:
         return [
           { type: "select", key: "type", label: "类型", options: contentTypes },
@@ -470,7 +486,7 @@ export default function DouyinRankings() {
 
   return (
     <DashboardLayout
-      title="抖音热度榜���"
+      title="抖音热度榜单"
       subtitle="实时追踪抖音平台各类热门内容和趋势数据"
       actions={
         <div className="flex space-x-2">
