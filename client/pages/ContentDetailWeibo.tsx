@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -56,46 +56,80 @@ interface WeiboPostData {
 export default function ContentDetailWeibo() {
   const { contentId } = useParams<{ contentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<WeiboPostData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      // Mock data for Weibo post
-      const mockData: WeiboPostData = {
-        id: "weibo_1",
-        task_id: "task_001",
-        create_time: "2024-01-01 15:30:00",
-        post_id: "4987654321098765",
-        mblogid: "Nxyz123456789",
-        author_id: "1234567890",
-        author_screen_name: "科技评论家",
-        author_avatar: "https://wx1.sinaimg.cn/large/123456.jpg",
-        edit_count: 2,
-        text_length: 280,
-        pic_num: 3,
-        reposts_count: 1520,
-        comments_count: 456,
-        attitudes_count: 8900,
-        is_long_text: false,
-        title: "",
-        text_raw:
-          "今天的科技新闻真是让人眼花缭乱！AI技术的发展速度超出了所有人的预期，特别是在自然语言处理和图像识别方面的突破。这些技术正在深刻改变我们的生活方式，从智能助手到自动驾驶，无处不在。#科技 #人工智能 #未来",
-        region_name: "北京",
-        video_play_urls: [],
-        images_urls: [
-          "https://wx1.sinaimg.cn/large/image1.jpg",
-          "https://wx1.sinaimg.cn/large/image2.jpg",
-          "https://wx1.sinaimg.cn/large/image3.jpg",
-        ],
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+    // Check if content data was passed via navigation state
+    if (location.state?.contentData) {
+      const contentData = location.state.contentData;
+      
+      // Map the API data to WeiboPostData format
+      const mappedData: WeiboPostData = {
+        id: contentData.id || "weibo_" + Date.now(),
+        task_id: contentData.task_id || "",
+        create_time: contentData.create_time || new Date().toISOString().replace('T', ' ').slice(0, 19),
+        post_id: contentData.post_id || "",
+        mblogid: contentData.mblogid || "",
+        author_id: contentData.author_id || "",
+        author_screen_name: contentData.author_screen_name || "未知用户",
+        author_avatar: contentData.author_avatar || "",
+        edit_count: contentData.edit_count || 0,
+        text_length: contentData.text_length || 0,
+        pic_num: contentData.pic_num || 0,
+        reposts_count: contentData.reposts_count || 0,
+        comments_count: contentData.comments_count || 0,
+        attitudes_count: contentData.attitudes_count || 0,
+        is_long_text: contentData.is_long_text || false,
+        title: contentData.title || "",
+        text_raw: contentData.text_raw || "无内容",
+        region_name: contentData.region_name || "未知地区",
+        video_play_urls: contentData.video_play_urls || [],
+        images_urls: contentData.images_urls || [],
+        created_at: contentData.created_at || new Date().toISOString(),
+        updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      setContent(mockData);
+      
+      setContent(mappedData);
       setLoading(false);
-    }, 500);
-  }, [contentId]);
+    } else {
+      // Fallback to mock data if no data was passed
+      setTimeout(() => {
+        const mockData: WeiboPostData = {
+          id: "weibo_1",
+          task_id: "task_001",
+          create_time: "2024-01-01 15:30:00",
+          post_id: "4987654321098765",
+          mblogid: "Nxyz123456789",
+          author_id: "1234567890",
+          author_screen_name: "科技评论家",
+          author_avatar: "https://wx1.sinaimg.cn/large/123456.jpg",
+          edit_count: 2,
+          text_length: 280,
+          pic_num: 3,
+          reposts_count: 1520,
+          comments_count: 456,
+          attitudes_count: 8900,
+          is_long_text: false,
+          title: "",
+          text_raw:
+            "今天的科技新闻真是让人眼花缭乱！AI技术的发展速度超出了所有人的预期，特别是在自然语言处理和图像识别方面的突破。这些技术正在深刻改变我们的生活方式，从智能助手到自动驾驶，无处不在。#科技 #人工智能 #未来",
+          region_name: "北京",
+          video_play_urls: [],
+          images_urls: [
+            "https://wx1.sinaimg.cn/large/image1.jpg",
+            "https://wx1.sinaimg.cn/large/image2.jpg",
+            "https://wx1.sinaimg.cn/large/image3.jpg",
+          ],
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        };
+        setContent(mockData);
+        setLoading(false);
+      }, 500);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (
@@ -385,48 +419,6 @@ export default function ContentDetailWeibo() {
                     </div>
                   </div>
 
-                  {/* 媒体资源 */}
-                  {content.images_urls && content.images_urls.length > 1 && (
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-4">
-                      <h3 className="font-semibold mb-2 flex items-center">
-                        <Image className="mr-2 h-4 w-4" />
-                        图片资源 ({content.images_urls.length}张)
-                      </h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        {content.images_urls.slice(0, 6).map((url, index) => (
-                          <div
-                            key={index}
-                            className="aspect-square rounded bg-muted overflow-hidden"
-                          >
-                            <img
-                              src={url}
-                              alt={`图片 ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      {content.images_urls.length > 6 && (
-                        <div className="text-xs text-muted-foreground mt-2">
-                          还有 {content.images_urls.length - 6} 张图片...
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 视频资源 */}
-                  {content.video_play_urls &&
-                    content.video_play_urls.length > 0 && (
-                      <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg mb-4">
-                        <h3 className="font-semibold mb-2 flex items-center">
-                          <Video className="mr-2 h-4 w-4" />
-                          视频资源 ({content.video_play_urls.length}个)
-                        </h3>
-                        <div className="text-sm text-muted-foreground">
-                          包含 {content.video_play_urls.length} 个视频文件
-                        </div>
-                      </div>
-                    )}
 
                   {/* 其他属性 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
@@ -438,6 +430,14 @@ export default function ContentDetailWeibo() {
                       <MapPin className="h-4 w-4 mr-2" />
                       地理位置: {content.region_name}
                     </div>
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      微博ID: {content.post_id}
+                    </div>
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      MBlog ID: {content.mblogid}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -446,77 +446,72 @@ export default function ContentDetailWeibo() {
         </Card>
 
         {/* Tabs for additional information */}
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="basic">基本信息</TabsTrigger>
+        <Tabs defaultValue="media" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="media">媒体资源</TabsTrigger>
             <TabsTrigger value="analytics">数据分析</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basic" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>技术信息</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">任务ID: </span>
-                    <span>{content.task_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">微博ID: </span>
-                    <span>{content.post_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">MBlog ID: </span>
-                    <span>{content.mblogid}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">作者ID: </span>
-                    <span>{content.author_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">文本长度: </span>
-                    <span>{content.text_length} 字符</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">图片数量: </span>
-                    <span>{content.pic_num} 张</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">编辑次数: </span>
-                    <span>{content.edit_count} 次</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">长文本: </span>
-                    <span>{content.is_long_text ? "是" : "否"}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">地理位置: </span>
-                    <span>{content.region_name}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">创建时间: </span>
-                    <span>
-                      {new Date(content.created_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">更新时间: </span>
-                    <span>
-                      {new Date(content.updated_at).toLocaleString("zh-CN")}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="media" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>媒体资源详情</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  媒体资源详情
+                  {((content.images_urls && content.images_urls.length > 0) || 
+                    (content.video_play_urls && content.video_play_urls.length > 0)) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const downloadAll = async () => {
+                          // Download images
+                          if (content.images_urls) {
+                            for (let i = 0; i < content.images_urls.length; i++) {
+                              try {
+                                const response = await fetch(content.images_urls[i]);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `weibo_image_${i + 1}.jpg`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                                // 稍微延迟避免同时下载太多文件
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                              } catch (error) {
+                                console.error(`Failed to download image ${i + 1}:`, error);
+                              }
+                            }
+                          }
+                          // Download videos
+                          if (content.video_play_urls) {
+                            for (let i = 0; i < content.video_play_urls.length; i++) {
+                              try {
+                                const link = document.createElement('a');
+                                link.href = content.video_play_urls[i];
+                                link.download = `weibo_video_${i + 1}.mp4`;
+                                link.target = '_blank';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                              } catch (error) {
+                                console.error(`Failed to download video ${i + 1}:`, error);
+                              }
+                            }
+                          }
+                        };
+                        downloadAll();
+                      }}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      一键下载全部
+                    </Button>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -531,15 +526,41 @@ export default function ContentDetailWeibo() {
                         {content.images_urls.map((url, index) => (
                           <div
                             key={index}
-                            className="aspect-square rounded-lg overflow-hidden bg-muted relative"
+                            className="aspect-square rounded-lg overflow-hidden bg-muted relative group"
                           >
                             <img
                               src={url}
                               alt={`图片 ${index + 1}`}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                              onClick={() => window.open(url, '_blank')}
                             />
                             <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                               {index + 1}
+                            </div>
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  fetch(url)
+                                    .then(response => response.blob())
+                                    .then(blob => {
+                                      const downloadUrl = window.URL.createObjectURL(blob);
+                                      const link = document.createElement('a');
+                                      link.href = downloadUrl;
+                                      link.download = `weibo_image_${index + 1}.jpg`;
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                      window.URL.revokeObjectURL(downloadUrl);
+                                    })
+                                    .catch(error => console.error('Download failed:', error));
+                                }}
+                              >
+                                <Download className="h-3 w-3" />
+                              </Button>
                             </div>
                           </div>
                         ))}
@@ -555,25 +576,42 @@ export default function ContentDetailWeibo() {
                           <Video className="mr-2 h-4 w-4" />
                           视频资源 ({content.video_play_urls.length}个)
                         </h4>
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {content.video_play_urls.map((url, index) => (
                             <div
                               key={index}
-                              className="p-3 bg-muted/30 rounded-lg flex items-center justify-between"
+                              className="aspect-video rounded-lg overflow-hidden bg-black relative group"
                             >
-                              <div className="flex items-center">
-                                <Video className="h-4 w-4 mr-2 text-red-500" />
-                                <span className="text-sm">
-                                  视频 {index + 1}
-                                </span>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => window.open(url, "_blank")}
+                              <video
+                                src={url}
+                                className="w-full h-full object-cover"
+                                controls
+                                preload="metadata"
+                                poster=""
                               >
-                                查看
-                              </Button>
+                                您的浏览器不支持视频播放
+                              </video>
+                              <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                视频 {index + 1}
+                              </div>
+                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  className="h-6 w-6 p-0 mr-1"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.download = `weibo_video_${index + 1}.mp4`;
+                                    link.target = '_blank';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                >
+                                  <Download className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
