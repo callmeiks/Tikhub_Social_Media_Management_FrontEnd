@@ -38,6 +38,14 @@ import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
 import InfluencerMonitoring from "./pages/InfluencerMonitoring";
 import CustomRankings from "./pages/CustomRankings";
+import HotRankings from "./pages/HotRankings";
+import DouyinRankings from "./pages/DouyinRankings";
+import TikTokRankings from "./pages/TikTokRankings";
+import KuaishouRankings from "./pages/KuaishouRankings";
+import XiaohongshuRankings from "./pages/XiaohongshuRankings";
+import XRankings from "./pages/XRankings";
+import YouTubeRankings from "./pages/YouTubeRankings";
+import PipixiaRankings from "./pages/PipixiaRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import NotFound from "./pages/NotFound";
 
@@ -172,7 +180,17 @@ const App = () => (
 
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/data-monitoring/*" element={<DataCollection />} />
-          <Route path="/hot-rankings/*" element={<DataCollection />} />
+          <Route path="/hot-rankings" element={<HotRankings />} />
+          <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
+          <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
+          <Route path="/hot-rankings/kuaishou" element={<KuaishouRankings />} />
+          <Route
+            path="/hot-rankings/xiaohongshu"
+            element={<XiaohongshuRankings />}
+          />
+          <Route path="/hot-rankings/x" element={<XRankings />} />
+          <Route path="/hot-rankings/youtube" element={<YouTubeRankings />} />
+          <Route path="/hot-rankings/pipixia" element={<PipixiaRankings />} />
           <Route path="/kol-analysis/*" element={<DataCollection />} />
           <Route path="/ads-products/*" element={<DataCollection />} />
 
