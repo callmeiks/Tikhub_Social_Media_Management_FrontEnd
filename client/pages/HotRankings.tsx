@@ -120,6 +120,7 @@ const mockRankingData = [
 export default function HotRankings() {
   const [activeTab, setActiveTab] = useState("douyin");
   const [selectedRanking, setSelectedRanking] = useState<string>("");
+  const navigate = useNavigate();
 
   // Handle URL hash navigation
   useEffect(() => {
@@ -129,8 +130,12 @@ export default function HotRankings() {
     }
   }, []);
 
-  const handleRankingClick = (ranking: string) => {
-    setSelectedRanking(ranking);
+  const handleRankingClick = (ranking: string, platform: string) => {
+    if (platform === "douyin") {
+      navigate("/hot-rankings/douyin");
+    } else {
+      setSelectedRanking(ranking);
+    }
   };
 
   return (
