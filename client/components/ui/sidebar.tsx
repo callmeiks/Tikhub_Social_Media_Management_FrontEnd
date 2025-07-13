@@ -108,7 +108,7 @@ const menuItems: MenuItem[] = [
       { title: "TikTok热度榜单", href: "/hot-rankings/tiktok" },
       { title: "快手热门榜单", href: "/hot-rankings/kuaishou" },
       { title: "小红书热门榜单", href: "/hot-rankings/xiaohongshu" },
-      { title: "皮皮虾热门榜单", href: "/hot-rankings#pipixia" },
+      { title: "皮皮虾热门榜单", href: "/hot-rankings/pipixia" },
       { title: "X趋势内容", href: "/hot-rankings/x" },
       { title: "YouTube趋势内容", href: "/hot-rankings/youtube" },
     ],
