@@ -41,7 +41,7 @@ import {
 const contentTypes = [
   "美食",
   "旅行",
-  "休闲娱乐",
+  "��闲娱乐",
   "文化",
   "舞蹈",
   "教育校园",
@@ -513,7 +513,16 @@ export default function DouyinRankings() {
           </TabsList>
 
           <TabsList className="grid w-full grid-cols-7 h-auto p-1 mt-2">
-            {rankingTabs.slice(7).map((tab) => (
+            {rankingTabs.slice(7, 14).map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id} className="text-xs p-2">
+                <tab.icon className="w-3 h-3 mr-1" />
+                {tab.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsList className="grid w-full grid-cols-3 h-auto p-1 mt-2">
+            {rankingTabs.slice(14).map((tab) => (
               <TabsTrigger key={tab.id} value={tab.id} className="text-xs p-2">
                 <tab.icon className="w-3 h-3 mr-1" />
                 {tab.name}
