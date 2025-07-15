@@ -37,108 +37,223 @@ import {
   Hash,
   Users,
 } from "lucide-react";
+import { apiClient } from "@/lib/api";
+import type {
+  KeywordSearchParams,
+  KeywordSearchResponse,
+  DouyinFilters,
+  TikTokFilters,
+  XiaohongshuFilters,
+  YouTubeFilters,
+  XFilters,
+  InstagramFilters,
+  KuaishouFilters,
+} from "@/lib/api";
 
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤" },
-  { id: "xiaohongshu", name: "小红书", emoji: "📖" },
-  { id: "bilibili", name: "哔哩哔哩", emoji: "📺" },
+  { id: "xhs", name: "小红书", emoji: "📖" },
+  { id: "kuaishou", name: "快手", emoji: "⚡" },
   { id: "tiktok", name: "TikTok", emoji: "🎵" },
+  { id: "youtube", name: "YouTube", emoji: "📺" },
   { id: "instagram", name: "Instagram", emoji: "📷" },
   { id: "x", name: "X", emoji: "🐦" },
 ];
 
-// Sample search results
-const mockResults = [
-  {
-    id: 1,
-    title: "超火的韩式裸妆教程！新手必看",
-    platform: "抖音",
-    author: "美妆达人小丽",
-    publishTime: "2024-01-20",
-    views: "230万",
-    likes: "15.6万",
-    comments: "3.2万",
-    shares: "8.5千",
-    url: "https://www.douyin.com/video/123456",
-  },
-  {
-    id: 2,
-    title: "学生党宿舍收纳神器推荐",
-    platform: "小红书",
-    author: "生活记录家",
-    publishTime: "2024-01-19",
-    views: "120万",
-    likes: "8.9万",
-    comments: "1.5万",
-    shares: "3.2千",
-    url: "https://www.xiaohongshu.com/discovery/item/456789",
-  },
-  {
-    id: 3,
-    title: "Creative Cooking: Cheese Baked Sweet Potato",
-    platform: "TikTok",
-    author: "TechReviewer",
-    publishTime: "2024-01-21",
-    views: "450万",
-    likes: "25.8万",
-    comments: "8.9万",
-    shares: "12.5千",
-    url: "https://www.tiktok.com/@techreviewer/video/789012",
-  },
-];
+// Define the search result interface based on API response
+interface SearchResult {
+  id: string;
+  task_id: string;
+  platform: string;
+  keyword: string;
+  title: string;
+  description: string;
+  author_name: string;
+  author_id: string;
+  view_count: number;
+  like_count: number;
+  share_count: number;
+  comment_count: number;
+  created_time: string;
+  url: string;
+  created_at: string;
+}
+
+// Function to format numbers for display
+function formatNumber(num: number): string {
+  if (num >= 100000000) {
+    return (num / 100000000).toFixed(1) + '亿';
+  } else if (num >= 10000) {
+    return (num / 10000).toFixed(1) + '万';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + '千';
+  }
+  return num.toString();
+}
+
+// Function to format timestamp to date
+function formatDate(timestamp: string): string {
+  const date = new Date(parseInt(timestamp) * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export default function KeywordContentSearch() {
   const [keyword, setKeyword] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("douyin");
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState(mockResults);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [quantityFilter, setQuantityFilter] = useState("50");
+  const [error, setError] = useState<string | null>(null);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [isLoadingResults, setIsLoadingResults] = useState(false);
 
   // Platform-specific filters
-  const [douyinFilters, setDouyinFilters] = useState({
-    sortType: "0",
-    publishTime: "0",
-    filterDuration: "0",
-    contentType: "0",
+  const [douyinFilters, setDouyinFilters] = useState<DouyinFilters>({
+    sort_type: "0",
+    publish_time: "0",
+    filter_duration: "0",
+    content_type: "0",
   });
 
-  const [tiktokFilters, setTiktokFilters] = useState({
-    sortType: "0",
-    publishTime: "0",
+  const [tiktokFilters, setTiktokFilters] = useState<TikTokFilters>({
+    sort_type: "0",
+    publish_time: "0",
   });
 
-  const [xiaohongshuFilters, setXiaohongshuFilters] = useState({
-    sortType: "general",
-    filterNoteType: "不限",
-    filterNoteTime: "不限",
+  const [xiaohongshuFilters, setXiaohongshuFilters] =
+    useState<XiaohongshuFilters>({
+      sort_type: "general",
+      filter_note_type: "不限",
+      filter_note_time: "不限",
+    });
+
+  const [youtubeFilters, setYoutubeFilters] = useState<YouTubeFilters>({
+    order_by: "relevance",
+    country_code: "us",
   });
 
-  const [bilibiliFilters, setBilibiliFilters] = useState({
-    order: "totalrank",
+  const [instagramFilters, setInstagramFilters] = useState<InstagramFilters>({
+    feed_type: "top",
   });
 
-  const [instagramFilters, setInstagramFilters] = useState({
-    feedType: "top",
+  const [xFilters, setXFilters] = useState<XFilters>({
+    search_type: "Top",
   });
 
-  const [xFilters, setXFilters] = useState({
-    searchType: "Top",
-  });
+  const [kuaishouFilters, setKuaishouFilters] = useState<KuaishouFilters>({});
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
-      alert("请输入搜索关键词");
+      setError("请输入搜索关键词");
       return;
     }
 
     setIsSearching(true);
-    // 模拟API调用
-    setTimeout(() => {
+    setError(null);
+    setTaskId(null);
+
+    try {
+      // Get current filters based on platform
+      let filters = {};
+      switch (selectedPlatform) {
+        case "douyin":
+          filters = douyinFilters;
+          break;
+        case "tiktok":
+          filters = tiktokFilters;
+          break;
+        case "xhs":
+          filters = xiaohongshuFilters;
+          break;
+        case "youtube":
+          filters = youtubeFilters;
+          break;
+        case "instagram":
+          filters = instagramFilters;
+          break;
+        case "x":
+          filters = xFilters;
+          break;
+        case "kuaishou":
+          filters = kuaishouFilters;
+          break;
+        default:
+          filters = {};
+      }
+
+      const searchParams: KeywordSearchParams = {
+        keyword: keyword.trim(),
+        platform: selectedPlatform as any,
+        content_count: parseInt(quantityFilter),
+        filters,
+      };
+
+      const response = await apiClient.keywordSearch(searchParams);
+      setTaskId(response.task_id);
+
+      // Show success message
+      const platformName = supportedPlatforms.find(
+        (p) => p.id === selectedPlatform,
+      )?.name;
+      
+      // Note: Search results will be available after the backend processes the task
+      // Users can click the refresh button to check for results
+    } catch (error) {
+      console.error("Search failed:", error);
+      setError(error instanceof Error ? error.message : "搜索失败，请重试");
+    } finally {
       setIsSearching(false);
-      alert(
-        `正在搜索关键词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的内容`,
-      );
-    }, 2000);
+    }
+  };
+
+  // Function to fetch search results from API
+  const fetchSearchResults = async () => {
+    if (!keyword.trim()) return;
+    
+    setIsLoadingResults(true);
+    setError(null);
+    
+    try {
+      // Get the API base URL from environment or use default
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      const token = localStorage.getItem('authToken') || import.meta.env.VITE_BACKEND_API_TOKEN || '';
+      
+      const url = `${apiBaseUrl}/api/keyword-search-post/posts?platform=${selectedPlatform}&keyword=${encodeURIComponent(keyword)}&page=1&limit=${quantityFilter}`;
+      console.log('Fetching search results from:', url);
+      
+      // Call the API endpoint directly
+      const response = await fetch(url, {
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Response data:', data);
+      
+      if (data.posts && Array.isArray(data.posts)) {
+        console.log(`Setting ${data.posts.length} search results`);
+        setSearchResults(data.posts);
+      } else {
+        console.log('No posts found in response');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch search results:', error);
+      setError('获取搜索结果失败，请稍后重试');
+    } finally {
+      setIsLoadingResults(false);
+    }
   };
 
   const getQuantityFilterComponent = () => (
@@ -175,9 +290,12 @@ export default function KeywordContentSearch() {
                   排序方式
                 </label>
                 <Select
-                  value={douyinFilters.sortType}
+                  value={douyinFilters.sort_type}
                   onValueChange={(value) =>
-                    setDouyinFilters((prev) => ({ ...prev, sortType: value }))
+                    setDouyinFilters((prev) => ({
+                      ...prev,
+                      sort_type: value as "0" | "1" | "2",
+                    }))
                   }
                 >
                   <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
@@ -196,11 +314,11 @@ export default function KeywordContentSearch() {
                   发布时间
                 </label>
                 <Select
-                  value={douyinFilters.publishTime}
+                  value={douyinFilters.publish_time}
                   onValueChange={(value) =>
                     setDouyinFilters((prev) => ({
                       ...prev,
-                      publishTime: value,
+                      publish_time: value as "0" | "1" | "7" | "30",
                     }))
                   }
                 >
@@ -221,11 +339,11 @@ export default function KeywordContentSearch() {
                   视频时长
                 </label>
                 <Select
-                  value={douyinFilters.filterDuration}
+                  value={douyinFilters.filter_duration}
                   onValueChange={(value) =>
                     setDouyinFilters((prev) => ({
                       ...prev,
-                      filterDuration: value,
+                      filter_duration: value as "0" | "1" | "2" | "3",
                     }))
                   }
                 >
@@ -246,11 +364,11 @@ export default function KeywordContentSearch() {
                   内容类型
                 </label>
                 <Select
-                  value={douyinFilters.contentType}
+                  value={douyinFilters.content_type}
                   onValueChange={(value) =>
                     setDouyinFilters((prev) => ({
                       ...prev,
-                      contentType: value,
+                      content_type: value as "0" | "1" | "2" | "3",
                     }))
                   }
                 >
@@ -280,9 +398,12 @@ export default function KeywordContentSearch() {
                   排序方式
                 </label>
                 <Select
-                  value={tiktokFilters.sortType}
+                  value={tiktokFilters.sort_type}
                   onValueChange={(value) =>
-                    setTiktokFilters((prev) => ({ ...prev, sortType: value }))
+                    setTiktokFilters((prev) => ({
+                      ...prev,
+                      sort_type: value as "0" | "1",
+                    }))
                   }
                 >
                   <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
@@ -300,11 +421,11 @@ export default function KeywordContentSearch() {
                   发布时间
                 </label>
                 <Select
-                  value={tiktokFilters.publishTime}
+                  value={tiktokFilters.publish_time}
                   onValueChange={(value) =>
                     setTiktokFilters((prev) => ({
                       ...prev,
-                      publishTime: value,
+                      publish_time: value as "0" | "1" | "7" | "30",
                     }))
                   }
                 >
@@ -325,7 +446,7 @@ export default function KeywordContentSearch() {
           </div>
         );
 
-      case "xiaohongshu":
+      case "xhs":
         return (
           <div className="space-y-4">
             {getQuantityFilterComponent()}
@@ -336,11 +457,14 @@ export default function KeywordContentSearch() {
                   排序规则
                 </label>
                 <Select
-                  value={xiaohongshuFilters.sortType}
+                  value={xiaohongshuFilters.sort_type}
                   onValueChange={(value) =>
                     setXiaohongshuFilters((prev) => ({
                       ...prev,
-                      sortType: value,
+                      sort_type: value as
+                        | "general"
+                        | "time_descending"
+                        | "popularity_descending",
                     }))
                   }
                 >
@@ -368,11 +492,11 @@ export default function KeywordContentSearch() {
                   笔记类型
                 </label>
                 <Select
-                  value={xiaohongshuFilters.filterNoteType}
+                  value={xiaohongshuFilters.filter_note_type}
                   onValueChange={(value) =>
                     setXiaohongshuFilters((prev) => ({
                       ...prev,
-                      filterNoteType: value,
+                      filter_note_type: value as "不限" | "视频" | "图文",
                     }))
                   }
                 >
@@ -392,11 +516,15 @@ export default function KeywordContentSearch() {
                   发布时间
                 </label>
                 <Select
-                  value={xiaohongshuFilters.filterNoteTime}
+                  value={xiaohongshuFilters.filter_note_time}
                   onValueChange={(value) =>
                     setXiaohongshuFilters((prev) => ({
                       ...prev,
-                      filterNoteTime: value,
+                      filter_note_time: value as
+                        | "不限"
+                        | "一周内"
+                        | "一月内"
+                        | "三月内",
                     }))
                   }
                 >
@@ -415,34 +543,75 @@ export default function KeywordContentSearch() {
           </div>
         );
 
-      case "bilibili":
+      case "youtube":
         return (
           <div className="space-y-4">
             {getQuantityFilterComponent()}
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <BarChart3 className="h-4 w-4 text-blue-500" />
                   排序方式
                 </label>
                 <Select
-                  value={bilibiliFilters.order}
+                  value={youtubeFilters.order_by}
                   onValueChange={(value) =>
-                    setBilibiliFilters((prev) => ({ ...prev, order: value }))
+                    setYoutubeFilters((prev) => ({
+                      ...prev,
+                      order_by: value as
+                        | "relevance"
+                        | "this_month"
+                        | "this_week"
+                        | "today",
+                    }))
                   }
                 >
-                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors w-40">
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
                     <SelectValue placeholder="选择排序方式" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="totalrank">🎯 综合排序</SelectItem>
-                    <SelectItem value="click">👁️ 最多播放</SelectItem>
-                    <SelectItem value="pubdate">⏰ 最新发布</SelectItem>
-                    <SelectItem value="dm">💬 最多弹幕</SelectItem>
-                    <SelectItem value="stow">⭐ 最多收藏</SelectItem>
+                    <SelectItem value="relevance">🎯 相关度</SelectItem>
+                    <SelectItem value="this_month">📅 本月</SelectItem>
+                    <SelectItem value="this_week">🗓️ 本周</SelectItem>
+                    <SelectItem value="today">⏰ 今天</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Users className="h-4 w-4 text-green-500" />
+                  国家/地区
+                </label>
+                <Select
+                  value={youtubeFilters.country_code}
+                  onValueChange={(value) =>
+                    setYoutubeFilters((prev) => ({
+                      ...prev,
+                      country_code: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
+                    <SelectValue placeholder="选择国家/地区" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="us">🇺🇸 美国</SelectItem>
+                    <SelectItem value="cn">🇨🇳 中国</SelectItem>
+                    <SelectItem value="jp">🇯🇵 日本</SelectItem>
+                    <SelectItem value="uk">🇬🇧 英国</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "kuaishou":
+        return (
+          <div className="space-y-4">
+            {getQuantityFilterComponent()}
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">快手平台暂无特殊筛选选项</p>
             </div>
           </div>
         );
@@ -458,11 +627,11 @@ export default function KeywordContentSearch() {
                   Feed类型
                 </label>
                 <Select
-                  value={instagramFilters.feedType}
+                  value={instagramFilters.feed_type}
                   onValueChange={(value) =>
                     setInstagramFilters((prev) => ({
                       ...prev,
-                      feedType: value,
+                      feed_type: value as "top" | "recent",
                     }))
                   }
                 >
@@ -491,9 +660,17 @@ export default function KeywordContentSearch() {
                   搜索类型
                 </label>
                 <Select
-                  value={xFilters.searchType}
+                  value={xFilters.search_type}
                   onValueChange={(value) =>
-                    setXFilters((prev) => ({ ...prev, searchType: value }))
+                    setXFilters((prev) => ({
+                      ...prev,
+                      search_type: value as
+                        | "Top"
+                        | "Latest"
+                        | "Media"
+                        | "People"
+                        | "Lists",
+                    }))
                   }
                 >
                   <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors w-32">
@@ -516,17 +693,8 @@ export default function KeywordContentSearch() {
     }
   };
 
-  const filteredResults = searchResults.filter((result) => {
-    const platformMap = {
-      douyin: "抖音",
-      xiaohongshu: "小红书",
-      bilibili: "哔哩哔哩",
-      tiktok: "TikTok",
-      instagram: "Instagram",
-      x: "X",
-    };
-    return result.platform === platformMap[selectedPlatform];
-  });
+  // Since results are already filtered by platform from API, we use them directly
+  const filteredResults = searchResults;
 
   return (
     <DashboardLayout
@@ -534,7 +702,13 @@ export default function KeywordContentSearch() {
       subtitle="通过关键词搜索各平台相关作品内容"
       actions={
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="h-8">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8"
+            onClick={fetchSearchResults}
+            disabled={!keyword.trim() || isLoadingResults}
+          >
             <RefreshCw className="mr-2 h-3.5 w-3.5" />
             刷新数据
           </Button>
@@ -547,7 +721,7 @@ export default function KeywordContentSearch() {
           onValueChange={setSelectedPlatform}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             {supportedPlatforms.map((platform) => (
               <TabsTrigger
                 key={platform.id}
@@ -618,6 +792,55 @@ export default function KeywordContentSearch() {
                           等热门关键词
                         </p>
                       </div>
+
+                      {/* Error display */}
+                      {error && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                          <p className="text-sm text-red-600">❌ {error}</p>
+                        </div>
+                      )}
+
+                      {/* Task ID display */}
+                      {taskId && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                          <p className="text-sm text-green-600">
+                            ✅ 任务已创建，ID: {taskId}
+                          </p>
+                          <div className="flex items-center justify-between mt-2">
+                            <p className="text-xs text-green-500">
+                              💡 请稍等片刻，然后点击"获取结果"按钮
+                            </p>
+                            <Button
+                              size="sm"
+                              onClick={fetchSearchResults}
+                              disabled={isLoadingResults}
+                              className="h-6 text-xs"
+                            >
+                              {isLoadingResults ? (
+                                <>
+                                  <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                                  获取中...
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="mr-1 h-3 w-3" />
+                                  获取结果
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Loading results indicator */}
+                      {isLoadingResults && (
+                        <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                          <p className="text-sm text-blue-600 flex items-center">
+                            <RefreshCw className="mr-2 h-3 w-3 animate-spin" />
+                            正在加载搜索结果...
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Enhanced Platform-specific filters */}
@@ -645,6 +868,7 @@ export default function KeywordContentSearch() {
                       <span className="flex items-center">
                         <Eye className="mr-2 h-4 w-4" />
                         搜索结果 ({filteredResults.length})
+                        {keyword && <span className="ml-2 text-sm text-gray-500">关键词: "{keyword}"</span>}
                       </span>
                       <Button
                         size="sm"
@@ -693,39 +917,39 @@ export default function KeywordContentSearch() {
                                 <TableCell className="font-medium">
                                   <div
                                     className="max-w-[280px] truncate"
-                                    title={result.title}
+                                    title={result.title || result.description}
                                   >
-                                    {result.title}
+                                    {result.title || result.description}
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-sm">
-                                  {result.author}
+                                  {result.author_name}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                  {result.publishTime}
+                                  {formatDate(result.created_time)}
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">
                                     <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                    {result.views}
+                                    {formatNumber(result.view_count)}
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">
                                     <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                    {result.likes}
+                                    {formatNumber(result.like_count)}
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">
                                     <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                    {result.comments}
+                                    {formatNumber(result.comment_count)}
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">
                                     <Share2 className="h-3 w-3 mr-1 text-purple-500" />
-                                    {result.shares}
+                                    {formatNumber(result.share_count)}
                                   </span>
                                 </TableCell>
                                 <TableCell>

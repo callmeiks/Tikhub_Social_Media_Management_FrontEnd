@@ -228,6 +228,70 @@ interface GetPostsParams {
   sort_by_time?: 0 | 1;
 }
 
+interface DouyinFilters {
+  sort_type?: "0" | "1" | "2";
+  publish_time?: "0" | "1" | "7" | "30";
+  filter_duration?: "0" | "1" | "2" | "3";
+  content_type?: "0" | "1" | "2" | "3";
+}
+
+interface TikTokFilters {
+  sort_type?: "0" | "1";
+  publish_time?: "0" | "1" | "7" | "30";
+}
+
+interface XiaohongshuFilters {
+  sort_type?: "general" | "time_descending" | "popularity_descending";
+  filter_note_type?: "不限" | "视频" | "图文";
+  filter_note_time?: "不限" | "一周内" | "一月内" | "三月内";
+}
+
+interface YouTubeFilters {
+  order_by?: "relevance" | "this_month" | "this_week" | "today";
+  country_code?: string;
+}
+
+interface XFilters {
+  search_type?: "Top" | "Latest" | "Media" | "People" | "Lists";
+}
+
+interface InstagramFilters {
+  feed_type?: "top" | "recent";
+}
+
+interface KuaishouFilters {
+  [key: string]: any;
+}
+
+type SearchFilters =
+  | DouyinFilters
+  | TikTokFilters
+  | XiaohongshuFilters
+  | YouTubeFilters
+  | XFilters
+  | InstagramFilters
+  | KuaishouFilters;
+
+interface KeywordSearchParams {
+  keyword: string;
+  platform:
+    | "douyin"
+    | "tiktok"
+    | "xhs"
+    | "kuaishou"
+    | "youtube"
+    | "x"
+    | "instagram";
+  content_count?: number;
+  filters?: SearchFilters;
+}
+
+interface KeywordSearchResponse {
+  task_id: string;
+  status: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  message: string;
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
@@ -322,6 +386,18 @@ class ApiClient {
     );
   }
 
+  async keywordSearch(
+    params: KeywordSearchParams,
+  ): Promise<KeywordSearchResponse> {
+    return this.request<KeywordSearchResponse>("/keyword-search-post/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    });
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -354,4 +430,14 @@ export type {
   CollectAccountsParams,
   CollectAccountsResponse,
   ApiResponse,
+  KeywordSearchParams,
+  KeywordSearchResponse,
+  SearchFilters,
+  DouyinFilters,
+  TikTokFilters,
+  XiaohongshuFilters,
+  YouTubeFilters,
+  XFilters,
+  InstagramFilters,
+  KuaishouFilters,
 };
