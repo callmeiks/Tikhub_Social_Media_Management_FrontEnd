@@ -64,7 +64,7 @@ export default function ContentDetailWechat() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to WechatArticleData format
       const mappedData: WechatArticleData = {
         id: contentData.id,
@@ -90,41 +90,41 @@ export default function ContentDetailWechat() {
         created_at: contentData.created_at,
         updated_at: contentData.updated_at,
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
       // Fallback to mock data if no data was passed
       setTimeout(() => {
         const mockData: WechatArticleData = {
-        id: "wechat_1",
-        task_id: "task_001",
-        title: "深度解析：2024年互联网行业发展趋势与机遇",
-        author: "科技观察者",
-        publish_type: "原创",
-        publish_source: "科技前沿",
-        author_user_id: "gh_123456789abc",
-        summary:
-          "本文深入分析了2024年互联网行���的发展趋势，包括人工智能、元宇宙、Web3等前沿技术的应用场景和市场机遇。",
-        full_text:
-          "随着技术的不断发展，2024年互联网行业正在经历前所未有的变革。人工智能技术的普及应用，为各行各业带来了新的发展机遇...",
-        images_url: [
-          "https://mmbiz.qpic.cn/mmbiz_jpg/123456/640",
-          "https://mmbiz.qpic.cn/mmbiz_jpg/789012/640",
-        ],
-        word_count: 3500,
-        image_count: 8,
-        has_reference: true,
-        read_count: 25600,
-        like_count: 1250,
-        old_like_count: 1180,
-        comment_count: 89,
-        collect_count: 456,
-        share_count: 123,
-        article_url:
-          "https://mp.weixin.qq.com/s/abcdefghijklmnopqrstuvwxyz123456",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+          id: "wechat_1",
+          task_id: "task_001",
+          title: "深度解析：2024年互联网行业发展趋势与机遇",
+          author: "科技观察者",
+          publish_type: "原创",
+          publish_source: "科技前沿",
+          author_user_id: "gh_123456789abc",
+          summary:
+            "本文深入分析了2024年互联网行���的发展趋势，包括人工智能、元宇宙、Web3等前沿技术的应用场景和市场机遇。",
+          full_text:
+            "随着技术的不断发展，2024年互联网行业正在经历前所未有的变革。人工智能技术的普及应用，为各行各业带来了新的发展机遇...",
+          images_url: [
+            "https://mmbiz.qpic.cn/mmbiz_jpg/123456/640",
+            "https://mmbiz.qpic.cn/mmbiz_jpg/789012/640",
+          ],
+          word_count: 3500,
+          image_count: 8,
+          has_reference: true,
+          read_count: 25600,
+          like_count: 1250,
+          old_like_count: 1180,
+          comment_count: 89,
+          collect_count: 456,
+          share_count: 123,
+          article_url:
+            "https://mp.weixin.qq.com/s/abcdefghijklmnopqrstuvwxyz123456",
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
         };
         setContent(mockData);
         setLoading(false);
@@ -454,7 +454,9 @@ export default function ContentDetailWechat() {
                     <div className="flex items-center">
                       <Link className="h-4 w-4 mr-2" />
                       <button
-                        onClick={() => window.open(content.article_url, "_blank")}
+                        onClick={() =>
+                          window.open(content.article_url, "_blank")
+                        }
                         className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
                       >
                         查看文章链接
@@ -476,7 +478,6 @@ export default function ContentDetailWechat() {
 
           <TabsContent value="content" className="mt-6">
             <div className="space-y-6">
-
               {/* 文章正文内容 */}
               <Card>
                 <CardHeader>
@@ -490,23 +491,70 @@ export default function ContentDetailWechat() {
                     <ReactMarkdown
                       className="text-sm leading-relaxed"
                       components={{
-                        h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-xl font-semibold mt-5 mb-3 text-gray-800">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2 text-gray-700">{children}</h3>,
-                        p: ({ children }) => <p className="mb-4 text-gray-600 leading-relaxed">{children}</p>,
-                        ul: ({ children }) => <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal list-inside mb-4 space-y-1">{children}</ol>,
-                        li: ({ children }) => <li className="text-gray-600">{children}</li>,
-                        blockquote: ({ children }) => <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 text-gray-700 italic">{children}</blockquote>,
-                        code: ({ children }) => <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">{children}</code>,
-                        pre: ({ children }) => <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>,
-                        a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">{children}</a>,
+                        h1: ({ children }) => (
+                          <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900">
+                            {children}
+                          </h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2 className="text-xl font-semibold mt-5 mb-3 text-gray-800">
+                            {children}
+                          </h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3 className="text-lg font-medium mt-4 mb-2 text-gray-700">
+                            {children}
+                          </h3>
+                        ),
+                        p: ({ children }) => (
+                          <p className="mb-4 text-gray-600 leading-relaxed">
+                            {children}
+                          </p>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="list-disc list-inside mb-4 space-y-1">
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="list-decimal list-inside mb-4 space-y-1">
+                            {children}
+                          </ol>
+                        ),
+                        li: ({ children }) => (
+                          <li className="text-gray-600">{children}</li>
+                        ),
+                        blockquote: ({ children }) => (
+                          <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 text-gray-700 italic">
+                            {children}
+                          </blockquote>
+                        ),
+                        code: ({ children }) => (
+                          <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
+                            {children}
+                          </code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">
+                            {children}
+                          </pre>
+                        ),
+                        a: ({ children, href }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            {children}
+                          </a>
+                        ),
                         img: ({ src, alt }) => (
-                          <img 
-                            src={src} 
-                            alt={alt} 
+                          <img
+                            src={src}
+                            alt={alt}
                             className="max-w-full h-auto rounded-lg my-4 cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => window.open(src, '_blank')}
+                            onClick={() => window.open(src, "_blank")}
                           />
                         ),
                       }}
@@ -518,7 +566,6 @@ export default function ContentDetailWechat() {
               </Card>
             </div>
           </TabsContent>
-
 
           <TabsContent value="analytics" className="mt-6">
             <Card>

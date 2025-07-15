@@ -92,48 +92,54 @@ export default function TitleGenerator() {
 
     setIsGenerating(true);
     setResults([]); // 清空之前的结果
-    
+
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
-      const response = await fetch(`${apiBaseUrl}/api/title-generator/generate`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
-          'Content-Type': 'application/json'
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+      const response = await fetch(
+        `${apiBaseUrl}/api/title-generator/generate`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: inputText,
+            platform: activePlatform,
+            types: selectedTypes,
+            count: titleCount,
+            max_length: maxLength,
+          }),
         },
-        body: JSON.stringify({
-          content: inputText,
-          platform: activePlatform,
-          types: selectedTypes,
-          count: titleCount,
-          max_length: maxLength
-        })
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`API请求失败: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('API响应数据:', data); // 调试日志
-      
+      console.log("API响应数据:", data); // 调试日志
+
       // 设置生成的标题结果
       if (data.titles && Array.isArray(data.titles)) {
         setResults(data.titles);
       } else if (Array.isArray(data)) {
         setResults(data);
       } else {
-        throw new Error('API返回的数据格式不正确');
+        throw new Error("API返回的数据格式不正确");
       }
     } catch (error) {
-      console.error('生成标题失败:', error);
+      console.error("生成标题失败:", error);
       // 显示错误信息
-      setResults([{
-        title: `❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}`,
-        score: 0,
-        tags: ['error']
-      }]);
+      setResults([
+        {
+          title: `❌ 生成失败：${error instanceof Error ? error.message : "未知错误"}`,
+          score: 0,
+          tags: ["error"],
+        },
+      ]);
     } finally {
       setIsGenerating(false);
     }
@@ -150,11 +156,11 @@ export default function TitleGenerator() {
   };
 
   const toggleTitleType = (typeId: string) => {
-    setSelectedTypes(prev => {
+    setSelectedTypes((prev) => {
       if (prev.includes(typeId)) {
         // 至少保留一个类型
         if (prev.length > 1) {
-          return prev.filter(id => id !== typeId);
+          return prev.filter((id) => id !== typeId);
         }
         return prev;
       } else {
@@ -251,7 +257,9 @@ export default function TitleGenerator() {
                       <Button
                         key={type.id}
                         variant={
-                          selectedTypes.includes(type.id) ? "default" : "outline"
+                          selectedTypes.includes(type.id)
+                            ? "default"
+                            : "outline"
                         }
                         size="sm"
                         className="h-8 text-xs justify-start"
@@ -280,7 +288,7 @@ export default function TitleGenerator() {
                       建议生成1-50个标题
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">最大长度</label>
                     <Input
@@ -390,7 +398,7 @@ export default function TitleGenerator() {
                                 {result.score}分
                               </span>
                             )}
-                            {!result.title.startsWith('❌') && (
+                            {!result.title.startsWith("❌") && (
                               <Button
                                 variant="ghost"
                                 size="sm"

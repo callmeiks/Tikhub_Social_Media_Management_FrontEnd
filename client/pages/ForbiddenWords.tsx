@@ -66,7 +66,7 @@ export default function ForbiddenWords() {
   const [isAudioChecking, setIsAudioChecking] = useState(false);
   const [documentText, setDocumentText] = useState("");
   const [audioText, setAudioText] = useState("");
-  
+
   const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
 
   const handleCheck = async () => {
@@ -75,35 +75,44 @@ export default function ForbiddenWords() {
     setIsChecking(true);
     try {
       // 调用文本检测API
-      const response = await fetch('http://127.0.0.1:8000/api/prohibited-words/detect-text', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${AUTH_TOKEN}`,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/prohibited-words/detect-text",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: inputText,
+            detection_types: [
+              "political",
+              "violence",
+              "adult",
+              "gambling",
+              "drugs",
+            ],
+            strictness: "medium",
+            language: "mandarin",
+          }),
         },
-        body: JSON.stringify({
-          text: inputText,
-          detection_types: ['political', 'violence', 'adult', 'gambling', 'drugs'],
-          strictness: 'medium',
-          language: 'mandarin'
-        })
-      });
-      
+      );
+
       if (response.ok) {
         const result = await response.json();
         // 处理检测结果
         setShowResults(true);
       }
     } catch (error) {
-      console.error('检测失败:', error);
+      console.error("检测失败:", error);
     } finally {
       setIsChecking(false);
     }
   };
-  
+
   const handleDocumentCheck = async () => {
     if (!selectedFile) return;
-    
+
     setIsDocumentChecking(true);
     try {
       // 这里应该先解析文档内容，然后调用文本检测API
@@ -115,54 +124,57 @@ export default function ForbiddenWords() {
         // 然后可以调用handleCheck()进行检测
       }, 2000);
     } catch (error) {
-      console.error('文档检测失败:', error);
+      console.error("文档检测失败:", error);
       setIsDocumentChecking(false);
     }
   };
-  
+
   const handleAudioCheck = async () => {
     if (!audioFile) return;
-    
+
     setIsAudioChecking(true);
     try {
       const formData = new FormData();
-      formData.append('type', 'file');
-      formData.append('file', audioFile);
-      formData.append('detection_types', 'political');
-      formData.append('detection_types', 'violence');
-      formData.append('detection_types', 'adult');
-      formData.append('strictness', 'medium');
-      formData.append('language', 'mandarin');
-      formData.append('include_transcript', 'true');
-      
-      const response = await fetch('http://127.0.0.1:8000/api/prohibited-words/detect-audio', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${AUTH_TOKEN}`,
+      formData.append("type", "file");
+      formData.append("file", audioFile);
+      formData.append("detection_types", "political");
+      formData.append("detection_types", "violence");
+      formData.append("detection_types", "adult");
+      formData.append("strictness", "medium");
+      formData.append("language", "mandarin");
+      formData.append("include_transcript", "true");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/prohibited-words/detect-audio",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+          body: formData,
         },
-        body: formData
-      });
-      
+      );
+
       if (response.ok) {
         const result = await response.json();
-        setAudioText(result.transcript || '');
-        setInputText(result.transcript || '');
+        setAudioText(result.transcript || "");
+        setInputText(result.transcript || "");
         setShowResults(true);
       }
     } catch (error) {
-      console.error('音频检测失败:', error);
+      console.error("音频检测失败:", error);
     } finally {
       setIsAudioChecking(false);
     }
   };
-  
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
     }
   };
-  
+
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -324,7 +336,9 @@ export default function ForbiddenWords() {
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          {selectedFile ? selectedFile.name : "上传文档文件进行检测"}
+                          {selectedFile
+                            ? selectedFile.name
+                            : "上传文档文件进行检测"}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
                           支持 .txt, .doc, .docx, .pdf 格式，最大10MB
@@ -346,7 +360,7 @@ export default function ForbiddenWords() {
                             </Button>
                           </label>
                           {selectedFile && (
-                            <Button 
+                            <Button
                               size="sm"
                               onClick={handleDocumentCheck}
                               disabled={isDocumentChecking}
@@ -388,7 +402,8 @@ export default function ForbiddenWords() {
                           {audioFile ? audioFile.name : "上传音频文件进行检测"}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
-                          支持 .mp3, .wav, .flac, .aac, .opus, .ogg, .m4a 格式，最大50MB
+                          支持 .mp3, .wav, .flac, .aac, .opus, .ogg, .m4a
+                          格式，最大50MB
                         </p>
                         <div className="flex space-x-2 justify-center">
                           <input
@@ -407,7 +422,7 @@ export default function ForbiddenWords() {
                             </Button>
                           </label>
                           {audioFile && (
-                            <Button 
+                            <Button
                               size="sm"
                               onClick={handleAudioCheck}
                               disabled={isAudioChecking}

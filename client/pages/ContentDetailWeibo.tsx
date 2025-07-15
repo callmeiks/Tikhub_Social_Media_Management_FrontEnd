@@ -64,12 +64,14 @@ export default function ContentDetailWeibo() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to WeiboPostData format
       const mappedData: WeiboPostData = {
         id: contentData.id || "weibo_" + Date.now(),
         task_id: contentData.task_id || "",
-        create_time: contentData.create_time || new Date().toISOString().replace('T', ' ').slice(0, 19),
+        create_time:
+          contentData.create_time ||
+          new Date().toISOString().replace("T", " ").slice(0, 19),
         post_id: contentData.post_id || "",
         mblogid: contentData.mblogid || "",
         author_id: contentData.author_id || "",
@@ -90,7 +92,7 @@ export default function ContentDetailWeibo() {
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -419,7 +421,6 @@ export default function ContentDetailWeibo() {
                     </div>
                   </div>
 
-
                   {/* 其他属性 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center">
@@ -452,14 +453,14 @@ export default function ContentDetailWeibo() {
             <TabsTrigger value="analytics">数据分析</TabsTrigger>
           </TabsList>
 
-
           <TabsContent value="media" className="mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   媒体资源详情
-                  {((content.images_urls && content.images_urls.length > 0) || 
-                    (content.video_play_urls && content.video_play_urls.length > 0)) && (
+                  {((content.images_urls && content.images_urls.length > 0) ||
+                    (content.video_play_urls &&
+                      content.video_play_urls.length > 0)) && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -467,12 +468,18 @@ export default function ContentDetailWeibo() {
                         const downloadAll = async () => {
                           // Download images
                           if (content.images_urls) {
-                            for (let i = 0; i < content.images_urls.length; i++) {
+                            for (
+                              let i = 0;
+                              i < content.images_urls.length;
+                              i++
+                            ) {
                               try {
-                                const response = await fetch(content.images_urls[i]);
+                                const response = await fetch(
+                                  content.images_urls[i],
+                                );
                                 const blob = await response.blob();
                                 const url = window.URL.createObjectURL(blob);
-                                const link = document.createElement('a');
+                                const link = document.createElement("a");
                                 link.href = url;
                                 link.download = `weibo_image_${i + 1}.jpg`;
                                 document.body.appendChild(link);
@@ -480,26 +487,40 @@ export default function ContentDetailWeibo() {
                                 document.body.removeChild(link);
                                 window.URL.revokeObjectURL(url);
                                 // 稍微延迟避免同时下载太多文件
-                                await new Promise(resolve => setTimeout(resolve, 200));
+                                await new Promise((resolve) =>
+                                  setTimeout(resolve, 200),
+                                );
                               } catch (error) {
-                                console.error(`Failed to download image ${i + 1}:`, error);
+                                console.error(
+                                  `Failed to download image ${i + 1}:`,
+                                  error,
+                                );
                               }
                             }
                           }
                           // Download videos
                           if (content.video_play_urls) {
-                            for (let i = 0; i < content.video_play_urls.length; i++) {
+                            for (
+                              let i = 0;
+                              i < content.video_play_urls.length;
+                              i++
+                            ) {
                               try {
-                                const link = document.createElement('a');
+                                const link = document.createElement("a");
                                 link.href = content.video_play_urls[i];
                                 link.download = `weibo_video_${i + 1}.mp4`;
-                                link.target = '_blank';
+                                link.target = "_blank";
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);
-                                await new Promise(resolve => setTimeout(resolve, 200));
+                                await new Promise((resolve) =>
+                                  setTimeout(resolve, 200),
+                                );
                               } catch (error) {
-                                console.error(`Failed to download video ${i + 1}:`, error);
+                                console.error(
+                                  `Failed to download video ${i + 1}:`,
+                                  error,
+                                );
                               }
                             }
                           }
@@ -532,7 +553,7 @@ export default function ContentDetailWeibo() {
                               src={url}
                               alt={`图片 ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
-                              onClick={() => window.open(url, '_blank')}
+                              onClick={() => window.open(url, "_blank")}
                             />
                             <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                               {index + 1}
@@ -545,10 +566,11 @@ export default function ContentDetailWeibo() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   fetch(url)
-                                    .then(response => response.blob())
-                                    .then(blob => {
-                                      const downloadUrl = window.URL.createObjectURL(blob);
-                                      const link = document.createElement('a');
+                                    .then((response) => response.blob())
+                                    .then((blob) => {
+                                      const downloadUrl =
+                                        window.URL.createObjectURL(blob);
+                                      const link = document.createElement("a");
                                       link.href = downloadUrl;
                                       link.download = `weibo_image_${index + 1}.jpg`;
                                       document.body.appendChild(link);
@@ -556,7 +578,9 @@ export default function ContentDetailWeibo() {
                                       document.body.removeChild(link);
                                       window.URL.revokeObjectURL(downloadUrl);
                                     })
-                                    .catch(error => console.error('Download failed:', error));
+                                    .catch((error) =>
+                                      console.error("Download failed:", error),
+                                    );
                                 }}
                               >
                                 <Download className="h-3 w-3" />
@@ -600,10 +624,10 @@ export default function ContentDetailWeibo() {
                                   variant="secondary"
                                   className="h-6 w-6 p-0 mr-1"
                                   onClick={() => {
-                                    const link = document.createElement('a');
+                                    const link = document.createElement("a");
                                     link.href = url;
                                     link.download = `weibo_video_${index + 1}.mp4`;
-                                    link.target = '_blank';
+                                    link.target = "_blank";
                                     document.body.appendChild(link);
                                     link.click();
                                     document.body.removeChild(link);

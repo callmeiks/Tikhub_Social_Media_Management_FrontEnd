@@ -139,14 +139,15 @@ export default function ContentDetailBilibili() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to BilibiliVideoData format
       const mappedData: BilibiliVideoData = {
         id: contentData.id || "bilibili_" + Date.now(),
         task_id: contentData.task_id || "",
         bvid: contentData.bvid || "",
         aid: contentData.aid || 0,
-        is_video: contentData.is_video !== undefined ? contentData.is_video : true,
+        is_video:
+          contentData.is_video !== undefined ? contentData.is_video : true,
         tid: contentData.tid || 0,
         tid_v2: contentData.tid_v2 || 0,
         tname: contentData.tname || "未知分类",
@@ -161,7 +162,10 @@ export default function ContentDetailBilibili() {
         is_pay_content: contentData.is_pay_content || false,
         is_360_view: contentData.is_360_view || false,
         allow_reprint: contentData.allow_reprint || false,
-        allow_share: contentData.allow_share !== undefined ? contentData.allow_share : true,
+        allow_share:
+          contentData.allow_share !== undefined
+            ? contentData.allow_share
+            : true,
         is_cooperation: contentData.is_cooperation || false,
         is_ugc_pay: contentData.is_ugc_pay || false,
         is_arc_pay: contentData.is_arc_pay || false,
@@ -201,7 +205,7 @@ export default function ContentDetailBilibili() {
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -218,7 +222,8 @@ export default function ContentDetailBilibili() {
           tname: "人文历史",
           tname_v2: "美食综合",
           has_copyright: true,
-          video_cover_url: "http://i1.hdslb.com/bfs/archive/3fc237e9822c44ab7db62a4c01701ae457d14f86.jpg",
+          video_cover_url:
+            "http://i1.hdslb.com/bfs/archive/3fc237e9822c44ab7db62a4c01701ae457d14f86.jpg",
           title: "简单+粗暴=美国人的饮食 ——美国人的疯狂餐桌",
           publish_time: 1752199200,
           duration: 602,
@@ -233,7 +238,8 @@ export default function ContentDetailBilibili() {
           is_arc_pay: false,
           author_mid: 53737196,
           author_name: "食事史馆",
-          author_avatar: "https://i2.hdslb.com/bfs/face/caa9d6afe048e20f2fc706ae43323da16c3e4241.jpg",
+          author_avatar:
+            "https://i2.hdslb.com/bfs/face/caa9d6afe048e20f2fc706ae43323da16c3e4241.jpg",
           view_count: 650839,
           danmaku_count: 1260,
           reply_count: 619,
@@ -252,7 +258,8 @@ export default function ContentDetailBilibili() {
           is_upower_preview: false,
           ugc_season_id: 557462,
           ugc_season_title: "连播哄睡合集",
-          ugc_season_cover: "https://archive.biliimg.com/bfs/archive/e6f76c188fc7a431d6a8c63de038992f0533d2a1.jpg",
+          ugc_season_cover:
+            "https://archive.biliimg.com/bfs/archive/e6f76c188fc7a431d6a8c63de038992f0533d2a1.jpg",
           season_view_count: 195991584,
           season_danmaku_count: 434446,
           season_reply_count: 135759,
@@ -262,8 +269,10 @@ export default function ContentDetailBilibili() {
           season_like_count: 6032481,
           episode_count: 125,
           is_pay_season: false,
-          video_play_url: "https://xy120x196x203x226xy.mcdn.bilivideo.cn:8082/v1/resource/30953374095-1-100050.m4s",
-          audio_play_url: "https://xy122x191x18x180xy.mcdn.bilivideo.cn:8082/v1/resource/30953374095-1-30232.m4s",
+          video_play_url:
+            "https://xy120x196x203x226xy.mcdn.bilivideo.cn:8082/v1/resource/30953374095-1-100050.m4s",
+          audio_play_url:
+            "https://xy122x191x18x180xy.mcdn.bilivideo.cn:8082/v1/resource/30953374095-1-30232.m4s",
           created_at: "2024-01-20T10:30:00",
           updated_at: "2024-01-20T10:30:00",
         };
@@ -290,11 +299,11 @@ export default function ContentDetailBilibili() {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
-      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleCopyUrl = () => {
@@ -318,29 +327,29 @@ export default function ContentDetailBilibili() {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet([
       {
-        "视频BV号": content.bvid,
-        "视频AV号": content.aid,
-        "视频标题": content.title,
-        "UP主": content.author_name,
-        "UP主ID": content.author_mid,
-        "一级分区": content.tname,
-        "二级分区": content.tname_v2,
-        "播放量": content.view_count,
-        "点赞数": content.like_count,
-        "投币数": content.coin_count,
-        "收藏数": content.favorite_count,
-        "弹幕数": content.danmaku_count,
-        "评论数": content.reply_count,
-        "分享数": content.share_count,
-        "踩数": content.dislike_count,
+        视频BV号: content.bvid,
+        视频AV号: content.aid,
+        视频标题: content.title,
+        UP主: content.author_name,
+        UP主ID: content.author_mid,
+        一级分区: content.tname,
+        二级分区: content.tname_v2,
+        播放量: content.view_count,
+        点赞数: content.like_count,
+        投币数: content.coin_count,
+        收藏数: content.favorite_count,
+        弹幕数: content.danmaku_count,
+        评论数: content.reply_count,
+        分享数: content.share_count,
+        踩数: content.dislike_count,
         "时长(秒)": content.duration,
-        "发布时间": new Date(content.publish_time * 1000).toLocaleString('zh-CN'),
-        "是否原创": content.has_copyright ? "是" : "否",
-        "是否付费": content.is_pay_content ? "是" : "否",
-        "允许下载": content.allow_download ? "是" : "否",
-        "允许转载": content.allow_reprint ? "是" : "否",
-        "合集名称": content.ugc_season_title || "无",
-        "合集总集数": content.episode_count || 0,
+        发布时间: new Date(content.publish_time * 1000).toLocaleString("zh-CN"),
+        是否原创: content.has_copyright ? "是" : "否",
+        是否付费: content.is_pay_content ? "是" : "否",
+        允许下载: content.allow_download ? "是" : "否",
+        允许转载: content.allow_reprint ? "是" : "否",
+        合集名称: content.ugc_season_title || "无",
+        合集总集数: content.episode_count || 0,
       },
     ]);
 
@@ -399,27 +408,42 @@ export default function ContentDetailBilibili() {
     },
     {
       metric: "点赞率",
-      value: content.view_count > 0 ? (content.like_count / content.view_count) * 100 : 0,
+      value:
+        content.view_count > 0
+          ? (content.like_count / content.view_count) * 100
+          : 0,
       fullMark: 100,
     },
     {
       metric: "投币率",
-      value: content.view_count > 0 ? (content.coin_count / content.view_count) * 100 : 0,
+      value:
+        content.view_count > 0
+          ? (content.coin_count / content.view_count) * 100
+          : 0,
       fullMark: 100,
     },
     {
       metric: "收藏率",
-      value: content.view_count > 0 ? (content.favorite_count / content.view_count) * 100 : 0,
+      value:
+        content.view_count > 0
+          ? (content.favorite_count / content.view_count) * 100
+          : 0,
       fullMark: 100,
     },
     {
       metric: "弹幕密度",
-      value: content.duration > 0 ? Math.min((content.danmaku_count / content.duration) * 10, 100) : 0,
+      value:
+        content.duration > 0
+          ? Math.min((content.danmaku_count / content.duration) * 10, 100)
+          : 0,
       fullMark: 100,
     },
     {
       metric: "评论活跃度",
-      value: content.view_count > 0 ? Math.min((content.reply_count / content.view_count) * 1000, 100) : 0,
+      value:
+        content.view_count > 0
+          ? Math.min((content.reply_count / content.view_count) * 1000, 100)
+          : 0,
       fullMark: 100,
     },
   ];
@@ -456,9 +480,17 @@ export default function ContentDetailBilibili() {
   ];
 
   // Calculate engagement rate
-  const engagementRate = content.view_count > 0
-    ? ((content.like_count + content.coin_count + content.favorite_count + content.share_count) / content.view_count * 100).toFixed(2)
-    : "0";
+  const engagementRate =
+    content.view_count > 0
+      ? (
+          ((content.like_count +
+            content.coin_count +
+            content.favorite_count +
+            content.share_count) /
+            content.view_count) *
+          100
+        ).toFixed(2)
+      : "0";
 
   return (
     <DashboardLayout>
@@ -530,12 +562,16 @@ export default function ContentDetailBilibili() {
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">时长</span>
-                    <span className="font-medium">{formatDuration(content.duration)}</span>
+                    <span className="font-medium">
+                      {formatDuration(content.duration)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">发布时间</span>
                     <span className="font-medium">
-                      {new Date(content.publish_time * 1000).toLocaleDateString('zh-CN')}
+                      {new Date(content.publish_time * 1000).toLocaleDateString(
+                        "zh-CN",
+                      )}
                     </span>
                   </div>
                 </div>
@@ -571,32 +607,60 @@ export default function ContentDetailBilibili() {
                   </Avatar>
                   <div>
                     <p className="font-medium">{content.author_name}</p>
-                    <p className="text-sm text-muted-foreground">UID: {content.author_mid}</p>
+                    <p className="text-sm text-muted-foreground">
+                      UID: {content.author_mid}
+                    </p>
                   </div>
                 </div>
 
                 {/* Permissions */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  <Badge variant={content.allow_download ? "default" : "secondary"}>
-                    {content.allow_download ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={content.allow_download ? "default" : "secondary"}
+                  >
+                    {content.allow_download ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.allow_download ? "允许下载" : "禁止下载"}
                   </Badge>
-                  <Badge variant={content.allow_share ? "default" : "secondary"}>
-                    {content.allow_share ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={content.allow_share ? "default" : "secondary"}
+                  >
+                    {content.allow_share ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.allow_share ? "允许分享" : "禁止分享"}
                   </Badge>
-                  <Badge variant={content.allow_reprint ? "default" : "secondary"}>
-                    {content.allow_reprint ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={content.allow_reprint ? "default" : "secondary"}
+                  >
+                    {content.allow_reprint ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.allow_reprint ? "允许转载" : "禁止转载"}
                   </Badge>
-                  <Badge variant={content.is_pay_content ? "destructive" : "default"}>
-                    {content.is_pay_content ? <DollarSign className="mr-1 h-3 w-3" /> : <Unlock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={content.is_pay_content ? "destructive" : "default"}
+                  >
+                    {content.is_pay_content ? (
+                      <DollarSign className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    )}
                     {content.is_pay_content ? "付费内容" : "免费观看"}
                   </Badge>
                 </div>
 
                 {/* Special Tags */}
-                {(content.is_movie || content.is_360_view || content.is_story) && (
+                {(content.is_movie ||
+                  content.is_360_view ||
+                  content.is_story) && (
                   <div className="flex items-center space-x-2">
                     {content.is_movie && (
                       <Badge variant="outline">
@@ -667,7 +731,9 @@ export default function ContentDetailBilibili() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
@@ -676,7 +742,9 @@ export default function ContentDetailBilibili() {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value: number) => formatNumber(value)} />
+                      <Tooltip
+                        formatter={(value: number) => formatNumber(value)}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -693,7 +761,9 @@ export default function ContentDetailBilibili() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
-                      <Tooltip formatter={(value: number) => formatNumber(value)} />
+                      <Tooltip
+                        formatter={(value: number) => formatNumber(value)}
+                      />
                       <Bar dataKey="value" fill="#8884d8">
                         {interactionData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -843,24 +913,44 @@ export default function ContentDetailBilibili() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-muted-foreground">总互动率</p>
-                    <p className="text-2xl font-bold text-blue-600 mt-1">{engagementRate}%</p>
+                    <p className="text-2xl font-bold text-blue-600 mt-1">
+                      {engagementRate}%
+                    </p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-muted-foreground">点赞率</p>
                     <p className="text-xl font-bold mt-1">
-                      {content.view_count > 0 ? ((content.like_count / content.view_count) * 100).toFixed(2) : 0}%
+                      {content.view_count > 0
+                        ? (
+                            (content.like_count / content.view_count) *
+                            100
+                          ).toFixed(2)
+                        : 0}
+                      %
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-muted-foreground">投币率</p>
                     <p className="text-xl font-bold mt-1">
-                      {content.view_count > 0 ? ((content.coin_count / content.view_count) * 100).toFixed(2) : 0}%
+                      {content.view_count > 0
+                        ? (
+                            (content.coin_count / content.view_count) *
+                            100
+                          ).toFixed(2)
+                        : 0}
+                      %
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-muted-foreground">收藏率</p>
                     <p className="text-xl font-bold mt-1">
-                      {content.view_count > 0 ? ((content.favorite_count / content.view_count) * 100).toFixed(2) : 0}%
+                      {content.view_count > 0
+                        ? (
+                            (content.favorite_count / content.view_count) *
+                            100
+                          ).toFixed(2)
+                        : 0}
+                      %
                     </p>
                   </div>
                 </div>
@@ -887,15 +977,17 @@ export default function ContentDetailBilibili() {
                       </div>
                       <div className="space-y-3">
                         <div>
-                          <h3 className="font-bold text-lg">{content.ugc_season_title}</h3>
+                          <h3 className="font-bold text-lg">
+                            {content.ugc_season_title}
+                          </h3>
                           <p className="text-sm text-muted-foreground">
                             合集ID: {content.ugc_season_id}
                           </p>
                         </div>
                         <div className="flex items-center space-x-4">
                           <Badge variant="outline">
-                            <Layers className="mr-1 h-3 w-3" />
-                            共 {content.episode_count} 集
+                            <Layers className="mr-1 h-3 w-3" />共{" "}
+                            {content.episode_count} 集
                           </Badge>
                           {content.is_pay_season && (
                             <Badge variant="destructive">
@@ -918,33 +1010,57 @@ export default function ContentDetailBilibili() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <Eye className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总播放量</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_view_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总播放量
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_view_count)}
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <Heart className="h-6 w-6 text-pink-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总点赞数</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_like_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总点赞数
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_like_count)}
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <Coins className="h-6 w-6 text-yellow-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总投币数</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_coin_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总投币数
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_coin_count)}
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <Star className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总收藏数</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_favorite_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总收藏数
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_favorite_count)}
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <MessageSquare className="h-6 w-6 text-green-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总弹幕数</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_danmaku_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总弹幕数
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_danmaku_count)}
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <MessageCircle className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">总评论数</p>
-                        <p className="text-xl font-bold">{formatNumber(content.season_reply_count)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          总评论数
+                        </p>
+                        <p className="text-xl font-bold">
+                          {formatNumber(content.season_reply_count)}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -976,11 +1092,15 @@ export default function ContentDetailBilibili() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">SEO播放量</TableCell>
-                      <TableCell>{formatNumber(content.viewseo_count)}</TableCell>
+                      <TableCell>
+                        {formatNumber(content.viewseo_count)}
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">青少年模式</TableCell>
-                      <TableCell>{content.teenage_mode === 0 ? "关闭" : "开启"}</TableCell>
+                      <TableCell>
+                        {content.teenage_mode === 0 ? "关闭" : "开启"}
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">UP主充电</TableCell>
@@ -997,7 +1117,11 @@ export default function ContentDetailBilibili() {
                     <TableRow>
                       <TableCell className="font-medium">UGC付费</TableCell>
                       <TableCell>
-                        <Badge variant={content.is_ugc_pay ? "destructive" : "outline"}>
+                        <Badge
+                          variant={
+                            content.is_ugc_pay ? "destructive" : "outline"
+                          }
+                        >
                           {content.is_ugc_pay ? "付费内容" : "免费内容"}
                         </Badge>
                       </TableCell>
@@ -1005,13 +1129,19 @@ export default function ContentDetailBilibili() {
                     <TableRow>
                       <TableCell className="font-medium">ARC付费</TableCell>
                       <TableCell>
-                        <Badge variant={content.is_arc_pay ? "destructive" : "outline"}>
+                        <Badge
+                          variant={
+                            content.is_arc_pay ? "destructive" : "outline"
+                          }
+                        >
                           {content.is_arc_pay ? "付费内容" : "免费内容"}
                         </Badge>
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">视频播放链接</TableCell>
+                      <TableCell className="font-medium">
+                        视频播放链接
+                      </TableCell>
                       <TableCell>
                         {content.video_play_url ? (
                           <a
@@ -1028,7 +1158,9 @@ export default function ContentDetailBilibili() {
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">音频播放链接</TableCell>
+                      <TableCell className="font-medium">
+                        音频播放链接
+                      </TableCell>
                       <TableCell>
                         {content.audio_play_url ? (
                           <a
@@ -1046,11 +1178,15 @@ export default function ContentDetailBilibili() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">创建时间</TableCell>
-                      <TableCell>{new Date(content.created_at).toLocaleString('zh-CN')}</TableCell>
+                      <TableCell>
+                        {new Date(content.created_at).toLocaleString("zh-CN")}
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">更新时间</TableCell>
-                      <TableCell>{new Date(content.updated_at).toLocaleString('zh-CN')}</TableCell>
+                      <TableCell>
+                        {new Date(content.updated_at).toLocaleString("zh-CN")}
+                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

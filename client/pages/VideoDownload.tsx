@@ -79,7 +79,9 @@ export default function VideoDownload() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isDeletingTasks, setIsDeletingTasks] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<string>("all");
-  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<string[]>([]);
+  const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<
+    string[]
+  >([]);
   const [isDeletingHistoryTasks, setIsDeletingHistoryTasks] = useState(false);
 
   const fetchDownloadTasks = async () => {
@@ -93,7 +95,7 @@ export default function VideoDownload() {
             accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -140,12 +142,14 @@ export default function VideoDownload() {
           body: JSON.stringify({
             task_ids: selectedTaskIds,
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(`成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`);
+        toast.success(
+          `成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`,
+        );
         setSelectedTaskIds([]);
         fetchDownloadTasks();
       } else {
@@ -161,15 +165,15 @@ export default function VideoDownload() {
 
   const handleSelectTask = (taskId: string, checked: boolean) => {
     if (checked) {
-      setSelectedTaskIds(prev => [...prev, taskId]);
+      setSelectedTaskIds((prev) => [...prev, taskId]);
     } else {
-      setSelectedTaskIds(prev => prev.filter(id => id !== taskId));
+      setSelectedTaskIds((prev) => prev.filter((id) => id !== taskId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTaskIds(queueTasks.map(task => task.task_id));
+      setSelectedTaskIds(queueTasks.map((task) => task.task_id));
     } else {
       setSelectedTaskIds([]);
     }
@@ -196,12 +200,14 @@ export default function VideoDownload() {
           body: JSON.stringify({
             task_ids: selectedHistoryTaskIds,
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(`成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`);
+        toast.success(
+          `成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`,
+        );
         setSelectedHistoryTaskIds([]);
         fetchDownloadTasks();
       } else {
@@ -217,15 +223,15 @@ export default function VideoDownload() {
 
   const handleSelectHistoryTask = (taskId: string, checked: boolean) => {
     if (checked) {
-      setSelectedHistoryTaskIds(prev => [...prev, taskId]);
+      setSelectedHistoryTaskIds((prev) => [...prev, taskId]);
     } else {
-      setSelectedHistoryTaskIds(prev => prev.filter(id => id !== taskId));
+      setSelectedHistoryTaskIds((prev) => prev.filter((id) => id !== taskId));
     }
   };
 
   const handleSelectAllHistory = (checked: boolean) => {
     if (checked) {
-      setSelectedHistoryTaskIds(historyTasks.map(task => task.task_id));
+      setSelectedHistoryTaskIds(historyTasks.map((task) => task.task_id));
     } else {
       setSelectedHistoryTaskIds([]);
     }
@@ -270,7 +276,7 @@ export default function VideoDownload() {
             },
             urls: urls,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -375,23 +381,31 @@ export default function VideoDownload() {
   ).length;
 
   const queueTasks = downloadList.filter(
-    (item) => item.status === "queued" || item.status === "processing" || item.status === "pending"
+    (item) =>
+      item.status === "queued" ||
+      item.status === "processing" ||
+      item.status === "pending",
   );
-  
+
   const allHistoryTasks = downloadList.filter(
-    (item) => item.status === "completed" || item.status === "failed" || item.status === "cancelled"
+    (item) =>
+      item.status === "completed" ||
+      item.status === "failed" ||
+      item.status === "cancelled",
   );
 
   const getFilteredHistoryTasks = () => {
     switch (historyFilter) {
       case "completed":
-        return allHistoryTasks.filter(task => task.status === "completed");
+        return allHistoryTasks.filter((task) => task.status === "completed");
       case "failed":
-        return allHistoryTasks.filter(task => task.status === "failed");
+        return allHistoryTasks.filter((task) => task.status === "failed");
       case "cancelled":
-        return allHistoryTasks.filter(task => task.status === "cancelled");
+        return allHistoryTasks.filter((task) => task.status === "cancelled");
       case "failed-cancelled":
-        return allHistoryTasks.filter(task => task.status === "failed" || task.status === "cancelled");
+        return allHistoryTasks.filter(
+          (task) => task.status === "failed" || task.status === "cancelled",
+        );
       case "all":
       default:
         return allHistoryTasks;
@@ -606,9 +620,7 @@ https://www.bilibili.com/video/BV1234567890
                       <span className="text-sm text-muted-foreground">
                         排队中
                       </span>
-                      <span className="text-sm font-medium">
-                        {queuedCount}
-                      </span>
+                      <span className="text-sm font-medium">{queuedCount}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
@@ -639,7 +651,9 @@ https://www.bilibili.com/video/BV1234567890
                           variant="destructive"
                           size="sm"
                           className="h-7"
-                          disabled={selectedTaskIds.length === 0 || isDeletingTasks}
+                          disabled={
+                            selectedTaskIds.length === 0 || isDeletingTasks
+                          }
                           onClick={handleBatchDelete}
                         >
                           {isDeletingTasks ? (
@@ -693,7 +707,9 @@ https://www.bilibili.com/video/BV1234567890
                   <div className="text-center py-8">
                     <FileVideo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">队列为空</h3>
-                    <p className="text-muted-foreground">暂无正在处理的下载任务</p>
+                    <p className="text-muted-foreground">
+                      暂无正在处理的下载任务
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -706,7 +722,12 @@ https://www.bilibili.com/video/BV1234567890
                           <div className="flex items-start space-x-3 flex-1 min-w-0">
                             <Checkbox
                               checked={selectedTaskIds.includes(item.task_id)}
-                              onCheckedChange={(checked) => handleSelectTask(item.task_id, checked as boolean)}
+                              onCheckedChange={(checked) =>
+                                handleSelectTask(
+                                  item.task_id,
+                                  checked as boolean,
+                                )
+                              }
                               className="mt-1"
                             />
                             <div className="flex-1 min-w-0">
@@ -727,7 +748,9 @@ https://www.bilibili.com/video/BV1234567890
                               </p>
                               <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                 {item.platform && <span>{item.platform}</span>}
-                                <span>{new Date(item.created_at).toLocaleString()}</span>
+                                <span>
+                                  {new Date(item.created_at).toLocaleString()}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -745,7 +768,8 @@ https://www.bilibili.com/video/BV1234567890
                             </Button>
                           </div>
                         </div>
-                        {(item.status === "processing" || item.status === "downloading") && (
+                        {(item.status === "processing" ||
+                          item.status === "downloading") && (
                           <div className="space-y-1">
                             <div className="flex justify-between text-xs">
                               <span>处理进度</span>
@@ -776,7 +800,10 @@ https://www.bilibili.com/video/BV1234567890
                         variant="destructive"
                         size="sm"
                         className="h-7"
-                        disabled={selectedHistoryTaskIds.length === 0 || isDeletingHistoryTasks}
+                        disabled={
+                          selectedHistoryTaskIds.length === 0 ||
+                          isDeletingHistoryTasks
+                        }
                         onClick={handleHistoryBatchDelete}
                       >
                         {isDeletingHistoryTasks ? (
@@ -787,7 +814,10 @@ https://www.bilibili.com/video/BV1234567890
                         删除选中 ({selectedHistoryTaskIds.length})
                       </Button>
                     )}
-                    <Select value={historyFilter} onValueChange={setHistoryFilter}>
+                    <Select
+                      value={historyFilter}
+                      onValueChange={setHistoryFilter}
+                    >
                       <SelectTrigger className="h-7 w-32 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -796,7 +826,9 @@ https://www.bilibili.com/video/BV1234567890
                         <SelectItem value="completed">已完成</SelectItem>
                         <SelectItem value="failed">失败</SelectItem>
                         <SelectItem value="cancelled">已取消</SelectItem>
-                        <SelectItem value="failed-cancelled">失败 + 取消</SelectItem>
+                        <SelectItem value="failed-cancelled">
+                          失败 + 取消
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -813,7 +845,9 @@ https://www.bilibili.com/video/BV1234567890
                 {historyTasks.length > 0 && (
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                     <Checkbox
-                      checked={selectedHistoryTaskIds.length === historyTasks.length}
+                      checked={
+                        selectedHistoryTaskIds.length === historyTasks.length
+                      }
                       onCheckedChange={handleSelectAllHistory}
                     />
                     <span>全选</span>
@@ -844,8 +878,15 @@ https://www.bilibili.com/video/BV1234567890
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-start space-x-3 flex-1 min-w-0">
                             <Checkbox
-                              checked={selectedHistoryTaskIds.includes(item.task_id)}
-                              onCheckedChange={(checked) => handleSelectHistoryTask(item.task_id, checked as boolean)}
+                              checked={selectedHistoryTaskIds.includes(
+                                item.task_id,
+                              )}
+                              onCheckedChange={(checked) =>
+                                handleSelectHistoryTask(
+                                  item.task_id,
+                                  checked as boolean,
+                                )
+                              }
                               className="mt-1"
                             />
                             <div className="flex-1 min-w-0">
@@ -866,9 +907,16 @@ https://www.bilibili.com/video/BV1234567890
                               </p>
                               <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                 {item.platform && <span>{item.platform}</span>}
-                                <span>{new Date(item.created_at).toLocaleString()}</span>
+                                <span>
+                                  {new Date(item.created_at).toLocaleString()}
+                                </span>
                                 {item.completed_at && (
-                                  <span>完成于: {new Date(item.completed_at).toLocaleString()}</span>
+                                  <span>
+                                    完成于:{" "}
+                                    {new Date(
+                                      item.completed_at,
+                                    ).toLocaleString()}
+                                  </span>
                                 )}
                               </div>
                               {item.error_message && (
@@ -880,7 +928,13 @@ https://www.bilibili.com/video/BV1234567890
                                 <div className="mt-2 text-xs text-muted-foreground">
                                   <span>文件: {item.file_info.filename}</span>
                                   <span className="ml-4">
-                                    大小: {(item.file_info.file_size / 1024 / 1024).toFixed(2)} MB
+                                    大小:{" "}
+                                    {(
+                                      item.file_info.file_size /
+                                      1024 /
+                                      1024
+                                    ).toFixed(2)}{" "}
+                                    MB
                                   </span>
                                 </div>
                               )}
@@ -905,9 +959,10 @@ https://www.bilibili.com/video/BV1234567890
                                 className="h-6 w-6 p-0"
                                 onClick={async () => {
                                   const filePath = item.file_info!.local_path;
-                                  
+
                                   try {
-                                    const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+                                    const token = import.meta.env
+                                      .VITE_BACKEND_API_TOKEN;
                                     const response = await fetch(
                                       "http://127.0.0.1:8000/api/video-download/open-folder",
                                       {
@@ -920,7 +975,7 @@ https://www.bilibili.com/video/BV1234567890
                                         body: JSON.stringify({
                                           file_path: filePath,
                                         }),
-                                      }
+                                      },
                                     );
 
                                     if (response.ok) {
@@ -928,13 +983,18 @@ https://www.bilibili.com/video/BV1234567890
                                       if (data.success) {
                                         toast.success("文件夹已打开");
                                       } else {
-                                        toast.error(data.message || "打开文件夹失败");
+                                        toast.error(
+                                          data.message || "打开文件夹失败",
+                                        );
                                       }
                                     } else {
                                       toast.error("服务器错误，无法打开文件夹");
                                     }
                                   } catch (error) {
-                                    console.error("Error opening folder:", error);
+                                    console.error(
+                                      "Error opening folder:",
+                                      error,
+                                    );
                                     toast.error("网络错误，无法打开文件夹");
                                   }
                                 }}

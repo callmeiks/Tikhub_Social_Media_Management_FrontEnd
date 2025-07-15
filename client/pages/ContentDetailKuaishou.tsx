@@ -78,7 +78,7 @@ export default function ContentDetailKuaishou() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to KuaishouPostData format
       const mappedData: KuaishouPostData = {
         id: contentData.id || "kuaishou_" + Date.now(),
@@ -100,7 +100,8 @@ export default function ContentDetailKuaishou() {
         sound_track_id: contentData.sound_track_id || "",
         sound_track_audio_url: contentData.sound_track_audio_url || "",
         sound_track_artist: contentData.sound_track_artist || "",
-        video_play_url: contentData.video_play_url || contentData.video_url || "",
+        video_play_url:
+          contentData.video_play_url || contentData.video_url || "",
         blur_probability: contentData.blur_probability || "0",
         blocky_probability: contentData.blocky_probability || "0",
         avg_entropy: contentData.avg_entropy || "0",
@@ -108,14 +109,15 @@ export default function ContentDetailKuaishou() {
         audio_quality: contentData.audio_quality || 0,
         music_probability: contentData.music_probability || 0,
         dialog_probability: contentData.dialog_probability || 0,
-        background_sound_probability: contentData.background_sound_probability || 0,
+        background_sound_probability:
+          contentData.background_sound_probability || 0,
         stereophonic_richness: contentData.stereophonic_richness || 0,
         share_url: contentData.share_url || "",
         video_url: contentData.video_url || "",
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -172,12 +174,15 @@ export default function ContentDetailKuaishou() {
         audioPlayer.pause();
       }
       const audio = new Audio(content.sound_track_audio_url);
-      audio.play().then(() => {
-        setAudioPlayer(audio);
-        setIsPlaying(true);
-      }).catch(e => console.error('无法播放音频:', e));
-      
-      audio.addEventListener('ended', () => {
+      audio
+        .play()
+        .then(() => {
+          setAudioPlayer(audio);
+          setIsPlaying(true);
+        })
+        .catch((e) => console.error("无法播放音频:", e));
+
+      audio.addEventListener("ended", () => {
         setIsPlaying(false);
         setAudioPlayer(null);
       });
@@ -196,24 +201,24 @@ export default function ContentDetailKuaishou() {
   const handleDownloadAudio = () => {
     if (content?.sound_track_audio_url) {
       fetch(content.sound_track_audio_url)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
-          link.download = `${content.sound_track_artist || 'audio'}_${content.sound_track_id}.m4a`;
+          link.download = `${content.sound_track_artist || "audio"}_${content.sound_track_id}.m4a`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
         })
-        .catch(error => {
-          console.error('下载失败:', error);
+        .catch((error) => {
+          console.error("下载失败:", error);
           // Fallback to direct link
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = content.sound_track_audio_url;
-          link.download = `${content.sound_track_artist || 'audio'}_${content.sound_track_id}.m4a`;
-          link.target = '_blank';
+          link.download = `${content.sound_track_artist || "audio"}_${content.sound_track_id}.m4a`;
+          link.target = "_blank";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -261,20 +266,22 @@ export default function ContentDetailKuaishou() {
 
   const formatTimestamp = (timestamp: string | number) => {
     // 如果是字符串数字（timestamp），转换为数字
-    const numTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
-    
+    const numTimestamp =
+      typeof timestamp === "string" ? parseInt(timestamp) : timestamp;
+
     // 检查是否是毫秒级时间戳（13位）还是秒级时间戳（10位）
-    const date = numTimestamp > 9999999999 
-      ? new Date(numTimestamp) 
-      : new Date(numTimestamp * 1000);
-    
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    const date =
+      numTimestamp > 9999999999
+        ? new Date(numTimestamp)
+        : new Date(numTimestamp * 1000);
+
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
@@ -505,7 +512,6 @@ export default function ContentDetailKuaishou() {
                     </div>
                   </div>
 
-
                   {/* 其他属性 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center">
@@ -514,7 +520,10 @@ export default function ContentDetailKuaishou() {
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      视频时长: {formatDuration(Math.floor(content.video_duration / 1000))}
+                      视频时长:{" "}
+                      {formatDuration(
+                        Math.floor(content.video_duration / 1000),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -574,7 +583,9 @@ export default function ContentDetailKuaishou() {
                               </span>
                             </div>
                             <Progress
-                              value={(parseFloat(content.avg_entropy) / 10) * 100}
+                              value={
+                                (parseFloat(content.avg_entropy) / 10) * 100
+                              }
                               className="h-2"
                             />
                           </div>
@@ -606,7 +617,9 @@ export default function ContentDetailKuaishou() {
                               </span>
                             </div>
                             <Progress
-                              value={parseFloat(content.blocky_probability) * 100}
+                              value={
+                                parseFloat(content.blocky_probability) * 100
+                              }
                               className="h-2"
                             />
                           </div>
@@ -617,10 +630,14 @@ export default function ContentDetailKuaishou() {
                     <div className="mt-6 p-4 bg-muted/20 rounded-lg">
                       <h4 className="font-medium mb-2">视频质量评价说明</h4>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        <p>• MOS (Mean Opinion Score): 主观质量评分，5.0为最高</p>
+                        <p>
+                          • MOS (Mean Opinion Score): 主观质量评分，5.0为最高
+                        </p>
                         <p>• 平均熵值: 反映图像信息量，数值越高信息越丰富</p>
                         <p>• 模糊概率: 视频模糊程度，数值越低越清晰</p>
-                        <p>• 块状失真概率: 压缩造成的块状效应，数值越低质量越好</p>
+                        <p>
+                          • 块状失真概率: 压缩造成的块状效应，数值越低质量越好
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -642,7 +659,7 @@ export default function ContentDetailKuaishou() {
                         <h4 className="font-medium mb-3">音频质量评分</h4>
                         <div className="text-center">
                           <div className="text-4xl font-bold text-blue-600">
-                            {content.audio_quality?.toFixed(2) || '0.00'}
+                            {content.audio_quality?.toFixed(2) || "0.00"}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             满分 100.0
@@ -651,9 +668,13 @@ export default function ContentDetailKuaishou() {
                             variant="outline"
                             className="mt-2 text-blue-600 border-blue-600"
                           >
-                            {(content.audio_quality || 0) > 80 ? '优秀' : 
-                             (content.audio_quality || 0) > 60 ? '良好' : 
-                             (content.audio_quality || 0) > 40 ? '一般' : '较差'}
+                            {(content.audio_quality || 0) > 80
+                              ? "优秀"
+                              : (content.audio_quality || 0) > 60
+                                ? "良好"
+                                : (content.audio_quality || 0) > 40
+                                  ? "一般"
+                                  : "较差"}
                           </Badge>
                         </div>
                       </div>
@@ -665,7 +686,10 @@ export default function ContentDetailKuaishou() {
                             <div className="flex justify-between mb-1">
                               <span className="text-sm">音乐占比</span>
                               <span className="text-sm font-medium">
-                                {((content.music_probability || 0) * 100).toFixed(2)}%
+                                {(
+                                  (content.music_probability || 0) * 100
+                                ).toFixed(2)}
+                                %
                               </span>
                             </div>
                             <Progress
@@ -678,7 +702,10 @@ export default function ContentDetailKuaishou() {
                             <div className="flex justify-between mb-1">
                               <span className="text-sm">对话占比</span>
                               <span className="text-sm font-medium">
-                                {((content.dialog_probability || 0) * 100).toFixed(2)}%
+                                {(
+                                  (content.dialog_probability || 0) * 100
+                                ).toFixed(2)}
+                                %
                               </span>
                             </div>
                             <Progress
@@ -691,11 +718,18 @@ export default function ContentDetailKuaishou() {
                             <div className="flex justify-between mb-1">
                               <span className="text-sm">背景音占比</span>
                               <span className="text-sm font-medium">
-                                {((content.background_sound_probability || 0) * 100).toFixed(2)}%
+                                {(
+                                  (content.background_sound_probability || 0) *
+                                  100
+                                ).toFixed(2)}
+                                %
                               </span>
                             </div>
                             <Progress
-                              value={(content.background_sound_probability || 0) * 100}
+                              value={
+                                (content.background_sound_probability || 0) *
+                                100
+                              }
                               className="h-2"
                             />
                           </div>
@@ -704,7 +738,10 @@ export default function ContentDetailKuaishou() {
                             <div className="flex justify-between mb-1">
                               <span className="text-sm">立体声丰富度</span>
                               <span className="text-sm font-medium">
-                                {((content.stereophonic_richness || 0) * 100).toFixed(2)}%
+                                {(
+                                  (content.stereophonic_richness || 0) * 100
+                                ).toFixed(2)}
+                                %
                               </span>
                             </div>
                             <Progress

@@ -72,7 +72,7 @@ export default function ContentDetailX() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to XPostData format
       const mappedData: XPostData = {
         id: contentData.id || "x_" + Date.now(),
@@ -103,7 +103,7 @@ export default function ContentDetailX() {
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -213,7 +213,9 @@ export default function ContentDetailX() {
       content.replies_count +
       content.quotes_count +
       content.bookmarks_count;
-    return content.view_count > 0 ? (totalEngagements / content.view_count) * 100 : 0;
+    return content.view_count > 0
+      ? (totalEngagements / content.view_count) * 100
+      : 0;
   };
 
   const getLanguageName = (code: string) => {
@@ -579,7 +581,13 @@ export default function ContentDetailX() {
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
                       发布时间:{" "}
-                      {/^\d+$/.test(content.created_time) ? new Date(parseInt(content.created_time)).toLocaleString("zh-CN") : new Date(content.created_time).toLocaleString("zh-CN")}
+                      {/^\d+$/.test(content.created_time)
+                        ? new Date(
+                            parseInt(content.created_time),
+                          ).toLocaleString("zh-CN")
+                        : new Date(content.created_time).toLocaleString(
+                            "zh-CN",
+                          )}
                     </div>
                     <div className="flex items-center">
                       <Globe className="h-4 w-4 mr-2" />

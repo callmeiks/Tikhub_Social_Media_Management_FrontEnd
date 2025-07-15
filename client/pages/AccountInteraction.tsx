@@ -48,15 +48,15 @@ import {
   ExternalLink,
   Filter,
 } from "lucide-react";
-import { 
-  apiClient, 
-  type Influencer, 
+import {
+  apiClient,
+  type Influencer,
   type GetInfluencersParams,
   type TikTokInfluencer,
   type DouyinInfluencer,
   type XiaohongshuInfluencer,
   type CollectAccountsParams,
-  type CollectAccountsResponse
+  type CollectAccountsResponse,
 } from "@/lib/api";
 
 const supportedPlatforms = [
@@ -80,7 +80,7 @@ export default function AccountInteraction() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 20;
-  
+
   // 采集结果状态
   const [collectResult, setCollectResult] = useState<{
     total_successful: number;
@@ -94,9 +94,11 @@ export default function AccountInteraction() {
     .map((url) => url.trim())
     .filter((url) => url.length > 0).length;
 
-
   const fetchInfluencers = async () => {
-    if (selectedPlatforms.length === 0 || (selectedPlatforms.length === 1 && !selectedPlatforms.includes("all"))) {
+    if (
+      selectedPlatforms.length === 0 ||
+      (selectedPlatforms.length === 1 && !selectedPlatforms.includes("all"))
+    ) {
       setAccountData([]);
       setTotalItems(0);
       return;
@@ -107,7 +109,7 @@ export default function AccountInteraction() {
       if (selectedPlatforms.includes("all")) {
         // When "all" is selected, make a single request with platform=all
         let sortParam: GetInfluencersParams = {
-          platform: 'all',
+          platform: "all",
           page: currentPage,
           limit: itemsPerPage,
         };
@@ -144,13 +146,15 @@ export default function AccountInteraction() {
         // When specific platforms are selected, iterate through them
         const allInfluencers: Influencer[] = [];
         let totalCount = 0;
-        
+
         for (const platformName of selectedPlatforms) {
-          const platform = supportedPlatforms.find(p => p.name === platformName);
+          const platform = supportedPlatforms.find(
+            (p) => p.name === platformName,
+          );
           if (!platform) continue;
 
           let sortParam: GetInfluencersParams = {
-            platform: platform.id as 'tiktok' | 'douyin' | 'xiaohongshu',
+            platform: platform.id as "tiktok" | "douyin" | "xiaohongshu",
             page: currentPage,
             limit: itemsPerPage,
           };
@@ -214,7 +218,8 @@ export default function AccountInteraction() {
 
   const getDisplayFollowers = (influencer: Influencer): string => {
     // 小红书使用 fans_count, 抖音/TikTok使用 follower_count
-    const count = influencer.follower_count || (influencer as any).fans_count || 0;
+    const count =
+      influencer.follower_count || (influencer as any).fans_count || 0;
     return formatNumber(count);
   };
 
@@ -225,23 +230,23 @@ export default function AccountInteraction() {
 
   const getDisplayLikes = (influencer: Influencer): string => {
     // 小红书使用 liked_count, 抖音/TikTok使用 total_favorited
-    const count = influencer.total_favorited || (influencer as any).liked_count || 0;
+    const count =
+      influencer.total_favorited || (influencer as any).liked_count || 0;
     return formatNumber(count);
   };
 
   const getPlatformDisplayName = (platform: string): string => {
     const platformMap: { [key: string]: string } = {
-      'douyin': '抖音',
-      'xiaohongshu': '小红书',
-      'tiktok': 'TikTok'
+      douyin: "抖音",
+      xiaohongshu: "小红书",
+      tiktok: "TikTok",
     };
     return platformMap[platform] || platform;
   };
 
   const getAvatarUrl = (account: Influencer): string => {
-    return (account as any).avatar_url || '';
+    return (account as any).avatar_url || "";
   };
-
 
   const handleCollect = async () => {
     if (urlCount === 0) {
@@ -254,11 +259,10 @@ export default function AccountInteraction() {
       return;
     }
 
-
     setIsCollecting(true);
     // 隐藏之前的结果
     setCollectResult(null);
-    
+
     try {
       const urls = batchUrls
         .split("\n")
@@ -267,9 +271,9 @@ export default function AccountInteraction() {
 
       // 转换 collectionQuantity 为数字
       const collectCountMap: { [key: string]: number } = {
-        "最新50": 50,
-        "最新100": 100,
-        "最新200": 200,
+        最新50: 50,
+        最新100: 100,
+        最新200: 200,
       };
 
       const collectParams: CollectAccountsParams = {
@@ -278,10 +282,11 @@ export default function AccountInteraction() {
         collectCount: collectCountMap[collectionQuantity] || 50,
       };
 
-      const response: CollectAccountsResponse = await apiClient.collectAccounts(collectParams);
-      
+      const response: CollectAccountsResponse =
+        await apiClient.collectAccounts(collectParams);
+
       setIsCollecting(false);
-      
+
       // 显示采集结果
       setCollectResult({
         total_successful: response.total_successful,
@@ -289,10 +294,10 @@ export default function AccountInteraction() {
         failed_urls: response.failed_urls,
         show: true,
       });
-      
+
       // 清空输入框
       setBatchUrls("");
-      
+
       // 刷新账户列表
       fetchInfluencers();
     } catch (error) {
@@ -307,7 +312,9 @@ export default function AccountInteraction() {
   // Clear selected accounts that are no longer visible due to platform filtering
   useEffect(() => {
     const filteredAccountIds = accountData
-      .filter((account) => selectedPlatforms.includes(getPlatformDisplayName(account.platform)))
+      .filter((account) =>
+        selectedPlatforms.includes(getPlatformDisplayName(account.platform)),
+      )
       .map((acc) => acc.id);
     setSelectedAccounts((prev) =>
       prev.filter((id) => filteredAccountIds.includes(id)),
@@ -368,8 +375,10 @@ export default function AccountInteraction() {
 
   const handleAccountClick = (account: Influencer) => {
     // Store account data in sessionStorage for the detail page
-    sessionStorage.setItem('selectedAccount', JSON.stringify(account));
-    navigate(`/data-collection/account-details/${account.platform}/${account.id}`);
+    sessionStorage.setItem("selectedAccount", JSON.stringify(account));
+    navigate(
+      `/data-collection/account-details/${account.platform}/${account.id}`,
+    );
   };
 
   const exportAccountData = (accountId: string) => {
@@ -393,33 +402,56 @@ export default function AccountInteraction() {
       const workbook = XLSX.utils.book_new();
 
       // Group accounts by platform
-      const accountsByPlatform = selectedAccountsData.reduce((acc, account) => {
-        const platform = account.platform;
-        if (!acc[platform]) {
-          acc[platform] = [];
-        }
-        acc[platform].push(account);
-        return acc;
-      }, {} as Record<string, Influencer[]>);
+      const accountsByPlatform = selectedAccountsData.reduce(
+        (acc, account) => {
+          const platform = account.platform;
+          if (!acc[platform]) {
+            acc[platform] = [];
+          }
+          acc[platform].push(account);
+          return acc;
+        },
+        {} as Record<string, Influencer[]>,
+      );
 
       // Create a sheet for each platform
       for (const [platform, accounts] of Object.entries(accountsByPlatform)) {
         const platformDisplayName = getPlatformDisplayName(platform);
-        
+
         // Create comprehensive data for this platform
         const sheetData: any[][] = [];
-        
+
         // Add platform-specific headers
-        if (platform === 'tiktok') {
+        if (platform === "tiktok") {
           sheetData.push([
-            "昵称", "用户ID", "唯一标识", "分类", "签名", "签名语言", "分享链接",
-            "Instagram", "Twitter", "YouTube频道", "粉丝数", "关注数", "获赞总数", "作品数",
-            "企业认证", "商务等级", "明星认证", "特效师", "直播带货", "消息聊天入口", 
-            "商品橱窗", "新商品", "添加时间", "更新时间"
+            "昵称",
+            "用户ID",
+            "唯一标识",
+            "分类",
+            "签名",
+            "签名语言",
+            "分享链接",
+            "Instagram",
+            "Twitter",
+            "YouTube频道",
+            "粉丝数",
+            "关注数",
+            "获赞总数",
+            "作品数",
+            "企业认证",
+            "商务等级",
+            "明星认证",
+            "特效师",
+            "直播带货",
+            "消息聊天入口",
+            "商品橱窗",
+            "新商品",
+            "添加时间",
+            "更新时间",
           ]);
-          
+
           // Add TikTok account data
-          accounts.forEach(account => {
+          accounts.forEach((account) => {
             const tiktokAccount = account as TikTokInfluencer;
             sheetData.push([
               tiktokAccount.nickname,
@@ -436,34 +468,57 @@ export default function AccountInteraction() {
               tiktokAccount.following_count,
               tiktokAccount.total_favorited,
               tiktokAccount.aweme_count,
-              tiktokAccount.is_enterprise_verify ? '是' : '否',
+              tiktokAccount.is_enterprise_verify ? "是" : "否",
               tiktokAccount.commerce_user_level,
-              tiktokAccount.is_star ? '是' : '否',
-              tiktokAccount.is_effect_artist ? '是' : '否',
-              tiktokAccount.live_commerce ? '是' : '否',
-              tiktokAccount.message_chat_entry ? '是' : '否',
-              tiktokAccount.with_commerce_entry ? '是' : '否',
-              tiktokAccount.with_new_goods ? '是' : '否',
-              new Date(tiktokAccount.created_at).toLocaleString('zh-CN'),
-              new Date(tiktokAccount.updated_at).toLocaleString('zh-CN')
+              tiktokAccount.is_star ? "是" : "否",
+              tiktokAccount.is_effect_artist ? "是" : "否",
+              tiktokAccount.live_commerce ? "是" : "否",
+              tiktokAccount.message_chat_entry ? "是" : "否",
+              tiktokAccount.with_commerce_entry ? "是" : "否",
+              tiktokAccount.with_new_goods ? "是" : "否",
+              new Date(tiktokAccount.created_at).toLocaleString("zh-CN"),
+              new Date(tiktokAccount.updated_at).toLocaleString("zh-CN"),
             ]);
           });
-        } else if (platform === 'douyin') {
+        } else if (platform === "douyin") {
           sheetData.push([
-            "昵称", "唯一标识", "年龄", "性别", "头像链接", "签名", "分享链接",
-            "粉丝数", "关注数", "获赞总数", "最高粉丝数", "作品数", "IP位置",
-            "明星认证", "特效师", "政务媒体", "直播带货", "星图达人", 
-            "商品橱窗", "融合商店", "新商品", "添加时间", "更新时间"
+            "昵称",
+            "唯一标识",
+            "年龄",
+            "性别",
+            "头像链接",
+            "签名",
+            "分享链接",
+            "粉丝数",
+            "关注数",
+            "获赞总数",
+            "最高粉丝数",
+            "作品数",
+            "IP位置",
+            "明星认证",
+            "特效师",
+            "政务媒体",
+            "直播带货",
+            "星图达人",
+            "商品橱窗",
+            "融合商店",
+            "新商品",
+            "添加时间",
+            "更新时间",
           ]);
-          
+
           // Add Douyin account data
-          accounts.forEach(account => {
+          accounts.forEach((account) => {
             const douyinAccount = account as DouyinInfluencer;
             sheetData.push([
               douyinAccount.nickname,
               douyinAccount.unique_id,
               douyinAccount.age,
-              douyinAccount.gender === 1 ? '男' : douyinAccount.gender === 2 ? '女' : '未知',
+              douyinAccount.gender === 1
+                ? "男"
+                : douyinAccount.gender === 2
+                  ? "女"
+                  : "未知",
               douyinAccount.avatar_url,
               douyinAccount.signature,
               douyinAccount.share_url,
@@ -473,33 +528,52 @@ export default function AccountInteraction() {
               douyinAccount.max_follower_count,
               douyinAccount.aweme_count,
               douyinAccount.ip_location,
-              douyinAccount.is_star ? '是' : '否',
-              douyinAccount.is_effect_artist ? '是' : '否',
-              douyinAccount.is_gov_media_vip ? '是' : '否',
-              douyinAccount.is_live_commerce ? '是' : '否',
-              douyinAccount.is_xingtu_kol ? '是' : '否',
-              douyinAccount.with_commerce_entry ? '是' : '否',
-              douyinAccount.with_fusion_shop_entry ? '是' : '否',
-              douyinAccount.with_new_goods ? '是' : '否',
-              new Date(douyinAccount.created_at).toLocaleString('zh-CN'),
-              new Date(douyinAccount.updated_at).toLocaleString('zh-CN')
+              douyinAccount.is_star ? "是" : "否",
+              douyinAccount.is_effect_artist ? "是" : "否",
+              douyinAccount.is_gov_media_vip ? "是" : "否",
+              douyinAccount.is_live_commerce ? "是" : "否",
+              douyinAccount.is_xingtu_kol ? "是" : "否",
+              douyinAccount.with_commerce_entry ? "是" : "否",
+              douyinAccount.with_fusion_shop_entry ? "是" : "否",
+              douyinAccount.with_new_goods ? "是" : "否",
+              new Date(douyinAccount.created_at).toLocaleString("zh-CN"),
+              new Date(douyinAccount.updated_at).toLocaleString("zh-CN"),
             ]);
           });
-        } else if (platform === 'xiaohongshu') {
+        } else if (platform === "xiaohongshu") {
           sheetData.push([
-            "昵称", "用户ID", "小红书ID", "性别", "头像链接", "个人描述", "分享链接",
-            "作品数", "获赞数", "收藏数", "关注数", "粉丝数", "IP位置",
-            "小红书会员", "标签", "官方认证", "添加时间", "更新时间"
+            "昵称",
+            "用户ID",
+            "小红书ID",
+            "性别",
+            "头像链接",
+            "个人描述",
+            "分享链接",
+            "作品数",
+            "获赞数",
+            "收藏数",
+            "关注数",
+            "粉丝数",
+            "IP位置",
+            "小红书会员",
+            "标签",
+            "官方认证",
+            "添加时间",
+            "更新时间",
           ]);
-          
+
           // Add Xiaohongshu account data
-          accounts.forEach(account => {
+          accounts.forEach((account) => {
             const xhsAccount = account as XiaohongshuInfluencer;
             sheetData.push([
               xhsAccount.nickname,
               xhsAccount.user_id,
               xhsAccount.red_id,
-              xhsAccount.gender === 1 ? '男' : xhsAccount.gender === 2 ? '女' : '未知',
+              xhsAccount.gender === 1
+                ? "男"
+                : xhsAccount.gender === 2
+                  ? "女"
+                  : "未知",
               xhsAccount.avatar_url,
               xhsAccount.desc,
               xhsAccount.share_url,
@@ -509,11 +583,11 @@ export default function AccountInteraction() {
               xhsAccount.following_count,
               xhsAccount.fans_count,
               xhsAccount.ip_location,
-              xhsAccount.is_red_club ? '是' : '否',
-              xhsAccount.tags ? xhsAccount.tags.join(', ') : '',
-              xhsAccount.red_official_verified ? '是' : '否',
-              new Date(xhsAccount.created_at).toLocaleString('zh-CN'),
-              new Date(xhsAccount.updated_at).toLocaleString('zh-CN')
+              xhsAccount.is_red_club ? "是" : "否",
+              xhsAccount.tags ? xhsAccount.tags.join(", ") : "",
+              xhsAccount.red_official_verified ? "是" : "否",
+              new Date(xhsAccount.created_at).toLocaleString("zh-CN"),
+              new Date(xhsAccount.updated_at).toLocaleString("zh-CN"),
             ]);
           });
         }
@@ -523,13 +597,19 @@ export default function AccountInteraction() {
 
         // Set appropriate column widths
         const colWidths = sheetData[0].map((header, index) => {
-          if (header.includes('链接') || header.includes('URL')) return { width: 50 };
-          if (header.includes('时间')) return { width: 20 };
-          if (header.includes('昵称') || header.includes('描述') || header.includes('签名')) return { width: 25 };
-          if (header.includes('标签')) return { width: 30 };
+          if (header.includes("链接") || header.includes("URL"))
+            return { width: 50 };
+          if (header.includes("时间")) return { width: 20 };
+          if (
+            header.includes("昵称") ||
+            header.includes("描述") ||
+            header.includes("签名")
+          )
+            return { width: 25 };
+          if (header.includes("标签")) return { width: 30 };
           return { width: 15 };
         });
-        
+
         worksheet["!cols"] = colWidths;
 
         // Add worksheet to workbook
@@ -546,7 +626,7 @@ export default function AccountInteraction() {
           getDisplayFollowers(account),
           getDisplayWorks(account),
           getDisplayLikes(account),
-          new Date(account.created_at).toLocaleString('zh-CN'),
+          new Date(account.created_at).toLocaleString("zh-CN"),
         ]),
       ];
 
@@ -583,12 +663,13 @@ export default function AccountInteraction() {
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      
-      // Create filename with platform info
-      const platformNames = Object.keys(accountsByPlatform).map(p => getPlatformDisplayName(p)).join('_');
-      link.download = `账号完整数据_${platformNames}_${selectedAccountsData.length}个账号_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
-      link.click();
 
+      // Create filename with platform info
+      const platformNames = Object.keys(accountsByPlatform)
+        .map((p) => getPlatformDisplayName(p))
+        .join("_");
+      link.download = `账号完整数据_${platformNames}_${selectedAccountsData.length}个账号_${new Date().toLocaleDateString("zh-CN").replace(/\//g, "-")}.xlsx`;
+      link.click();
     } catch (error) {
       console.error("导出失败:", error);
       alert("导出失败，请重试");
@@ -603,14 +684,16 @@ export default function AccountInteraction() {
       subtitle="智能采集账号作品数据，支持多平台内容分析"
       actions={
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="h-8"
             onClick={fetchInfluencers}
             disabled={loading}
           >
-            <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+            />
             刷新数据
           </Button>
         </div>
@@ -701,7 +784,6 @@ https://weibo.com/u/123456789
                   </div>
                 </div>
 
-
                 {/* Collect Works Setting */}
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
@@ -755,11 +837,7 @@ https://weibo.com/u/123456789
                   <div className="flex space-x-2">
                     <Button
                       onClick={handleCollect}
-                      disabled={
-                        urlCount === 0 ||
-                        urlCount > 20 ||
-                        isCollecting
-                      }
+                      disabled={urlCount === 0 || urlCount > 20 || isCollecting}
                       className="h-8"
                     >
                       {isCollecting ? (
@@ -780,21 +858,22 @@ https://weibo.com/u/123456789
                     </Button>
                   </div>
 
-
                   <div className="text-xs text-muted-foreground">
                     {urlCount > 0 && <span>检测到 {urlCount} 个账号链接</span>}
                   </div>
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* 采集结果显示 */}
             {collectResult && collectResult.show && (
               <Card className="mt-4">
                 <CardContent className="p-4">
                   <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-blue-900">采集结果</h4>
+                      <h4 className="text-sm font-medium text-blue-900">
+                        采集结果
+                      </h4>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -804,15 +883,16 @@ https://weibo.com/u/123456789
                         ×
                       </Button>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <span className="text-sm text-green-800">
-                          成功添加 {collectResult.total_successful} 个账号到采集队列
+                          成功添加 {collectResult.total_successful}{" "}
+                          个账号到采集队列
                         </span>
                       </div>
-                      
+
                       {collectResult.total_failed > 0 && (
                         <div className="flex items-center space-x-2">
                           <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -821,20 +901,25 @@ https://weibo.com/u/123456789
                           </span>
                         </div>
                       )}
-                      
+
                       {collectResult.failed_urls.length > 0 && (
                         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
-                          <p className="text-xs font-medium text-red-800 mb-1">失败的URL:</p>
+                          <p className="text-xs font-medium text-red-800 mb-1">
+                            失败的URL:
+                          </p>
                           <div className="space-y-1">
                             {collectResult.failed_urls.map((url, index) => (
-                              <div key={index} className="text-xs text-red-700 font-mono break-all">
+                              <div
+                                key={index}
+                                className="text-xs text-red-700 font-mono break-all"
+                              >
                                 {url}
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
-                      
+
                       {collectResult.total_successful > 0 && (
                         <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
                           <p className="text-xs text-green-800">
@@ -976,7 +1061,9 @@ https://weibo.com/u/123456789
                       ) : (
                         <Download className="mr-2 h-3.5 w-3.5" />
                       )}
-                      {loading ? "导出中..." : `导出Excel (${selectedAccounts.length})`}
+                      {loading
+                        ? "导出中..."
+                        : `导出Excel (${selectedAccounts.length})`}
                     </Button>
                     <Badge variant="secondary" className="text-xs">
                       已添加 {accountData.length} 个账号
@@ -1027,7 +1114,7 @@ https://weibo.com/u/123456789
                                 onClick={(e) => e.stopPropagation()}
                                 className="mr-1"
                               />
-                              <AvatarImage 
+                              <AvatarImage
                                 src={getAvatarUrl(account)}
                                 alt={account.nickname}
                                 fallbackText={account.nickname.charAt(0)}
@@ -1060,7 +1147,11 @@ https://weibo.com/u/123456789
                             <div className="flex items-center space-x-2">
                               <div className="text-right text-xs text-muted-foreground">
                                 <div>添加于</div>
-                                <div>{new Date(account.created_at).toLocaleDateString()}</div>
+                                <div>
+                                  {new Date(
+                                    account.created_at,
+                                  ).toLocaleDateString()}
+                                </div>
                               </div>
                               <Button
                                 variant="ghost"
@@ -1084,19 +1175,22 @@ https://weibo.com/u/123456789
                     ))
                   )}
                 </div>
-                
+
                 {/* Pagination */}
                 {totalItems > itemsPerPage && (
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div className="text-sm text-muted-foreground">
                       显示第 {(currentPage - 1) * itemsPerPage + 1} 到{" "}
-                      {Math.min(currentPage * itemsPerPage, totalItems)} 项，共 {totalItems} 项
+                      {Math.min(currentPage * itemsPerPage, totalItems)} 项，共{" "}
+                      {totalItems} 项
                     </div>
                     <div className="flex space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        onClick={() =>
+                          setCurrentPage(Math.max(1, currentPage - 1))
+                        }
                         disabled={currentPage === 1 || loading}
                       >
                         上一页
@@ -1105,7 +1199,9 @@ https://weibo.com/u/123456789
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage * itemsPerPage >= totalItems || loading}
+                        disabled={
+                          currentPage * itemsPerPage >= totalItems || loading
+                        }
                       >
                         下一页
                       </Button>
@@ -1167,9 +1263,13 @@ https://weibo.com/u/123456789
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
                             <span className="text-lg">
-                              {getPlatformDisplayName(highestLikesAccount.platform) === "抖音"
+                              {getPlatformDisplayName(
+                                highestLikesAccount.platform,
+                              ) === "抖音"
                                 ? "🎤"
-                                : getPlatformDisplayName(highestLikesAccount.platform) === "小红书"
+                                : getPlatformDisplayName(
+                                      highestLikesAccount.platform,
+                                    ) === "小红书"
                                   ? "📖"
                                   : "🎵"}
                             </span>
@@ -1179,9 +1279,17 @@ https://weibo.com/u/123456789
                               {highestLikesAccount.nickname}
                             </p>
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                              <span>{getPlatformDisplayName(highestLikesAccount.platform)}</span>
-                              <span>{getDisplayFollowers(highestLikesAccount)} 粉丝</span>
-                              <span>{getDisplayWorks(highestLikesAccount)} 作品</span>
+                              <span>
+                                {getPlatformDisplayName(
+                                  highestLikesAccount.platform,
+                                )}
+                              </span>
+                              <span>
+                                {getDisplayFollowers(highestLikesAccount)} 粉丝
+                              </span>
+                              <span>
+                                {getDisplayWorks(highestLikesAccount)} 作品
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1208,7 +1316,9 @@ https://weibo.com/u/123456789
                     <div className="space-y-2">
                       {supportedPlatforms.map((platform) => {
                         const count = filteredAccountData.filter(
-                          (acc) => getPlatformDisplayName(acc.platform) === platform.name,
+                          (acc) =>
+                            getPlatformDisplayName(acc.platform) ===
+                            platform.name,
                         ).length;
                         const percentage =
                           totalAccounts > 0 ? (count / totalAccounts) * 100 : 0;
