@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -36,6 +46,12 @@ import {
   BarChart3,
   Hash,
   Users,
+  Play,
+  Image as ImageIcon,
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import type {
@@ -75,7 +91,9 @@ interface SearchResult {
   share_count: number;
   comment_count: number;
   created_time: string;
-  url: string;
+  post_url: string;
+  videos_url: string[];
+  images_url: string[];
   created_at: string;
 }
 
@@ -109,6 +127,15 @@ export default function KeywordContentSearch() {
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [isLoadingResults, setIsLoadingResults] = useState(false);
+  const [keywordFilter, setKeywordFilter] = useState("");
+  const [selectedMedia, setSelectedMedia] = useState<{
+    images: string[];
+    videos: string[];
+    currentIndex: number;
+    title: string;
+  } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Platform-specific filters
   const [douyinFilters, setDouyinFilters] = useState<DouyinFilters>({
@@ -144,6 +171,17 @@ export default function KeywordContentSearch() {
   });
 
   const [kuaishouFilters, setKuaishouFilters] = useState<KuaishouFilters>({});
+
+  // Auto-fetch data when platform changes
+  useEffect(() => {
+    fetchSearchResults();
+    setCurrentPage(1); // Reset to first page when platform changes
+  }, [selectedPlatform]);
+
+  // Reset to first page when keyword filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keywordFilter]);
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
@@ -209,19 +247,18 @@ export default function KeywordContentSearch() {
     }
   };
 
-  // Function to fetch search results from API
+  // Function to fetch search results from API (for already collected keyword data)
   const fetchSearchResults = async () => {
-    if (!keyword.trim()) return;
-    
     setIsLoadingResults(true);
     setError(null);
     
     try {
       // Get the API base URL from environment or use default
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8002';
       const token = localStorage.getItem('authToken') || import.meta.env.VITE_BACKEND_API_TOKEN || '';
       
-      const url = `${apiBaseUrl}/api/keyword-search-post/posts?platform=${selectedPlatform}&keyword=${encodeURIComponent(keyword)}&page=1&limit=${quantityFilter}`;
+      // Fetch all collected keyword posts for the selected platform
+      const url = `${apiBaseUrl}/api/keyword-search-post/posts?platform=${selectedPlatform}&page=1&limit=${quantityFilter}`;
       console.log('Fetching search results from:', url);
       
       // Call the API endpoint directly
@@ -693,8 +730,253 @@ export default function KeywordContentSearch() {
     }
   };
 
-  // Since results are already filtered by platform from API, we use them directly
-  const filteredResults = searchResults;
+  // Filter results by keyword filter (for already collected results)
+  const filteredResults = searchResults.filter(result => {
+    if (!keywordFilter.trim()) return true;
+    const searchText = keywordFilter.toLowerCase();
+    return (
+      result.title?.toLowerCase().includes(searchText) ||
+      result.description?.toLowerCase().includes(searchText) ||
+      result.author_name?.toLowerCase().includes(searchText) ||
+      result.keyword?.toLowerCase().includes(searchText)
+    );
+  });
+
+  // Calculate pagination
+  const totalItems = filteredResults.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageResults = filteredResults.slice(startIndex, endIndex);
+
+  // Function to render pagination
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const pages = [];
+      const maxVisiblePages = 5;
+      
+      if (totalPages <= maxVisiblePages) {
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        if (currentPage <= 3) {
+          for (let i = 1; i <= 4; i++) {
+            pages.push(i);
+          }
+          pages.push('ellipsis');
+          pages.push(totalPages);
+        } else if (currentPage >= totalPages - 2) {
+          pages.push(1);
+          pages.push('ellipsis');
+          for (let i = totalPages - 3; i <= totalPages; i++) {
+            pages.push(i);
+          }
+        } else {
+          pages.push(1);
+          pages.push('ellipsis');
+          for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+            pages.push(i);
+          }
+          pages.push('ellipsis');
+          pages.push(totalPages);
+        }
+      }
+      
+      return pages;
+    };
+
+    return (
+      <div className="flex items-center justify-between mt-6">
+        <div className="text-sm text-gray-500">
+          显示第 {startIndex + 1} - {Math.min(endIndex, totalItems)} 条，共 {totalItems} 条结果
+        </div>
+        
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            
+            {getPageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === 'ellipsis' ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    onClick={() => setCurrentPage(page as number)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    );
+  };
+
+  // Function to render media preview thumbnail
+  const renderMediaThumbnail = (result: SearchResult) => {
+    const hasImages = result.images_url && result.images_url.length > 0;
+    const hasVideos = result.videos_url && result.videos_url.length > 0;
+    
+    if (!hasImages && !hasVideos) {
+      return (
+        <div className="w-16 h-12 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
+          <ImageIcon className="h-4 w-4 text-gray-400" />
+        </div>
+      );
+    }
+
+    const handleMediaClick = () => {
+      setSelectedMedia({
+        images: result.images_url || [],
+        videos: result.videos_url || [],
+        currentIndex: 0,
+        title: result.title || result.description || "作品预览"
+      });
+    };
+
+    return (
+      <div 
+        className="relative w-16 h-12 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity group"
+        onClick={handleMediaClick}
+      >
+        {hasImages && (
+          <img
+            src={result.images_url[0]}
+            alt="作品预览"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA2NCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yOCAyNEwyMCAzMkgzNkwyOCAyNFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
+            }}
+          />
+        )}
+        
+        {/* Overlay indicators */}
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {hasVideos && <Play className="h-3 w-3 text-white" />}
+            {hasImages && <Camera className="h-3 w-3 text-white" />}
+          </div>
+        </div>
+        
+        {/* Media count badge */}
+        {(hasImages || hasVideos) && (
+          <div className="absolute top-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
+            {(result.images_url?.length || 0) + (result.videos_url?.length || 0)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Function to render media preview dialog
+  const renderMediaDialog = () => {
+    if (!selectedMedia) return null;
+
+    const allMedia = [...selectedMedia.images, ...selectedMedia.videos];
+    const currentItem = allMedia[selectedMedia.currentIndex];
+    const isVideo = selectedMedia.videos.includes(currentItem);
+
+    const nextMedia = () => {
+      setSelectedMedia(prev => prev ? {
+        ...prev,
+        currentIndex: (prev.currentIndex + 1) % allMedia.length
+      } : null);
+    };
+
+    const prevMedia = () => {
+      setSelectedMedia(prev => prev ? {
+        ...prev,
+        currentIndex: prev.currentIndex > 0 ? prev.currentIndex - 1 : allMedia.length - 1
+      } : null);
+    };
+
+    return (
+      <Dialog open={!!selectedMedia} onOpenChange={() => setSelectedMedia(null)}>
+        <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
+          <DialogHeader className="p-4 pb-2">
+            <DialogTitle className="text-lg font-semibold truncate">
+              {selectedMedia.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex-1 relative bg-black rounded-b-lg overflow-hidden">
+            {/* Media display */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {isVideo ? (
+                <video
+                  src={currentItem}
+                  controls
+                  className="max-w-full max-h-full object-contain"
+                  autoPlay
+                >
+                  您的浏览器不支持视频播放
+                </video>
+              ) : (
+                <img
+                  src={currentItem}
+                  alt="预览"
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTUwTDE1MCAyMDBIMjUwTDIwMCAxNTBaIiBmaWxsPSIjOUNBM0FGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOUNBM0FGIiBmb250LXNpemU9IjE0Ij7lm77niYfliqDovb3lpLHotKU8L3RleHQ+Cjwvc3ZnPg==';
+                  }}
+                />
+              )}
+            </div>
+
+            {/* Navigation buttons */}
+            {allMedia.length > 1 && (
+              <>
+                <button
+                  onClick={prevMedia}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={nextMedia}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
+            )}
+
+            {/* Media counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
+              {selectedMedia.currentIndex + 1} / {allMedia.length}
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedMedia(null)}
+              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <DashboardLayout
@@ -707,7 +989,7 @@ export default function KeywordContentSearch() {
             size="sm" 
             className="h-8"
             onClick={fetchSearchResults}
-            disabled={!keyword.trim() || isLoadingResults}
+            disabled={isLoadingResults}
           >
             <RefreshCw className="mr-2 h-3.5 w-3.5" />
             刷新数据
@@ -868,7 +1150,7 @@ export default function KeywordContentSearch() {
                       <span className="flex items-center">
                         <Eye className="mr-2 h-4 w-4" />
                         搜索结果 ({filteredResults.length})
-                        {keyword && <span className="ml-2 text-sm text-gray-500">关键词: "{keyword}"</span>}
+                        {keywordFilter && <span className="ml-2 text-sm text-gray-500">筛选: "{keywordFilter}"</span>}
                       </span>
                       <Button
                         size="sm"
@@ -881,13 +1163,40 @@ export default function KeywordContentSearch() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
+                    {/* Keyword Filter for collected results */}
+                    {searchResults.length > 0 && (
+                      <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-1.5 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white">
+                            <Search className="h-4 w-4" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            关键词过滤器
+                          </span>
+                          <div className="flex-1 h-px bg-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800"></div>
+                        </div>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder="🔍 在搜索结果中筛选关键词..."
+                            value={keywordFilter}
+                            onChange={(e) => setKeywordFilter(e.target.value)}
+                            className="pl-10 pr-4 py-2 text-sm border-gray-300 dark:border-gray-600 focus:border-blue-400 transition-colors"
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          💡 可筛选标题、描述、作者名称或原始关键词
+                        </p>
+                      </div>
+                    )}
+                    
                     {filteredResults.length === 0 ? (
                       <div className="text-center py-8">
                         <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                         <p className="text-sm text-muted-foreground">
-                          {keyword
-                            ? `没有找到关键词 "${keyword}" 的相关内容`
-                            : "请输入关键词开始搜索"}
+                          {keywordFilter
+                            ? `没有找到包含 "${keywordFilter}" 的内容`
+                            : "暂无搜索结果数据，请先点击'刷新数据'按钮获取已采集的关键词作品"}
                         </p>
                       </div>
                     ) : (
@@ -895,7 +1204,8 @@ export default function KeywordContentSearch() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[300px]">
+                              <TableHead className="w-[80px]">作品展示</TableHead>
+                              <TableHead className="w-[280px]">
                                 作品标题
                               </TableHead>
                               <TableHead className="w-[120px]">作者</TableHead>
@@ -912,11 +1222,14 @@ export default function KeywordContentSearch() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {filteredResults.map((result) => (
+                            {currentPageResults.map((result) => (
                               <TableRow key={result.id}>
+                                <TableCell className="p-2">
+                                  {renderMediaThumbnail(result)}
+                                </TableCell>
                                 <TableCell className="font-medium">
                                   <div
-                                    className="max-w-[280px] truncate"
+                                    className="max-w-[260px] truncate"
                                     title={result.title || result.description}
                                   >
                                     {result.title || result.description}
@@ -958,7 +1271,7 @@ export default function KeywordContentSearch() {
                                     size="sm"
                                     className="h-6 w-6 p-0"
                                     onClick={() =>
-                                      window.open(result.url, "_blank")
+                                      window.open(result.post_url, "_blank")
                                     }
                                   >
                                     <ExternalLink className="h-3 w-3" />
@@ -970,6 +1283,9 @@ export default function KeywordContentSearch() {
                         </Table>
                       </div>
                     )}
+                    
+                    {/* Pagination */}
+                    {renderPagination()}
                   </CardContent>
                 </Card>
               </div>
@@ -977,6 +1293,9 @@ export default function KeywordContentSearch() {
           ))}
         </Tabs>
       </div>
+      
+      {/* Media Preview Dialog */}
+      {renderMediaDialog()}
     </DashboardLayout>
   );
 }
