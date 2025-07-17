@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,9 @@ import type {
   DouyinUserFilters, 
   TikTokUserFilters, 
   XiaohongshuUserFilters,
-  KuaishouUserFilters 
+  KuaishouUserFilters,
+  UserInfluencer,
+  GetUserInfluencersParams
 } from "@/lib/api";
 import {
   Select,
@@ -53,58 +55,33 @@ const supportedPlatforms = [
   { id: "youtube", name: "YouTube", emoji: "📹", available: false },
 ];
 
-// Sample search results
-const mockResults = [
-  {
-    id: 1,
-    username: "美妆达人小丽",
-    platform: "抖音",
-    followers: "156.8万",
-    following: "128",
-    works: "127",
-    likes: "2340万",
-    bio: "专业美妆博主 | 护肤分享 | 合作微信：xxxxx",
-    verified: true,
-    userType: "个人认证",
-    avatar: "https://example.com/avatar1.jpg",
-    url: "https://www.douyin.com/user/123456",
-  },
-  {
-    id: 2,
-    username: "TechReviewer",
-    platform: "TikTok",
-    followers: "245.7K",
-    following: "89",
-    works: "203",
-    likes: "3.58M",
-    bio: "Tech Reviews & Unboxing | Latest Gadgets | Contact: tech@email.com",
-    verified: true,
-    userType: "认证用户",
-    avatar: "https://example.com/avatar2.jpg",
-    url: "https://www.tiktok.com/@techreviewer",
-  },
-  {
-    id: 3,
-    username: "生活记录家",
-    platform: "小红书",
-    followers: "89.3万",
-    following: "256",
-    works: "89",
-    likes: "1890万",
-    bio: "记录美好生活 | 收纳整理达人 | 分享生活小窍门",
-    verified: false,
-    userType: "普通用户",
-    avatar: "https://example.com/avatar3.jpg",
-    url: "https://www.xiaohongshu.com/user/789012",
-  },
-];
+// Helper function to format numbers
+const formatNumber = (num: number): string => {
+  if (num >= 10000000) {
+    return (num / 10000000).toFixed(1) + "千万";
+  } else if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + "百万";
+  } else if (num >= 10000) {
+    return (num / 10000).toFixed(1) + "万";
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+};
 
 export default function KeywordAccountSearch() {
   const [keyword, setKeyword] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("douyin");
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState(mockResults);
+  const [influencers, setInfluencers] = useState<UserInfluencer[]>([]);
   const [quantityFilter, setQuantityFilter] = useState("50");
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 20,
+  });
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   // Platform-specific filters
   const [douyinFilters, setDouyinFilters] = useState({
@@ -116,6 +93,51 @@ export default function KeywordAccountSearch() {
     followerCount: "all",
     profileType: "all",
   });
+
+  // Fetch influencers from API
+  const fetchInfluencers = async (params: Partial<GetUserInfluencersParams> = {}) => {
+    setIsLoading(true);
+    try {
+      // Map platform names for API request
+      const platformMap: Record<string, string> = {
+        xiaohongshu: "xhs",
+      };
+      
+      const apiPlatform = platformMap[selectedPlatform] || selectedPlatform;
+
+      const response = await apiClient.getUserInfluencers({
+        platform: apiPlatform as "douyin" | "tiktok" | "xhs" | "kuaishou",
+        keyword: searchKeyword || undefined,
+        page: pagination.page,
+        limit: pagination.limit,
+        ...params,
+      });
+
+      setInfluencers(response.influencers);
+      setPagination({
+        total: response.total,
+        page: response.page,
+        limit: response.limit,
+      });
+    } catch (error) {
+      console.error("Error fetching influencers:", error);
+      toast({
+        title: "加载失败",
+        description: "无法获取搜索结果，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load influencers when platform changes
+  useEffect(() => {
+    const currentPlatform = supportedPlatforms.find((p) => p.id === selectedPlatform);
+    if (currentPlatform?.available) {
+      fetchInfluencers({ page: 1 });
+    }
+  }, [selectedPlatform]);
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
@@ -159,9 +181,16 @@ export default function KeywordAccountSearch() {
         filters = {} as KuaishouUserFilters;
       }
 
+      // Map platform names for API request
+      const platformMap: Record<string, string> = {
+        xiaohongshu: "xhs",
+      };
+      
+      const apiPlatform = platformMap[selectedPlatform] || selectedPlatform;
+
       const params: KeywordUserSearchParams = {
         keyword: keyword.trim(),
-        platform: selectedPlatform as "douyin" | "tiktok" | "xiaohongshu" | "kuaishou",
+        platform: apiPlatform as "douyin" | "tiktok" | "xhs" | "kuaishou",
         user_count: parseInt(quantityFilter),
         filters,
       };
@@ -174,7 +203,12 @@ export default function KeywordAccountSearch() {
       });
 
       // Clear results and show success message
-      setSearchResults([]);
+      setInfluencers([]);
+      
+      // Fetch updated results after a delay to allow backend processing
+      setTimeout(() => {
+        fetchInfluencers();
+      }, 3000);
       
     } catch (error) {
       console.error("Search error:", error);
@@ -335,28 +369,6 @@ export default function KeywordAccountSearch() {
         return (
           <div className="space-y-4">
             {getQuantityFilterComponent()}
-            <div className="text-center py-8">
-              <div className="flex flex-col items-center gap-3">
-                <div className="p-3 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
-                  <Filter className="h-6 w-6 text-gray-500" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {
-                      supportedPlatforms.find((p) => p.id === selectedPlatform)
-                        ?.emoji
-                    }{" "}
-                    {
-                      supportedPlatforms.find((p) => p.id === selectedPlatform)
-                        ?.name
-                    }
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    该平台暂无额外筛选条件，使用基础关键词搜索即可
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         );
 
@@ -397,27 +409,17 @@ export default function KeywordAccountSearch() {
     }
   };
 
-  const filteredResults = searchResults.filter((result) => {
-    const platformMap = {
-      douyin: "抖音",
-      tiktok: "TikTok",
-      xiaohongshu: "小红书",
-      kuaishou: "快手",
-      instagram: "Instagram",
-      x: "X",
-      youtube: "YouTube",
-    };
-    return result.platform === platformMap[selectedPlatform];
-  });
+  // Handle keyword search in results
+  const handleKeywordSearch = () => {
+    fetchInfluencers({ 
+      keyword: searchKeyword, 
+      page: 1 
+    });
+  };
 
-  const getVerificationIcon = (verified: boolean, userType: string) => {
+  const getVerificationIcon = (verified: boolean) => {
     if (!verified) return null;
-
-    return userType.includes("企业") ? (
-      <Crown className="h-3 w-3 text-yellow-500" />
-    ) : (
-      <Verified className="h-3 w-3 text-blue-500" />
-    );
+    return <Verified className="h-3 w-3 text-blue-500" />;
   };
 
   return (
@@ -573,26 +575,50 @@ export default function KeywordAccountSearch() {
                     <CardTitle className="text-base flex items-center justify-between">
                       <span className="flex items-center">
                         <Users className="mr-2 h-4 w-4" />
-                        搜索结果 ({filteredResults.length})
+                        搜索结果 ({pagination.total})
                       </span>
-                      <Button
-                        size="sm"
-                        disabled={filteredResults.length === 0}
-                        className="h-8 brand-accent"
-                      >
-                        <Download className="mr-2 h-3.5 w-3.5" />
-                        导��结果
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            placeholder="关键词筛选..."
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            className="w-40 h-8"
+                            onKeyPress={(e) => e.key === "Enter" && handleKeywordSearch()}
+                          />
+                          <Button
+                            size="sm"
+                            onClick={handleKeywordSearch}
+                            disabled={isLoading}
+                            className="h-8"
+                          >
+                            <Search className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <Button
+                          size="sm"
+                          disabled={influencers.length === 0}
+                          className="h-8 brand-accent"
+                        >
+                          <Download className="mr-2 h-3.5 w-3.5" />
+                          导出结果
+                        </Button>
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {filteredResults.length === 0 ? (
+                    {isLoading ? (
+                      <div className="text-center py-8">
+                        <RefreshCw className="h-8 w-8 mx-auto text-muted-foreground mb-2 animate-spin" />
+                        <p className="text-sm text-muted-foreground">正在加载搜索结果...</p>
+                      </div>
+                    ) : influencers.length === 0 ? (
                       <div className="text-center py-8">
                         <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                         <p className="text-sm text-muted-foreground">
-                          {keyword
-                            ? `没有找到关键词 "${keyword}" 的相关账号`
-                            : "请输入关键词开始搜索"}
+                          {searchKeyword
+                            ? `没有找到关键词 "${searchKeyword}" 的相关账号`
+                            : "暂无搜索结果，请尝试搜索关键词获取账号数据"}
                         </p>
                       </div>
                     ) : (
@@ -606,86 +632,92 @@ export default function KeywordAccountSearch() {
                               </TableHead>
                               <TableHead className="w-[80px]">关注</TableHead>
                               <TableHead className="w-[80px]">作品</TableHead>
-                              <TableHead className="w-[100px]">���赞</TableHead>
-                              <TableHead className="w-[300px]">简介</TableHead>
-                              <TableHead className="w-[100px]">认证</TableHead>
-                              <TableHead className="w-[60px]">操作</TableHead>
+                              <TableHead className="w-[100px]">平台</TableHead>
+                              <TableHead className="w-[150px]">认证状态</TableHead>
+                              <TableHead className="w-[120px]">操作</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {filteredResults.map((result) => (
-                              <TableRow key={result.id}>
+                            {influencers.map((influencer) => (
+                              <TableRow key={influencer.id}>
                                 <TableCell className="font-medium">
                                   <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                                      {result.username.charAt(0)}
+                                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                                      {influencer.avatar_url ? (
+                                        <img 
+                                          src={influencer.avatar_url} 
+                                          alt={influencer.nickname}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                          {influencer.nickname.charAt(0)}
+                                        </div>
+                                      )}
                                     </div>
                                     <div>
                                       <div className="flex items-center gap-1">
                                         <span className="font-medium text-sm">
-                                          {result.username}
+                                          {influencer.nickname}
                                         </span>
-                                        {getVerificationIcon(
-                                          result.verified,
-                                          result.userType,
-                                        )}
+                                        {getVerificationIcon(influencer.is_verified)}
                                       </div>
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs mt-1"
-                                      >
-                                        {result.platform}
-                                      </Badge>
+                                      <div className="text-xs text-muted-foreground">
+                                        @{influencer.username}
+                                      </div>
                                     </div>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">
                                     <Users className="h-3 w-3 mr-1 text-blue-500" />
-                                    {result.followers}
+                                    {formatNumber(influencer.follower_count)}
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                  {result.following}
+                                  {formatNumber(influencer.following_count)}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                  {result.works}
+                                  {formatNumber(influencer.post_count)}
                                 </TableCell>
                                 <TableCell className="text-sm">
-                                  <span className="flex items-center">
-                                    <Eye className="h-3 w-3 mr-1 text-red-500" />
-                                    {result.likes}
-                                  </span>
-                                </TableCell>
-                                <TableCell className="text-sm">
-                                  <div
-                                    className="max-w-[280px] truncate"
-                                    title={result.bio}
-                                  >
-                                    {result.bio}
-                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {influencer.platform.toUpperCase()}
+                                  </Badge>
                                 </TableCell>
                                 <TableCell>
                                   <Badge
                                     variant={
-                                      result.verified ? "default" : "secondary"
+                                      influencer.is_verified ? "default" : "secondary"
                                     }
                                     className="text-xs"
                                   >
-                                    {result.userType}
+                                    {influencer.is_verified ? "已认证" : "未认证"}
                                   </Badge>
                                 </TableCell>
                                 <TableCell>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                    onClick={() =>
-                                      window.open(result.url, "_blank")
-                                    }
-                                  >
-                                    <ExternalLink className="h-3 w-3" />
-                                  </Button>
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() =>
+                                        window.open(influencer.profile_url, "_blank")
+                                      }
+                                      title="访问主页"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => fetchInfluencers({ page: pagination.page })}
+                                      title="刷新数据"
+                                    >
+                                      <RefreshCw className="h-3 w-3" />
+                                    </Button>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             ))}

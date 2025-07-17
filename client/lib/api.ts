@@ -315,7 +315,7 @@ type UserSearchFilters = DouyinUserFilters | TikTokUserFilters | XiaohongshuUser
 
 interface KeywordUserSearchParams {
   keyword: string;
-  platform: "douyin" | "tiktok" | "xiaohongshu" | "kuaishou";
+  platform: "douyin" | "tiktok" | "xhs" | "kuaishou";
   user_count: number;
   filters?: UserSearchFilters;
 }
@@ -324,6 +324,38 @@ interface KeywordUserSearchResponse {
   status: "success" | "error";
   task_id: string;
   message: string;
+}
+
+// Influencer/User Data Types
+interface UserInfluencer {
+  id: string;
+  task_id: string;
+  platform: string;
+  platform_user_id: string;
+  keyword: string;
+  username: string;
+  nickname: string;
+  avatar_url: string;
+  follower_count: number;
+  following_count: number;
+  post_count: number;
+  is_verified: boolean;
+  profile_url: string;
+  created_at: string;
+}
+
+interface GetInfluencersResponse {
+  influencers: UserInfluencer[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+interface GetUserInfluencersParams {
+  platform?: "douyin" | "tiktok" | "xhs" | "kuaishou";
+  keyword?: string;
+  page?: number;
+  limit?: number;
 }
 
 class ApiClient {
@@ -366,26 +398,6 @@ class ApiClient {
     return response.json();
   }
 
-  async getInfluencers(
-    params: GetInfluencersParams,
-  ): Promise<ApiResponse<Influencer>> {
-    const searchParams = new URLSearchParams();
-
-    searchParams.append("platform", params.platform);
-    if (params.page) searchParams.append("page", params.page.toString());
-    if (params.limit) searchParams.append("limit", params.limit.toString());
-    if (params.nickname) searchParams.append("nickname", params.nickname);
-    if (params.sort_by_fans)
-      searchParams.append("sort_by_fans", params.sort_by_fans);
-    if (params.sort_by_likes)
-      searchParams.append("sort_by_likes", params.sort_by_likes);
-    if (params.sort_by_posts)
-      searchParams.append("sort_by_posts", params.sort_by_posts);
-
-    return this.request<ApiResponse<Influencer>>(
-      `/account-interaction/influencers?${searchParams.toString()}`,
-    );
-  }
 
   async getPosts(params: GetPostsParams): Promise<ApiResponse<Post>> {
     const { platform, platform_user_id, ...queryParams } = params;
@@ -462,6 +474,40 @@ class ApiClient {
     return response.json();
   }
 
+  async getUserInfluencers(
+    params: GetUserInfluencersParams = {},
+  ): Promise<GetInfluencersResponse> {
+    // The API endpoint expects port 8001 based on the documentation
+    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const searchParams = new URLSearchParams();
+
+    if (params.platform) searchParams.append("platform", params.platform);
+    if (params.keyword) searchParams.append("keyword", params.keyword);
+    if (params.page) searchParams.append("page", params.page.toString());
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+
+    const url = `${apiUrl}/keyword-search-user/influencers?${searchParams.toString()}`;
+    
+    const headers: Record<string, string> = {};
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    return response.json();
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -511,4 +557,7 @@ export type {
   XiaohongshuUserFilters,
   KuaishouUserFilters,
   UserSearchFilters,
+  UserInfluencer,
+  GetInfluencersResponse,
+  GetUserInfluencersParams,
 };
