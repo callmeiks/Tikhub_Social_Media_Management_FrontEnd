@@ -67,6 +67,7 @@ const supportedPlatforms = [
 
 export default function AccountInteraction() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("batch");
   const [batchUrls, setBatchUrls] = useState("");
   const [isCollecting, setIsCollecting] = useState(false);
   const [accountData, setAccountData] = useState<Influencer[]>([]);
@@ -106,96 +107,60 @@ export default function AccountInteraction() {
 
     setLoading(true);
     try {
-      if (selectedPlatforms.includes("all")) {
-        // When "all" is selected, make a single request with platform=all
-        let sortParam: GetInfluencersParams = {
-          platform: "all",
-          page: currentPage,
-          limit: itemsPerPage,
-        };
-
-        if (searchQuery.trim()) {
-          sortParam.nickname = searchQuery.trim();
-        }
-
-        switch (sortBy) {
-          case "粉丝量-高到低":
-            sortParam.sort_by_fans = "descending";
-            break;
-          case "粉丝量-低到高":
-            sortParam.sort_by_fans = "ascending";
-            break;
-          case "作品量-高到低":
-            sortParam.sort_by_posts = "descending";
-            break;
-          case "作品量-低到高":
-            sortParam.sort_by_posts = "ascending";
-            break;
-          case "点赞量-高到低":
-            sortParam.sort_by_likes = "descending";
-            break;
-          case "点赞量-低到高":
-            sortParam.sort_by_likes = "ascending";
-            break;
-        }
-
-        const response = await apiClient.getInfluencers(sortParam);
-        setAccountData(response.items);
-        setTotalItems(response.total);
-      } else {
-        // When specific platforms are selected, iterate through them
-        const allInfluencers: Influencer[] = [];
-        let totalCount = 0;
-
-        for (const platformName of selectedPlatforms) {
-          const platform = supportedPlatforms.find(
-            (p) => p.name === platformName,
-          );
-          if (!platform) continue;
-
-          let sortParam: GetInfluencersParams = {
-            platform: platform.id as "tiktok" | "douyin" | "xiaohongshu",
-            page: currentPage,
-            limit: itemsPerPage,
-          };
-
-          if (searchQuery.trim()) {
-            sortParam.nickname = searchQuery.trim();
-          }
-
-          switch (sortBy) {
-            case "粉丝量-高到低":
-              sortParam.sort_by_fans = "descending";
-              break;
-            case "粉丝量-低到高":
-              sortParam.sort_by_fans = "ascending";
-              break;
-            case "作品量-高到低":
-              sortParam.sort_by_posts = "descending";
-              break;
-            case "作品量-低到高":
-              sortParam.sort_by_posts = "ascending";
-              break;
-            case "点赞量-高到低":
-              sortParam.sort_by_likes = "descending";
-              break;
-            case "点赞量-低到高":
-              sortParam.sort_by_likes = "ascending";
-              break;
-          }
-
-          try {
-            const response = await apiClient.getInfluencers(sortParam);
-            allInfluencers.push(...response.items);
-            totalCount += response.total;
-          } catch (error) {
-            console.warn(`Failed to fetch from ${platform.name}:`, error);
-          }
-        }
-
-        setAccountData(allInfluencers);
-        setTotalItems(totalCount);
+      // Use port 8001 for account-interaction API
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+      const url = `${apiUrl}/api/account-interaction/influencers`;
+      
+      const searchParams = new URLSearchParams();
+      searchParams.append("platform", selectedPlatforms.includes("all") ? "all" : selectedPlatforms.join(","));
+      searchParams.append("page", currentPage.toString());
+      searchParams.append("limit", itemsPerPage.toString());
+      
+      if (searchQuery.trim()) {
+        searchParams.append("nickname", searchQuery.trim());
       }
+
+      // Add sorting parameters
+      switch (sortBy) {
+        case "粉丝量-高到低":
+          searchParams.append("sort_by_fans", "descending");
+          break;
+        case "粉丝量-低到高":
+          searchParams.append("sort_by_fans", "ascending");
+          break;
+        case "作品量-高到低":
+          searchParams.append("sort_by_posts", "descending");
+          break;
+        case "作品量-低到高":
+          searchParams.append("sort_by_posts", "ascending");
+          break;
+        case "点赞量-高到低":
+          searchParams.append("sort_by_likes", "descending");
+          break;
+        case "点赞量-低到高":
+          searchParams.append("sort_by_likes", "ascending");
+          break;
+      }
+
+      const headers: Record<string, string> = {};
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${url}?${searchParams.toString()}`, {
+        method: "GET",
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      setAccountData(data.items);
+      setTotalItems(data.total);
     } catch (error) {
       console.error("Failed to fetch influencers:", error);
     } finally {
@@ -204,8 +169,10 @@ export default function AccountInteraction() {
   };
 
   useEffect(() => {
-    fetchInfluencers();
-  }, [selectedPlatforms, currentPage, sortBy, searchQuery]);
+    if (activeTab === "accounts") {
+      fetchInfluencers();
+    }
+  }, [activeTab, selectedPlatforms, currentPage, sortBy, searchQuery]);
 
   const formatNumber = (num: number): string => {
     if (num >= 10000) {
@@ -725,7 +692,7 @@ export default function AccountInteraction() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="batch" className="w-full">
+        <Tabs defaultValue="batch" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="batch" className="flex items-center gap-2">
               <Link className="w-4 h-4" />
