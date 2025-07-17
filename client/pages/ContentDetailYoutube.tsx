@@ -65,7 +65,7 @@ export default function ContentDetailYoutube() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to YoutubePostData format
       const mappedData: YoutubePostData = {
         id: contentData.id || "youtube_" + Date.now(),
@@ -90,7 +90,7 @@ export default function ContentDetailYoutube() {
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -462,7 +462,6 @@ export default function ContentDetailYoutube() {
             <TabsTrigger value="channel">频道详情</TabsTrigger>
             <TabsTrigger value="analytics">数据分析</TabsTrigger>
           </TabsList>
-
 
           <TabsContent value="channel" className="mt-6">
             <Card>

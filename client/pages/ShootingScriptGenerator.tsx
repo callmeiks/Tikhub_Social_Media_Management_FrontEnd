@@ -150,35 +150,39 @@ export default function ShootingScriptGenerator() {
     setIsGenerating(true);
     setGeneratedScript(null);
     setScriptMetadata(null);
-    
+
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
-      const response = await fetch(`${apiBaseUrl}/api/shooting-script/generate`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
-          'Content-Type': 'application/json'
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+      const response = await fetch(
+        `${apiBaseUrl}/api/shooting-script/generate`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: topic,
+            platform: selectedPlatform,
+            script_type: selectedType,
+            duration: selectedDuration,
+            target_age: targetAge,
+            target_gender: targetGender,
+            special_requirements: specialRequirements || undefined,
+            include_production_notes: includeProductionNotes,
+          }),
         },
-        body: JSON.stringify({
-          topic: topic,
-          platform: selectedPlatform,
-          script_type: selectedType,
-          duration: selectedDuration,
-          target_age: targetAge,
-          target_gender: targetGender,
-          special_requirements: specialRequirements || undefined,
-          include_production_notes: includeProductionNotes
-        })
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`API请求失败: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('API响应数据:', data); // 调试日志
-      
+      console.log("API响应数据:", data); // 调试日志
+
       // 设置生成的脚本结果
       if (data.script) {
         setGeneratedScript(data.script);
@@ -186,14 +190,14 @@ export default function ShootingScriptGenerator() {
           setScriptMetadata(data.script.metadata);
         }
       } else {
-        throw new Error('API返回的数据格式不正确');
+        throw new Error("API返回的数据格式不正确");
       }
     } catch (error) {
-      console.error('生成脚本失败:', error);
+      console.error("生成脚本失败:", error);
       // 显示错误信息
       setGeneratedScript({
         title: `生成失败`,
-        content: `❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}\n\n请检查网络连接或稍后重试。`
+        content: `❌ 生成失败：${error instanceof Error ? error.message : "未知错误"}\n\n请检查网络连接或稍后重试。`,
       });
     } finally {
       setIsGenerating(false);
@@ -394,10 +398,15 @@ export default function ShootingScriptGenerator() {
                     type="checkbox"
                     id="includeProductionNotes"
                     checked={includeProductionNotes}
-                    onChange={(e) => setIncludeProductionNotes(e.target.checked)}
+                    onChange={(e) =>
+                      setIncludeProductionNotes(e.target.checked)
+                    }
                     className="rounded border-border"
                   />
-                  <label htmlFor="includeProductionNotes" className="text-sm font-medium">
+                  <label
+                    htmlFor="includeProductionNotes"
+                    className="text-sm font-medium"
+                  >
                     包含制作备注
                   </label>
                 </div>
@@ -463,9 +472,9 @@ export default function ShootingScriptGenerator() {
                     生成结果 {generatedScript ? "(1个脚本)" : ""}
                   </span>
                   {generatedScript && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-6"
                       onClick={() => handleCopy(generatedScript.content)}
                     >
@@ -528,40 +537,71 @@ export default function ShootingScriptGenerator() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Script Metadata */}
                       {scriptMetadata && (
                         <div className="space-y-4 mt-4 border-t border-border pt-4">
                           {/* Tags */}
-                          {scriptMetadata.tags && scriptMetadata.tags.length > 0 && (
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-2">内容标签</div>
-                              <div className="flex flex-wrap gap-1">
-                                {scriptMetadata.tags.map((tag: string, index: number) => (
-                                  <Badge key={index} variant="secondary" className="text-xs h-5">
-                                    {tag}
-                                  </Badge>
-                                ))}
+                          {scriptMetadata.tags &&
+                            scriptMetadata.tags.length > 0 && (
+                              <div>
+                                <div className="text-xs text-muted-foreground mb-2">
+                                  内容标签
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {scriptMetadata.tags.map(
+                                    (tag: string, index: number) => (
+                                      <Badge
+                                        key={index}
+                                        variant="secondary"
+                                        className="text-xs h-5"
+                                      >
+                                        {tag}
+                                      </Badge>
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          
+                            )}
+
                           {/* Engagement Prediction */}
                           {scriptMetadata.engagement_prediction && (
                             <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                              <div className="text-xs text-green-600 font-medium mb-2">预期效果</div>
+                              <div className="text-xs text-green-600 font-medium mb-2">
+                                预期效果
+                              </div>
                               <div className="grid grid-cols-2 gap-2 text-xs text-green-600">
                                 {scriptMetadata.engagement_prediction.views && (
-                                  <span>👁️ 观看: {scriptMetadata.engagement_prediction.views}</span>
+                                  <span>
+                                    👁️ 观看:{" "}
+                                    {scriptMetadata.engagement_prediction.views}
+                                  </span>
                                 )}
                                 {scriptMetadata.engagement_prediction.likes && (
-                                  <span>👍 点赞: {scriptMetadata.engagement_prediction.likes}</span>
+                                  <span>
+                                    👍 点赞:{" "}
+                                    {scriptMetadata.engagement_prediction.likes}
+                                  </span>
                                 )}
-                                {scriptMetadata.engagement_prediction.comments && (
-                                  <span>💬 评论: {scriptMetadata.engagement_prediction.comments}</span>
+                                {scriptMetadata.engagement_prediction
+                                  .comments && (
+                                  <span>
+                                    💬 评论:{" "}
+                                    {
+                                      scriptMetadata.engagement_prediction
+                                        .comments
+                                    }
+                                  </span>
                                 )}
-                                {scriptMetadata.engagement_prediction.shares && (
-                                  <span>🔁 分享: {scriptMetadata.engagement_prediction.shares}</span>
+                                {scriptMetadata.engagement_prediction
+                                  .shares && (
+                                  <span>
+                                    🔁 分享:{" "}
+                                    {
+                                      scriptMetadata.engagement_prediction
+                                        .shares
+                                    }
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -573,7 +613,9 @@ export default function ShootingScriptGenerator() {
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <Video className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">输入视频主题，点击生成脚本开始创作</p>
+                    <p className="text-sm">
+                      输入视频主题，点击生成脚本开始创作
+                    </p>
                   </div>
                 )}
               </CardContent>

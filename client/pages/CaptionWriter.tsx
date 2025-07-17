@@ -33,25 +33,37 @@ const contentStyles = [
 ];
 
 const rewriteOptions = [
-  { id: "tone", name: "语调调整", options: [
-    { value: "formal", label: "正式" },
-    { value: "casual", label: "轻松" },
-    { value: "humorous", label: "幽默" },
-    { value: "professional", label: "专业" }
-  ]},
-  { id: "length", name: "长度控制", options: [
-    { value: "concise", label: "精简" },
-    { value: "standard", label: "标准" },
-    { value: "detailed", label: "详细" },
-    { value: "extended", label: "扩展" }
-  ]},
+  {
+    id: "tone",
+    name: "语调调整",
+    options: [
+      { value: "formal", label: "正式" },
+      { value: "casual", label: "轻松" },
+      { value: "humorous", label: "幽默" },
+      { value: "professional", label: "专业" },
+    ],
+  },
+  {
+    id: "length",
+    name: "长度控制",
+    options: [
+      { value: "concise", label: "精简" },
+      { value: "standard", label: "标准" },
+      { value: "detailed", label: "详细" },
+      { value: "extended", label: "扩展" },
+    ],
+  },
   {
     id: "style",
     name: "风格类型",
     options: [
       { value: "viral", label: "爆款文案", description: "高传播性，容易走红" },
       { value: "emotional", label: "情感文案", description: "引发情感共鸣" },
-      { value: "suspense", label: "悬念文案", description: "制造悬念，吸引观看" },
+      {
+        value: "suspense",
+        label: "悬念文案",
+        description: "制造悬念，吸引观看",
+      },
       { value: "tutorial", label: "教程文案", description: "实用干货分享" },
       { value: "story", label: "故事文案", description: "叙事性强，引人入胜" },
       { value: "trending", label: "热点文案", description: "结合当下热点话题" },
@@ -68,13 +80,17 @@ const rewriteOptions = [
       { value: "education", label: "教育" },
       { value: "entertainment", label: "娱乐" },
       { value: "travel", label: "旅行" },
-      { value: "fashion", label: "时尚" }
+      { value: "fashion", label: "时尚" },
     ],
   },
-  { id: "language", name: "语言", options: [
-    { value: "chinese", label: "中文" },
-    { value: "english", label: "英文" }
-  ]},
+  {
+    id: "language",
+    name: "语言",
+    options: [
+      { value: "chinese", label: "中文" },
+      { value: "english", label: "英文" },
+    ],
+  },
 ];
 
 const exampleTexts = [
@@ -103,13 +119,14 @@ export default function CaptionWriter() {
     setIsRewriting(true);
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
       const response = await fetch(`${apiBaseUrl}/api/caption/generate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'accept': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
-          'Content-Type': 'application/json'
+          accept: "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           input_text: inputText,
@@ -119,9 +136,9 @@ export default function CaptionWriter() {
             length: selectedOptions.length,
             style: selectedOptions.style,
             track: selectedOptions.track,
-            language: selectedOptions.language
-          }
-        })
+            language: selectedOptions.language,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -129,8 +146,8 @@ export default function CaptionWriter() {
       }
 
       const data = await response.json();
-      console.log('API响应数据:', data); // 调试日志
-      
+      console.log("API响应数据:", data); // 调试日志
+
       // 检查响应数据结构 - 使用正确的字段名 generatedCaption
       if (data.generatedCaption) {
         setOutputText(data.generatedCaption);
@@ -138,19 +155,21 @@ export default function CaptionWriter() {
         setOutputText(data.generated_caption);
       } else if (data.caption) {
         setOutputText(data.caption);
-      } else if (typeof data === 'string') {
+      } else if (typeof data === "string") {
         setOutputText(data);
       } else {
-        console.error('未找到生成的文案内容:', data);
-        setOutputText('⚠️ API返回了数据，但格式不符合预期。请检查控制台日志。');
+        console.error("未找到生成的文案内容:", data);
+        setOutputText("⚠️ API返回了数据，但格式不符合预期。请检查控制台日志。");
       }
-      
+
       if (data.metadata) {
         setGenerationMetadata(data.metadata);
       }
     } catch (error) {
-      console.error('生成文案失败:', error);
-      setOutputText(`❌ 生成失败：${error instanceof Error ? error.message : '未知错误'}\n\n请检查网络连接或稍后重试。`);
+      console.error("生成文案失败:", error);
+      setOutputText(
+        `❌ 生成失败：${error instanceof Error ? error.message : "未知错误"}\n\n请检查网络连接或稍后重试。`,
+      );
       setGenerationMetadata(null);
     } finally {
       setIsRewriting(false);
@@ -345,13 +364,15 @@ export default function CaptionWriter() {
                           {outputText}
                         </pre>
                       </div>
-                      
+
                       {/* Generation Metadata */}
                       {generationMetadata && (
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                           <div className="flex items-center justify-between text-xs text-blue-600 mb-2">
                             <span className="font-medium">生成信息</span>
-                            <span>{generationMetadata.generation_time_ms}ms</span>
+                            <span>
+                              {generationMetadata.generation_time_ms}ms
+                            </span>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-xs text-blue-600">
                             <span>平台: {generationMetadata.platform}</span>

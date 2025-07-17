@@ -118,7 +118,7 @@ export default function ContentDetailInstagram() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to InstagramPostData format
       const mappedData: InstagramPostData = {
         id: contentData.id || "instagram_" + Date.now(),
@@ -130,19 +130,24 @@ export default function ContentDetailInstagram() {
         media_type: contentData.media_type || 1,
         is_video: contentData.is_video || false,
         user_id: contentData.user_id || "",
-        username: contentData.username || contentData.author_username || "未知用户",
-        full_name: contentData.full_name || contentData.author_full_name || "未知用户",
+        username:
+          contentData.username || contentData.author_username || "未知用户",
+        full_name:
+          contentData.full_name || contentData.author_full_name || "未知用户",
         profile_pic_url: contentData.profile_pic_url || "",
         is_verified: contentData.is_verified || false,
         is_private: contentData.is_private || false,
-        caption_text: contentData.caption_text || contentData.caption || "无描述",
+        caption_text:
+          contentData.caption_text || contentData.caption || "无描述",
         caption_created_at: contentData.caption_created_at || Date.now() / 1000,
         mentions: contentData.mentions || [],
         hashtags: contentData.hashtags || [],
         accessibility_caption: contentData.accessibility_caption || "",
         thumbnail_url: contentData.thumbnail_url || "",
-        image_url_hd: contentData.image_url_hd || contentData.image_urls?.[0] || "",
-        image_url_sd: contentData.image_url_sd || contentData.image_urls?.[0] || "",
+        image_url_hd:
+          contentData.image_url_hd || contentData.image_urls?.[0] || "",
+        image_url_sd:
+          contentData.image_url_sd || contentData.image_urls?.[0] || "",
         original_width: contentData.original_width || 0,
         original_height: contentData.original_height || 0,
         comment_count: contentData.comment_count || 0,
@@ -150,9 +155,14 @@ export default function ContentDetailInstagram() {
         share_count: contentData.share_count || 0,
         view_count: contentData.view_count || 0,
         like_count: contentData.like_count || 0,
-        can_save: contentData.can_save !== undefined ? contentData.can_save : true,
-        can_reshare: contentData.can_reshare !== undefined ? contentData.can_reshare : true,
-        can_reply: contentData.can_reply !== undefined ? contentData.can_reply : true,
+        can_save:
+          contentData.can_save !== undefined ? contentData.can_save : true,
+        can_reshare:
+          contentData.can_reshare !== undefined
+            ? contentData.can_reshare
+            : true,
+        can_reply:
+          contentData.can_reply !== undefined ? contentData.can_reply : true,
         has_liked: contentData.has_liked || false,
         comments_disabled: contentData.comments_disabled || false,
         is_paid_partnership: contentData.is_paid_partnership || false,
@@ -160,7 +170,7 @@ export default function ContentDetailInstagram() {
         created_at: contentData.created_at || new Date().toISOString(),
         updated_at: contentData.updated_at || new Date().toISOString(),
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -178,17 +188,23 @@ export default function ContentDetailInstagram() {
           user_id: "25025320",
           username: "instagram",
           full_name: "Instagram",
-          profile_pic_url: "https://scontent-vie1-1.cdninstagram.com/v/t51.2885-19/281440578_1088265838702675_6233856337905829714_n.jpg",
+          profile_pic_url:
+            "https://scontent-vie1-1.cdninstagram.com/v/t51.2885-19/281440578_1088265838702675_6233856337905829714_n.jpg",
           is_verified: true,
           is_private: false,
-          caption_text: "\"We heal and reclaim our identity through the act of creation,\" says @adinasdoodles (Adina Farinango), a Kichwa artist of Ecuadorian heritage who now lives in the Indigenous territory Lenapehoking, which includes New York City.",
+          caption_text:
+            '"We heal and reclaim our identity through the act of creation," says @adinasdoodles (Adina Farinango), a Kichwa artist of Ecuadorian heritage who now lives in the Indigenous territory Lenapehoking, which includes New York City.',
           caption_created_at: 1695138398,
           mentions: ["@adinasdoodles", "@keyraarroyo", "@design"],
           hashtags: [],
-          accessibility_caption: "Artwork of two faceless people standing side by side wearing necklaces, earrings and colorful tops.",
-          thumbnail_url: "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
-          image_url_hd: "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
-          image_url_sd: "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
+          accessibility_caption:
+            "Artwork of two faceless people standing side by side wearing necklaces, earrings and colorful tops.",
+          thumbnail_url:
+            "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
+          image_url_hd:
+            "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
+          image_url_sd:
+            "https://scontent-vie1-1.cdninstagram.com/v/t51.29350-15/379560024_1762628070832824_3765573901785981843_n.jpg",
           original_width: 1440,
           original_height: 1440,
           comment_count: 4316,
@@ -208,10 +224,11 @@ export default function ContentDetailInstagram() {
                 id: "455765941",
                 username: "keyraarroyo",
                 full_name: "Keyra Espinoza Arroyo",
-                profile_pic_url: "https://scontent-vie1-1.cdninstagram.com/v/t51.2885-19/483290532_1057408086427488_1988972788570270888_n.jpg"
+                profile_pic_url:
+                  "https://scontent-vie1-1.cdninstagram.com/v/t51.2885-19/483290532_1057408086427488_1988972788570270888_n.jpg",
               },
-              position: [0.5196580936, 0.9059828929]
-            }
+              position: [0.5196580936, 0.9059828929],
+            },
           ],
           created_at: "2024-01-20T10:30:00",
           updated_at: "2024-01-20T10:30:00",
@@ -238,7 +255,7 @@ export default function ContentDetailInstagram() {
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Helper function to get media type name
@@ -276,26 +293,26 @@ export default function ContentDetailInstagram() {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet([
       {
-        "帖子ID": content.pk,
-        "帖子代码": content.code,
-        "作者用户名": content.username,
-        "作者全名": content.full_name,
-        "是否认证": content.is_verified ? "是" : "否",
-        "是否私密账号": content.is_private ? "是" : "否",
-        "媒体类型": getMediaTypeName(content.media_type),
-        "是否视频": content.is_video ? "是" : "否",
-        "内容描述": content.caption_text,
-        "点赞数": content.like_count,
-        "评论数": content.comment_count,
-        "收藏数": content.save_count,
-        "分享数": content.share_count,
-        "观看数": content.view_count,
-        "发布时间": content.taken_at_date,
+        帖子ID: content.pk,
+        帖子代码: content.code,
+        作者用户名: content.username,
+        作者全名: content.full_name,
+        是否认证: content.is_verified ? "是" : "否",
+        是否私密账号: content.is_private ? "是" : "否",
+        媒体类型: getMediaTypeName(content.media_type),
+        是否视频: content.is_video ? "是" : "否",
+        内容描述: content.caption_text,
+        点赞数: content.like_count,
+        评论数: content.comment_count,
+        收藏数: content.save_count,
+        分享数: content.share_count,
+        观看数: content.view_count,
+        发布时间: content.taken_at_date,
         "@提及": content.mentions.join(", "),
-        "话题标签": content.hashtags.join(", "),
-        "是否付费合作": content.is_paid_partnership ? "是" : "否",
-        "原始宽度": content.original_width,
-        "原始高度": content.original_height,
+        话题标签: content.hashtags.join(", "),
+        是否付费合作: content.is_paid_partnership ? "是" : "否",
+        原始宽度: content.original_width,
+        原始高度: content.original_height,
       },
     ]);
 
@@ -342,16 +359,25 @@ export default function ContentDetailInstagram() {
   const overviewStats = [
     {
       title: "总互动量",
-      value: content.like_count + content.comment_count + content.save_count + content.share_count,
+      value:
+        content.like_count +
+        content.comment_count +
+        content.save_count +
+        content.share_count,
       icon: Heart,
       color: "text-red-500",
       bgColor: "bg-red-50",
     },
     {
       title: "互动率",
-      value: content.view_count > 0 
-        ? ((content.like_count + content.comment_count) / content.view_count * 100).toFixed(2) + "%"
-        : "0%",
+      value:
+        content.view_count > 0
+          ? (
+              ((content.like_count + content.comment_count) /
+                content.view_count) *
+              100
+            ).toFixed(2) + "%"
+          : "0%",
       icon: BarChart3,
       color: "text-blue-500",
       bgColor: "bg-blue-50",
@@ -432,7 +458,9 @@ export default function ContentDetailInstagram() {
             <div className="flex items-start space-x-4">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={content.profile_pic_url} />
-                <AvatarFallback>{content.username[0]?.toUpperCase()}</AvatarFallback>
+                <AvatarFallback>
+                  {content.username[0]?.toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center space-x-2">
@@ -444,11 +472,11 @@ export default function ContentDetailInstagram() {
                     <Lock className="h-4 w-4 text-gray-500" />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">@{content.username}</p>
+                <p className="text-sm text-muted-foreground">
+                  @{content.username}
+                </p>
                 <div className="flex items-center space-x-4 mt-2">
-                  <Badge variant="outline">
-                    用户ID: {content.user_id}
-                  </Badge>
+                  <Badge variant="outline">用户ID: {content.user_id}</Badge>
                   {content.is_paid_partnership && (
                     <Badge variant="secondary">
                       <ShoppingBag className="mr-1 h-3 w-3" />
@@ -472,7 +500,9 @@ export default function ContentDetailInstagram() {
                       {stat.title}
                     </p>
                     <p className="text-2xl font-bold mt-1">
-                      {typeof stat.value === 'number' ? formatNumber(stat.value) : stat.value}
+                      {typeof stat.value === "number"
+                        ? formatNumber(stat.value)
+                        : stat.value}
                     </p>
                   </div>
                   <div className={`${stat.bgColor} p-3 rounded-lg`}>
@@ -505,7 +535,10 @@ export default function ContentDetailInstagram() {
                     <div className="relative aspect-square bg-black flex items-center justify-center">
                       <Video className="h-16 w-16 text-white/50" />
                       <div className="absolute top-4 right-4">
-                        <Badge variant="secondary" className="bg-black/50 text-white">
+                        <Badge
+                          variant="secondary"
+                          className="bg-black/50 text-white"
+                        >
                           视频内容
                         </Badge>
                       </div>
@@ -516,7 +549,8 @@ export default function ContentDetailInstagram() {
                       alt="Instagram post"
                       className="w-full h-auto"
                       onError={(e) => {
-                        e.currentTarget.src = content.image_url_sd || content.thumbnail_url;
+                        e.currentTarget.src =
+                          content.image_url_sd || content.thumbnail_url;
                       }}
                     />
                   )}
@@ -543,15 +577,21 @@ export default function ContentDetailInstagram() {
                 {/* Post Metadata */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-sm text-muted-foreground">发布时间:</span>
+                    <span className="text-sm text-muted-foreground">
+                      发布时间:
+                    </span>
                     <p className="font-medium">
-                      {new Date(content.taken_at * 1000).toLocaleString('zh-CN')}
+                      {new Date(content.taken_at * 1000).toLocaleString(
+                        "zh-CN",
+                      )}
                     </p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">创建时间:</span>
+                    <span className="text-sm text-muted-foreground">
+                      创建时间:
+                    </span>
                     <p className="font-medium">
-                      {new Date(content.created_at).toLocaleString('zh-CN')}
+                      {new Date(content.created_at).toLocaleString("zh-CN")}
                     </p>
                   </div>
                 </div>
@@ -559,19 +599,41 @@ export default function ContentDetailInstagram() {
                 {/* Permissions */}
                 <div className="flex items-center space-x-4">
                   <Badge variant={content.can_save ? "default" : "secondary"}>
-                    {content.can_save ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                    {content.can_save ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.can_save ? "可保存" : "不可保存"}
                   </Badge>
-                  <Badge variant={content.can_reshare ? "default" : "secondary"}>
-                    {content.can_reshare ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={content.can_reshare ? "default" : "secondary"}
+                  >
+                    {content.can_reshare ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.can_reshare ? "可分享" : "不可分享"}
                   </Badge>
                   <Badge variant={content.can_reply ? "default" : "secondary"}>
-                    {content.can_reply ? <Unlock className="mr-1 h-3 w-3" /> : <Lock className="mr-1 h-3 w-3" />}
+                    {content.can_reply ? (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Lock className="mr-1 h-3 w-3" />
+                    )}
                     {content.can_reply ? "可回复" : "不可回复"}
                   </Badge>
-                  <Badge variant={content.comments_disabled ? "secondary" : "default"}>
-                    {content.comments_disabled ? <Lock className="mr-1 h-3 w-3" /> : <Unlock className="mr-1 h-3 w-3" />}
+                  <Badge
+                    variant={
+                      content.comments_disabled ? "secondary" : "default"
+                    }
+                  >
+                    {content.comments_disabled ? (
+                      <Lock className="mr-1 h-3 w-3" />
+                    ) : (
+                      <Unlock className="mr-1 h-3 w-3" />
+                    )}
                     {content.comments_disabled ? "评论已关闭" : "评论开放"}
                   </Badge>
                 </div>
@@ -594,7 +656,9 @@ export default function ContentDetailInstagram() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
@@ -603,7 +667,9 @@ export default function ContentDetailInstagram() {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value: number) => formatNumber(value)} />
+                      <Tooltip
+                        formatter={(value: number) => formatNumber(value)}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -621,35 +687,45 @@ export default function ContentDetailInstagram() {
                         <Heart className="h-4 w-4 text-red-500" />
                         <span>点赞数</span>
                       </div>
-                      <span className="font-bold">{formatNumber(content.like_count)}</span>
+                      <span className="font-bold">
+                        {formatNumber(content.like_count)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <MessageCircle className="h-4 w-4 text-blue-500" />
                         <span>评论数</span>
                       </div>
-                      <span className="font-bold">{formatNumber(content.comment_count)}</span>
+                      <span className="font-bold">
+                        {formatNumber(content.comment_count)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Bookmark className="h-4 w-4 text-green-500" />
                         <span>收藏数</span>
                       </div>
-                      <span className="font-bold">{formatNumber(content.save_count)}</span>
+                      <span className="font-bold">
+                        {formatNumber(content.save_count)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Share2 className="h-4 w-4 text-purple-500" />
                         <span>分享数</span>
                       </div>
-                      <span className="font-bold">{formatNumber(content.share_count)}</span>
+                      <span className="font-bold">
+                        {formatNumber(content.share_count)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Eye className="h-4 w-4 text-orange-500" />
                         <span>观看数</span>
                       </div>
-                      <span className="font-bold">{formatNumber(content.view_count)}</span>
+                      <span className="font-bold">
+                        {formatNumber(content.view_count)}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -677,13 +753,17 @@ export default function ContentDetailInstagram() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">原始尺寸</TableCell>
-                      <TableCell>{content.original_width} × {content.original_height}</TableCell>
+                      <TableCell>
+                        {content.original_width} × {content.original_height}
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">宽高比</TableCell>
                       <TableCell>
-                        {content.original_height > 0 
-                          ? (content.original_width / content.original_height).toFixed(2)
+                        {content.original_height > 0
+                          ? (
+                              content.original_width / content.original_height
+                            ).toFixed(2)
                           : "N/A"}
                       </TableCell>
                     </TableRow>
@@ -697,7 +777,8 @@ export default function ContentDetailInstagram() {
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline flex items-center"
                           >
-                            查看高清图片 <ExternalLink className="ml-1 h-3 w-3" />
+                            查看高清图片{" "}
+                            <ExternalLink className="ml-1 h-3 w-3" />
                           </a>
                         ) : (
                           "无"
@@ -714,7 +795,8 @@ export default function ContentDetailInstagram() {
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline flex items-center"
                           >
-                            查看标清图片 <ExternalLink className="ml-1 h-3 w-3" />
+                            查看标清图片{" "}
+                            <ExternalLink className="ml-1 h-3 w-3" />
                           </a>
                         ) : (
                           "无"
@@ -799,7 +881,9 @@ export default function ContentDetailInstagram() {
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <Avatar className="h-8 w-8">
-                                  <AvatarImage src={taggedUser.user.profile_pic_url} />
+                                  <AvatarImage
+                                    src={taggedUser.user.profile_pic_url}
+                                  />
                                   <AvatarFallback>
                                     {taggedUser.user.username[0]?.toUpperCase()}
                                   </AvatarFallback>
@@ -809,7 +893,8 @@ export default function ContentDetailInstagram() {
                             </TableCell>
                             <TableCell>@{taggedUser.user.username}</TableCell>
                             <TableCell>
-                              {(taggedUser.position[0] * 100).toFixed(1)}%, {(taggedUser.position[1] * 100).toFixed(1)}%
+                              {(taggedUser.position[0] * 100).toFixed(1)}%,{" "}
+                              {(taggedUser.position[1] * 100).toFixed(1)}%
                             </TableCell>
                           </TableRow>
                         ))}

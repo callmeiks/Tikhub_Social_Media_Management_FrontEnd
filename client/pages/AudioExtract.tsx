@@ -7,7 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -33,7 +39,10 @@ import {
 } from "lucide-react";
 
 const supportedFormats = [
-  { type: "audio", formats: ["MP3", "WAV", "FLAC", "AAC", "OPUS", "OGG", "M4A"] },
+  {
+    type: "audio",
+    formats: ["MP3", "WAV", "FLAC", "AAC", "OPUS", "OGG", "M4A"],
+  },
   { type: "video", formats: ["MP4", "MPEG", "MOV", "WEBM"] },
 ];
 
@@ -86,22 +95,31 @@ export default function AudioExtract() {
   const [videoUrl, setVideoUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null,
+  );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
+    null,
+  );
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(null);
+  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(
+    null,
+  );
   const [responseFormat, setResponseFormat] = useState<string>("json");
   const [speakerLabels, setSpeakerLabels] = useState(false);
   const [language, setLanguage] = useState<string>("mandarin");
   const [error, setError] = useState<string | null>(null);
   const [actualResult, setActualResult] = useState<any>(null);
-  
+
   const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
 
-  const handleExtractText = async (source: 'link' | 'file' | 'recording', data?: File | Blob) => {
+  const handleExtractText = async (
+    source: "link" | "file" | "recording",
+    data?: File | Blob,
+  ) => {
     setIsExtracting(true);
     setProgress(0);
     setError(null);
@@ -109,60 +127,67 @@ export default function AudioExtract() {
 
     try {
       const formData = new FormData();
-      
-      if (source === 'link') {
-        formData.append('type', 'url');
-        formData.append('url', videoUrl);
+
+      if (source === "link") {
+        formData.append("type", "url");
+        formData.append("url", videoUrl);
       } else {
-        formData.append('type', 'file');
-        if (source === 'recording' && data) {
+        formData.append("type", "file");
+        if (source === "recording" && data) {
           // 将录音 Blob 转换为 File
-          const audioFile = new File([data], 'recording.webm', { type: 'audio/webm' });
-          formData.append('file', audioFile);
+          const audioFile = new File([data], "recording.webm", {
+            type: "audio/webm",
+          });
+          formData.append("file", audioFile);
         } else if (data) {
-          formData.append('file', data as File);
+          formData.append("file", data as File);
         }
       }
-      
-      formData.append('response_format', responseFormat);
-      formData.append('language', language);
-      formData.append('speaker_labels', speakerLabels.toString());
+
+      formData.append("response_format", responseFormat);
+      formData.append("language", language);
+      formData.append("speaker_labels", speakerLabels.toString());
 
       // 模拟进度（实际上传时可以使用 XMLHttpRequest 监听上传进度）
       const progressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 20, 90));
       }, 500);
 
-      const response = await fetch('http://127.0.0.1:8000/api/audio-transcript/extract', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${AUTH_TOKEN}`,
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/audio-transcript/extract",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+          body: formData,
         },
-        body: formData
-      });
+      );
 
       clearInterval(progressInterval);
       setProgress(100);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`,
+        );
       }
 
       const result = await response.json();
       setActualResult(result);
-      
+
       // 根据返回格式处理结果
-      if (responseFormat === 'json' || responseFormat === 'verbose_json') {
-        setExtractedText(result.transcript || '');
+      if (responseFormat === "json" || responseFormat === "verbose_json") {
+        setExtractedText(result.transcript || "");
       } else {
-        setExtractedText(result.transcript || '');
+        setExtractedText(result.transcript || "");
       }
-      
+
       setShowResults(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '提取失败，请重试');
-      console.error('提取文字失败:', err);
+      setError(err instanceof Error ? err.message : "提取失败，请重试");
+      console.error("提取文字失败:", err);
     } finally {
       setIsExtracting(false);
       setProgress(0);
@@ -199,19 +224,19 @@ export default function AudioExtract() {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
         setAudioChunks([audioBlob]);
-        
+
         // 创建音频URL供播放
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
-        
+
         // 创建音频元素
         const audio = new Audio(url);
         setAudioElement(audio);
-        
+
         // 监听播放结束事件
-        audio.addEventListener('ended', () => {
+        audio.addEventListener("ended", () => {
           setIsPlaying(false);
         });
       };
@@ -219,7 +244,7 @@ export default function AudioExtract() {
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
-      
+
       // 开始计时
       setRecordingDuration(0);
       const timer = setInterval(() => {
@@ -227,16 +252,16 @@ export default function AudioExtract() {
       }, 1000);
       setRecordingTimer(timer);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
       setIsRecording(false);
-      
+
       // 停止计时
       if (recordingTimer) {
         clearInterval(recordingTimer);
@@ -265,12 +290,12 @@ export default function AudioExtract() {
       audioElement.pause();
       setIsPlaying(false);
     }
-    
+
     // 清理音频URL
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
     }
-    
+
     // 重置状态
     setAudioChunks([]);
     setAudioUrl(null);
@@ -420,7 +445,7 @@ export default function AudioExtract() {
                             className="flex-1"
                           />
                           <Button
-                            onClick={() => handleExtractText('link')}
+                            onClick={() => handleExtractText("link")}
                             disabled={!videoUrl.trim() || isExtracting}
                             className="h-10"
                           >
@@ -449,7 +474,7 @@ export default function AudioExtract() {
                   </TabsContent>
 
                   <TabsContent value="upload" className="space-y-4">
-                    <div 
+                    <div
                       className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center bg-orange-50/50"
                       onDrop={handleFileDrop}
                       onDragOver={handleDragOver}
@@ -460,7 +485,9 @@ export default function AudioExtract() {
                         </div>
                         <div className="space-y-2">
                           <p className="text-lg font-medium text-gray-800">
-                            {selectedFile ? selectedFile.name : "拖拽文件到此处或点击上传"}
+                            {selectedFile
+                              ? selectedFile.name
+                              : "拖拽文件到此处或点击上传"}
                           </p>
                           <p className="text-sm text-gray-600">
                             支持 MP3、MP4、WAV 等格式，最大 100MB
@@ -488,7 +515,9 @@ export default function AudioExtract() {
                           </label>
                           {selectedFile && (
                             <Button
-                              onClick={() => handleExtractText('file', selectedFile)}
+                              onClick={() =>
+                                handleExtractText("file", selectedFile)
+                              }
                               disabled={isExtracting}
                               className="bg-orange-600 hover:bg-orange-700 text-white"
                             >
@@ -574,7 +603,12 @@ export default function AudioExtract() {
                                   </Button>
                                 )}
                                 <Button
-                                  onClick={() => handleExtractText('recording', audioChunks[0])}
+                                  onClick={() =>
+                                    handleExtractText(
+                                      "recording",
+                                      audioChunks[0],
+                                    )
+                                  }
                                   disabled={isExtracting}
                                   className="bg-blue-600 hover:bg-blue-700 text-white"
                                 >
@@ -599,13 +633,27 @@ export default function AudioExtract() {
                               正在录音中...
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              录音时长: {Math.floor(recordingDuration / 60).toString().padStart(2, '0')}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                              录音时长:{" "}
+                              {Math.floor(recordingDuration / 60)
+                                .toString()
+                                .padStart(2, "0")}
+                              :
+                              {(recordingDuration % 60)
+                                .toString()
+                                .padStart(2, "0")}
                             </div>
                           </div>
                         )}
                         {audioChunks.length > 0 && !isRecording && (
                           <div className="text-sm text-muted-foreground">
-                            录音时长: {Math.floor(recordingDuration / 60).toString().padStart(2, '0')}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                            录音时长:{" "}
+                            {Math.floor(recordingDuration / 60)
+                              .toString()
+                              .padStart(2, "0")}
+                            :
+                            {(recordingDuration % 60)
+                              .toString()
+                              .padStart(2, "0")}
                           </div>
                         )}
                       </div>
@@ -622,7 +670,7 @@ export default function AudioExtract() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             {/* Results Section */}
             {showResults && actualResult && (
               <Card className="border border-border mt-4">
@@ -636,9 +684,7 @@ export default function AudioExtract() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          handleCopy(extractedText)
-                        }
+                        onClick={() => handleCopy(extractedText)}
                         className="h-6"
                       >
                         <Copy className="mr-1 h-3 w-3" />
@@ -667,21 +713,26 @@ export default function AudioExtract() {
                               文件名：
                             </span>
                             <span className="font-medium">
-                              {actualResult.file_info.filename || '未知'}
+                              {actualResult.file_info.filename || "未知"}
                             </span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">时长：</span>
+                            <span className="text-muted-foreground">
+                              时长：
+                            </span>
                             <span className="font-medium">
-                              {actualResult.file_info.duration 
-                                ? `${Math.floor(actualResult.file_info.duration / 60)}:${(actualResult.file_info.duration % 60).toString().padStart(2, '0')}`
-                                : '未知'}
+                              {actualResult.file_info.duration
+                                ? `${Math.floor(actualResult.file_info.duration / 60)}:${(actualResult.file_info.duration % 60).toString().padStart(2, "0")}`
+                                : "未知"}
                             </span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">格式：</span>
+                            <span className="text-muted-foreground">
+                              格式：
+                            </span>
                             <span className="font-medium">
-                              {actualResult.file_info.format?.toUpperCase() || '未知'}
+                              {actualResult.file_info.format?.toUpperCase() ||
+                                "未知"}
                             </span>
                           </div>
                         </div>
@@ -714,23 +765,26 @@ export default function AudioExtract() {
                     </div>
 
                     {/* Keywords - 如果API返回关键词 */}
-                    {actualResult.keywords && actualResult.keywords.length > 0 && (
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">关键词</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {actualResult.keywords.map((keyword: string, index: number) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className="text-xs cursor-pointer"
-                              onClick={() => handleCopy(keyword)}
-                            >
-                              {keyword}
-                            </Badge>
-                          ))}
+                    {actualResult.keywords &&
+                      actualResult.keywords.length > 0 && (
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">关键词</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {actualResult.keywords.map(
+                              (keyword: string, index: number) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs cursor-pointer"
+                                  onClick={() => handleCopy(keyword)}
+                                >
+                                  {keyword}
+                                </Badge>
+                              ),
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 </CardContent>
               </Card>
@@ -751,10 +805,7 @@ export default function AudioExtract() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="language-select">音频语言</Label>
-                    <Select
-                      value={language}
-                      onValueChange={setLanguage}
-                    >
+                    <Select value={language} onValueChange={setLanguage}>
                       <SelectTrigger id="language-select">
                         <SelectValue />
                       </SelectTrigger>
@@ -770,7 +821,7 @@ export default function AudioExtract() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="response-format">返回格式</Label>
                     <Select
@@ -784,11 +835,13 @@ export default function AudioExtract() {
                         <SelectItem value="json">JSON格式</SelectItem>
                         <SelectItem value="text">纯文本</SelectItem>
                         <SelectItem value="srt">SRT字幕</SelectItem>
-                        <SelectItem value="verbose_json">详细JSON(含说话人)</SelectItem>
+                        <SelectItem value="verbose_json">
+                          详细JSON(含说话人)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label htmlFor="speaker-labels">说话人标识</Label>
                     <Switch
@@ -796,15 +849,15 @@ export default function AudioExtract() {
                       checked={speakerLabels}
                       onCheckedChange={(checked) => {
                         setSpeakerLabels(checked);
-                        if (checked && responseFormat !== 'verbose_json') {
-                          setResponseFormat('verbose_json');
+                        if (checked && responseFormat !== "verbose_json") {
+                          setResponseFormat("verbose_json");
                         }
                       }}
-                      disabled={responseFormat !== 'verbose_json'}
+                      disabled={responseFormat !== "verbose_json"}
                     />
                   </div>
-                  
-                  {speakerLabels && responseFormat !== 'verbose_json' && (
+
+                  {speakerLabels && responseFormat !== "verbose_json" && (
                     <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>

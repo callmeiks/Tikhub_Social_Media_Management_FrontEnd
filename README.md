@@ -17,12 +17,14 @@ A comprehensive React-based web application for social media management, content
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 git clone [repository-url]
 cd Tikhub_Social_Media_Management_FrontEnd
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -42,11 +44,13 @@ The application will be available at `http://localhost:5173`
 ### Production Build
 
 1. Build the client and server:
+
 ```bash
 npm run build
 ```
 
 2. Start the production server:
+
 ```bash
 npm start
 ```
@@ -96,6 +100,7 @@ npm start
 ## Key Features by Page
 
 ### Creator Tools
+
 - **Content Rewrite**: AI-powered content rewriting for different platforms
 - **Title Generator**: Generate engaging titles with trending keywords
 - **Video Download**: Multi-platform video downloader with quality options
@@ -105,6 +110,7 @@ npm start
 - **Cover Image Creation**: Generate custom cover images
 
 ### Data Collection
+
 - **Comment Collection**: Collect and analyze comments from posts
 - **Account Interaction**: Track and analyze account content data
 - **Keyword Content Search**: Search content across platforms by keywords

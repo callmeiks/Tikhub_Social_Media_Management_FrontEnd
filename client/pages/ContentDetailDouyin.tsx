@@ -99,7 +99,6 @@ interface DouyinVideoData {
   updated_at: string;
 }
 
-
 interface TrendsData {
   likes: Array<{ date: string; value: string }>;
   shares: Array<{ date: string; value: string }>;
@@ -368,27 +367,33 @@ export default function ContentDetailDouyin() {
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [trendsData, setTrendsData] = useState<TrendsData | null>(null);
-  const [audienceData, setAudienceData] = useState<AudiencePortraitData | null>(null);
+  const [audienceData, setAudienceData] = useState<AudiencePortraitData | null>(
+    null,
+  );
   const [authorData, setAuthorData] = useState<DouyinAuthorData | null>(null);
-  const [analyticsData, setAnalyticsData] = useState<DouyinAnalyticsData | null>(null);
+  const [analyticsData, setAnalyticsData] =
+    useState<DouyinAnalyticsData | null>(null);
   const [trendsLoading, setTrendsLoading] = useState(false);
   const [audienceLoading, setAudienceLoading] = useState(false);
   const [authorLoading, setAuthorLoading] = useState(false);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  const [commentWordsData, setCommentWordsData] = useState<CommentWordsData | null>(null);
+  const [commentWordsData, setCommentWordsData] =
+    useState<CommentWordsData | null>(null);
   const [danmakuData, setDanmakuData] = useState<DanmakuData | null>(null);
   const [commentWordsLoading, setCommentWordsLoading] = useState(false);
   const [danmakuLoading, setDanmakuLoading] = useState(false);
-  const [musicDetailData, setMusicDetailData] = useState<MusicDetailData | null>(null);
+  const [musicDetailData, setMusicDetailData] =
+    useState<MusicDetailData | null>(null);
   const [musicDetailLoading, setMusicDetailLoading] = useState(false);
-  const [relatedVideosData, setRelatedVideosData] = useState<RelatedVideosData | null>(null);
+  const [relatedVideosData, setRelatedVideosData] =
+    useState<RelatedVideosData | null>(null);
   const [relatedVideosLoading, setRelatedVideosLoading] = useState(false);
 
   useEffect(() => {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to DouyinVideoData format (assuming similar structure to TikTok)
       const mappedData: DouyinVideoData = {
         id: contentData.id,
@@ -428,7 +433,7 @@ export default function ContentDetailDouyin() {
         created_at: contentData.created_at,
         updated_at: contentData.updated_at,
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -465,7 +470,8 @@ export default function ContentDetailDouyin() {
           author_unique_id: "cooking_master",
           author_sec_user_id: "MS4wLjABAAAA...",
           author_uid: "123456789",
-          author_avatar: "https://p3.douyinpic.com/aweme/1080x1080/aweme-avatar/mock-avatar.webp",
+          author_avatar:
+            "https://p3.douyinpic.com/aweme/1080x1080/aweme-avatar/mock-avatar.webp",
           mid: "music_123",
           music_play_url: "https://music.douyin.com/123.mp3",
           music_duration: 60,
@@ -498,12 +504,15 @@ export default function ContentDetailDouyin() {
         audioPlayer.pause();
       }
       const audio = new Audio(content.music_play_url);
-      audio.play().then(() => {
-        setAudioPlayer(audio);
-        setIsPlaying(true);
-      }).catch(e => console.error('无法播放音频:', e));
-      
-      audio.addEventListener('ended', () => {
+      audio
+        .play()
+        .then(() => {
+          setAudioPlayer(audio);
+          setIsPlaying(true);
+        })
+        .catch((e) => console.error("无法播放音频:", e));
+
+      audio.addEventListener("ended", () => {
         setIsPlaying(false);
         setAudioPlayer(null);
       });
@@ -522,23 +531,23 @@ export default function ContentDetailDouyin() {
   const handleDownloadMusic = () => {
     if (content?.music_play_url) {
       fetch(content.music_play_url)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
-          link.download = `${content.music_author || 'music'}_${content.mid}.mp3`;
+          link.download = `${content.music_author || "music"}_${content.mid}.mp3`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
         })
-        .catch(error => {
-          console.error('下载失败:', error);
+        .catch((error) => {
+          console.error("下载失败:", error);
           // Fallback to direct link
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = content.music_play_url;
-          link.download = `${content.music_author || 'music'}_${content.mid}.mp3`;
+          link.download = `${content.music_author || "music"}_${content.mid}.mp3`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -552,12 +561,16 @@ export default function ContentDetailDouyin() {
     if (!cityCode) {
       return "未知";
     }
-    
+
     // 如果cityCode已经是城市名（包含"市"或"省"），直接返回
-    if (cityCode.includes("市") || cityCode.includes("省") || cityCode.includes("区")) {
+    if (
+      cityCode.includes("市") ||
+      cityCode.includes("省") ||
+      cityCode.includes("区")
+    ) {
       return cityCode;
     }
-    
+
     // 从映射表中查找，如果找不到返回原始code
     const cityName = (douyinCityList as Record<string, string>)[cityCode];
     console.log(`City code: ${cityCode}, City name: ${cityName}`);
@@ -571,22 +584,22 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/item-trends/${awemeId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
         setTrendsData(result.data);
       } else {
-        console.error('Failed to fetch trends data');
+        console.error("Failed to fetch trends data");
       }
     } catch (error) {
-      console.error('Error fetching trends data:', error);
+      console.error("Error fetching trends data:", error);
     } finally {
       setTrendsLoading(false);
     }
@@ -599,23 +612,23 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/post-audience-portrait/${awemeId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Audience data received:', result.data);
+        console.log("Audience data received:", result.data);
         setAudienceData(result.data);
       } else {
-        console.error('Failed to fetch audience data');
+        console.error("Failed to fetch audience data");
       }
     } catch (error) {
-      console.error('Error fetching audience data:', error);
+      console.error("Error fetching audience data:", error);
     } finally {
       setAudienceLoading(false);
     }
@@ -628,23 +641,23 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/user/douyin/profile/${secUserId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Author data received:', result);
+        console.log("Author data received:", result);
         setAuthorData(result);
       } else {
-        console.error('Failed to fetch author data');
+        console.error("Failed to fetch author data");
       }
     } catch (error) {
-      console.error('Error fetching author data:', error);
+      console.error("Error fetching author data:", error);
     } finally {
       setAuthorLoading(false);
     }
@@ -657,23 +670,23 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/account-analysis/${secUserId}?day=7`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Analytics data received:', result);
+        console.log("Analytics data received:", result);
         setAnalyticsData(result);
       } else {
-        console.error('Failed to fetch analytics data');
+        console.error("Failed to fetch analytics data");
       }
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
+      console.error("Error fetching analytics data:", error);
     } finally {
       setAnalyticsLoading(false);
     }
@@ -686,53 +699,58 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/comment-words/${awemeId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Comment words data received:', result);
+        console.log("Comment words data received:", result);
         setCommentWordsData(result);
       } else {
-        console.error('Failed to fetch comment words data');
+        console.error("Failed to fetch comment words data");
       }
     } catch (error) {
-      console.error('Error fetching comment words data:', error);
+      console.error("Error fetching comment words data:", error);
     } finally {
       setCommentWordsLoading(false);
     }
   };
 
   // Fetch danmaku data
-  const fetchDanmakuData = async (itemId: string, duration: number, startTime: number = 0, endTime?: number) => {
+  const fetchDanmakuData = async (
+    itemId: string,
+    duration: number,
+    startTime: number = 0,
+    endTime?: number,
+  ) => {
     setDanmakuLoading(true);
     try {
       const endTimeParam = endTime || duration - 1;
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/video/${itemId}/danmaku?duration=${duration}&end_time=${endTimeParam}&start_time=${startTime}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Danmaku data received:', result);
+        console.log("Danmaku data received:", result);
         setDanmakuData(result);
       } else {
-        console.error('Failed to fetch danmaku data');
+        console.error("Failed to fetch danmaku data");
       }
     } catch (error) {
-      console.error('Error fetching danmaku data:', error);
+      console.error("Error fetching danmaku data:", error);
     } finally {
       setDanmakuLoading(false);
     }
@@ -745,23 +763,23 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/music/${musicId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Music detail data received:', result);
+        console.log("Music detail data received:", result);
         setMusicDetailData(result);
       } else {
-        console.error('Failed to fetch music detail data');
+        console.error("Failed to fetch music detail data");
       }
     } catch (error) {
-      console.error('Error fetching music detail data:', error);
+      console.error("Error fetching music detail data:", error);
     } finally {
       setMusicDetailLoading(false);
     }
@@ -774,23 +792,23 @@ export default function ContentDetailDouyin() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/video/${awemeId}/related-posts?max_posts=20`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`
-          }
-        }
+            accept: "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_BACKEND_API_TOKEN}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Related videos data received:', result);
+        console.log("Related videos data received:", result);
         setRelatedVideosData(result);
       } else {
-        console.error('Failed to fetch related videos data');
+        console.error("Failed to fetch related videos data");
       }
     } catch (error) {
-      console.error('Error fetching related videos data:', error);
+      console.error("Error fetching related videos data:", error);
     } finally {
       setRelatedVideosLoading(false);
     }
@@ -835,7 +853,7 @@ export default function ContentDetailDouyin() {
     if (duration > 1000) {
       seconds = Math.floor(duration / 1000);
     }
-    
+
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
@@ -905,7 +923,7 @@ export default function ContentDetailDouyin() {
                       className="w-full h-full object-cover"
                       controls
                       preload="metadata"
-                      poster={content.video_url.replace('.mp4', '.jpg')}
+                      poster={content.video_url.replace(".mp4", ".jpg")}
                     >
                       <source src={content.video_url} type="video/mp4" />
                       您的浏览器不支持视频播放
@@ -920,7 +938,12 @@ export default function ContentDetailDouyin() {
                       <Button
                         size="lg"
                         className="rounded-full w-16 h-16 p-0 brand-accent pointer-events-auto"
-                        onClick={() => window.open(content.video_url || content.share_url, "_blank")}
+                        onClick={() =>
+                          window.open(
+                            content.video_url || content.share_url,
+                            "_blank",
+                          )
+                        }
                       >
                         <Play className="h-6 w-6" />
                       </Button>
@@ -942,7 +965,7 @@ export default function ContentDetailDouyin() {
                     </div>
                   )}
                 </div>
-                
+
                 {/* 查看作品按钮 */}
                 <div className="mt-4">
                   <Button
@@ -1088,16 +1111,28 @@ export default function ContentDetailDouyin() {
                       <User className="mr-2 h-4 w-4" />
                       作者信息
                     </h3>
-                    
+
                     <div className="flex items-center gap-4 mb-3">
                       <Avatar className="w-16 h-16">
-                        <AvatarImage src={authorData?.data?.author_avatar || content.author_avatar} alt={content.author_nickname} />
-                        <AvatarFallback>{content.author_nickname.substring(0, 2)}</AvatarFallback>
+                        <AvatarImage
+                          src={
+                            authorData?.data?.author_avatar ||
+                            content.author_avatar
+                          }
+                          alt={content.author_nickname}
+                        />
+                        <AvatarFallback>
+                          {content.author_nickname.substring(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="space-y-1">
-                          <h4 className="font-medium text-lg">{content.author_nickname}</h4>
-                          <p className="text-sm text-muted-foreground">UID: {content.author_uid}</p>
+                          <h4 className="font-medium text-lg">
+                            {content.author_nickname}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            UID: {content.author_uid}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1149,7 +1184,9 @@ export default function ContentDetailDouyin() {
                           <span>{formatDuration(content.music_duration)}</span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">音乐ID: </span>
+                          <span className="text-muted-foreground">
+                            音乐ID:{" "}
+                          </span>
                           <span>{content.mid}</span>
                         </div>
                         {content.music_play_url && (
@@ -1196,28 +1233,44 @@ export default function ContentDetailDouyin() {
                         <div className="flex items-center gap-2">
                           <ShoppingBag className="h-4 w-4 text-green-500" />
                           <span className="text-sm">广告标识:</span>
-                          <Badge variant={content.is_ads ? "secondary" : "outline"} className="text-xs">
+                          <Badge
+                            variant={content.is_ads ? "secondary" : "outline"}
+                            className="text-xs"
+                          >
                             {content.is_ads ? "是" : "否"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4 text-orange-500" />
                           <span className="text-sm">警告标识:</span>
-                          <Badge variant={content.is_warned ? "secondary" : "outline"} className="text-xs">
+                          <Badge
+                            variant={
+                              content.is_warned ? "secondary" : "outline"
+                            }
+                            className="text-xs"
+                          >
                             {content.is_warned ? "是" : "否"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2">
                           <Pin className="h-4 w-4 text-red-500" />
                           <span className="text-sm">置顶:</span>
-                          <Badge variant={content.is_top ? "secondary" : "outline"} className="text-xs">
+                          <Badge
+                            variant={content.is_top ? "secondary" : "outline"}
+                            className="text-xs"
+                          >
                             {content.is_top ? "是" : "否"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2">
                           <ShoppingBag className="h-4 w-4 text-blue-500" />
                           <span className="text-sm">商品:</span>
-                          <Badge variant={content.with_goods ? "secondary" : "outline"} className="text-xs">
+                          <Badge
+                            variant={
+                              content.with_goods ? "secondary" : "outline"
+                            }
+                            className="text-xs"
+                          >
                             {content.with_goods ? "是" : "否"}
                           </Badge>
                         </div>
@@ -1294,7 +1347,9 @@ export default function ContentDetailDouyin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => content && fetchTrendsData(content.aweme_id)}
+                      onClick={() =>
+                        content && fetchTrendsData(content.aweme_id)
+                      }
                       disabled={trendsLoading}
                     >
                       {trendsLoading ? "加载中..." : "刷新数据"}
@@ -1318,15 +1373,25 @@ export default function ContentDetailDouyin() {
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
-                            <LineChart data={trendsData.likes.map(item => ({
-                              date: new Date(item.date).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
-                              value: parseInt(item.value)
-                            }))}>
+                            <LineChart
+                              data={trendsData.likes.map((item) => ({
+                                date: new Date(item.date).toLocaleDateString(
+                                  "zh-CN",
+                                  { month: "short", day: "numeric" },
+                                ),
+                                value: parseInt(item.value),
+                              }))}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="date" fontSize={12} />
                               <YAxis fontSize={12} />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#ef4444"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1342,15 +1407,25 @@ export default function ContentDetailDouyin() {
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
-                            <LineChart data={trendsData.shares.map(item => ({
-                              date: new Date(item.date).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
-                              value: parseInt(item.value)
-                            }))}>
+                            <LineChart
+                              data={trendsData.shares.map((item) => ({
+                                date: new Date(item.date).toLocaleDateString(
+                                  "zh-CN",
+                                  { month: "short", day: "numeric" },
+                                ),
+                                value: parseInt(item.value),
+                              }))}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="date" fontSize={12} />
                               <YAxis fontSize={12} />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#8b5cf6"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1366,15 +1441,25 @@ export default function ContentDetailDouyin() {
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
-                            <LineChart data={trendsData.comments.map(item => ({
-                              date: new Date(item.date).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
-                              value: parseInt(item.value)
-                            }))}>
+                            <LineChart
+                              data={trendsData.comments.map((item) => ({
+                                date: new Date(item.date).toLocaleDateString(
+                                  "zh-CN",
+                                  { month: "short", day: "numeric" },
+                                ),
+                                value: parseInt(item.value),
+                              }))}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="date" fontSize={12} />
                               <YAxis fontSize={12} />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#10b981"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1384,7 +1469,9 @@ export default function ContentDetailDouyin() {
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
                         <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">点击刷新数据按钮获取视频数据趋势</p>
+                        <p className="text-muted-foreground">
+                          点击刷新数据按钮获取视频数据趋势
+                        </p>
                       </div>
                     </div>
                   )}
@@ -1403,7 +1490,9 @@ export default function ContentDetailDouyin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => content && fetchAudienceData(content.aweme_id)}
+                      onClick={() =>
+                        content && fetchAudienceData(content.aweme_id)
+                      }
                       disabled={audienceLoading}
                     >
                       {audienceLoading ? "加载中..." : "刷新数据"}
@@ -1420,27 +1509,40 @@ export default function ContentDetailDouyin() {
                       {/* 手机价格分布 */}
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-sm">手机价格分布</CardTitle>
+                          <CardTitle className="text-sm">
+                            手机价格分布
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.phone_price.portrait_data.map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.phone_price.portrait_data.map(
+                                  (item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }),
+                                )}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#8884d8"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.phone_price.portrait_data.map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.phone_price.portrait_data.map(
+                                  (_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 45}, 70%, 50%)`}
+                                    />
+                                  ),
+                                )}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1457,21 +1559,33 @@ export default function ContentDetailDouyin() {
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.gender.portrait_data.map(item => ({
-                                  name: item.name === 'female' ? '女性' : '男性',
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.gender.portrait_data.map(
+                                  (item) => ({
+                                    name:
+                                      item.name === "female" ? "女性" : "男性",
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }),
+                                )}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#82ca9d"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.gender.portrait_data.map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={index === 0 ? '#ff69b4' : '#4169e1'} />
-                                ))}
+                                {audienceData.gender.portrait_data.map(
+                                  (_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={index === 0 ? "#ff69b4" : "#4169e1"}
+                                    />
+                                  ),
+                                )}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1488,21 +1602,32 @@ export default function ContentDetailDouyin() {
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.age.portrait_data.map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.age.portrait_data.map(
+                                  (item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }),
+                                )}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#ffc658"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.age.portrait_data.map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.age.portrait_data.map(
+                                  (_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 60}, 70%, 50%)`}
+                                    />
+                                  ),
+                                )}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1513,27 +1638,40 @@ export default function ContentDetailDouyin() {
                       {/* 地域分布-省份 */}
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-sm">地域分布-省份</CardTitle>
+                          <CardTitle className="text-sm">
+                            地域分布-省份
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.province.portrait_data.slice(0, 8).map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.province.portrait_data
+                                  .slice(0, 8)
+                                  .map((item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }))}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#8dd1e1"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.province.portrait_data.slice(0, 8).map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.province.portrait_data
+                                  .slice(0, 8)
+                                  .map((_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 45}, 70%, 50%)`}
+                                    />
+                                  ))}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1544,27 +1682,40 @@ export default function ContentDetailDouyin() {
                       {/* 地域分布-城市 */}
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-sm">地域分布-城市</CardTitle>
+                          <CardTitle className="text-sm">
+                            地域分布-城市
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.city.portrait_data.slice(0, 8).map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.city.portrait_data
+                                  .slice(0, 8)
+                                  .map((item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }))}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#d084d0"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.city.portrait_data.slice(0, 8).map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.city.portrait_data
+                                  .slice(0, 8)
+                                  .map((_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 45}, 70%, 50%)`}
+                                    />
+                                  ))}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1581,21 +1732,32 @@ export default function ContentDetailDouyin() {
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.city_level.portrait_data.map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.city_level.portrait_data.map(
+                                  (item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }),
+                                )}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#ffb347"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.city_level.portrait_data.map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 50}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.city_level.portrait_data.map(
+                                  (_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 50}, 70%, 50%)`}
+                                    />
+                                  ),
+                                )}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1606,27 +1768,40 @@ export default function ContentDetailDouyin() {
                       {/* 手机品牌分布 */}
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-sm">手机品牌分布</CardTitle>
+                          <CardTitle className="text-sm">
+                            手机品牌分布
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                               <Pie
-                                data={audienceData.phone_brand.portrait_data.map(item => ({
-                                  name: item.name,
-                                  value: parseFloat((item.value * 100).toFixed(1))
-                                }))}
+                                data={audienceData.phone_brand.portrait_data.map(
+                                  (item) => ({
+                                    name: item.name,
+                                    value: parseFloat(
+                                      (item.value * 100).toFixed(1),
+                                    ),
+                                  }),
+                                )}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={60}
                                 fill="#90ee90"
-                                label={({ name, value }) => `${name}: ${value}%`}
+                                label={({ name, value }) =>
+                                  `${name}: ${value}%`
+                                }
                               >
-                                {audienceData.phone_brand.portrait_data.map((_, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 40}, 70%, 50%)`} />
-                                ))}
+                                {audienceData.phone_brand.portrait_data.map(
+                                  (_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={`hsl(${index * 40}, 70%, 50%)`}
+                                    />
+                                  ),
+                                )}
                               </Pie>
                               <Tooltip formatter={(value) => `${value}%`} />
                             </PieChart>
@@ -1638,7 +1813,9 @@ export default function ContentDetailDouyin() {
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
                         <PieChartIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">点击刷新数据按钮获取观众画像分析</p>
+                        <p className="text-muted-foreground">
+                          点击刷新数据按钮获取观众画像分析
+                        </p>
                       </div>
                     </div>
                   )}
@@ -1646,7 +1823,6 @@ export default function ContentDetailDouyin() {
               </Card>
             </div>
           </TabsContent>
-
 
           <TabsContent value="author" className="mt-6">
             <div className="space-y-6">
@@ -1659,7 +1835,9 @@ export default function ContentDetailDouyin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => fetchAuthorData(content.author_sec_user_id)}
+                      onClick={() =>
+                        fetchAuthorData(content.author_sec_user_id)
+                      }
                       disabled={authorLoading}
                     >
                       {authorLoading ? "加载中..." : "刷新数据"}
@@ -1675,13 +1853,24 @@ export default function ContentDetailDouyin() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg">
                         <Avatar className="w-20 h-20">
-                          <AvatarImage src={authorData.data.author_avatar} alt={authorData.data.author_nickname} />
-                          <AvatarFallback>{authorData.data.author_nickname.substring(0, 2)}</AvatarFallback>
+                          <AvatarImage
+                            src={authorData.data.author_avatar}
+                            alt={authorData.data.author_nickname}
+                          />
+                          <AvatarFallback>
+                            {authorData.data.author_nickname.substring(0, 2)}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold">{authorData.data.author_nickname}</h3>
-                          <p className="text-muted-foreground">@{authorData.data.author_unique_id}</p>
-                          <p className="text-sm text-muted-foreground mt-1">UID: {authorData.data.author_uid}</p>
+                          <h3 className="text-xl font-bold">
+                            {authorData.data.author_nickname}
+                          </h3>
+                          <p className="text-muted-foreground">
+                            @{authorData.data.author_unique_id}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            UID: {authorData.data.author_uid}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1689,13 +1878,24 @@ export default function ContentDetailDouyin() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg">
                         <Avatar className="w-20 h-20">
-                          <AvatarImage src={content.author_avatar} alt={content.author_nickname} />
-                          <AvatarFallback>{content.author_nickname.substring(0, 2)}</AvatarFallback>
+                          <AvatarImage
+                            src={content.author_avatar}
+                            alt={content.author_nickname}
+                          />
+                          <AvatarFallback>
+                            {content.author_nickname.substring(0, 2)}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold">{content.author_nickname}</h3>
-                          <p className="text-muted-foreground">@{content.author_unique_id}</p>
-                          <p className="text-sm text-muted-foreground mt-1">UID: {content.author_uid}</p>
+                          <h3 className="text-xl font-bold">
+                            {content.author_nickname}
+                          </h3>
+                          <p className="text-muted-foreground">
+                            @{content.author_unique_id}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            UID: {content.author_uid}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1715,7 +1915,9 @@ export default function ContentDetailDouyin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => fetchAnalyticsData(content.author_sec_user_id)}
+                      onClick={() =>
+                        fetchAnalyticsData(content.author_sec_user_id)
+                      }
                       disabled={analyticsLoading}
                     >
                       {analyticsLoading ? "加载中..." : "刷新数据"}
@@ -1737,45 +1939,75 @@ export default function ContentDetailDouyin() {
                             <div className="text-2xl font-bold text-blue-600">
                               {analyticsData.data.avg_aweme_count.toFixed(2)}
                             </div>
-                            <div className="text-sm text-muted-foreground">平均作品数</div>
+                            <div className="text-sm text-muted-foreground">
+                              平均作品数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.avg_aweme_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.avg_aweme_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                             <div className="text-2xl font-bold text-green-600">
                               {analyticsData.data.avg_comment_count.toFixed(0)}
                             </div>
-                            <div className="text-sm text-muted-foreground">平均评论数</div>
+                            <div className="text-sm text-muted-foreground">
+                              平均评论数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.avg_comment_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.avg_comment_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                             <div className="text-2xl font-bold text-purple-600">
                               {analyticsData.data.avg_share_count.toFixed(0)}
                             </div>
-                            <div className="text-sm text-muted-foreground">平均分享数</div>
+                            <div className="text-sm text-muted-foreground">
+                              平均分享数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.avg_share_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.avg_share_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                             <div className="text-2xl font-bold text-orange-600">
                               {analyticsData.data.avg_follower_count.toFixed(0)}
                             </div>
-                            <div className="text-sm text-muted-foreground">平均粉丝数</div>
+                            <div className="text-sm text-muted-foreground">
+                              平均粉丝数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.avg_follower_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.avg_follower_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                             <div className="text-2xl font-bold text-red-600">
                               {analyticsData.data.avg_like_count.toFixed(0)}
                             </div>
-                            <div className="text-sm text-muted-foreground">平均点赞数</div>
+                            <div className="text-sm text-muted-foreground">
+                              平均点赞数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.avg_like_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.avg_like_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                         </div>
@@ -1789,45 +2021,79 @@ export default function ContentDetailDouyin() {
                             <div className="text-lg font-bold">
                               {analyticsData.data.percentile_aweme_count}
                             </div>
-                            <div className="text-sm text-muted-foreground">百分位作品数</div>
+                            <div className="text-sm text-muted-foreground">
+                              百分位作品数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.percentile_aweme_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.percentile_aweme_count_c *
+                                100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
                             <div className="text-lg font-bold">
                               {analyticsData.data.percentile_comment_count}
                             </div>
-                            <div className="text-sm text-muted-foreground">百分位评论数</div>
+                            <div className="text-sm text-muted-foreground">
+                              百分位评论数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.percentile_comment_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.percentile_comment_count_c *
+                                100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
                             <div className="text-lg font-bold">
                               {analyticsData.data.percentile_share_count}
                             </div>
-                            <div className="text-sm text-muted-foreground">百分位分享数</div>
+                            <div className="text-sm text-muted-foreground">
+                              百分位分享数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.percentile_share_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.percentile_share_count_c *
+                                100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
                             <div className="text-lg font-bold">
                               {analyticsData.data.percentile_follower_count}
                             </div>
-                            <div className="text-sm text-muted-foreground">百分位粉丝数</div>
+                            <div className="text-sm text-muted-foreground">
+                              百分位粉丝数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.percentile_follower_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.percentile_follower_count_c *
+                                100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                           <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
                             <div className="text-lg font-bold">
                               {analyticsData.data.percentile_like_count}
                             </div>
-                            <div className="text-sm text-muted-foreground">百分位点赞数</div>
+                            <div className="text-sm text-muted-foreground">
+                              百分位点赞数
+                            </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              变化率: {(analyticsData.data.percentile_like_count_c * 100).toFixed(1)}%
+                              变化率:{" "}
+                              {(
+                                analyticsData.data.percentile_like_count_c * 100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                         </div>
@@ -1839,17 +2105,38 @@ export default function ContentDetailDouyin() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <Card>
                             <CardHeader>
-                              <CardTitle className="text-base">平均数据对比</CardTitle>
+                              <CardTitle className="text-base">
+                                平均数据对比
+                              </CardTitle>
                             </CardHeader>
                             <CardContent>
                               <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={[
-                                  { name: '作品数', value: analyticsData.data.avg_aweme_count },
-                                  { name: '评论数', value: analyticsData.data.avg_comment_count },
-                                  { name: '分享数', value: analyticsData.data.avg_share_count },
-                                  { name: '粉丝数', value: analyticsData.data.avg_follower_count },
-                                  { name: '点赞数', value: analyticsData.data.avg_like_count }
-                                ]}>
+                                <BarChart
+                                  data={[
+                                    {
+                                      name: "作品数",
+                                      value: analyticsData.data.avg_aweme_count,
+                                    },
+                                    {
+                                      name: "评论数",
+                                      value:
+                                        analyticsData.data.avg_comment_count,
+                                    },
+                                    {
+                                      name: "分享数",
+                                      value: analyticsData.data.avg_share_count,
+                                    },
+                                    {
+                                      name: "粉丝数",
+                                      value:
+                                        analyticsData.data.avg_follower_count,
+                                    },
+                                    {
+                                      name: "点赞数",
+                                      value: analyticsData.data.avg_like_count,
+                                    },
+                                  ]}
+                                >
                                   <CartesianGrid strokeDasharray="3 3" />
                                   <XAxis dataKey="name" />
                                   <YAxis />
@@ -1859,24 +2146,57 @@ export default function ContentDetailDouyin() {
                               </ResponsiveContainer>
                             </CardContent>
                           </Card>
-                          
+
                           <Card>
                             <CardHeader>
-                              <CardTitle className="text-base">变化率对比</CardTitle>
+                              <CardTitle className="text-base">
+                                变化率对比
+                              </CardTitle>
                             </CardHeader>
                             <CardContent>
                               <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={[
-                                  { name: '作品数', value: analyticsData.data.avg_aweme_count_c * 100 },
-                                  { name: '评论数', value: analyticsData.data.avg_comment_count_c * 100 },
-                                  { name: '分享数', value: analyticsData.data.avg_share_count_c * 100 },
-                                  { name: '粉丝数', value: analyticsData.data.avg_follower_count_c * 100 },
-                                  { name: '点赞数', value: analyticsData.data.avg_like_count_c * 100 }
-                                ]}>
+                                <BarChart
+                                  data={[
+                                    {
+                                      name: "作品数",
+                                      value:
+                                        analyticsData.data.avg_aweme_count_c *
+                                        100,
+                                    },
+                                    {
+                                      name: "评论数",
+                                      value:
+                                        analyticsData.data.avg_comment_count_c *
+                                        100,
+                                    },
+                                    {
+                                      name: "分享数",
+                                      value:
+                                        analyticsData.data.avg_share_count_c *
+                                        100,
+                                    },
+                                    {
+                                      name: "粉丝数",
+                                      value:
+                                        analyticsData.data
+                                          .avg_follower_count_c * 100,
+                                    },
+                                    {
+                                      name: "点赞数",
+                                      value:
+                                        analyticsData.data.avg_like_count_c *
+                                        100,
+                                    },
+                                  ]}
+                                >
                                   <CartesianGrid strokeDasharray="3 3" />
                                   <XAxis dataKey="name" />
                                   <YAxis />
-                                  <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
+                                  <Tooltip
+                                    formatter={(value) =>
+                                      `${Number(value).toFixed(1)}%`
+                                    }
+                                  />
                                   <Bar dataKey="value" fill="#82ca9d" />
                                 </BarChart>
                               </ResponsiveContainer>
@@ -1888,8 +2208,14 @@ export default function ContentDetailDouyin() {
                   ) : (
                     <div className="text-center py-12">
                       <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground mb-4">暂无用户数据分析</p>
-                      <Button onClick={() => fetchAnalyticsData(content.author_sec_user_id)}>
+                      <p className="text-muted-foreground mb-4">
+                        暂无用户数据分析
+                      </p>
+                      <Button
+                        onClick={() =>
+                          fetchAnalyticsData(content.author_sec_user_id)
+                        }
+                      >
                         加载数据分析
                       </Button>
                     </div>
@@ -1928,13 +2254,17 @@ export default function ContentDetailDouyin() {
                       <div>
                         <h4 className="font-medium mb-4">热门评论词汇统计</h4>
                         <ResponsiveContainer width="100%" height={400}>
-                          <BarChart data={commentWordsData.data.slice(0, 20).map(item => ({
-                            word: item.word_seg,
-                            count: item.value
-                          }))}>
+                          <BarChart
+                            data={commentWordsData.data
+                              .slice(0, 20)
+                              .map((item) => ({
+                                word: item.word_seg,
+                                count: item.value,
+                              }))}
+                          >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis 
-                              dataKey="word" 
+                            <XAxis
+                              dataKey="word"
                               angle={-45}
                               textAnchor="end"
                               height={80}
@@ -1951,14 +2281,21 @@ export default function ContentDetailDouyin() {
                       <div>
                         <h4 className="font-medium mb-4">评论词汇详情</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {commentWordsData.data.slice(0, 20).map((item, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                              <span className="font-medium text-sm">{item.word_seg}</span>
-                              <Badge variant="secondary" className="text-xs">
-                                {item.value}
-                              </Badge>
-                            </div>
-                          ))}
+                          {commentWordsData.data
+                            .slice(0, 20)
+                            .map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                              >
+                                <span className="font-medium text-sm">
+                                  {item.word_seg}
+                                </span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {item.value}
+                                </Badge>
+                              </div>
+                            ))}
                         </div>
                       </div>
 
@@ -1978,7 +2315,9 @@ export default function ContentDetailDouyin() {
                               {commentWordsData.data.map((item, index) => (
                                 <TableRow key={index}>
                                   <TableCell>{index + 1}</TableCell>
-                                  <TableCell className="font-medium">{item.word_seg}</TableCell>
+                                  <TableCell className="font-medium">
+                                    {item.word_seg}
+                                  </TableCell>
                                   <TableCell>{item.value}</TableCell>
                                 </TableRow>
                               ))}
@@ -1990,8 +2329,12 @@ export default function ContentDetailDouyin() {
                   ) : (
                     <div className="text-center py-12">
                       <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground mb-4">暂无评论词汇分析数据</p>
-                      <Button onClick={() => fetchCommentWordsData(content.aweme_id)}>
+                      <p className="text-muted-foreground mb-4">
+                        暂无评论词汇分析数据
+                      </p>
+                      <Button
+                        onClick={() => fetchCommentWordsData(content.aweme_id)}
+                      >
                         获取评论分析
                       </Button>
                     </div>
@@ -2008,7 +2351,9 @@ export default function ContentDetailDouyin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => fetchDanmakuData(content.aweme_id, content.duration)}
+                      onClick={() =>
+                        fetchDanmakuData(content.aweme_id, content.duration)
+                      }
                       disabled={danmakuLoading}
                     >
                       {danmakuLoading ? "加载中..." : "获取弹幕数据"}
@@ -2028,25 +2373,45 @@ export default function ContentDetailDouyin() {
                           <div className="text-2xl font-bold text-blue-600">
                             {danmakuData.data.length}
                           </div>
-                          <div className="text-sm text-muted-foreground">弹幕总数</div>
+                          <div className="text-sm text-muted-foreground">
+                            弹幕总数
+                          </div>
                         </div>
                         <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-green-600">
-                            {danmakuData.data.reduce((sum, item) => sum + item.digg_count, 0)}
+                            {danmakuData.data.reduce(
+                              (sum, item) => sum + item.digg_count,
+                              0,
+                            )}
                           </div>
-                          <div className="text-sm text-muted-foreground">总点赞数</div>
+                          <div className="text-sm text-muted-foreground">
+                            总点赞数
+                          </div>
                         </div>
                         <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-purple-600">
-                            {danmakuData.data.filter(item => item.has_emoji).length}
+                            {
+                              danmakuData.data.filter((item) => item.has_emoji)
+                                .length
+                            }
                           </div>
-                          <div className="text-sm text-muted-foreground">表情弹幕</div>
+                          <div className="text-sm text-muted-foreground">
+                            表情弹幕
+                          </div>
                         </div>
                         <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-orange-600">
-                            {Math.max(...danmakuData.data.map(item => item.offset_time), 0)}ms
+                            {Math.max(
+                              ...danmakuData.data.map(
+                                (item) => item.offset_time,
+                              ),
+                              0,
+                            )}
+                            ms
                           </div>
-                          <div className="text-sm text-muted-foreground">最晚弹幕时间</div>
+                          <div className="text-sm text-muted-foreground">
+                            最晚弹幕时间
+                          </div>
                         </div>
                       </div>
 
@@ -2074,10 +2439,20 @@ export default function ContentDetailDouyin() {
                                     <div className="flex items-center gap-2">
                                       <span>{item.text}</span>
                                       {item.has_emoji && (
-                                        <Badge variant="outline" className="text-xs">😊</Badge>
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
+                                          😊
+                                        </Badge>
                                       )}
                                       {item.is_ad && (
-                                        <Badge variant="destructive" className="text-xs">广告</Badge>
+                                        <Badge
+                                          variant="destructive"
+                                          className="text-xs"
+                                        >
+                                          广告
+                                        </Badge>
                                       )}
                                     </div>
                                   </TableCell>
@@ -2086,7 +2461,14 @@ export default function ContentDetailDouyin() {
                                     {item.user_id.substring(0, 8)}...
                                   </TableCell>
                                   <TableCell>
-                                    <Badge variant={item.status === 1 ? "secondary" : "outline"} className="text-xs">
+                                    <Badge
+                                      variant={
+                                        item.status === 1
+                                          ? "secondary"
+                                          : "outline"
+                                      }
+                                      className="text-xs"
+                                    >
                                       {item.status === 1 ? "正常" : "异常"}
                                     </Badge>
                                   </TableCell>
@@ -2101,7 +2483,11 @@ export default function ContentDetailDouyin() {
                     <div className="text-center py-12">
                       <Square className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                       <p className="text-muted-foreground mb-4">暂无弹幕数据</p>
-                      <Button onClick={() => fetchDanmakuData(content.aweme_id, content.duration)}>
+                      <Button
+                        onClick={() =>
+                          fetchDanmakuData(content.aweme_id, content.duration)
+                        }
+                      >
                         获取弹幕数据
                       </Button>
                     </div>
@@ -2123,7 +2509,9 @@ export default function ContentDetailDouyin() {
                 <div className="flex items-center justify-center h-64">
                   <div className="text-center">
                     <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">相关产品功能即将推出</p>
+                    <p className="text-muted-foreground">
+                      相关产品功能即将推出
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -2158,8 +2546,8 @@ export default function ContentDetailDouyin() {
                       {/* 音乐封面 */}
                       <div className="w-48 h-48 rounded-lg overflow-hidden bg-muted">
                         {musicDetailData.data.cover_large?.url_list?.[0] ? (
-                          <img 
-                            src={musicDetailData.data.cover_large.url_list[0]} 
+                          <img
+                            src={musicDetailData.data.cover_large.url_list[0]}
                             alt={musicDetailData.data.title}
                             className="w-full h-full object-cover"
                           />
@@ -2169,14 +2557,18 @@ export default function ContentDetailDouyin() {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* 音乐信息 */}
                       <div className="flex-1 space-y-4">
                         <div>
-                          <h3 className="text-2xl font-bold">{musicDetailData.data.title}</h3>
-                          <p className="text-lg text-muted-foreground mt-1">{musicDetailData.data.author}</p>
+                          <h3 className="text-2xl font-bold">
+                            {musicDetailData.data.title}
+                          </h3>
+                          <p className="text-lg text-muted-foreground mt-1">
+                            {musicDetailData.data.author}
+                          </p>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2">
                           {musicDetailData.data.is_original && (
                             <Badge variant="secondary">原创音乐</Badge>
@@ -2191,7 +2583,7 @@ export default function ContentDetailDouyin() {
                             <Badge variant="outline">PGC</Badge>
                           )}
                         </div>
-                        
+
                         {/* 播放控制 */}
                         {musicDetailData.data.play_url?.url_list?.[0] && (
                           <div className="flex gap-2">
@@ -2203,13 +2595,20 @@ export default function ContentDetailDouyin() {
                                   if (audioPlayer) {
                                     audioPlayer.pause();
                                   }
-                                  const audio = new Audio(musicDetailData.data.play_url.url_list[0]);
-                                  audio.play().then(() => {
-                                    setAudioPlayer(audio);
-                                    setIsPlaying(true);
-                                  }).catch(e => console.error('无法播放音频:', e));
-                                  
-                                  audio.addEventListener('ended', () => {
+                                  const audio = new Audio(
+                                    musicDetailData.data.play_url.url_list[0],
+                                  );
+                                  audio
+                                    .play()
+                                    .then(() => {
+                                      setAudioPlayer(audio);
+                                      setIsPlaying(true);
+                                    })
+                                    .catch((e) =>
+                                      console.error("无法播放音频:", e),
+                                    );
+
+                                  audio.addEventListener("ended", () => {
                                     setIsPlaying(false);
                                     setAudioPlayer(null);
                                   });
@@ -2232,11 +2631,12 @@ export default function ContentDetailDouyin() {
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                const url = musicDetailData.data.play_url.url_list[0];
-                                const link = document.createElement('a');
+                                const url =
+                                  musicDetailData.data.play_url.url_list[0];
+                                const link = document.createElement("a");
                                 link.href = url;
                                 link.download = `${musicDetailData.data.title}_${musicDetailData.data.mid}.mp3`;
-                                link.target = '_blank';
+                                link.target = "_blank";
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);
@@ -2248,7 +2648,12 @@ export default function ContentDetailDouyin() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => window.open(musicDetailData.data.share_info.share_url, "_blank")}
+                              onClick={() =>
+                                window.open(
+                                  musicDetailData.data.share_info.share_url,
+                                  "_blank",
+                                )
+                              }
                             >
                               <ExternalLink className="mr-1 h-3 w-3" />
                               查看原音乐
@@ -2257,39 +2662,69 @@ export default function ContentDetailDouyin() {
                         )}
                       </div>
                     </div>
-                    
+
                     {/* 详细信息网格 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">音乐ID</div>
-                        <div className="font-medium">{musicDetailData.data.mid}</div>
-                      </div>
-                      <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">音乐时长</div>
-                        <div className="font-medium">{formatDuration(musicDetailData.data.duration)}</div>
-                      </div>
-                      <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">使用人数</div>
-                        <div className="font-medium">{musicDetailData.data.user_count.toLocaleString()}</div>
-                      </div>
-                      <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">收藏数</div>
-                        <div className="font-medium">{musicDetailData.data.music_collect_count.toLocaleString()}</div>
-                      </div>
-                      <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">音乐状态</div>
+                        <div className="text-sm text-muted-foreground mb-1">
+                          音乐ID
+                        </div>
                         <div className="font-medium">
-                          <Badge variant={musicDetailData.data.status === 1 ? "secondary" : "outline"}>
-                            {musicDetailData.data.status === 1 ? "正常" : "异常"}
+                          {musicDetailData.data.mid}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          音乐时长
+                        </div>
+                        <div className="font-medium">
+                          {formatDuration(musicDetailData.data.duration)}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          使用人数
+                        </div>
+                        <div className="font-medium">
+                          {musicDetailData.data.user_count.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          收藏数
+                        </div>
+                        <div className="font-medium">
+                          {musicDetailData.data.music_collect_count.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          音乐状态
+                        </div>
+                        <div className="font-medium">
+                          <Badge
+                            variant={
+                              musicDetailData.data.status === 1
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
+                            {musicDetailData.data.status === 1
+                              ? "正常"
+                              : "异常"}
                           </Badge>
                         </div>
                       </div>
                       <div className="p-4 bg-muted/20 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">平台来源</div>
-                        <div className="font-medium">平台 {musicDetailData.data.source_platform}</div>
+                        <div className="text-sm text-muted-foreground mb-1">
+                          平台来源
+                        </div>
+                        <div className="font-medium">
+                          平台 {musicDetailData.data.source_platform}
+                        </div>
                       </div>
                     </div>
-                    
+
                     {/* 作者信息 */}
                     <div className="p-4 bg-muted/20 rounded-lg">
                       <h4 className="font-medium mb-3 flex items-center">
@@ -2299,23 +2734,42 @@ export default function ContentDetailDouyin() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-center gap-3">
                           <Avatar className="w-12 h-12">
-                            {musicDetailData.data.avatar_thumb?.url_list?.[0] ? (
-                              <AvatarImage src={musicDetailData.data.avatar_thumb.url_list[0]} alt={musicDetailData.data.owner_nickname} />
+                            {musicDetailData.data.avatar_thumb
+                              ?.url_list?.[0] ? (
+                              <AvatarImage
+                                src={
+                                  musicDetailData.data.avatar_thumb.url_list[0]
+                                }
+                                alt={musicDetailData.data.owner_nickname}
+                              />
                             ) : null}
-                            <AvatarFallback>{musicDetailData.data.owner_nickname.substring(0, 2)}</AvatarFallback>
+                            <AvatarFallback>
+                              {musicDetailData.data.owner_nickname.substring(
+                                0,
+                                2,
+                              )}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{musicDetailData.data.owner_nickname}</div>
-                            <div className="text-sm text-muted-foreground">@{musicDetailData.data.owner_handle}</div>
+                            <div className="font-medium">
+                              {musicDetailData.data.owner_nickname}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              @{musicDetailData.data.owner_handle}
+                            </div>
                           </div>
                         </div>
                         <div>
-                          <div className="text-sm text-muted-foreground">作者ID</div>
-                          <div className="font-medium">{musicDetailData.data.owner_id}</div>
+                          <div className="text-sm text-muted-foreground">
+                            作者ID
+                          </div>
+                          <div className="font-medium">
+                            {musicDetailData.data.owner_id}
+                          </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* 分享信息 */}
                     <div className="p-4 bg-muted/20 rounded-lg">
                       <h4 className="font-medium mb-3 flex items-center">
@@ -2324,18 +2778,28 @@ export default function ContentDetailDouyin() {
                       </h4>
                       <div className="space-y-2 text-sm">
                         <div>
-                          <span className="text-muted-foreground">分享标题: </span>
-                          <span>{musicDetailData.data.share_info.share_title}</span>
+                          <span className="text-muted-foreground">
+                            分享标题:{" "}
+                          </span>
+                          <span>
+                            {musicDetailData.data.share_info.share_title}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">分享描述: </span>
-                          <span>{musicDetailData.data.share_info.share_desc}</span>
+                          <span className="text-muted-foreground">
+                            分享描述:{" "}
+                          </span>
+                          <span>
+                            {musicDetailData.data.share_info.share_desc}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">分享链接: </span>
-                          <a 
-                            href={musicDetailData.data.share_info.share_url} 
-                            target="_blank" 
+                          <span className="text-muted-foreground">
+                            分享链接:{" "}
+                          </span>
+                          <a
+                            href={musicDetailData.data.share_info.share_url}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline"
                           >
@@ -2344,7 +2808,7 @@ export default function ContentDetailDouyin() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* 附加信息 */}
                     {musicDetailData.data.album && (
                       <div className="p-4 bg-muted/20 rounded-lg">
@@ -2367,7 +2831,9 @@ export default function ContentDetailDouyin() {
                       </div>
                       <div>
                         <label className="text-sm font-medium">音乐时长</label>
-                        <p className="text-lg">{formatDuration(content.music_duration)}</p>
+                        <p className="text-lg">
+                          {formatDuration(content.music_duration)}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium">音乐URL</label>
@@ -2376,7 +2842,7 @@ export default function ContentDetailDouyin() {
                         </p>
                       </div>
                     </div>
-                    
+
                     {content.music_play_url && (
                       <div className="pt-4 border-t">
                         <h4 className="font-medium mb-3">音乐播放控制</h4>
@@ -2411,7 +2877,7 @@ export default function ContentDetailDouyin() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="text-center mt-4">
                       <Button onClick={() => fetchMusicDetailData(content.mid)}>
                         获取音乐详细信息
@@ -2436,113 +2902,149 @@ export default function ContentDetailDouyin() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="text-center mb-4">
-                      <Button 
-                        onClick={() => content && fetchRelatedVideosData(content.aweme_id)}
+                      <Button
+                        onClick={() =>
+                          content && fetchRelatedVideosData(content.aweme_id)
+                        }
                         disabled={relatedVideosLoading}
                       >
-                        {relatedVideosLoading ? "加载中..." : "获取相关推荐视频"}
+                        {relatedVideosLoading
+                          ? "加载中..."
+                          : "获取相关推荐视频"}
                       </Button>
                     </div>
-                    
-                    {relatedVideosData && relatedVideosData.data.aweme_list.length > 0 ? (
+
+                    {relatedVideosData &&
+                    relatedVideosData.data.aweme_list.length > 0 ? (
                       <div className="h-96 overflow-y-auto space-y-3 pr-2">
-                        {relatedVideosData.data.aweme_list.map((video, index) => (
-                          <div key={video.aweme_id} 
-                               className="flex gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                               onClick={() => window.open(video.share_url, '_blank')}>
-                            {/* 视频预览 */}
-                            <div className="flex-shrink-0">
-                              <div className="relative w-16 h-16 bg-black rounded-lg overflow-hidden">
-                                <video 
-                                  className="w-full h-full object-cover"
-                                  poster={video.author_avatar}
-                                  preload="metadata"
-                                  muted
-                                  onMouseEnter={(e) => {
-                                    const videoElement = e.target as HTMLVideoElement;
-                                    videoElement.currentTime = 0;
-                                    videoElement.play().catch(() => {});
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    const videoElement = e.target as HTMLVideoElement;
-                                    videoElement.pause();
-                                    videoElement.currentTime = 0;
-                                  }}
+                        {relatedVideosData.data.aweme_list.map(
+                          (video, index) => (
+                            <div
+                              key={video.aweme_id}
+                              className="flex gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() =>
+                                window.open(video.share_url, "_blank")
+                              }
+                            >
+                              {/* 视频预览 */}
+                              <div className="flex-shrink-0">
+                                <div className="relative w-16 h-16 bg-black rounded-lg overflow-hidden">
+                                  <video
+                                    className="w-full h-full object-cover"
+                                    poster={video.author_avatar}
+                                    preload="metadata"
+                                    muted
+                                    onMouseEnter={(e) => {
+                                      const videoElement =
+                                        e.target as HTMLVideoElement;
+                                      videoElement.currentTime = 0;
+                                      videoElement.play().catch(() => {});
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      const videoElement =
+                                        e.target as HTMLVideoElement;
+                                      videoElement.pause();
+                                      videoElement.currentTime = 0;
+                                    }}
+                                  >
+                                    <source
+                                      src={video.video_url}
+                                      type="video/mp4"
+                                    />
+                                  </video>
+
+                                  {/* 播放按钮 */}
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <Play className="h-4 w-4 text-white" />
+                                  </div>
+
+                                  {/* 时长 */}
+                                  <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
+                                    {Math.floor(video.duration / 1000)}s
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* 内容信息 */}
+                              <div className="flex-1 min-w-0 space-y-1">
+                                {/* 作者信息 */}
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarImage src={video.author_avatar} />
+                                    <AvatarFallback className="text-xs">
+                                      {video.author_nickname[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-xs truncate">
+                                      {video.author_nickname}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      @{video.author_unique_id}
+                                    </p>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {new Date(
+                                      video.create_time * 1000,
+                                    ).toLocaleDateString()}
+                                  </Badge>
+                                </div>
+
+                                {/* 视频描述和互动数据在同一行 */}
+                                <div className="flex items-start gap-3">
+                                  <p className="text-xs text-gray-700 line-clamp-1 flex-1">
+                                    {video.desc || "无描述"}
+                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
+                                    <div className="flex items-center gap-1">
+                                      <Heart className="h-3 w-3 text-red-500" />
+                                      <span>
+                                        {(video.digg_count / 10000).toFixed(1)}w
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <MessageCircle className="h-3 w-3 text-blue-500" />
+                                      <span>{video.comment_count}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Share2 className="h-3 w-3 text-green-500" />
+                                      <span>{video.share_count}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* 打开按钮 */}
+                              <div className="flex-shrink-0 flex items-center">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 px-2 text-xs"
                                 >
-                                  <source src={video.video_url} type="video/mp4" />
-                                </video>
-                                
-                                {/* 播放按钮 */}
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                  <Play className="h-4 w-4 text-white" />
-                                </div>
-                                
-                                {/* 时长 */}
-                                <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
-                                  {Math.floor(video.duration / 1000)}s
-                                </div>
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  打开
+                                </Button>
                               </div>
                             </div>
-                            
-                            {/* 内容信息 */}
-                            <div className="flex-1 min-w-0 space-y-1">
-                              {/* 作者信息 */}
-                              <div className="flex items-center gap-2">
-                                <Avatar className="h-6 w-6">
-                                  <AvatarImage src={video.author_avatar} />
-                                  <AvatarFallback className="text-xs">{video.author_nickname[0]}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-xs truncate">{video.author_nickname}</p>
-                                  <p className="text-xs text-muted-foreground">@{video.author_unique_id}</p>
-                                </div>
-                                <Badge variant="outline" className="text-xs">
-                                  {new Date(video.create_time * 1000).toLocaleDateString()}
-                                </Badge>
-                              </div>
-                              
-                              {/* 视频描述和互动数据在同一行 */}
-                              <div className="flex items-start gap-3">
-                                <p className="text-xs text-gray-700 line-clamp-1 flex-1">{video.desc || "无描述"}</p>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
-                                  <div className="flex items-center gap-1">
-                                    <Heart className="h-3 w-3 text-red-500" />
-                                    <span>{(video.digg_count / 10000).toFixed(1)}w</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <MessageCircle className="h-3 w-3 text-blue-500" />
-                                    <span>{video.comment_count}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Share2 className="h-3 w-3 text-green-500" />
-                                    <span>{video.share_count}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* 打开按钮 */}
-                            <div className="flex-shrink-0 flex items-center">
-                              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                打开
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     ) : relatedVideosData ? (
                       <div className="flex items-center justify-center h-32">
                         <div className="text-center">
                           <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">暂无相关推荐视频</p>
+                          <p className="text-muted-foreground">
+                            暂无相关推荐视频
+                          </p>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-32">
                         <div className="text-center">
                           <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">点击上方按钮获取相关推荐视频</p>
+                          <p className="text-muted-foreground">
+                            点击上方按钮获取相关推荐视频
+                          </p>
                         </div>
                       </div>
                     )}
@@ -2574,11 +3076,13 @@ export default function ContentDetailDouyin() {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-center h-48">
                       <div className="text-center">
                         <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">相关挑战视频分析功能即将推出</p>
+                        <p className="text-muted-foreground">
+                          相关挑战视频分析功能即将推出
+                        </p>
                       </div>
                     </div>
                   </div>

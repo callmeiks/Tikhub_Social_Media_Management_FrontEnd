@@ -439,7 +439,16 @@ interface BilibiliContent extends BaseContent {
   duration: number;
 }
 
-type ContentItem = TikTokContent | DouyinContent | KuaishouContent | WechatContent | WeiboContent | YoutubeContent | XContent | InstagramContent | BilibiliContent;
+type ContentItem =
+  | TikTokContent
+  | DouyinContent
+  | KuaishouContent
+  | WechatContent
+  | WeiboContent
+  | YoutubeContent
+  | XContent
+  | InstagramContent
+  | BilibiliContent;
 
 interface ContentApiResponse {
   items: ContentItem[];
@@ -458,16 +467,19 @@ export default function ContentInteraction() {
   );
   const [selectedContent, setSelectedContent] = useState<number[]>([]);
   const [expandedContent, setExpandedContent] = useState<number[]>([]);
-  const [analysisResult, setAnalysisResult] = useState<ApiAnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] =
+    useState<ApiAnalysisResult | null>(null);
   const [showResultAlert, setShowResultAlert] = useState(false);
-  
+
   // New states for API content
   const [apiContentData, setApiContentData] = useState<ContentItem[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState("all");
-  const [sortByLikes, setSortByLikes] = useState<"" | "ascending" | "descending">("");
+  const [sortByLikes, setSortByLikes] = useState<
+    "" | "ascending" | "descending"
+  >("");
   const [activeTab, setActiveTab] = useState("add");
 
   const urlCount = batchUrls
@@ -476,7 +488,9 @@ export default function ContentInteraction() {
     .filter((url) => url.length > 0).length;
 
   const validateUrl = (url: string) => {
-    return supportedPlatforms.some((platform) => platform.domain && url.includes(platform.domain));
+    return supportedPlatforms.some(
+      (platform) => platform.domain && url.includes(platform.domain),
+    );
   };
 
   // Helper function to format numbers
@@ -521,7 +535,10 @@ export default function ContentInteraction() {
     switch (content.platform) {
       case "tiktok":
       case "douyin":
-        return (content as TikTokContent | DouyinContent).author_nickname || "未知作者";
+        return (
+          (content as TikTokContent | DouyinContent).author_nickname ||
+          "未知作者"
+        );
       case "kuaishou":
         return (content as KuaishouContent).author_name || "未知作者";
       case "wechat":
@@ -609,29 +626,31 @@ export default function ContentInteraction() {
 
   // Helper function to get platform display name
   const getPlatformDisplayName = (platform: string): string => {
-    const platformInfo = supportedPlatforms.find(p => p.id === platform);
+    const platformInfo = supportedPlatforms.find((p) => p.id === platform);
     return platformInfo?.name || platform;
   };
 
   // Helper function to handle content row click and navigate to appropriate detail page
   const handleContentRowClick = (content: ContentItem) => {
     const platformRoutes = {
-      "tiktok": "tiktok",
-      "douyin": "douyin", 
-      "kuaishou": "kuaishou",
-      "youtube": "youtube",
-      "x": "x",
-      "weibo": "weibo",
-      "wechat": "wechat",
-      "instagram": "instagram",
-      "bilibili": "bilibili"
+      tiktok: "tiktok",
+      douyin: "douyin",
+      kuaishou: "kuaishou",
+      youtube: "youtube",
+      x: "x",
+      weibo: "weibo",
+      wechat: "wechat",
+      instagram: "instagram",
+      bilibili: "bilibili",
     };
-    
-    const routeName = platformRoutes[content.platform as keyof typeof platformRoutes] || "content";
-    
+
+    const routeName =
+      platformRoutes[content.platform as keyof typeof platformRoutes] ||
+      "content";
+
     // Navigate to platform-specific content detail page with content data
     navigate(`/data-collection/content-detail-${routeName}`, {
-      state: { contentData: content }
+      state: { contentData: content },
     });
   };
 
@@ -640,12 +659,14 @@ export default function ContentInteraction() {
     console.log("Processing content:", content.platform, content);
     switch (content.platform) {
       case "tiktok":
-        const video2Content = content as TikTokContent ;
+        const video2Content = content as TikTokContent;
         console.log("TikTok video URL:", video2Content.video_url);
         return {
           type: "video",
           url: video2Content.video_url,
-          duration: video2Content.duration ? Math.floor(video2Content.duration / 1000) : 0
+          duration: video2Content.duration
+            ? Math.floor(video2Content.duration / 1000)
+            : 0,
         };
       case "douyin":
         const videoContent = content as DouyinContent;
@@ -653,39 +674,49 @@ export default function ContentInteraction() {
         return {
           type: "video",
           url: videoContent.video_url,
-          duration: videoContent.duration ? Math.floor(videoContent.duration / 1000) : 0
+          duration: videoContent.duration
+            ? Math.floor(videoContent.duration / 1000)
+            : 0,
         };
       case "kuaishou":
         const kuaishouContent = content as KuaishouContent;
         return {
           type: "video",
           url: kuaishouContent.video_play_url || kuaishouContent.video_url,
-          duration: kuaishouContent.video_duration ? Math.floor(kuaishouContent.video_duration / 1000) : 0
+          duration: kuaishouContent.video_duration
+            ? Math.floor(kuaishouContent.video_duration / 1000)
+            : 0,
         };
       case "youtube":
         const youtubeContent = content as YoutubeContent;
         return {
           type: "video",
           url: youtubeContent.video_play_url,
-          duration: youtubeContent.length_seconds || 0
+          duration: youtubeContent.length_seconds || 0,
         };
       case "wechat":
         const wechatContent = content as WechatContent;
         return {
           type: "image",
-          urls: wechatContent.images_url || []
+          urls: wechatContent.images_url || [],
         };
       case "weibo":
         const weiboContent = content as WeiboContent;
-        if (weiboContent.video_play_urls && weiboContent.video_play_urls.length > 0) {
+        if (
+          weiboContent.video_play_urls &&
+          weiboContent.video_play_urls.length > 0
+        ) {
           return {
             type: "video",
-            url: weiboContent.video_play_urls[0]
+            url: weiboContent.video_play_urls[0],
           };
-        } else if (weiboContent.images_urls && weiboContent.images_urls.length > 0) {
+        } else if (
+          weiboContent.images_urls &&
+          weiboContent.images_urls.length > 0
+        ) {
           return {
             type: "image",
-            urls: weiboContent.images_urls
+            urls: weiboContent.images_urls,
           };
         }
         return { type: "none" };
@@ -694,31 +725,42 @@ export default function ContentInteraction() {
         if (xContent.video_url && xContent.video_url.trim()) {
           return {
             type: "video",
-            url: xContent.video_url
+            url: xContent.video_url,
           };
         } else if (xContent.images_url && xContent.images_url.length > 0) {
           return {
             type: "image",
-            urls: xContent.images_url
+            urls: xContent.images_url,
           };
         }
         return { type: "none" };
       case "instagram":
         const instagramContent = content as InstagramContent;
-        if (instagramContent.media_type === "VIDEO" && instagramContent.video_url) {
+        if (
+          instagramContent.media_type === "VIDEO" &&
+          instagramContent.video_url
+        ) {
           return {
             type: "video",
-            url: instagramContent.video_url
+            url: instagramContent.video_url,
           };
-        } else if (instagramContent.image_urls && instagramContent.image_urls.length > 0) {
+        } else if (
+          instagramContent.image_urls &&
+          instagramContent.image_urls.length > 0
+        ) {
           return {
             type: "image",
-            urls: instagramContent.image_urls
+            urls: instagramContent.image_urls,
           };
-        } else if (instagramContent.carousel_media && instagramContent.carousel_media.length > 0) {
+        } else if (
+          instagramContent.carousel_media &&
+          instagramContent.carousel_media.length > 0
+        ) {
           return {
             type: "image",
-            urls: instagramContent.carousel_media.map((media: any) => media.image_url || media.video_url).filter(Boolean)
+            urls: instagramContent.carousel_media
+              .map((media: any) => media.image_url || media.video_url)
+              .filter(Boolean),
           };
         }
         return { type: "none" };
@@ -727,7 +769,7 @@ export default function ContentInteraction() {
         return {
           type: "video",
           url: bilibiliContent.video_url,
-          duration: bilibiliContent.duration || 0
+          duration: bilibiliContent.duration || 0,
         };
       default:
         return { type: "none" };
@@ -739,7 +781,7 @@ export default function ContentInteraction() {
     if (seconds === 0) return "";
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const invalidUrls = batchUrls
@@ -768,34 +810,41 @@ export default function ContentInteraction() {
   const fetchContentData = async () => {
     setIsLoadingContent(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
-      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
-      
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token =
+        import.meta.env.VITE_BACKEND_API_TOKEN ||
+        localStorage.getItem("auth_token");
+
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: "20",
-        platform: selectedPlatform
+        platform: selectedPlatform,
       });
-      
+
       if (sortByLikes) {
         params.append("sort_by_likes", sortByLikes);
       }
-      
-      const response = await fetch(`${API_BASE_URL}/api/content-interaction/content?${params}`, {
-        headers: {
-          'accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/content-interaction/content?${params}`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data: ContentApiResponse = await response.json();
       setApiContentData(data.items);
       setTotalItems(data.total);
-      
     } catch (error) {
       console.error("Error fetching content data:", error);
       alert("获取作品数据失败，请稍后重试");
@@ -837,40 +886,47 @@ export default function ContentInteraction() {
     setAnalysisResult(null);
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
-      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
-      
-      const response = await fetch(`${API_BASE_URL}/api/content-interaction/create-tasks`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token =
+        import.meta.env.VITE_BACKEND_API_TOKEN ||
+        localStorage.getItem("auth_token");
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/content-interaction/create-tasks`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            urls: urls,
+          }),
         },
-        body: JSON.stringify({
-          urls: urls
-        })
-      });
+      );
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
-      
+
       setAnalysisResult({
         total_successful: data.total_successful,
         total_failed: data.total_failed,
-        failed_urls: data.failed_urls || []
+        failed_urls: data.failed_urls || [],
       });
-      
+
       setShowResultAlert(true);
-      
+
       // Clear the input if all successful
       if (data.total_failed === 0) {
         setBatchUrls("");
       }
-      
     } catch (error) {
       console.error("Error analyzing content:", error);
       alert("分析失败，请稍后重试");
@@ -1040,7 +1096,7 @@ export default function ContentInteraction() {
   const displayData = activeTab === "data" ? apiContentData : contentData;
   const totalContent = displayData.length;
   const totalViews = displayData.reduce((sum, content) => {
-    if ('like_count' in content) {
+    if ("like_count" in content) {
       // API data
       return sum + getViewCount(content);
     } else {
@@ -1052,7 +1108,7 @@ export default function ContentInteraction() {
     }
   }, 0);
   const totalLikes = displayData.reduce((sum, content) => {
-    if ('like_count' in content) {
+    if ("like_count" in content) {
       // API data
       return sum + content.like_count;
     } else {
@@ -1083,8 +1139,8 @@ export default function ContentInteraction() {
       <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
         <p className="text-sm text-amber-800">
           小红书作品批量获取请到
-          <a 
-            href="http://localhost:3000/creator-tools/content-extract" 
+          <a
+            href="http://localhost:3000/creator-tools/content-extract"
             className="ml-1 font-medium text-amber-900 underline hover:text-amber-700 transition-colors"
           >
             图文提取
@@ -1092,7 +1148,7 @@ export default function ContentInteraction() {
           页面
         </p>
       </div>
-      
+
       <div className="space-y-6">
         {/* Platform Support */}
         <Card className="border border-border">
@@ -1203,27 +1259,41 @@ https://www.youtube.com/watch?v=example123
                 )}
 
                 {showResultAlert && analysisResult && (
-                  <Alert className={analysisResult.total_failed > 0 ? "border-orange-200 bg-orange-50" : "border-green-200 bg-green-50"}>
+                  <Alert
+                    className={
+                      analysisResult.total_failed > 0
+                        ? "border-orange-200 bg-orange-50"
+                        : "border-green-200 bg-green-50"
+                    }
+                  >
                     <AlertDescription>
                       <div className="space-y-2">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-2">
                             <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span className="text-sm font-medium">成功: {analysisResult.total_successful}</span>
+                            <span className="text-sm font-medium">
+                              成功: {analysisResult.total_successful}
+                            </span>
                           </div>
                           {analysisResult.total_failed > 0 && (
                             <div className="flex items-center space-x-2">
                               <AlertTriangle className="h-4 w-4 text-orange-600" />
-                              <span className="text-sm font-medium">失败: {analysisResult.total_failed}</span>
+                              <span className="text-sm font-medium">
+                                失败: {analysisResult.total_failed}
+                              </span>
                             </div>
                           )}
                         </div>
                         {analysisResult.failed_urls.length > 0 && (
                           <div className="mt-2">
-                            <p className="text-sm font-medium text-orange-600 mb-1">失败的链接:</p>
+                            <p className="text-sm font-medium text-orange-600 mb-1">
+                              失败的链接:
+                            </p>
                             <ul className="text-xs text-orange-600 space-y-1">
                               {analysisResult.failed_urls.map((url, index) => (
-                                <li key={index} className="break-all">• {url}</li>
+                                <li key={index} className="break-all">
+                                  • {url}
+                                </li>
                               ))}
                             </ul>
                           </div>
@@ -1283,7 +1353,9 @@ https://www.youtube.com/watch?v=example123
                   <span className="flex items-center">
                     <Eye className="mr-2 h-4 w-4" />
                     作品互动数据 ({apiContentData.length})
-                    {isLoadingContent && <RefreshCw className="ml-2 h-3 w-3 animate-spin" />}
+                    {isLoadingContent && (
+                      <RefreshCw className="ml-2 h-3 w-3 animate-spin" />
+                    )}
                   </span>
                   <div className="flex items-center space-x-2">
                     <Popover>
@@ -1323,7 +1395,7 @@ https://www.youtube.com/watch?v=example123
                         </div>
                       </PopoverContent>
                     </Popover>
-                    
+
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8">
@@ -1344,7 +1416,10 @@ https://www.youtube.com/watch?v=example123
                                   setCurrentPage(1);
                                 }}
                               />
-                              <label htmlFor="no-sort" className="text-sm font-medium">
+                              <label
+                                htmlFor="no-sort"
+                                className="text-sm font-medium"
+                              >
                                 默认排序
                               </label>
                             </div>
@@ -1357,7 +1432,10 @@ https://www.youtube.com/watch?v=example123
                                   setCurrentPage(1);
                                 }}
                               />
-                              <label htmlFor="desc-sort" className="text-sm font-medium">
+                              <label
+                                htmlFor="desc-sort"
+                                className="text-sm font-medium"
+                              >
                                 点赞数降序
                               </label>
                             </div>
@@ -1370,7 +1448,10 @@ https://www.youtube.com/watch?v=example123
                                   setCurrentPage(1);
                                 }}
                               />
-                              <label htmlFor="asc-sort" className="text-sm font-medium">
+                              <label
+                                htmlFor="asc-sort"
+                                className="text-sm font-medium"
+                              >
                                 点赞数升序
                               </label>
                             </div>
@@ -1392,7 +1473,7 @@ https://www.youtube.com/watch?v=example123
                         <RefreshCw className="mr-2 h-3.5 w-3.5" />
                         刷新
                       </Button>
-                      
+
                       <div className="text-xs text-muted-foreground">
                         总计: {totalItems} 条数据
                       </div>
@@ -1435,9 +1516,9 @@ https://www.youtube.com/watch?v=example123
                       <TableBody>
                         {apiContentData.map((content) => {
                           const previewContent = getPreviewContent(content);
-                          
+
                           return (
-                            <TableRow 
+                            <TableRow
                               key={content.id}
                               className="cursor-pointer hover:bg-muted/50 transition-colors"
                               onClick={() => handleContentRowClick(content)}
@@ -1445,7 +1526,8 @@ https://www.youtube.com/watch?v=example123
                               {/* 作品展示列 */}
                               <TableCell>
                                 <div className="w-24 h-16 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center relative">
-                                  {previewContent.type === "video" && previewContent.url ? (
+                                  {previewContent.type === "video" &&
+                                  previewContent.url ? (
                                     <>
                                       <video
                                         src={previewContent.url}
@@ -1453,8 +1535,10 @@ https://www.youtube.com/watch?v=example123
                                         preload="metadata"
                                         muted
                                         onError={(e) => {
-                                          e.currentTarget.style.display = "none";
-                                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                                          e.currentTarget.style.display =
+                                            "none";
+                                          const next = e.currentTarget
+                                            .nextElementSibling as HTMLElement;
                                           if (next) next.style.display = "flex";
                                         }}
                                       />
@@ -1467,21 +1551,28 @@ https://www.youtube.com/watch?v=example123
                                       <div className="absolute inset-0 flex items-center justify-center">
                                         <Play className="h-6 w-6 text-white drop-shadow-lg" />
                                       </div>
-                                      {previewContent.duration && previewContent.duration > 0 && (
-                                        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
-                                          {formatDuration(previewContent.duration)}
-                                        </div>
-                                      )}
+                                      {previewContent.duration &&
+                                        previewContent.duration > 0 && (
+                                          <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                                            {formatDuration(
+                                              previewContent.duration,
+                                            )}
+                                          </div>
+                                        )}
                                     </>
-                                  ) : previewContent.type === "image" && previewContent.urls && previewContent.urls.length > 0 ? (
+                                  ) : previewContent.type === "image" &&
+                                    previewContent.urls &&
+                                    previewContent.urls.length > 0 ? (
                                     <>
                                       <img
                                         src={previewContent.urls[0]}
                                         alt="内容预览"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                          e.currentTarget.style.display = "none";
-                                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                                          e.currentTarget.style.display =
+                                            "none";
+                                          const next = e.currentTarget
+                                            .nextElementSibling as HTMLElement;
                                           if (next) next.style.display = "flex";
                                         }}
                                       />
@@ -1505,7 +1596,7 @@ https://www.youtube.com/watch?v=example123
                                   )}
                                 </div>
                               </TableCell>
-                              
+
                               {/* 作品标题列 */}
                               <TableCell className="font-medium">
                                 <div
@@ -1515,19 +1606,19 @@ https://www.youtube.com/watch?v=example123
                                   {getContentTitle(content)}
                                 </div>
                               </TableCell>
-                              
+
                               {/* 平台列 */}
                               <TableCell>
                                 <Badge variant="outline" className="text-xs">
                                   {getPlatformDisplayName(content.platform)}
                                 </Badge>
                               </TableCell>
-                              
+
                               {/* 作者列 */}
                               <TableCell className="text-sm">
                                 {getAuthorName(content)}
                               </TableCell>
-                              
+
                               {/* 播放量列 */}
                               <TableCell className="text-sm">
                                 <span className="flex items-center">
@@ -1535,7 +1626,7 @@ https://www.youtube.com/watch?v=example123
                                   {formatNumber(getViewCount(content))}
                                 </span>
                               </TableCell>
-                              
+
                               {/* 点赞列 */}
                               <TableCell className="text-sm">
                                 <span className="flex items-center">
@@ -1543,7 +1634,7 @@ https://www.youtube.com/watch?v=example123
                                   {formatNumber(content.like_count)}
                                 </span>
                               </TableCell>
-                              
+
                               {/* 评论列 */}
                               <TableCell className="text-sm">
                                 <span className="flex items-center">
@@ -1551,7 +1642,7 @@ https://www.youtube.com/watch?v=example123
                                   {formatNumber(getCommentCount(content))}
                                 </span>
                               </TableCell>
-                              
+
                               {/* 分享列 */}
                               <TableCell className="text-sm">
                                 <span className="flex items-center">
@@ -1559,12 +1650,14 @@ https://www.youtube.com/watch?v=example123
                                   {formatNumber(getShareCount(content))}
                                 </span>
                               </TableCell>
-                              
+
                               {/* 创建时间列 */}
                               <TableCell className="text-sm text-muted-foreground">
-                                {new Date(content.created_at).toLocaleDateString()}
+                                {new Date(
+                                  content.created_at,
+                                ).toLocaleDateString()}
                               </TableCell>
-                              
+
                               {/* 查看详情列 */}
                               <TableCell>
                                 <Button
@@ -1584,30 +1677,38 @@ https://www.youtube.com/watch?v=example123
                         })}
                       </TableBody>
                     </Table>
-                    
+
                     {/* Pagination */}
                     {totalItems > 20 && (
                       <div className="flex items-center justify-between p-4 border-t">
                         <div className="text-sm text-muted-foreground">
-                          第 {(currentPage - 1) * 20 + 1} - {Math.min(currentPage * 20, totalItems)} 条，共 {totalItems} 条
+                          第 {(currentPage - 1) * 20 + 1} -{" "}
+                          {Math.min(currentPage * 20, totalItems)} 条，共{" "}
+                          {totalItems} 条
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            onClick={() =>
+                              setCurrentPage((prev) => Math.max(1, prev - 1))
+                            }
                             disabled={currentPage === 1 || isLoadingContent}
                           >
                             上一页
                           </Button>
                           <span className="text-sm">
-                            第 {currentPage} 页，共 {Math.ceil(totalItems / 20)} 页
+                            第 {currentPage} 页，共 {Math.ceil(totalItems / 20)}{" "}
+                            页
                           </span>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            disabled={currentPage >= Math.ceil(totalItems / 20) || isLoadingContent}
+                            onClick={() => setCurrentPage((prev) => prev + 1)}
+                            disabled={
+                              currentPage >= Math.ceil(totalItems / 20) ||
+                              isLoadingContent
+                            }
                           >
                             下一页
                           </Button>

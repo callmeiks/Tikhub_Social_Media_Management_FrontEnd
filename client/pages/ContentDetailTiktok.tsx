@@ -113,14 +113,26 @@ interface TiktokAnalyticsData {
   data: {
     item_id: string;
     comments: { value: number; message: any };
-    comments_14_days: { value: Array<{ value: number; message: any }>; interval: number };
+    comments_14_days: {
+      value: Array<{ value: number; message: any }>;
+      interval: number;
+    };
     favorites: { value: number; message: any };
-    favorites_14_days: { value: Array<{ value: number; message: any }>; interval: number };
+    favorites_14_days: {
+      value: Array<{ value: number; message: any }>;
+      interval: number;
+    };
     likes: { value: number; message: any };
-    likes_14_days: { value: Array<{ value: number; message: any }>; interval: number };
+    likes_14_days: {
+      value: Array<{ value: number; message: any }>;
+      interval: number;
+    };
     video_summary: { content: string; title: string; summary_type: number };
     video_views: { value: number; message: any };
-    video_views_14_days: { value: Array<{ value: number; message: any }>; interval: number };
+    video_views_14_days: {
+      value: Array<{ value: number; message: any }>;
+      interval: number;
+    };
   };
 }
 
@@ -169,8 +181,11 @@ export default function ContentDetailTiktok() {
   const location = useLocation();
   const [content, setContent] = useState<TiktokVideoData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState<TiktokAnalyticsData | null>(null);
-  const [creatorData, setCreatorData] = useState<TiktokCreatorData | null>(null);
+  const [analyticsData, setAnalyticsData] =
+    useState<TiktokAnalyticsData | null>(null);
+  const [creatorData, setCreatorData] = useState<TiktokCreatorData | null>(
+    null,
+  );
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [creatorLoading, setCreatorLoading] = useState(false);
   const [wordCloudData, setWordCloudData] = useState<any | null>(null);
@@ -182,7 +197,7 @@ export default function ContentDetailTiktok() {
     // Check if content data was passed via navigation state
     if (location.state?.contentData) {
       const contentData = location.state.contentData;
-      
+
       // Map the API data to TiktokVideoData format
       const mappedData: TiktokVideoData = {
         id: contentData.id,
@@ -227,7 +242,7 @@ export default function ContentDetailTiktok() {
         created_at: contentData.created_at,
         updated_at: contentData.updated_at,
       };
-      
+
       setContent(mappedData);
       setLoading(false);
     } else {
@@ -302,12 +317,15 @@ export default function ContentDetailTiktok() {
         audioPlayer.pause();
       }
       const audio = new Audio(content.music_play_url);
-      audio.play().then(() => {
-        setAudioPlayer(audio);
-        setIsPlaying(true);
-      }).catch(e => console.error('无法播放音频:', e));
-      
-      audio.addEventListener('ended', () => {
+      audio
+        .play()
+        .then(() => {
+          setAudioPlayer(audio);
+          setIsPlaying(true);
+        })
+        .catch((e) => console.error("无法播放音频:", e));
+
+      audio.addEventListener("ended", () => {
         setIsPlaying(false);
         setAudioPlayer(null);
       });
@@ -326,24 +344,24 @@ export default function ContentDetailTiktok() {
   const handleDownloadMusic = () => {
     if (content?.music_play_url) {
       fetch(content.music_play_url)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
-          link.download = `${content.music_author || 'music'}_${content.mid}.mp3`;
+          link.download = `${content.music_author || "music"}_${content.mid}.mp3`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
         })
-        .catch(error => {
-          console.error('下载失败:', error);
+        .catch((error) => {
+          console.error("下载失败:", error);
           // Fallback to direct link
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = content.music_play_url;
-          link.download = `${content.music_author || 'music'}_${content.mid}.mp3`;
-          link.target = '_blank';
+          link.download = `${content.music_author || "music"}_${content.mid}.mp3`;
+          link.target = "_blank";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -364,30 +382,33 @@ export default function ContentDetailTiktok() {
   // Fetch analytics data
   const fetchAnalyticsData = async (awemeId: string) => {
     if (!awemeId) return;
-    
+
     setAnalyticsLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
-      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
-      
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token =
+        import.meta.env.VITE_BACKEND_API_TOKEN ||
+        localStorage.getItem("auth_token");
+
       const response = await fetch(
         `${API_BASE_URL}/api/content-interaction/tiktok/analytics/video-metrics/${awemeId}`,
         {
           headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const data = await response.json();
         setAnalyticsData(data);
       } else {
-        console.error('Failed to fetch analytics data:', response.statusText);
+        console.error("Failed to fetch analytics data:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
+      console.error("Error fetching analytics data:", error);
     } finally {
       setAnalyticsLoading(false);
     }
@@ -396,30 +417,33 @@ export default function ContentDetailTiktok() {
   // Fetch creator data
   const fetchCreatorData = async (userId: string) => {
     if (!userId) return;
-    
+
     setCreatorLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
-      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
-      
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token =
+        import.meta.env.VITE_BACKEND_API_TOKEN ||
+        localStorage.getItem("auth_token");
+
       const response = await fetch(
         `${API_BASE_URL}/api/content-interaction/tiktok/analytics/creator-info/${userId}`,
         {
           headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const data = await response.json();
         setCreatorData(data);
       } else {
-        console.error('Failed to fetch creator data:', response.statusText);
+        console.error("Failed to fetch creator data:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching creator data:', error);
+      console.error("Error fetching creator data:", error);
     } finally {
       setCreatorLoading(false);
     }
@@ -428,30 +452,33 @@ export default function ContentDetailTiktok() {
   // Fetch word cloud data
   const fetchWordCloudData = async (awemeId: string) => {
     if (!awemeId) return;
-    
+
     setWordCloudLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
-      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
-      
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
+      const token =
+        import.meta.env.VITE_BACKEND_API_TOKEN ||
+        localStorage.getItem("auth_token");
+
       const response = await fetch(
         `${API_BASE_URL}/api/content-interaction/tiktok/analytics/comment-keywords/${awemeId}`,
         {
           headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
-      
+
       if (response.ok) {
         const data = await response.json();
         setWordCloudData(data);
       } else {
-        console.error('Failed to fetch word cloud data:', response.statusText);
+        console.error("Failed to fetch word cloud data:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching word cloud data:', error);
+      console.error("Error fetching word cloud data:", error);
     } finally {
       setWordCloudLoading(false);
     }
@@ -500,7 +527,7 @@ export default function ContentDetailTiktok() {
     if (duration > 1000) {
       seconds = Math.floor(duration / 1000);
     }
-    
+
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
@@ -509,54 +536,54 @@ export default function ContentDetailTiktok() {
   // 导出数据到Excel
   const handleExportData = () => {
     const workbook = XLSX.utils.book_new();
-    
+
     // 1. 基本信息工作表
     const basicInfoData = [
-      ['字段', '值'],
-      ['作品ID', content.aweme_id],
-      ['描述', content.desc],
-      ['作者昵称', content.author_nickname],
-      ['作者ID', content.author_unique_id],
-      ['作者UID', content.author_uid],
-      ['内容类型', content.content_type === "video" ? "视频" : "图片"],
-      ['描述语言', content.desc_language],
-      ['视频时长', formatDuration(content.duration)],
-      ['发布时间', formatDate(content.create_time)],
-      ['分享链接', content.share_url],
-      ['播放量', content.play_count.toLocaleString()],
-      ['点赞数', content.digg_count.toLocaleString()],
-      ['评论数', content.comment_count.toLocaleString()],
-      ['分享数', content.share_count.toLocaleString()],
-      ['收藏数', content.collect_count.toLocaleString()],
-      ['下载数', content.download_count.toLocaleString()],
+      ["字段", "值"],
+      ["作品ID", content.aweme_id],
+      ["描述", content.desc],
+      ["作者昵称", content.author_nickname],
+      ["作者ID", content.author_unique_id],
+      ["作者UID", content.author_uid],
+      ["内容类型", content.content_type === "video" ? "视频" : "图片"],
+      ["描述语言", content.desc_language],
+      ["视频时长", formatDuration(content.duration)],
+      ["发布时间", formatDate(content.create_time)],
+      ["分享链接", content.share_url],
+      ["播放量", content.play_count.toLocaleString()],
+      ["点赞数", content.digg_count.toLocaleString()],
+      ["评论数", content.comment_count.toLocaleString()],
+      ["分享数", content.share_count.toLocaleString()],
+      ["收藏数", content.collect_count.toLocaleString()],
+      ["下载数", content.download_count.toLocaleString()],
     ];
     const basicInfoSheet = XLSX.utils.aoa_to_sheet(basicInfoData);
     XLSX.utils.book_append_sheet(workbook, basicInfoSheet, "基本信息");
 
     // 2. TikTok特性工作表
     const featuresData = [
-      ['特性', '状态'],
-      ['AI生成', content.created_by_ai ? '是' : '否'],
-      ['广告内容', content.is_ads ? '是' : '否'],
-      ['置顶作品', content.is_top ? '是' : '否'],
-      ['专业内容', content.is_pgcshow ? '是' : '否'],
-      ['支持弹幕', content.support_danmaku ? '是' : '否'],
-      ['可推广', content.adv_promotable ? '是' : '否'],
-      ['推广音乐', content.with_promotional_music ? '是' : '否'],
-      ['VR内容', content.is_vr ? '是' : '否'],
-      ['剪映制作', content.is_capcut ? '是' : '否'],
+      ["特性", "状态"],
+      ["AI生成", content.created_by_ai ? "是" : "否"],
+      ["广告内容", content.is_ads ? "是" : "否"],
+      ["置顶作品", content.is_top ? "是" : "否"],
+      ["专业内容", content.is_pgcshow ? "是" : "否"],
+      ["支持弹幕", content.support_danmaku ? "是" : "否"],
+      ["可推广", content.adv_promotable ? "是" : "否"],
+      ["推广音乐", content.with_promotional_music ? "是" : "否"],
+      ["VR内容", content.is_vr ? "是" : "否"],
+      ["剪映制作", content.is_capcut ? "是" : "否"],
     ];
     const featuresSheet = XLSX.utils.aoa_to_sheet(featuresData);
     XLSX.utils.book_append_sheet(workbook, featuresSheet, "TikTok特性");
 
     // 3. 音乐信息工作表
     const musicData = [
-      ['字段', '值'],
-      ['音乐作者', content.music_author],
-      ['音乐时长', formatDuration(content.music_duration)],
-      ['音乐ID', content.mid],
-      ['音乐链接', content.music_play_url],
-      ['推广音乐', content.with_promotional_music ? '是' : '否'],
+      ["字段", "值"],
+      ["音乐作者", content.music_author],
+      ["音乐时长", formatDuration(content.music_duration)],
+      ["音乐ID", content.mid],
+      ["音乐链接", content.music_play_url],
+      ["推广音乐", content.with_promotional_music ? "是" : "否"],
     ];
     const musicSheet = XLSX.utils.aoa_to_sheet(musicData);
     XLSX.utils.book_append_sheet(workbook, musicSheet, "音乐信息");
@@ -564,8 +591,11 @@ export default function ContentDetailTiktok() {
     // 4. 标签信息工作表
     if (content.cha_list && content.cha_list.length > 0) {
       const tagsData = [
-        ['序号', '标签名称'],
-        ...content.cha_list.map((tag: any, index: number) => [index + 1, tag.cha_name])
+        ["序号", "标签名称"],
+        ...content.cha_list.map((tag: any, index: number) => [
+          index + 1,
+          tag.cha_name,
+        ]),
       ];
       const tagsSheet = XLSX.utils.aoa_to_sheet(tagsData);
       XLSX.utils.book_append_sheet(workbook, tagsSheet, "标签信息");
@@ -574,30 +604,64 @@ export default function ContentDetailTiktok() {
     // 5. 数据趋势分析工作表（如果有数据）
     if (analyticsData) {
       const analyticsDataArray = [
-        ['字段', '值', '消息'],
-        ['视频播放量', analyticsData.data.video_views?.value || 0, analyticsData.data.video_views?.message || ''],
-        ['点赞数', analyticsData.data.likes?.value || 0, analyticsData.data.likes?.message || ''],
-        ['评论数', analyticsData.data.comments?.value || 0, analyticsData.data.comments?.message || ''],
-        ['分享数', analyticsData.data.shares?.value || 0, analyticsData.data.shares?.message || ''],
-        ['收藏数', analyticsData.data.collects?.value || 0, analyticsData.data.collects?.message || ''],
+        ["字段", "值", "消息"],
+        [
+          "视频播放量",
+          analyticsData.data.video_views?.value || 0,
+          analyticsData.data.video_views?.message || "",
+        ],
+        [
+          "点赞数",
+          analyticsData.data.likes?.value || 0,
+          analyticsData.data.likes?.message || "",
+        ],
+        [
+          "评论数",
+          analyticsData.data.comments?.value || 0,
+          analyticsData.data.comments?.message || "",
+        ],
+        [
+          "分享数",
+          analyticsData.data.shares?.value || 0,
+          analyticsData.data.shares?.message || "",
+        ],
+        [
+          "收藏数",
+          analyticsData.data.collects?.value || 0,
+          analyticsData.data.collects?.message || "",
+        ],
       ];
-      
+
       // 添加视频摘要
       if (analyticsData.data.video_summary) {
-        analyticsDataArray.push(['视频摘要标题', analyticsData.data.video_summary.title, '']);
-        analyticsDataArray.push(['视频摘要内容', analyticsData.data.video_summary.content, '']);
+        analyticsDataArray.push([
+          "视频摘要标题",
+          analyticsData.data.video_summary.title,
+          "",
+        ]);
+        analyticsDataArray.push([
+          "视频摘要内容",
+          analyticsData.data.video_summary.content,
+          "",
+        ]);
       }
-      
+
       // 添加14天数据趋势
       if (analyticsData.data.comments_14_days?.value) {
-        analyticsDataArray.push(['', '', '']);
-        analyticsDataArray.push(['14天数据趋势', '', '']);
-        analyticsDataArray.push(['日期', '评论数', '备注']);
-        analyticsData.data.comments_14_days.value.forEach((item: any, index: number) => {
-          analyticsDataArray.push([`第${index + 1}天`, item.value, item.message || '']);
-        });
+        analyticsDataArray.push(["", "", ""]);
+        analyticsDataArray.push(["14天数据趋势", "", ""]);
+        analyticsDataArray.push(["日期", "评论数", "备注"]);
+        analyticsData.data.comments_14_days.value.forEach(
+          (item: any, index: number) => {
+            analyticsDataArray.push([
+              `第${index + 1}天`,
+              item.value,
+              item.message || "",
+            ]);
+          },
+        );
       }
-      
+
       const analyticsSheet = XLSX.utils.aoa_to_sheet(analyticsDataArray);
       XLSX.utils.book_append_sheet(workbook, analyticsSheet, "数据趋势分析");
     }
@@ -605,52 +669,57 @@ export default function ContentDetailTiktok() {
     // 6. 作者信息工作表（如果有数据）
     if (creatorData) {
       const creatorDataArray = [
-        ['字段', '值'],
-        ['作者昵称', creatorData.data.author_nickname],
-        ['作者ID', creatorData.data.author_unique_id],
-        ['作者UID', creatorData.data.author_uid],
-        ['粉丝数', creatorData.data.follower_count?.toLocaleString() || 0],
-        ['关注数', creatorData.data.following_count?.toLocaleString() || 0],
-        ['作品数', creatorData.data.aweme_count?.toLocaleString() || 0],
-        ['获赞数', creatorData.data.total_favorited?.toLocaleString() || 0],
+        ["字段", "值"],
+        ["作者昵称", creatorData.data.author_nickname],
+        ["作者ID", creatorData.data.author_unique_id],
+        ["作者UID", creatorData.data.author_uid],
+        ["粉丝数", creatorData.data.follower_count?.toLocaleString() || 0],
+        ["关注数", creatorData.data.following_count?.toLocaleString() || 0],
+        ["作品数", creatorData.data.aweme_count?.toLocaleString() || 0],
+        ["获赞数", creatorData.data.total_favorited?.toLocaleString() || 0],
       ];
-      
+
       // 添加里程碑信息
-      if (creatorData.data.milestones && creatorData.data.milestones.length > 0) {
-        creatorDataArray.push(['', '']);
-        creatorDataArray.push(['成长里程碑', '']);
-        creatorDataArray.push(['里程碑', '标题', '日期', '描述']);
+      if (
+        creatorData.data.milestones &&
+        creatorData.data.milestones.length > 0
+      ) {
+        creatorDataArray.push(["", ""]);
+        creatorDataArray.push(["成长里程碑", ""]);
+        creatorDataArray.push(["里程碑", "标题", "日期", "描述"]);
         creatorData.data.milestones.forEach((milestone: any) => {
           creatorDataArray.push([
             milestone.milestone,
             milestone.milestone_title.value,
             `${milestone.milestone_year.value}/${milestone.milestone_month_day.value}`,
-            milestone.creator_summary?.value || ''
+            milestone.creator_summary?.value || "",
           ]);
         });
       }
-      
+
       const creatorSheet = XLSX.utils.aoa_to_sheet(creatorDataArray);
       XLSX.utils.book_append_sheet(workbook, creatorSheet, "作者信息");
     }
 
     // 7. 词云分析工作表（如果有数据）
     if (wordCloudData) {
-      const wordCloudDataArray = [
-        ['关键词', '评论数量', '热门评论'],
-      ];
-      
+      const wordCloudDataArray = [["关键词", "评论数量", "热门评论"]];
+
       wordCloudData.data.key_words.comment_key_words.forEach((item: any) => {
-        const topComment = item.comments[0]?.text || '';
-        wordCloudDataArray.push([item.key_word, item.comments.length, topComment]);
+        const topComment = item.comments[0]?.text || "";
+        wordCloudDataArray.push([
+          item.key_word,
+          item.comments.length,
+          topComment,
+        ]);
       });
-      
+
       const wordCloudSheet = XLSX.utils.aoa_to_sheet(wordCloudDataArray);
       XLSX.utils.book_append_sheet(workbook, wordCloudSheet, "词云分析");
     }
 
     // 导出Excel文件
-    const fileName = `TikTok作品数据_${content.aweme_id}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `TikTok作品数据_${content.aweme_id}_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
 
@@ -720,7 +789,7 @@ export default function ContentDetailTiktok() {
                       className="w-full h-full object-cover"
                       controls
                       preload="metadata"
-                      poster={content.video_url.replace('.mp4', '.jpg')}
+                      poster={content.video_url.replace(".mp4", ".jpg")}
                     >
                       <source src={content.video_url} type="video/mp4" />
                       您的浏览器不支持视频播放
@@ -957,61 +1026,92 @@ export default function ContentDetailTiktok() {
                       <div className="flex items-center gap-2">
                         <Bot className="h-4 w-4 text-blue-500" />
                         <span className="text-sm">AI生成:</span>
-                        <Badge variant={content.created_by_ai ? "secondary" : "outline"} className="text-xs">
+                        <Badge
+                          variant={
+                            content.created_by_ai ? "secondary" : "outline"
+                          }
+                          className="text-xs"
+                        >
                           {content.created_by_ai ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 广告内容 */}
                       <div className="flex items-center gap-2">
                         <Target className="h-4 w-4 text-red-500" />
                         <span className="text-sm">广告:</span>
-                        <Badge variant={content.is_ads ? "destructive" : "outline"} className="text-xs">
+                        <Badge
+                          variant={content.is_ads ? "destructive" : "outline"}
+                          className="text-xs"
+                        >
                           {content.is_ads ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 置顶作品 */}
                       <div className="flex items-center gap-2">
                         <Pin className="h-4 w-4 text-red-500" />
                         <span className="text-sm">置顶:</span>
-                        <Badge variant={content.is_top ? "default" : "outline"} className="text-xs">
+                        <Badge
+                          variant={content.is_top ? "default" : "outline"}
+                          className="text-xs"
+                        >
                           {content.is_top ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 专业内容 */}
                       <div className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-yellow-500" />
                         <span className="text-sm">专业内容:</span>
-                        <Badge variant={content.is_pgcshow ? "secondary" : "outline"} className="text-xs">
+                        <Badge
+                          variant={content.is_pgcshow ? "secondary" : "outline"}
+                          className="text-xs"
+                        >
                           {content.is_pgcshow ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 支持弹幕 */}
                       <div className="flex items-center gap-2">
                         <MessageCircle className="h-4 w-4 text-green-500" />
                         <span className="text-sm">弹幕:</span>
-                        <Badge variant={content.support_danmaku ? "secondary" : "outline"} className="text-xs">
+                        <Badge
+                          variant={
+                            content.support_danmaku ? "secondary" : "outline"
+                          }
+                          className="text-xs"
+                        >
                           {content.support_danmaku ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 可推广 */}
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-purple-500" />
                         <span className="text-sm">可推广:</span>
-                        <Badge variant={content.adv_promotable ? "secondary" : "outline"} className="text-xs">
+                        <Badge
+                          variant={
+                            content.adv_promotable ? "secondary" : "outline"
+                          }
+                          className="text-xs"
+                        >
                           {content.adv_promotable ? "是" : "否"}
                         </Badge>
                       </div>
-                      
+
                       {/* 推广音乐 */}
                       <div className="flex items-center gap-2">
                         <Music className="h-4 w-4 text-orange-500" />
                         <span className="text-sm">推广音乐:</span>
-                        <Badge variant={content.with_promotional_music ? "secondary" : "outline"} className="text-xs">
+                        <Badge
+                          variant={
+                            content.with_promotional_music
+                              ? "secondary"
+                              : "outline"
+                          }
+                          className="text-xs"
+                        >
                           {content.with_promotional_music ? "是" : "否"}
                         </Badge>
                       </div>
@@ -1130,8 +1230,12 @@ export default function ContentDetailTiktok() {
                     {/* 概览信息 */}
                     {analyticsData.data.video_summary && (
                       <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <h3 className="font-semibold mb-2">{analyticsData.data.video_summary.title}</h3>
-                        <p className="text-sm text-muted-foreground">{analyticsData.data.video_summary.content}</p>
+                        <h3 className="font-semibold mb-2">
+                          {analyticsData.data.video_summary.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {analyticsData.data.video_summary.content}
+                        </p>
                       </div>
                     )}
 
@@ -1141,25 +1245,33 @@ export default function ContentDetailTiktok() {
                         <div className="text-2xl font-bold text-blue-600">
                           {analyticsData.data.video_views?.value.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">视频播放量</div>
+                        <div className="text-sm text-muted-foreground">
+                          视频播放量
+                        </div>
                       </div>
                       <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                         <div className="text-2xl font-bold text-red-600">
                           {analyticsData.data.likes?.value.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">点赞数</div>
+                        <div className="text-sm text-muted-foreground">
+                          点赞数
+                        </div>
                       </div>
                       <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                         <div className="text-2xl font-bold text-green-600">
                           {analyticsData.data.comments?.value.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">评论数</div>
+                        <div className="text-sm text-muted-foreground">
+                          评论数
+                        </div>
                       </div>
                       <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                         <div className="text-2xl font-bold text-orange-600">
                           {analyticsData.data.favorites?.value.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">收藏数</div>
+                        <div className="text-sm text-muted-foreground">
+                          收藏数
+                        </div>
                       </div>
                     </div>
 
@@ -1167,20 +1279,31 @@ export default function ContentDetailTiktok() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-lg">播放量趋势 (14天)</CardTitle>
+                          <CardTitle className="text-lg">
+                            播放量趋势 (14天)
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={analyticsData.data.video_views_14_days?.value.map((item, index) => ({
-                              day: `第${index + 1}天`,
-                              value: item.value,
-                              timestamp: item.message.timestamp
-                            }))}>
+                            <LineChart
+                              data={analyticsData.data.video_views_14_days?.value.map(
+                                (item, index) => ({
+                                  day: `第${index + 1}天`,
+                                  value: item.value,
+                                  timestamp: item.message.timestamp,
+                                }),
+                              )}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="day" />
                               <YAxis />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#3b82f6"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1188,20 +1311,31 @@ export default function ContentDetailTiktok() {
 
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-lg">点赞趋势 (14天)</CardTitle>
+                          <CardTitle className="text-lg">
+                            点赞趋势 (14天)
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={analyticsData.data.likes_14_days?.value.map((item, index) => ({
-                              day: `第${index + 1}天`,
-                              value: item.value,
-                              timestamp: item.message.timestamp
-                            }))}>
+                            <LineChart
+                              data={analyticsData.data.likes_14_days?.value.map(
+                                (item, index) => ({
+                                  day: `第${index + 1}天`,
+                                  value: item.value,
+                                  timestamp: item.message.timestamp,
+                                }),
+                              )}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="day" />
                               <YAxis />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#ef4444"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1209,20 +1343,31 @@ export default function ContentDetailTiktok() {
 
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-lg">评论趋势 (14天)</CardTitle>
+                          <CardTitle className="text-lg">
+                            评论趋势 (14天)
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={analyticsData.data.comments_14_days?.value.map((item, index) => ({
-                              day: `第${index + 1}天`,
-                              value: item.value,
-                              timestamp: item.message.timestamp
-                            }))}>
+                            <LineChart
+                              data={analyticsData.data.comments_14_days?.value.map(
+                                (item, index) => ({
+                                  day: `第${index + 1}天`,
+                                  value: item.value,
+                                  timestamp: item.message.timestamp,
+                                }),
+                              )}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="day" />
                               <YAxis />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#22c55e"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1230,20 +1375,31 @@ export default function ContentDetailTiktok() {
 
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-lg">收藏趋势 (14天)</CardTitle>
+                          <CardTitle className="text-lg">
+                            收藏趋势 (14天)
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={analyticsData.data.favorites_14_days?.value.map((item, index) => ({
-                              day: `第${index + 1}天`,
-                              value: item.value,
-                              timestamp: item.message.timestamp
-                            }))}>
+                            <LineChart
+                              data={analyticsData.data.favorites_14_days?.value.map(
+                                (item, index) => ({
+                                  day: `第${index + 1}天`,
+                                  value: item.value,
+                                  timestamp: item.message.timestamp,
+                                }),
+                              )}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="day" />
                               <YAxis />
                               <Tooltip />
-                              <Line type="monotone" dataKey="value" stroke="#f97316" strokeWidth={2} />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#f97316"
+                                strokeWidth={2}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </CardContent>
@@ -1253,8 +1409,12 @@ export default function ContentDetailTiktok() {
                 ) : (
                   <div className="text-center py-12">
                     <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">暂无数据趋势信息</p>
-                    <Button onClick={() => fetchAnalyticsData(content.aweme_id)}>
+                    <p className="text-muted-foreground mb-4">
+                      暂无数据趋势信息
+                    </p>
+                    <Button
+                      onClick={() => fetchAnalyticsData(content.aweme_id)}
+                    >
                       加载数据趋势
                     </Button>
                   </div>
@@ -1289,20 +1449,40 @@ export default function ContentDetailTiktok() {
                     {/* 作者基本信息 */}
                     <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg">
                       <Avatar className="w-16 h-16">
-                        <AvatarImage src={creatorData.data.creator_info.avatar_url} alt={creatorData.data.creator_info.nickname} />
-                        <AvatarFallback>{creatorData.data.creator_info.nickname.substring(0, 2)}</AvatarFallback>
+                        <AvatarImage
+                          src={creatorData.data.creator_info.avatar_url}
+                          alt={creatorData.data.creator_info.nickname}
+                        />
+                        <AvatarFallback>
+                          {creatorData.data.creator_info.nickname.substring(
+                            0,
+                            2,
+                          )}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold">{creatorData.data.creator_info.nickname}</h3>
-                        <p className="text-muted-foreground">@{creatorData.data.creator_info.unique_id}</p>
+                        <h3 className="text-xl font-bold">
+                          {creatorData.data.creator_info.nickname}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          @{creatorData.data.creator_info.unique_id}
+                        </p>
                         <div className="flex gap-4 mt-2">
                           <div className="text-sm">
-                            <span className="font-medium">{creatorData.data.creator_info.follower_count.toLocaleString()}</span>
-                            <span className="text-muted-foreground ml-1">粉丝</span>
+                            <span className="font-medium">
+                              {creatorData.data.creator_info.follower_count.toLocaleString()}
+                            </span>
+                            <span className="text-muted-foreground ml-1">
+                              粉丝
+                            </span>
                           </div>
                           <div className="text-sm">
-                            <span className="font-medium">{creatorData.data.creator_info.like_count.toLocaleString()}</span>
-                            <span className="text-muted-foreground ml-1">获赞</span>
+                            <span className="font-medium">
+                              {creatorData.data.creator_info.like_count.toLocaleString()}
+                            </span>
+                            <span className="text-muted-foreground ml-1">
+                              获赞
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1320,71 +1500,124 @@ export default function ContentDetailTiktok() {
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h5 className="font-medium">{milestone.milestone_title.value}</h5>
+                                  <h5 className="font-medium">
+                                    {milestone.milestone_title.value}
+                                  </h5>
                                   <Badge variant="outline" className="text-xs">
-                                    {milestone.milestone_year.value}/{milestone.milestone_month_day.value}
+                                    {milestone.milestone_year.value}/
+                                    {milestone.milestone_month_day.value}
                                   </Badge>
                                 </div>
                                 {milestone.creator_summary.value && (
-                                  <p className="text-sm text-muted-foreground">{milestone.creator_summary.value}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {milestone.creator_summary.value}
+                                  </p>
                                 )}
-                                {milestone.top_3_items && milestone.top_3_items.length > 0 && (
-                                  <div className="mt-3">
-                                    <h6 className="text-sm font-medium mb-2">代表作品</h6>
-                                    <div className="grid grid-cols-1 gap-2">
-                                      {milestone.top_3_items.map((item, itemIndex) => (
-                                        <div key={itemIndex} className="flex items-center gap-3 p-2 bg-muted/20 rounded">
-                                          <div className="w-12 h-12 bg-muted rounded overflow-hidden">
-                                            <img 
-                                              src={item.value.video.cover.url_list[0]} 
-                                              alt="视频封面"
-                                              className="w-full h-full object-cover"
-                                            />
-                                          </div>
-                                          <div className="flex-1">
-                                            <p className="text-sm font-medium line-clamp-1">{item.value.desc}</p>
-                                            <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                                              <span>{item.value.statistics.play_count.toLocaleString()}播放</span>
-                                              <span>{item.value.statistics.digg_count.toLocaleString()}点赞</span>
-                                              <span>{item.value.statistics.comment_count.toLocaleString()}评论</span>
-                                            </div>
-                                          </div>
-                                          <div className="flex gap-1">
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              className="h-8 px-2"
-                                              onClick={() => {
-                                                if (item.value.video.play_addr.url_list[0]) {
-                                                  const videoUrl = item.value.video.play_addr.url_list[0];
-                                                  fetch(videoUrl)
-                                                    .then(response => response.blob())
-                                                    .then(blob => {
-                                                      const url = window.URL.createObjectURL(blob);
-                                                      const link = document.createElement('a');
-                                                      link.href = url;
-                                                      link.download = `milestone_video_${item.value.aweme_id}.mp4`;
-                                                      document.body.appendChild(link);
-                                                      link.click();
-                                                      document.body.removeChild(link);
-                                                      window.URL.revokeObjectURL(url);
-                                                    })
-                                                    .catch(error => {
-                                                      console.error('下载失败:', error);
-                                                      // Fallback: open in new tab
-                                                      window.open(videoUrl, '_blank');
-                                                    });
-                                                }
-                                              }}
+                                {milestone.top_3_items &&
+                                  milestone.top_3_items.length > 0 && (
+                                    <div className="mt-3">
+                                      <h6 className="text-sm font-medium mb-2">
+                                        代表作品
+                                      </h6>
+                                      <div className="grid grid-cols-1 gap-2">
+                                        {milestone.top_3_items.map(
+                                          (item, itemIndex) => (
+                                            <div
+                                              key={itemIndex}
+                                              className="flex items-center gap-3 p-2 bg-muted/20 rounded"
                                             >
-                                              <Download className="h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
+                                              <div className="w-12 h-12 bg-muted rounded overflow-hidden">
+                                                <img
+                                                  src={
+                                                    item.value.video.cover
+                                                      .url_list[0]
+                                                  }
+                                                  alt="视频封面"
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              </div>
+                                              <div className="flex-1">
+                                                <p className="text-sm font-medium line-clamp-1">
+                                                  {item.value.desc}
+                                                </p>
+                                                <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                                                  <span>
+                                                    {item.value.statistics.play_count.toLocaleString()}
+                                                    播放
+                                                  </span>
+                                                  <span>
+                                                    {item.value.statistics.digg_count.toLocaleString()}
+                                                    点赞
+                                                  </span>
+                                                  <span>
+                                                    {item.value.statistics.comment_count.toLocaleString()}
+                                                    评论
+                                                  </span>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-1">
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  className="h-8 px-2"
+                                                  onClick={() => {
+                                                    if (
+                                                      item.value.video.play_addr
+                                                        .url_list[0]
+                                                    ) {
+                                                      const videoUrl =
+                                                        item.value.video
+                                                          .play_addr
+                                                          .url_list[0];
+                                                      fetch(videoUrl)
+                                                        .then((response) =>
+                                                          response.blob(),
+                                                        )
+                                                        .then((blob) => {
+                                                          const url =
+                                                            window.URL.createObjectURL(
+                                                              blob,
+                                                            );
+                                                          const link =
+                                                            document.createElement(
+                                                              "a",
+                                                            );
+                                                          link.href = url;
+                                                          link.download = `milestone_video_${item.value.aweme_id}.mp4`;
+                                                          document.body.appendChild(
+                                                            link,
+                                                          );
+                                                          link.click();
+                                                          document.body.removeChild(
+                                                            link,
+                                                          );
+                                                          window.URL.revokeObjectURL(
+                                                            url,
+                                                          );
+                                                        })
+                                                        .catch((error) => {
+                                                          console.error(
+                                                            "下载失败:",
+                                                            error,
+                                                          );
+                                                          // Fallback: open in new tab
+                                                          window.open(
+                                                            videoUrl,
+                                                            "_blank",
+                                                          );
+                                                        });
+                                                    }
+                                                  }}
+                                                >
+                                                  <Download className="h-3 w-3" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
                               </div>
                             </div>
                           </Card>
@@ -1395,8 +1628,12 @@ export default function ContentDetailTiktok() {
                 ) : (
                   <div className="text-center py-12">
                     <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">暂无作者详细信息</p>
-                    <Button onClick={() => fetchCreatorData(content.author_uid)}>
+                    <p className="text-muted-foreground mb-4">
+                      暂无作者详细信息
+                    </p>
+                    <Button
+                      onClick={() => fetchCreatorData(content.author_uid)}
+                    >
                       加载作者信息
                     </Button>
                   </div>
@@ -1424,14 +1661,21 @@ export default function ContentDetailTiktok() {
                     <div>
                       <h3 className="font-semibold mb-4">热门关键词</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {wordCloudData.data.key_words.comment_key_words.map((item: any, index: number) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                            <span className="font-medium">{item.key_word}</span>
-                            <Badge variant="secondary" className="text-xs">
-                              {item.comments.length}
-                            </Badge>
-                          </div>
-                        ))}
+                        {wordCloudData.data.key_words.comment_key_words.map(
+                          (item: any, index: number) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                            >
+                              <span className="font-medium">
+                                {item.key_word}
+                              </span>
+                              <Badge variant="secondary" className="text-xs">
+                                {item.comments.length}
+                              </Badge>
+                            </div>
+                          ),
+                        )}
                       </div>
                     </div>
 
@@ -1439,13 +1683,17 @@ export default function ContentDetailTiktok() {
                     <div>
                       <h3 className="font-semibold mb-4">关键词频次分布</h3>
                       <ResponsiveContainer width="100%" height={400}>
-                        <BarChart data={wordCloudData.data.key_words.comment_key_words.slice(0, 10).map((item: any) => ({
-                          word: item.key_word,
-                          count: item.comments.length
-                        }))}>
+                        <BarChart
+                          data={wordCloudData.data.key_words.comment_key_words
+                            .slice(0, 10)
+                            .map((item: any) => ({
+                              word: item.key_word,
+                              count: item.comments.length,
+                            }))}
+                        >
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="word" 
+                          <XAxis
+                            dataKey="word"
                             angle={-45}
                             textAnchor="end"
                             height={80}
@@ -1461,49 +1709,70 @@ export default function ContentDetailTiktok() {
                     <div>
                       <h3 className="font-semibold mb-4">关键词评论详情</h3>
                       <div className="space-y-4">
-                        {wordCloudData.data.key_words.comment_key_words.slice(0, 5).map((item: any, index: number) => (
-                          <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Badge variant="outline">{item.key_word}</Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {item.comments.length} 条评论
-                              </span>
-                            </div>
-                            <div className="space-y-2">
-                              {item.comments.slice(0, 2).map((comment: any, commentIndex: number) => (
-                                <div key={commentIndex} className="flex items-start gap-3 p-2 bg-background rounded">
-                                  <img 
-                                    src={comment.comment_author.cover.url_list[0]} 
-                                    alt={comment.comment_author.nick_name}
-                                    className="w-8 h-8 rounded-full"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className="font-medium text-sm">{comment.comment_author.nick_name}</span>
-                                      <span className="text-xs text-muted-foreground">
-                                        👍 {comment.digg_count}
-                                      </span>
+                        {wordCloudData.data.key_words.comment_key_words
+                          .slice(0, 5)
+                          .map((item: any, index: number) => (
+                            <div
+                              key={index}
+                              className="p-4 bg-muted/20 rounded-lg"
+                            >
+                              <div className="flex items-center gap-2 mb-3">
+                                <Badge variant="outline">{item.key_word}</Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  {item.comments.length} 条评论
+                                </span>
+                              </div>
+                              <div className="space-y-2">
+                                {item.comments
+                                  .slice(0, 2)
+                                  .map((comment: any, commentIndex: number) => (
+                                    <div
+                                      key={commentIndex}
+                                      className="flex items-start gap-3 p-2 bg-background rounded"
+                                    >
+                                      <img
+                                        src={
+                                          comment.comment_author.cover
+                                            .url_list[0]
+                                        }
+                                        alt={comment.comment_author.nick_name}
+                                        className="w-8 h-8 rounded-full"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="font-medium text-sm">
+                                            {comment.comment_author.nick_name}
+                                          </span>
+                                          <span className="text-xs text-muted-foreground">
+                                            👍 {comment.digg_count}
+                                          </span>
+                                        </div>
+                                        <p className="text-sm">
+                                          {comment.text}
+                                        </p>
+                                      </div>
                                     </div>
-                                    <p className="text-sm">{comment.text}</p>
+                                  ))}
+                                {item.comments.length > 2 && (
+                                  <div className="text-xs text-muted-foreground text-center">
+                                    还有 {item.comments.length - 2} 条评论...
                                   </div>
-                                </div>
-                              ))}
-                              {item.comments.length > 2 && (
-                                <div className="text-xs text-muted-foreground text-center">
-                                  还有 {item.comments.length - 2} 条评论...
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <PieChartIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">暂无词云分析数据</p>
-                    <Button onClick={() => fetchWordCloudData(content.aweme_id)}>
+                    <p className="text-muted-foreground mb-4">
+                      暂无词云分析数据
+                    </p>
+                    <Button
+                      onClick={() => fetchWordCloudData(content.aweme_id)}
+                    >
                       加载词云分析
                     </Button>
                   </div>
