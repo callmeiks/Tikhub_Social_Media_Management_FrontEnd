@@ -292,6 +292,40 @@ interface KeywordSearchResponse {
   message: string;
 }
 
+// Keyword User Search Types
+interface DouyinUserFilters {
+  douyin_user_fans?: "" | "0_1k" | "1k_1w" | "1w_10w" | "10w_100w" | "100w_";
+  douyin_user_type?: "" | "common_user" | "enterprise_user" | "personal_user";
+}
+
+interface TikTokUserFilters {
+  user_search_follower_count?: "" | "ZERO_TO_ONE_K" | "ONE_K_TO_TEN_K" | "TEN_K_TO_ONE_H_K" | "ONE_H_K_PLUS";
+  user_search_profile_type?: "" | "VERIFIED";
+}
+
+interface XiaohongshuUserFilters {
+  // No filters available for Xiaohongshu
+}
+
+interface KuaishouUserFilters {
+  // No filters available for Kuaishou
+}
+
+type UserSearchFilters = DouyinUserFilters | TikTokUserFilters | XiaohongshuUserFilters | KuaishouUserFilters;
+
+interface KeywordUserSearchParams {
+  keyword: string;
+  platform: "douyin" | "tiktok" | "xiaohongshu" | "kuaishou";
+  user_count: number;
+  filters?: UserSearchFilters;
+}
+
+interface KeywordUserSearchResponse {
+  status: "success" | "error";
+  task_id: string;
+  message: string;
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
@@ -398,6 +432,36 @@ class ApiClient {
     });
   }
 
+  async keywordUserSearch(
+    params: KeywordUserSearchParams,
+  ): Promise<KeywordUserSearchResponse> {
+    // The API endpoint expects port 8001 based on the documentation
+    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const url = `${apiUrl}/keyword-search-user/search`;
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    return response.json();
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -440,4 +504,11 @@ export type {
   XFilters,
   InstagramFilters,
   KuaishouFilters,
+  KeywordUserSearchParams,
+  KeywordUserSearchResponse,
+  DouyinUserFilters,
+  TikTokUserFilters,
+  XiaohongshuUserFilters,
+  KuaishouUserFilters,
+  UserSearchFilters,
 };

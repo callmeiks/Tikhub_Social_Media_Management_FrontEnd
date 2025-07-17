@@ -5,6 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/hooks/use-toast";
+import { apiClient } from "@/lib/api";
+import type { 
+  KeywordUserSearchParams, 
+  DouyinUserFilters, 
+  TikTokUserFilters, 
+  XiaohongshuUserFilters,
+  KuaishouUserFilters 
+} from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -35,13 +44,13 @@ import {
 } from "lucide-react";
 
 const supportedPlatforms = [
-  { id: "douyin", name: "抖音", emoji: "🎤" },
-  { id: "tiktok", name: "TikTok", emoji: "🎵" },
-  { id: "xiaohongshu", name: "小红书", emoji: "📖" },
-  { id: "kuaishou", name: "快手", emoji: "⚡" },
-  { id: "instagram", name: "Instagram", emoji: "📷" },
-  { id: "x", name: "X", emoji: "🐦" },
-  { id: "youtube", name: "YouTube", emoji: "📹" },
+  { id: "douyin", name: "抖音", emoji: "🎤", available: true },
+  { id: "tiktok", name: "TikTok", emoji: "🎵", available: true },
+  { id: "xiaohongshu", name: "小红书", emoji: "📖", available: true },
+  { id: "kuaishou", name: "快手", emoji: "⚡", available: true },
+  { id: "instagram", name: "Instagram", emoji: "📷", available: false },
+  { id: "x", name: "X", emoji: "🐦", available: false },
+  { id: "youtube", name: "YouTube", emoji: "📹", available: false },
 ];
 
 // Sample search results
@@ -110,18 +119,73 @@ export default function KeywordAccountSearch() {
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
-      alert("请输入搜索关键词");
+      toast({
+        title: "错误",
+        description: "请输入搜索关键词",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const currentPlatform = supportedPlatforms.find((p) => p.id === selectedPlatform);
+    if (!currentPlatform?.available) {
+      toast({
+        title: "平台不可用",
+        description: `${currentPlatform?.name} 平台暂时不可用`,
+        variant: "destructive",
+      });
       return;
     }
 
     setIsSearching(true);
-    // 模���API调用
-    setTimeout(() => {
+    
+    try {
+      // Build filters based on platform
+      let filters: DouyinUserFilters | TikTokUserFilters | XiaohongshuUserFilters | KuaishouUserFilters = {};
+      
+      if (selectedPlatform === "douyin") {
+        filters = {
+          douyin_user_fans: douyinFilters.userFans === "all" ? "" : douyinFilters.userFans,
+          douyin_user_type: douyinFilters.userType === "all" ? "" : douyinFilters.userType,
+        } as DouyinUserFilters;
+      } else if (selectedPlatform === "tiktok") {
+        filters = {
+          user_search_follower_count: tiktokFilters.followerCount === "all" ? "" : tiktokFilters.followerCount,
+          user_search_profile_type: tiktokFilters.profileType === "all" ? "" : tiktokFilters.profileType,
+        } as TikTokUserFilters;
+      } else if (selectedPlatform === "xiaohongshu") {
+        filters = {} as XiaohongshuUserFilters;
+      } else if (selectedPlatform === "kuaishou") {
+        filters = {} as KuaishouUserFilters;
+      }
+
+      const params: KeywordUserSearchParams = {
+        keyword: keyword.trim(),
+        platform: selectedPlatform as "douyin" | "tiktok" | "xiaohongshu" | "kuaishou",
+        user_count: parseInt(quantityFilter),
+        filters,
+      };
+
+      const response = await apiClient.keywordUserSearch(params);
+      
+      toast({
+        title: "搜索成功",
+        description: `搜索任务已创建，任务ID: ${response.task_id}`,
+      });
+
+      // Clear results and show success message
+      setSearchResults([]);
+      
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "搜索失败",
+        description: error instanceof Error ? error.message : "搜索请求失败，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
       setIsSearching(false);
-      alert(
-        `正在搜索关键词 "${keyword}" 在 ${supportedPlatforms.find((p) => p.id === selectedPlatform)?.name} 平台的账号`,
-      );
-    }, 2000);
+    }
   };
 
   const getQuantityFilterComponent = () => (
@@ -380,17 +444,54 @@ export default function KeywordAccountSearch() {
               <TabsTrigger
                 key={platform.id}
                 value={platform.id}
-                className="flex items-center gap-1 text-xs"
+                disabled={!platform.available}
+                className={`flex items-center gap-1 text-xs ${
+                  !platform.available 
+                    ? "opacity-50 cursor-not-allowed relative" 
+                    : ""
+                }`}
               >
                 <span>{platform.emoji}</span>
                 <span className="hidden sm:inline">{platform.name}</span>
+                {!platform.available && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-3 h-3 flex items-center justify-center">
+                    !
+                  </span>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
 
           {supportedPlatforms.map((platform) => (
             <TabsContent key={platform.id} value={platform.id} className="mt-6">
-              <div className="space-y-4">
+              {!platform.available ? (
+                <Card className="border-2 border-dashed border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20">
+                  <CardContent className="p-8">
+                    <div className="text-center space-y-4">
+                      <div className="p-4 rounded-full bg-red-100 dark:bg-red-900/30 mx-auto w-fit">
+                        <span className="text-3xl">{platform.emoji}</span>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-red-700 dark:text-red-400">
+                          {platform.name} 暂不可用
+                        </h3>
+                        <p className="text-sm text-red-600 dark:text-red-300 max-w-md mx-auto">
+                          该平台的账号搜索功能正在开发中，敬请期待。您可以先使用其他平台的搜索功能。
+                        </p>
+                      </div>
+                      <div className="flex justify-center gap-2">
+                        <Badge variant="destructive" className="text-xs">
+                          开发中
+                        </Badge>
+                        <Badge variant="outline" className="text-xs text-red-600 border-red-300">
+                          即将推出
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
                 {/* Enhanced Search Section */}
                 <Card className="border-2 border-dashed border-muted bg-gradient-to-br from-green-50/50 to-blue-50/50 dark:from-green-950/20 dark:to-blue-950/20">
                   <CardHeader className="pb-4">
@@ -594,7 +695,8 @@ export default function KeywordAccountSearch() {
                     )}
                   </CardContent>
                 </Card>
-              </div>
+                </div>
+              )}
             </TabsContent>
           ))}
         </Tabs>
