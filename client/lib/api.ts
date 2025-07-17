@@ -92,10 +92,46 @@ interface XiaohongshuInfluencer extends BaseInfluencer {
   ip_location: string;
 }
 
-type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer;
+interface KuaishouInfluencer extends BaseInfluencer {
+  platform: "kuaishou";
+  user_id: string;
+  eid: string;
+  user_name: string;
+  is_verified: boolean;
+  user_avatar: string;
+  avatar_url: string;
+  user_sex: string;
+  user_text: string;
+  kwai_id: string;
+  city_code: string;
+  city_name: string;
+  is_user_banned: boolean;
+  constellation: string;
+  enable_moment: boolean;
+  follower_count: number;
+  post_count: number;
+  following_count: number;
+  photo_private_count: number;
+  moment_count: number;
+  can_guest_show_moment_news: boolean;
+  privacy_user: string;
+  not_allow_find_me_by_mobile: string;
+  not_recommend_to_qq_friends: string;
+  not_recommend_to_contacts: string;
+  show_same_follow_deny: string;
+  frequent_user_deny: string;
+  acquaintance_deny: string;
+  download_deny: string;
+  photo_share_add_watermark: string;
+  disable_nearby_online_status: string;
+  disable_im_online_status: string;
+  allow_others_reward_me: string;
+}
+
+type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer | KuaishouInfluencer;
 
 interface GetInfluencersParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu" | "all";
+  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "all";
   page?: number;
   limit?: number;
   nickname?: string;
@@ -218,10 +254,43 @@ interface XiaohongshuPost extends BasePost {
   share_count: number;
 }
 
-type Post = TikTokPost | DouyinPost | XiaohongshuPost;
+interface KuaishouPost extends BasePost {
+  platform: "kuaishou";
+  photo_id: string;
+  eid: string | null;
+  reward_count: number;
+  collect_count: number;
+  video_duration: number;
+  author_name: string;
+  author_user_id: string;
+  author_avatar: string;
+  user_sex: string;
+  video_caption: string;
+  like_count: number;
+  view_count: number;
+  share_count: number;
+  comment_count: number;
+  sound_track_id: string;
+  sound_track_audio_url: string;
+  sound_track_artist: string;
+  video_play_url: string;
+  blur_probability: number | null;
+  blocky_probability: number | null;
+  avg_entropy: number | null;
+  mos_score: number | null;
+  audio_quality: number | null;
+  music_probability: number | null;
+  dialog_probability: number | null;
+  background_sound_probability: number | null;
+  stereophonic_richness: number | null;
+  share_url: string;
+  keyword: string | null;
+}
+
+type Post = TikTokPost | DouyinPost | XiaohongshuPost | KuaishouPost;
 
 interface GetPostsParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu";
+  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou";
   platform_user_id: string;
   page?: number;
   limit?: number;
@@ -412,9 +481,57 @@ class ApiClient {
 
     const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
 
-    return this.request<ApiResponse<Post>>(
-      `/account-interaction/posts/${platform}/${platform_user_id}${query}`,
-    );
+    // Use port 8001 for account-interaction API
+    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const url = `${apiUrl}/account-interaction/posts/${platform}/${platform_user_id}${query}`;
+    
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    return response.json();
+  }
+
+  async getAccountDetail(accountId: string): Promise<Influencer> {
+    // Use port 8001 for account-interaction API
+    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const url = `${apiUrl}/api/account-interaction/influencers`;
+    
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const data = await response.json();
+    // 从返回的列表中查找匹配的账号
+    const account = data.items.find((item: any) => item.id === accountId);
+    if (!account) {
+      throw new Error(`Account with ID ${accountId} not found`);
+    }
+    return account;
   }
 
   async collectAccounts(
@@ -531,10 +648,12 @@ export type {
   TikTokInfluencer,
   DouyinInfluencer,
   XiaohongshuInfluencer,
+  KuaishouInfluencer,
   Post,
   TikTokPost,
   DouyinPost,
   XiaohongshuPost,
+  KuaishouPost,
   GetInfluencersParams,
   GetPostsParams,
   CollectAccountsParams,

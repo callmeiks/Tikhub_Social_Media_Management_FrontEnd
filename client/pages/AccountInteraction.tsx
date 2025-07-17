@@ -55,6 +55,7 @@ import {
   type TikTokInfluencer,
   type DouyinInfluencer,
   type XiaohongshuInfluencer,
+  type KuaishouInfluencer,
   type CollectAccountsParams,
   type CollectAccountsResponse,
 } from "@/lib/api";
@@ -63,6 +64,10 @@ const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: true },
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
+  { id: "kuaishou", name: "快手", emoji: "⚡", active: true },
+  { id: "youtube", name: "YouTube", emoji: "📺", active: true },
+  { id: "x", name: "X", emoji: "✖️", active: true },
+  { id: "instagram", name: "Instagram", emoji: "📷", active: true },
 ];
 
 export default function AccountInteraction() {
@@ -184,14 +189,14 @@ export default function AccountInteraction() {
   };
 
   const getDisplayFollowers = (influencer: Influencer): string => {
-    // 小红书使用 fans_count, 抖音/TikTok使用 follower_count
+    // 小红书使用 fans_count, 抖音/TikTok/快手使用 follower_count
     const count =
       influencer.follower_count || (influencer as any).fans_count || 0;
     return formatNumber(count);
   };
 
   const getDisplayWorks = (influencer: Influencer): number => {
-    // 小红书使用 post_count, 抖音/TikTok使用 aweme_count
+    // 小红书使用 post_count, 抖音/TikTok使用 aweme_count, 快手使用 post_count
     return influencer.aweme_count || (influencer as any).post_count || 0;
   };
 
@@ -207,6 +212,10 @@ export default function AccountInteraction() {
       douyin: "抖音",
       xiaohongshu: "小红书",
       tiktok: "TikTok",
+      kuaishou: "快手",
+      youtube: "YouTube",
+      x: "X",
+      instagram: "Instagram",
     };
     return platformMap[platform] || platform;
   };
@@ -555,6 +564,52 @@ export default function AccountInteraction() {
               xhsAccount.red_official_verified ? "是" : "否",
               new Date(xhsAccount.created_at).toLocaleString("zh-CN"),
               new Date(xhsAccount.updated_at).toLocaleString("zh-CN"),
+            ]);
+          });
+        } else if (platform === "kuaishou") {
+          sheetData.push([
+            "昵称",
+            "用户ID",
+            "快手ID",
+            "性别",
+            "头像链接",
+            "个人简介",
+            "城市",
+            "星座",
+            "粉丝数",
+            "关注数",
+            "作品数",
+            "动态数",
+            "是否认证",
+            "是否被封禁",
+            "动态开启",
+            "隐私用户",
+            "添加时间",
+            "更新时间",
+          ]);
+
+          // Add Kuaishou account data
+          accounts.forEach((account) => {
+            const kuaishouAccount = account as KuaishouInfluencer;
+            sheetData.push([
+              kuaishouAccount.nickname,
+              kuaishouAccount.user_id,
+              kuaishouAccount.kwai_id,
+              kuaishouAccount.user_sex === "M" ? "男" : kuaishouAccount.user_sex === "F" ? "女" : "未知",
+              kuaishouAccount.avatar_url,
+              kuaishouAccount.user_text,
+              kuaishouAccount.city_name,
+              kuaishouAccount.constellation,
+              kuaishouAccount.follower_count,
+              kuaishouAccount.following_count,
+              kuaishouAccount.post_count,
+              kuaishouAccount.moment_count,
+              kuaishouAccount.is_verified ? "是" : "否",
+              kuaishouAccount.is_user_banned ? "是" : "否",
+              kuaishouAccount.enable_moment ? "是" : "否",
+              kuaishouAccount.privacy_user === "1" ? "是" : "否",
+              new Date(kuaishouAccount.created_at).toLocaleString("zh-CN"),
+              new Date(kuaishouAccount.updated_at).toLocaleString("zh-CN"),
             ]);
           });
         }

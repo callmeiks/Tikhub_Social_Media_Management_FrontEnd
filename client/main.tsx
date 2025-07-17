@@ -27,6 +27,7 @@ import AccountDetails from "./pages/AccountDetails";
 import AccountDetailDouyin from "./pages/AccountDetailDouyin";
 import AccountDetailTikTok from "./pages/AccountDetailTikTok";
 import AccountDetailXiaohongshu from "./pages/AccountDetailXiaohongshu";
+import AccountDetailKuaishou from "./pages/AccountDetailKuaishou";
 import ContentInteraction from "./pages/ContentInteraction";
 import ContentDetail from "./pages/ContentDetail";
 import ContentDetailTiktok from "./pages/ContentDetailTiktok";

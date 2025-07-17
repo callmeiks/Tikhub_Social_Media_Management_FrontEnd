@@ -33,6 +33,8 @@ export const getPlatformUserIdKey = (platform: string): string => {
       return "sec_user_id";
     case "xiaohongshu":
       return "user_id";
+    case "kuaishou":
+      return "user_id";
     default:
       return "id";
   }
@@ -43,6 +45,7 @@ export const getPlatformDisplayName = (platform: string): string => {
     douyin: "抖音",
     xiaohongshu: "小红书",
     tiktok: "TikTok",
+    kuaishou: "快手",
   };
   return platformMap[platform] || platform;
 };
@@ -52,6 +55,7 @@ export const getPlatformBadgeConfig = (platform: string) => {
     douyin: { color: "bg-red-100 text-red-800", emoji: "🎤" },
     xiaohongshu: { color: "bg-pink-100 text-pink-800", emoji: "📖" },
     tiktok: { color: "bg-purple-100 text-purple-800", emoji: "🎵" },
+    kuaishou: { color: "bg-yellow-100 text-yellow-800", emoji: "⚡" },
   };
   
   return platformConfig[platform] || {

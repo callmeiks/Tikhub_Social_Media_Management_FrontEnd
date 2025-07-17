@@ -7,6 +7,7 @@ import { ArrowLeft, AlertTriangle, RefreshCw } from "lucide-react";
 import AccountDetailDouyin from "./AccountDetailDouyin";
 import AccountDetailTikTok from "./AccountDetailTikTok";
 import AccountDetailXiaohongshu from "./AccountDetailXiaohongshu";
+import AccountDetailKuaishou from "./AccountDetailKuaishou";
 
 export default function AccountDetails() {
   const { platform, accountId } = useParams();
@@ -25,6 +26,9 @@ export default function AccountDetails() {
         case "xiaohongshu":
           // 渲染 XiaohongshuAccountDetail 组件
           break;
+        case "kuaishou":
+          // 渲染 KuaishouAccountDetail 组件
+          break;
         default:
           // 重定向到账号列表
           navigate("/data-collection/account-interaction");
@@ -42,6 +46,8 @@ export default function AccountDetails() {
         return <AccountDetailTikTok />;
       case "xiaohongshu":
         return <AccountDetailXiaohongshu />;
+      case "kuaishou":
+        return <AccountDetailKuaishou />;
       default:
         return (
           <DashboardLayout title="账号详情" subtitle="账号数据详情">
