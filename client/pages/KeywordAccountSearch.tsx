@@ -268,9 +268,6 @@ export default function KeywordAccountSearch() {
 
       case "xiaohongshu":
       case "kuaishou":
-      case "instagram":
-      case "x":
-      case "youtube":
         return (
           <div className="space-y-4">
             {getQuantityFilterComponent()}
@@ -293,6 +290,38 @@ export default function KeywordAccountSearch() {
                   <p className="text-xs text-gray-500">
                     该平台暂无额外筛选条件，使用基础关键词搜索即可
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "instagram":
+      case "x":
+      case "youtube":
+        return (
+          <div className="space-y-4">
+            <div className="text-center py-12">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-4 rounded-full bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30">
+                  <div className="text-2xl">
+                    {
+                      supportedPlatforms.find((p) => p.id === selectedPlatform)
+                        ?.emoji
+                    }
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                    {
+                      supportedPlatforms.find((p) => p.id === selectedPlatform)
+                        ?.name
+                    }
+                  </p>
+                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                    Currently Unavailable
+                  </p>
+                  <p className="text-xs text-gray-500">Coming Soon</p>
                 </div>
               </div>
             </div>
@@ -451,7 +480,7 @@ export default function KeywordAccountSearch() {
                         className="h-8 brand-accent"
                       >
                         <Download className="mr-2 h-3.5 w-3.5" />
-                        导出结果
+                        导��结果
                       </Button>
                     </CardTitle>
                   </CardHeader>
@@ -476,7 +505,7 @@ export default function KeywordAccountSearch() {
                               </TableHead>
                               <TableHead className="w-[80px]">关注</TableHead>
                               <TableHead className="w-[80px]">作品</TableHead>
-                              <TableHead className="w-[100px]">获赞</TableHead>
+                              <TableHead className="w-[100px]">���赞</TableHead>
                               <TableHead className="w-[300px]">简介</TableHead>
                               <TableHead className="w-[100px]">认证</TableHead>
                               <TableHead className="w-[60px]">操作</TableHead>
