@@ -21,7 +21,7 @@ interface BaseInfluencer {
   total_favorited?: number;
   liked_acount?: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string; // X平台没有此字段
 }
 
 interface TikTokInfluencer extends BaseInfluencer {
@@ -128,10 +128,98 @@ interface KuaishouInfluencer extends BaseInfluencer {
   allow_others_reward_me: string;
 }
 
-type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer | KuaishouInfluencer;
+interface XInfluencer extends BaseInfluencer {
+  platform: "x";
+  account_status: string;
+  screen_name: string;
+  rest_id: string;
+  blue_verified: boolean;
+  label_link: string;
+  label_badge: string;
+  label_description: string;
+  label_type: string;
+  user_avatar: string;
+  avatar_url: string;
+  desc: string;
+  name: string;
+  friends_count: number;
+  follower_count: number;
+  following_count: number;
+  tweet_count: number;
+  media_count: number;
+  pinned_tweet_id: string;
+  account_created: string;
+  // Note: X platform doesn't have updated_at field, only created_at
+}
+
+interface YouTubeInfluencer extends BaseInfluencer {
+  platform: "youtube";
+  channel_id: string;
+  title: string;
+  description: string;
+  subscriber_count: string;
+  video_count: string;
+  facebook_link: string;
+  twitter_link: string;
+  tiktok_link: string;
+  instagram_link: string;
+  other_links: Array<{
+    name: string;
+    endpoint: string;
+  }>;
+  channel_avatar: string;
+  avatar_url: string;
+  channel_name: string;
+  is_verified: boolean;
+  has_business_email: boolean;
+  view_count: string;
+  country: string;
+  channel_creation_date: string;
+}
+
+interface InstagramInfluencer extends BaseInfluencer {
+  platform: "instagram";
+  username: string;
+  user_id: string;
+  fbid: string;
+  ai_agent_owner_username: string | null;
+  ai_agent_type: string | null;
+  bio_links: Array<{
+    url: string;
+    title: string;
+    lynx_url: string;
+    link_type: string;
+  }>;
+  biography: string;
+  eimu_id: string;
+  external_url: string | null;
+  following_count: number;
+  has_ar_effects: boolean;
+  has_clips: boolean;
+  has_channel: boolean;
+  has_guides: boolean;
+  highlight_reel_count: number;
+  is_business_account: boolean;
+  is_professional_account: boolean;
+  business_contact_method: string;
+  business_email: string | null;
+  business_address_json: string | null;
+  business_phone_number: string | null;
+  business_category_name: string | null;
+  category_name: string | null;
+  profile_pic_url: string;
+  avatar_url: string;
+  is_private: boolean;
+  is_verified: boolean;
+  media_count: number;
+  country: string | null;
+  date_joined_as_timestamp: string;
+}
+
+type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer | KuaishouInfluencer | XInfluencer | YouTubeInfluencer | InstagramInfluencer;
 
 interface GetInfluencersParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "all";
+  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "x" | "youtube" | "instagram" | "all";
   page?: number;
   limit?: number;
   nickname?: string;
@@ -157,8 +245,8 @@ interface BasePost {
   id: string;
   task_id: string;
   platform: string;
-  desc: string;
-  create_time: string;
+  desc?: string; // X平台使用text字段
+  create_time?: string; // X平台使用created_time字段
   created_at: string;
   updated_at: string;
 }
@@ -287,10 +375,105 @@ interface KuaishouPost extends BasePost {
   keyword: string | null;
 }
 
-type Post = TikTokPost | DouyinPost | XiaohongshuPost | KuaishouPost;
+interface XPost extends BasePost {
+  platform: "x";
+  tweet_id: string;
+  created_time: string;
+  like_count: number;
+  status: string | null;
+  text: string;
+  retweet_count: number;
+  bookmarks_count: number;
+  quotes_count: number;
+  replies_count: number;
+  lang: string;
+  view_count: number;
+  sensitive: boolean;
+  conversation_id: string;
+  images_url: string[];
+  video_url: string;
+  author_rest_id: string;
+  author_screen_name: string;
+  author_avatar: string;
+  author_blue_verified: boolean;
+  author_follower_count: number;
+  display_url: string;
+  expanded_url: string;
+  media_type: string;
+  is_pinned: boolean;
+  keyword: string | null;
+}
+
+interface YouTubePost extends BasePost {
+  platform: "youtube";
+  video_id: string;
+  title: string;
+  description: string | null;
+  channel_id: string;
+  channel_name: string | null;
+  is_channel_verified: boolean;
+  channel_avatar: string | null;
+  length_seconds: number;
+  view_count: number;
+  like_count: number;
+  published_time: string;
+  is_live_stream: boolean;
+  is_live_now: boolean;
+  is_regionally_restricted: boolean;
+  comment_count: number;
+  video_play_url: string | null;
+  audio_play_url: string | null;
+  keyword: string | null;
+}
+
+interface InstagramPost extends BasePost {
+  platform: "instagram";
+  pk: string;
+  code: string;
+  taken_at: number;
+  taken_at_date: string;
+  media_type: number;
+  typename: string;
+  is_video: boolean;
+  user_id: string;
+  username: string;
+  full_name: string | null;
+  profile_pic_url: string | null;
+  is_verified: boolean;
+  is_private: boolean;
+  caption_text: string;
+  caption_created_at: string | null;
+  hashtags: string[];
+  accessibility_caption: string | null;
+  thumbnail_url: string;
+  image_urls: string[];
+  video_url: string;
+  video_duration: number | null;
+  like_count: number;
+  comment_count: number;
+  save_count: number;
+  share_count: number;
+  view_count: number;
+  can_save: boolean;
+  can_reshare: boolean;
+  can_reply: boolean;
+  has_liked: boolean;
+  comments_disabled: boolean;
+  is_paid_partnership: boolean;
+  tagged_users: Array<{
+    x: number;
+    y: number;
+    user_id: string;
+    username: string;
+    full_name: string;
+  }>;
+  keyword: string | null;
+}
+
+type Post = TikTokPost | DouyinPost | XiaohongshuPost | KuaishouPost | XPost | YouTubePost | InstagramPost;
 
 interface GetPostsParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou";
+  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "x" | "youtube" | "instagram";
   platform_user_id: string;
   page?: number;
   limit?: number;
@@ -507,7 +690,7 @@ class ApiClient {
   async getAccountDetail(accountId: string): Promise<Influencer> {
     // Use port 8001 for account-interaction API
     const apiUrl = this.baseURL.replace(':8000', ':8001');
-    const url = `${apiUrl}/api/account-interaction/influencers`;
+    const url = `${apiUrl}/account-interaction/influencers`;
     
     const headers: Record<string, string> = {};
     if (this.token) {
@@ -649,11 +832,17 @@ export type {
   DouyinInfluencer,
   XiaohongshuInfluencer,
   KuaishouInfluencer,
+  XInfluencer,
+  YouTubeInfluencer,
+  InstagramInfluencer,
   Post,
   TikTokPost,
   DouyinPost,
   XiaohongshuPost,
   KuaishouPost,
+  XPost,
+  YouTubePost,
+  InstagramPost,
   GetInfluencersParams,
   GetPostsParams,
   CollectAccountsParams,

@@ -8,6 +8,9 @@ import AccountDetailDouyin from "./AccountDetailDouyin";
 import AccountDetailTikTok from "./AccountDetailTikTok";
 import AccountDetailXiaohongshu from "./AccountDetailXiaohongshu";
 import AccountDetailKuaishou from "./AccountDetailKuaishou";
+import AccountDetailX from "./AccountDetailX";
+import AccountDetailYoutube from "./AccountDetailYoutube";
+import AccountDetailInstagram from "./AccountDetailInstagram";
 
 export default function AccountDetails() {
   const { platform, accountId } = useParams();
@@ -29,6 +32,15 @@ export default function AccountDetails() {
         case "kuaishou":
           // 渲染 KuaishouAccountDetail 组件
           break;
+        case "x":
+          // 渲染 XAccountDetail 组件
+          break;
+        case "youtube":
+          // 渲染 YouTubeAccountDetail 组件
+          break;
+        case "instagram":
+          // 渲染 InstagramAccountDetail 组件
+          break;
         default:
           // 重定向到账号列表
           navigate("/data-collection/account-interaction");
@@ -48,6 +60,12 @@ export default function AccountDetails() {
         return <AccountDetailXiaohongshu />;
       case "kuaishou":
         return <AccountDetailKuaishou />;
+      case "x":
+        return <AccountDetailX />;
+      case "youtube":
+        return <AccountDetailYoutube />;
+      case "instagram":
+        return <AccountDetailInstagram />;
       default:
         return (
           <DashboardLayout title="账号详情" subtitle="账号数据详情">

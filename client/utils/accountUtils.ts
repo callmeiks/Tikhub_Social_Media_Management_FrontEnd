@@ -35,6 +35,10 @@ export const getPlatformUserIdKey = (platform: string): string => {
       return "user_id";
     case "kuaishou":
       return "user_id";
+    case "x":
+      return "rest_id";
+    case "youtube":
+      return "channel_id";
     default:
       return "id";
   }
@@ -46,6 +50,8 @@ export const getPlatformDisplayName = (platform: string): string => {
     xiaohongshu: "小红书",
     tiktok: "TikTok",
     kuaishou: "快手",
+    x: "X",
+    youtube: "YouTube",
   };
   return platformMap[platform] || platform;
 };
@@ -56,6 +62,8 @@ export const getPlatformBadgeConfig = (platform: string) => {
     xiaohongshu: { color: "bg-pink-100 text-pink-800", emoji: "📖" },
     tiktok: { color: "bg-purple-100 text-purple-800", emoji: "🎵" },
     kuaishou: { color: "bg-yellow-100 text-yellow-800", emoji: "⚡" },
+    x: { color: "bg-blue-100 text-blue-800", emoji: "✖️" },
+    youtube: { color: "bg-red-100 text-red-800", emoji: "📺" },
   };
   
   return platformConfig[platform] || {

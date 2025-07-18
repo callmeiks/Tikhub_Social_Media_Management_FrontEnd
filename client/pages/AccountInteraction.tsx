@@ -56,6 +56,8 @@ import {
   type DouyinInfluencer,
   type XiaohongshuInfluencer,
   type KuaishouInfluencer,
+  type XInfluencer,
+  type YouTubeInfluencer,
   type CollectAccountsParams,
   type CollectAccountsResponse,
 } from "@/lib/api";
@@ -610,6 +612,102 @@ export default function AccountInteraction() {
               kuaishouAccount.privacy_user === "1" ? "是" : "否",
               new Date(kuaishouAccount.created_at).toLocaleString("zh-CN"),
               new Date(kuaishouAccount.updated_at).toLocaleString("zh-CN"),
+            ]);
+          });
+        } else if (platform === "x") {
+          sheetData.push([
+            "昵称",
+            "用户名",
+            "REST ID",
+            "头像链接",
+            "个人描述",
+            "账号状态",
+            "Blue认证",
+            "推文数",
+            "媒体数",
+            "粉丝数",
+            "关注数",
+            "朋友数",
+            "置顶推文ID",
+            "标签类型",
+            "标签描述",
+            "标签链接",
+            "账号创建时间",
+            "添加时间",
+            "更新时间",
+          ]);
+
+          // Add X account data
+          accounts.forEach((account) => {
+            const xAccount = account as XInfluencer;
+            sheetData.push([
+              xAccount.nickname,
+              xAccount.screen_name,
+              xAccount.rest_id,
+              xAccount.avatar_url,
+              xAccount.desc,
+              xAccount.account_status,
+              xAccount.blue_verified ? "是" : "否",
+              xAccount.tweet_count,
+              xAccount.media_count,
+              xAccount.follower_count,
+              xAccount.following_count,
+              xAccount.friends_count,
+              xAccount.pinned_tweet_id || "",
+              xAccount.label_type || "",
+              xAccount.label_description || "",
+              xAccount.label_link || "",
+              new Date(xAccount.account_created).toLocaleString("zh-CN"),
+              new Date(xAccount.created_at).toLocaleString("zh-CN"),
+              new Date(xAccount.created_at).toLocaleString("zh-CN"), // X平台没有updated_at,使用created_at
+            ]);
+          });
+        } else if (platform === "youtube") {
+          sheetData.push([
+            "昵称",
+            "频道ID",
+            "频道名称",
+            "头像链接",
+            "描述",
+            "订阅数",
+            "视频数",
+            "总观看数",
+            "国家/地区",
+            "认证状态",
+            "商务邮箱",
+            "Facebook链接",
+            "Twitter链接",
+            "Instagram链接",
+            "TikTok链接",
+            "其他链接",
+            "频道创建时间",
+            "添加时间",
+            "更新时间",
+          ]);
+
+          // Add YouTube account data
+          accounts.forEach((account) => {
+            const youtubeAccount = account as YouTubeInfluencer;
+            sheetData.push([
+              youtubeAccount.nickname,
+              youtubeAccount.channel_id,
+              youtubeAccount.channel_name,
+              youtubeAccount.avatar_url || youtubeAccount.channel_avatar,
+              youtubeAccount.description,
+              youtubeAccount.subscriber_count,
+              youtubeAccount.video_count,
+              youtubeAccount.view_count,
+              youtubeAccount.country || "",
+              youtubeAccount.is_verified ? "是" : "否",
+              youtubeAccount.has_business_email ? "是" : "否",
+              youtubeAccount.facebook_link || "",
+              youtubeAccount.twitter_link || "",
+              youtubeAccount.instagram_link || "",
+              youtubeAccount.tiktok_link || "",
+              youtubeAccount.other_links ? youtubeAccount.other_links.map(link => `${link.name}: ${link.endpoint}`).join("; ") : "",
+              youtubeAccount.channel_creation_date,
+              new Date(youtubeAccount.created_at).toLocaleString("zh-CN"),
+              new Date(youtubeAccount.updated_at).toLocaleString("zh-CN"),
             ]);
           });
         }
