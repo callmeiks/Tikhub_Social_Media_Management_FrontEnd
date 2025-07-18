@@ -610,6 +610,230 @@ interface GetUserInfluencersParams {
   limit?: number;
 }
 
+// Douyin Rankings API Interfaces
+interface DouyinHotRiseParams {
+  max_topics?: number;
+  order?: "rank" | "rank_diff";
+  sentence_tags?: string;
+}
+
+interface DouyinHotCityParams {
+  max_topics?: number;
+  order?: "rank" | "rank_diff";
+  city_code?: string;
+  sentence_tags?: string;
+}
+
+interface DouyinHotChallengeParams {
+  max_topics?: number;
+  keyword?: string;
+}
+
+interface DouyinHotSearchParams {
+  board_type?: number;
+  board_sub_type?: string;
+}
+
+interface DouyinHotAccountParams {
+  max_users?: number;
+  date_window?: number;
+  query_tag?: object;
+}
+
+interface DouyinHotVideoParams {
+  max_videos?: number;
+  date_window?: number;
+  tags?: object;
+}
+
+interface DouyinHotWordsParams {
+  max_words?: number;
+  date_window?: number;
+  keyword?: string;
+}
+
+interface DouyinHotBrandParams {
+  category_id: string;
+}
+
+interface DouyinHotActivityCalendarParams {
+  city_code?: string;
+  category_code?: string;
+  start_date?: number;
+  end_date?: number;
+}
+
+// Response interfaces
+interface DouyinHotTrendPoint {
+  datetime: string;
+  hot_score: number;
+}
+
+interface DouyinHotTopic {
+  rank: number;
+  rank_diff?: number;
+  sentence: string;
+  sentence_id: string;
+  create_at: number;
+  hot_score: number;
+  video_count: number;
+  sentence_tag: string;
+  city_code: string;
+  city_name: string;
+  trends: DouyinHotTrendPoint[];
+  index: number;
+  sentence_tag_name: string;
+  snapshot_type: string;
+  snapshot_id: string;
+}
+
+interface DouyinHotSearchItem {
+  can_extend_detail: boolean;
+  discuss_video_count: number;
+  event_time: number;
+  group_id: string;
+  hot_value: number;
+  hotlist_param: string;
+  is_n1: boolean;
+  label: string;
+  label_url: string;
+  max_rank: number;
+  position: number;
+  sentence_id: string;
+  sentence_tag: string;
+  video_count: number;
+  view_count: number;
+  word: string;
+  word_cover: string;
+  word_type: string;
+}
+
+interface DouyinHotAccount {
+  user_id: string;
+  nick_name: string;
+  avatar_url: string;
+  fans_cnt: number;
+  like_cnt: number;
+  publish_cnt: number;
+  fans_trends: number[];
+}
+
+interface DouyinHotVideo {
+  video_id: string;
+  title: string;
+  author: string;
+  play_count: number;
+  like_count: number;
+  share_count: number;
+  comment_count: number;
+  create_time: number;
+  video_url: string;
+  cover_url: string;
+  duration: number;
+  tags: string[];
+  hot_score: number;
+}
+
+interface DouyinHotWord {
+  word: string;
+  hot_score: number;
+  video_count: number;
+  view_count: number;
+  create_time: number;
+  trend: string;
+  category: string;
+  related_words: string[];
+}
+
+interface DouyinHotMusic {
+  id: string;
+  title: string;
+  author: string;
+  album: string;
+  play_url: string;
+  cover_large: string;
+  duration: number;
+  is_high_follow_user: boolean;
+  hit_high_follow_original: boolean;
+  peak: number;
+  has_edited: boolean;
+  loudness: number;
+  languages: string[];
+  moods: string[];
+  genres: string[];
+  themes: string[];
+  aeds: any[];
+  user_count: number;
+  status: number;
+  is_original: boolean;
+  mid: string;
+  is_restricted: boolean;
+  lyric_url: string;
+  is_commerce_music: boolean;
+  is_pgc: boolean;
+  share_enable: boolean;
+  story_share: boolean;
+  playlist_available: boolean;
+  collect_available: boolean;
+  download_available: boolean;
+  heat: number;
+  can_background_play: boolean;
+  has_copyright: boolean;
+}
+
+interface DouyinHotBrand {
+  brand_id: string;
+  brand_name: string;
+  category: string;
+  logo_url: string;
+  hot_score: number;
+  video_count: number;
+  view_count: number;
+  rank: number;
+  trend: string;
+  description: string;
+}
+
+interface DouyinHotLive {
+  user_id: string;
+  nickname: string;
+  gender: number;
+  avatar: string;
+  verified: boolean;
+  display_id: string;
+  with_commerce_permission: boolean;
+  with_fusion_shop_entry: boolean;
+  sec_uid: string;
+  is_anonymous: boolean;
+  pay_grade_level: number;
+  current_grade_min_diamond: number;
+  current_grade_max_diamond: number;
+  score: number;
+  rank: number;
+  gap_description: string;
+  room_title: string;
+  room_id: string;
+  room_user_count: number;
+  room_cover: string;
+}
+
+interface DouyinHotActivity {
+  id: string;
+  parent_id: string;
+  hot_title: string;
+  start_date: number;
+  end_date: number;
+  level_code: string;
+  category_name: string;
+  city_name: string;
+  event_ids: string[];
+  cover_url: string;
+  event_status: string;
+  sentence_id: string;
+  sentence_type: string;
+  sentence_rank: number;
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
@@ -808,6 +1032,375 @@ class ApiClient {
     return response.json();
   }
 
+  // Douyin Rankings API Methods
+  async getDouyinHotRise(params: DouyinHotRiseParams = {}): Promise<DouyinHotTopic[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-rise`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotCity(params: DouyinHotCityParams = {}): Promise<DouyinHotTopic[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-city`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotChallenge(params: DouyinHotChallengeParams = {}): Promise<DouyinHotTopic[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-challenge`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotSearch(params: DouyinHotSearchParams = {}): Promise<DouyinHotSearchItem[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-search`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotAccount(params: DouyinHotAccountParams = {}): Promise<DouyinHotAccount[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-account`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotVideo(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-video`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotLowFan(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-low-fan`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotHighCompletionRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-high-completion-rate`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotHighLikeRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-high-like-rate`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotHighFanRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-high-fan-rate`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotTopics(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-topics`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotWords(params: DouyinHotWordsParams = {}): Promise<DouyinHotWord[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-words`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotMusic(): Promise<DouyinHotMusic[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-music`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotBrand(params: DouyinHotBrandParams): Promise<DouyinHotBrand[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-brand`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotLive(): Promise<DouyinHotLive[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-live`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getDouyinHotActivityCalendar(params: DouyinHotActivityCalendarParams = {}): Promise<DouyinHotActivity[]> {
+    const url = `${this.baseURL}/hot-rankings/douyin/hot-activity-calendar`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -868,4 +1461,24 @@ export type {
   UserInfluencer,
   GetInfluencersResponse,
   GetUserInfluencersParams,
+  // Douyin Rankings Types
+  DouyinHotRiseParams,
+  DouyinHotCityParams,
+  DouyinHotChallengeParams,
+  DouyinHotSearchParams,
+  DouyinHotAccountParams,
+  DouyinHotVideoParams,
+  DouyinHotWordsParams,
+  DouyinHotBrandParams,
+  DouyinHotActivityCalendarParams,
+  DouyinHotTrendPoint,
+  DouyinHotTopic,
+  DouyinHotSearchItem,
+  DouyinHotAccount,
+  DouyinHotVideo,
+  DouyinHotWord,
+  DouyinHotMusic,
+  DouyinHotBrand,
+  DouyinHotLive,
+  DouyinHotActivity,
 };
