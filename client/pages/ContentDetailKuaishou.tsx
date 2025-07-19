@@ -27,6 +27,7 @@ import {
   Bookmark,
   Award,
   BarChart3,
+  Square,
 } from "lucide-react";
 
 interface KuaishouPostData {
