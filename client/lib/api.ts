@@ -834,6 +834,137 @@ interface DouyinHotActivity {
   sentence_rank: number;
 }
 
+// Kuaishou Hot Rankings types
+interface KuaishouHotRankingItem {
+  keyword: string;
+  hotValue: number;
+  id: string;
+  is_tophot: boolean;
+}
+
+interface KuaishouHotUser {
+  order_index: number;
+  avatar: string;
+  title: string;
+  author_id: number;
+  hotValue: number;
+  viewType: number;
+}
+
+interface KuaishouHotLive {
+  viewType: number;
+  avatar_url: string;
+  title: string;
+  tag: string;
+  hot_score: string;
+  authorid: string;
+  param_id: string;
+  param_type: string;
+  linkUrl: string;
+}
+
+interface KuaishouHotProduct {
+  viewType: number;
+  avatar_url: string;
+  title: string;
+  linkUrl: string;
+  hot_score: string;
+  id: string;
+  type: string;
+  authorid: string;
+  product_price: string;
+  product_review: string;
+}
+
+interface KuaishouHotBrandParams {
+  sub_tab_id: number;
+  sub_tab_name: string;
+}
+
+interface KuaishouHotLiveParams {
+  sub_tab_id?: number;
+  sub_tab_name?: string | null;
+}
+
+// Pipixia Hot Rankings types
+interface PipixiaHotSearchWord {
+  word: string;
+  schema: string;
+  write_history: boolean;
+  hot_type: number;
+}
+
+interface PipixiaHotContent {
+  item_id: string;
+  item_type: number;
+  content: string;
+  author_id: string;
+  author_name: string;
+  author_avatar_url: string;
+  author_follower_count: number;
+  author_following_count: number;
+  author_like_count: number;
+  author_gender: number;
+  author_description: string;
+  author_region: string;
+  item_create_time: number;
+  duration: number;
+  video_id: string;
+  video_text: string;
+  video_url: string;
+  today_show_num: number;
+}
+
+// Xiaohongshu Hot Rankings types
+interface XiaohongshuHotRankingItem {
+  icon: string;
+  id: string;
+  rank_change: number;
+  score: string;
+  title: string;
+  title_img: string;
+  type: string;
+  word_type: string;
+}
+
+// X Hot Rankings types
+interface XHotTrendingItem {
+  name: string;
+  description: string | null;
+  context: string;
+}
+
+interface XHotTrendingParams {
+  country?: string;
+}
+
+// YouTube Hot Rankings types
+interface YouTubeHotTrendingItem {
+  video_id: string;
+  title: string;
+  author: string;
+  number_of_views: number;
+  video_length: string;
+  description: string;
+  is_live_content: boolean | null;
+  published_time: string;
+  channel_id: string;
+  category: string | null;
+  type: string;
+  keywords: string[];
+  thumbnails: Array<{
+    url: string;
+    width: number;
+    height: number;
+  }>;
+}
+
+interface YouTubeHotTrendingParams {
+  language_code?: string;
+  country_code?: string;
+  section?: string;
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
@@ -1401,6 +1532,108 @@ class ApiClient {
     return response.json();
   }
 
+  // Kuaishou Hot Rankings API methods
+  async getKuaishouHotBoard(): Promise<KuaishouHotRankingItem[]> {
+    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-board", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotEntertainmentBoard(): Promise<KuaishouHotRankingItem[]> {
+    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-entertainment-board", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotSocialBoard(): Promise<KuaishouHotRankingItem[]> {
+    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-social-board", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotUsefulBoard(): Promise<KuaishouHotRankingItem[]> {
+    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-useful-board", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotChallengeBoard(): Promise<KuaishouHotRankingItem[]> {
+    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-challenge-board", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotSearchUsersRank(): Promise<KuaishouHotUser[]> {
+    return this.request<KuaishouHotUser[]>("/hot-rankings/kuaishou/hot-search-users-rank", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotLiveRank(params: KuaishouHotLiveParams = {}): Promise<KuaishouHotLive[]> {
+    return this.request<KuaishouHotLive[]>("/hot-rankings/kuaishou/hot-live-rank", {
+      method: "POST",
+      body: JSON.stringify({
+        sub_tab_id: params.sub_tab_id || 0,
+        sub_tab_name: params.sub_tab_name || null,
+      }),
+    });
+  }
+
+  async getKuaishouHotShoppingRank(): Promise<KuaishouHotProduct[]> {
+    return this.request<KuaishouHotProduct[]>("/hot-rankings/kuaishou/hot-shopping-rank", {
+      method: "POST",
+    });
+  }
+
+  async getKuaishouHotBrandRank(params: KuaishouHotBrandParams): Promise<any[]> {
+    return this.request<any[]>("/hot-rankings/kuaishou/hot-brand-rank", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  // Pipixia Hot Rankings API methods
+  async getPipixiaHotSearchWords(): Promise<PipixiaHotSearchWord[]> {
+    return this.request<PipixiaHotSearchWord[]>("/hot-rankings/pipixia/hot-search-words", {
+      method: "GET",
+    });
+  }
+
+  async getPipixiaHotSearchList(): Promise<PipixiaHotContent[]> {
+    return this.request<PipixiaHotContent[]>("/hot-rankings/pipixia/hot-search-list", {
+      method: "GET",
+    });
+  }
+
+  // Xiaohongshu Hot Rankings API methods
+  async getXiaohongshuHotList(): Promise<XiaohongshuHotRankingItem[]> {
+    return this.request<XiaohongshuHotRankingItem[]>("/hot-rankings/xiaohongshu/hot-list", {
+      method: "GET",
+    });
+  }
+
+  // X Hot Rankings API methods
+  async getXHotTrending(params: XHotTrendingParams = {}): Promise<XHotTrendingItem[]> {
+    return this.request<XHotTrendingItem[]>("/hot-rankings/twitter/trending", {
+      method: "POST",
+      body: JSON.stringify({
+        country: params.country || "UnitedStates",
+      }),
+    });
+  }
+
+  // YouTube Hot Rankings API methods
+  async getYouTubeHotTrending(params: YouTubeHotTrendingParams = {}): Promise<YouTubeHotTrendingItem[]> {
+    return this.request<YouTubeHotTrendingItem[]>("/hot-rankings/youtube/trending-videos", {
+      method: "POST",
+      body: JSON.stringify({
+        language_code: params.language_code || "en",
+        country_code: params.country_code || "us",
+        section: params.section || "Now",
+      }),
+    });
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -1481,4 +1714,17 @@ export type {
   DouyinHotBrand,
   DouyinHotLive,
   DouyinHotActivity,
+  KuaishouHotRankingItem,
+  KuaishouHotUser,
+  KuaishouHotLive,
+  KuaishouHotProduct,
+  KuaishouHotBrandParams,
+  KuaishouHotLiveParams,
+  PipixiaHotSearchWord,
+  PipixiaHotContent,
+  XiaohongshuHotRankingItem,
+  XHotTrendingItem,
+  XHotTrendingParams,
+  YouTubeHotTrendingItem,
+  YouTubeHotTrendingParams,
 };
