@@ -64,7 +64,7 @@ const FanProfileTab: React.FC = () => {
   ];
 
   const fanAgeData = [
-    { label: "18-24岁", value: 35.6, color: "bg-green-500" },
+    { label: "18-24���", value: 35.6, color: "bg-green-500" },
     { label: "25-34岁", value: 42.3, color: "bg-blue-500" },
     { label: "35-44岁", value: 16.8, color: "bg-orange-500" },
     { label: "45岁以上", value: 5.3, color: "bg-gray-500" },
@@ -670,7 +670,7 @@ export default function DouyinKolAnalysis() {
           <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-xl font-medium mb-2">无法加载KOL数据</h3>
           <p className="text-gray-600 mb-6 text-center max-w-md">
-            请从KOL搜索页面选择要��析的KOL。
+            请从KOL搜索页面选择要分析的KOL。
           </p>
           <Button onClick={handleBackClick} className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -698,8 +698,15 @@ export default function DouyinKolAnalysis() {
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
             返回搜索
           </Button>
-          <div className="text-sm text-muted-foreground">
-            最后更新: {new Date().toLocaleString()}
+          <div className="flex items-center space-x-4">
+            {!kolId && (
+              <Badge variant="secondary" className="text-xs">
+                📊 演示数据
+              </Badge>
+            )}
+            <div className="text-sm text-muted-foreground">
+              最后更新: {new Date().toLocaleString()}
+            </div>
           </div>
         </div>
 
