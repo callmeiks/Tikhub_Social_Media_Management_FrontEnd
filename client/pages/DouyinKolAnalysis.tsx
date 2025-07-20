@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -15,6 +17,13 @@ import {
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   Users,
@@ -38,6 +47,12 @@ import {
   Zap,
   PieChart,
   Activity,
+  Link,
+  Search,
+  Download,
+  ExternalLink,
+  Plus,
+  CheckCircle,
 } from "lucide-react";
 import { apiClient, type DouyinInfluencer } from "@/lib/api";
 import { AvatarImage } from "@/components/ui/avatar-image";
@@ -56,781 +71,208 @@ const formatPercentage = (num: number): string => {
   return `${num.toFixed(1)}%`;
 };
 
-// 粉丝趋势分析组件
-const FanTrendsAnalysisTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      {/* 趋势总览 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold text-green-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">本月增长率</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">+8.7万</div>
-              <div className="text-sm text-muted-foreground">本月新增</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">+2.5万</div>
-              <div className="text-sm text-muted-foreground">本周新增</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">98.5%</div>
-              <div className="text-sm text-muted-foreground">留存率</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 粉丝增长趋势��� */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            粉丝增长趋势
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <BarChart3 className="h-16 w-16 mx-auto mb-4" />
-              <p className="text-lg font-medium">粉丝增长趋势图表</p>
-              <p className="text-sm">显示近30天的粉丝增长变化</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 粉丝活跃时间分析 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Activity className="mr-2 h-4 w-4" />
-              粉丝活跃时段
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { time: "08:00-10:00", activity: 78, color: "bg-green-500" },
-                { time: "12:00-14:00", activity: 92, color: "bg-blue-500" },
-                { time: "18:00-20:00", activity: 95, color: "bg-purple-500" },
-                { time: "20:00-22:00", activity: 88, color: "bg-orange-500" },
-              ].map((item) => (
-                <div key={item.time} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.time}</span>
-                    <span className="font-medium">{item.activity}%</span>
-                  </div>
-                  <Progress value={item.activity} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <PieChart className="mr-2 h-4 w-4" />
-              粉丝来源分析
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { source: "搜索发现", percentage: 42.5, color: "bg-blue-500" },
-                { source: "推荐算法", percentage: 35.8, color: "bg-green-500" },
-                {
-                  source: "话题页面",
-                  percentage: 12.3,
-                  color: "bg-purple-500",
-                },
-                { source: "分享链接", percentage: 9.4, color: "bg-orange-500" },
-              ].map((item) => (
-                <div
-                  key={item.source}
-                  className="flex items-center justify-between"
-                >
-                  <span className="text-sm">{item.source}</span>
-                  <span className="font-medium">{item.percentage}%</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// 观众分析组件
-const AudienceAnalysisTab: React.FC = () => {
-  const fanGenderData = [
-    { label: "男性", value: 45.2, color: "bg-blue-500" },
-    { label: "女性", value: 54.8, color: "bg-pink-500" },
-  ];
-
-  const fanAgeData = [
-    { label: "18-24���", value: 35.6, color: "bg-green-500" },
-    { label: "25-34岁", value: 42.3, color: "bg-blue-500" },
-    { label: "35-44岁", value: 16.8, color: "bg-orange-500" },
-    { label: "45岁以上", value: 5.3, color: "bg-gray-500" },
-  ];
-
-  const fanCityData = [
-    { city: "北京", percentage: 12.5 },
-    { city: "上海", percentage: 10.8 },
-    { city: "广州", percentage: 8.9 },
-    { city: "深圳", percentage: 7.6 },
-    { city: "杭州", percentage: 6.2 },
-    { city: "��都", percentage: 5.4 },
-    { city: "武汉", percentage: 4.7 },
-    { city: "西安", percentage: 4.1 },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 性别分布 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Users className="mr-2 h-4 w-4" />
-              性别分布
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {fanGenderData.map((item) => (
-                <div key={item.label} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span className="font-medium">
-                      {formatPercentage(item.value)}
-                    </span>
-                  </div>
-                  <Progress value={item.value} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 年龄分布 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Calendar className="mr-2 h-4 w-4" />
-              年龄分布
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {fanAgeData.map((item) => (
-                <div key={item.label} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span className="font-medium">
-                      {formatPercentage(item.value)}
-                    </span>
-                  </div>
-                  <Progress value={item.value} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 地域分布 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <MapPin className="mr-2 h-4 w-4" />
-            粉丝地域分布
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {fanCityData.map((item, index) => (
-              <div key={item.city} className="text-center">
-                <div className="text-lg font-semibold">
-                  {formatPercentage(item.percentage)}
-                </div>
-                <div className="text-sm text-muted-foreground">{item.city}</div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 粉丝趋势 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            粉丝增长趋势
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">+2.5万</div>
-              <div className="text-sm text-muted-foreground">本周新增</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">+8.7万</div>
-              <div className="text-sm text-muted-foreground">本月新增</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">增长率</div>
-            </div>
-          </div>
-          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <BarChart3 className="h-12 w-12 mx-auto mb-2" />
-              <p>粉丝趋势图表</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// 服务报价组件
-const ServicePricingTab: React.FC = () => {
-  const pricingData = [
-    { type: "短视频植入", price: "5万-15万", desc: "15秒-60秒视频��容" },
-    { type: "直播带货", price: "10万-30万", desc: "2-3小时直播时长" },
-    { type: "品牌合作", price: "20万-50万", desc: "深度���牌合作内容" },
-    { type: "产品测评", price: "3万-8万", desc: "产品体验类内容" },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <DollarSign className="mr-2 h-4 w-4" />
-            服务报价表
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {pricingData.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <div className="font-medium">{item.type}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {item.desc}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-lg">{item.price}</div>
-                  <div className="text-xs text-muted-foreground">预估价格</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <Target className="mr-2 h-4 w-4" />
-            历史合作案例
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">���妆品牌A合作</div>
-                <Badge variant="secondary">2024年3月</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                15秒产品测评视频，获得120万播放量，点赞数8.5万
-              </p>
-              <div className="flex space-x-4 text-sm">
-                <span>播放量: 120万</span>
-                <span>点赞: 8.5万</span>
-                <span>评论: 3.2万</span>
-              </div>
-            </div>
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">服装品牌B直播</div>
-                <Badge variant="secondary">2024年2月</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                3小时直播带货，销售额达到85万，转化率2.3%
-              </p>
-              <div className="flex space-x-4 text-sm">
-                <span>观看人数: 15万</span>
-                <span>销售额: 85万</span>
-                <span>转化率: 2.3%</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// 达人表现组件
-const CreatorPerformanceTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <Activity className="mr-2 h-4 w-4" />
-              平均转化率
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">2.8%</div>
-              <div className="text-sm text-muted-foreground">
-                行业平均���出1.2%
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <DollarSign className="mr-2 h-4 w-4" />
-              CPM成本
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">¥45</div>
-              <div className="text-sm text-muted-foreground">
-                每千次展示成本
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <Target className="mr-2 h-4 w-4" />
-              ROI指数
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">4.2</div>
-              <div className="text-sm text-muted-foreground">投入产出比</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <PieChart className="mr-2 h-4 w-4" />
-            品类转化效果分析
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              { category: "美妆护肤", rate: 3.2, orders: 1250 },
-              { category: "服装配饰", rate: 2.8, orders: 980 },
-              { category: "数码产品", rate: 2.1, orders: 420 },
-              { category: "生活用品", rate: 2.5, orders: 650 },
-            ].map((item) => (
-              <div
-                key={item.category}
-                className="flex items-center justify-between p-3 border rounded"
-              >
-                <div>
-                  <div className="font-medium">{item.category}</div>
-                  <div className="text-sm text-muted-foreground">
-                    订单数: {item.orders}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">{item.rate}%</div>
-                  <div className="text-xs text-muted-foreground">转化率</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// 视频表现分析组件
-const VideoPerformanceTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Eye className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">158万</div>
-              <div className="text-sm text-muted-foreground">平均播放量</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Heart className="h-8 w-8 mx-auto mb-2 text-red-500" />
-              <div className="text-2xl font-bold">12.5万</div>
-              <div className="text-sm text-muted-foreground">平均点赞数</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">3.2万</div>
-              <div className="text-sm text-muted-foreground">平均评论数</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Share2 className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">1.8万</div>
-              <div className="text-sm text-muted-foreground">平均分享数</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            最近热门视频表现
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>视频标题</TableHead>
-                <TableHead>发布时间</TableHead>
-                <TableHead>播放量</TableHead>
-                <TableHead>点赞数</TableHead>
-                <TableHead>评论数</TableHead>
-                <TableHead>完播率</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                {
-                  title: "春季护肤小贴士分享",
-                  date: "2024-03-15",
-                  views: "256万",
-                  likes: "18.5万",
-                  comments: "5.2万",
-                  completion: "68%",
-                },
-                {
-                  title: "今日穿搭推荐",
-                  date: "2024-03-14",
-                  views: "189万",
-                  likes: "14.2万",
-                  comments: "3.8万",
-                  completion: "72%",
-                },
-                {
-                  title: "美食制作教程",
-                  date: "2024-03-13",
-                  views: "145万",
-                  likes: "12.8万",
-                  comments: "4.1万",
-                  completion: "65%",
-                },
-              ].map((video, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{video.title}</TableCell>
-                  <TableCell>{video.date}</TableCell>
-                  <TableCell>{video.views}</TableCell>
-                  <TableCell>{video.likes}</TableCell>
-                  <TableCell>{video.comments}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        parseInt(video.completion) > 70
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {video.completion}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// 热门词云组件
-const HotWordCloudTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Zap className="mr-2 h-4 w-4 text-yellow-500" />
-              热门话题词云
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <Zap className="h-12 w-12 mx-auto mb-2" />
-                <p>热门话题词云图</p>
-                <p className="text-sm mt-1">展示该KOL相关的热门话题和关键词</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
-              热门关键词排行
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {[
-                { keyword: "时尚穿搭", count: 1250, trend: "up" },
-                { keyword: "美妆护肤", count: 980, trend: "up" },
-                { keyword: "生活���式", count: 756, trend: "down" },
-                { keyword: "潮流趋势", count: 642, trend: "up" },
-                { keyword: "日常分享", count: 528, trend: "stable" },
-              ].map((item, index) => (
-                <div
-                  key={item.keyword}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center">
-                    <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
-                      {index + 1}
-                    </span>
-                    <span className="text-sm">{item.keyword}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-sm">{item.count}</span>
-                    {item.trend === "up" && (
-                      <TrendingUp className="h-3 w-3 text-green-500" />
-                    )}
-                    {item.trend === "down" && (
-                      <TrendingDown className="h-3 w-3 text-red-500" />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            话题参与度分析
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">92%</div>
-              <div className="text-sm text-muted-foreground">话题覆盖率</div>
-              <Progress value={92} className="h-2 mt-2" />
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">8.5K</div>
-              <div className="text-sm text-muted-foreground">平均互动量</div>
-              <Progress value={85} className="h-2 mt-2" />
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">4.2</div>
-              <div className="text-sm text-muted-foreground">话题引导力</div>
-              <Progress value={84} className="h-2 mt-2" />
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          <div className="space-y-4">
-            <h4 className="font-medium">近期热门话题参与</h4>
-            <div className="space-y-3">
-              {[
-                { topic: "#春季时尚穿搭", engagement: "15.2万", trend: "热门" },
-                { topic: "#护肤心得分享", engagement: "12.8万", trend: "上升" },
-                { topic: "#生活美学", engagement: "9.6万", trend: "稳定" },
-                { topic: "#品质生活", engagement: "7.3万", trend: "新兴" },
-              ].map((record, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 border rounded"
-                >
-                  <div>
-                    <div className="font-medium">{record.topic}</div>
-                    <div className="text-sm text-muted-foreground">
-                      参与度: {record.engagement}
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Badge
-                      variant={
-                        record.trend === "热门" ? "default" : "secondary"
-                      }
-                      className="text-xs"
-                    >
-                      {record.trend}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+// 模拟历史KOL数据
+const mockHistoryKOLs: DouyinInfluencer[] = [
+  {
+    id: "1",
+    task_id: "task-001",
+    sec_user_id: "MS4wLjABAAAA1",
+    unique_id: "fashionista_lily",
+    nickname: "时尚达人Lily",
+    avatar_url: "/placeholder.svg",
+    signature: "分享时尚穿搭，传递美好生活 ✨",
+    follower_count: 1580000,
+    following_count: 1200,
+    aweme_count: 456,
+    total_favorited: 25800000,
+    gender: 2,
+    age: 28,
+    ip_location: "北京",
+    is_star: false,
+    is_effect_artist: false,
+    is_gov_media_vip: false,
+    is_live_commerce: true,
+    is_xingtu_kol: true,
+    with_commerce_entry: true,
+    with_fusion_shop_entry: true,
+    with_new_goods: true,
+    max_follower_count: 1600000,
+    platform: "douyin",
+    created_at: "2024-03-15T10:30:00Z",
+    updated_at: new Date().toISOString(),
+    share_url: "https://www.douyin.com/user/1",
+  },
+  {
+    id: "2",
+    task_id: "task-002",
+    sec_user_id: "MS4wLjABAAAA2",
+    unique_id: "beauty_queen",
+    nickname: "美妆女王Mia",
+    avatar_url: "/placeholder.svg",
+    signature: "专业美妆博主 | 护肤达人 💄",
+    follower_count: 2350000,
+    following_count: 890,
+    aweme_count: 623,
+    total_favorited: 45600000,
+    gender: 2,
+    age: 25,
+    ip_location: "上海",
+    is_star: false,
+    is_effect_artist: false,
+    is_gov_media_vip: false,
+    is_live_commerce: true,
+    is_xingtu_kol: true,
+    with_commerce_entry: true,
+    with_fusion_shop_entry: false,
+    with_new_goods: true,
+    max_follower_count: 2400000,
+    platform: "douyin",
+    created_at: "2024-03-10T14:20:00Z",
+    updated_at: new Date().toISOString(),
+    share_url: "https://www.douyin.com/user/2",
+  },
+  {
+    id: "3",
+    task_id: "task-003",
+    sec_user_id: "MS4wLjABAAAA3",
+    unique_id: "fitness_coach",
+    nickname: "健身教练Max",
+    avatar_url: "/placeholder.svg",
+    signature: "专业健身指导 | 健康生活方式推广者 💪",
+    follower_count: 980000,
+    following_count: 650,
+    aweme_count: 345,
+    total_favorited: 15200000,
+    gender: 1,
+    age: 32,
+    ip_location: "广州",
+    is_star: false,
+    is_effect_artist: false,
+    is_gov_media_vip: false,
+    is_live_commerce: false,
+    is_xingtu_kol: true,
+    with_commerce_entry: false,
+    with_fusion_shop_entry: false,
+    with_new_goods: false,
+    max_follower_count: 1000000,
+    platform: "douyin",
+    created_at: "2024-03-08T09:15:00Z",
+    updated_at: new Date().toISOString(),
+    share_url: "https://www.douyin.com/user/3",
+  },
+];
 
 export default function DouyinKolAnalysis() {
   const { kolId } = useParams();
   const navigate = useNavigate();
-  const [kolData, setKolData] = useState<DouyinInfluencer | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [kolUrls, setKolUrls] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedKOLs, setSelectedKOLs] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState("created_at");
+  const [urlCount, setUrlCount] = useState(0);
+  const [addResult, setAddResult] = useState<any>(null);
 
+  const [historyKOLs, setHistoryKOLs] =
+    useState<DouyinInfluencer[]>(mockHistoryKOLs);
+
+  // 计算URL数量
   useEffect(() => {
-    // 模拟获取KOL数据
-    const mockKolData: DouyinInfluencer = {
-      id: kolId || "demo-kol",
-      task_id: "task-12345",
-      sec_user_id: "MS4wLjABAAAA...",
-      unique_id: "fashionista_lily",
-      nickname: "时尚达人Lily",
-      avatar_url: "/placeholder.svg",
-      signature: "分享时尚穿搭，传递美好生活",
-      follower_count: 1580000,
-      following_count: 1200,
-      aweme_count: 456,
-      total_favorited: 25800000,
-      gender: 2,
-      age: 28,
-      ip_location: "北京",
-      is_star: false,
-      is_effect_artist: false,
-      is_gov_media_vip: false,
-      is_live_commerce: true,
-      is_xingtu_kol: true,
-      with_commerce_entry: true,
-      with_fusion_shop_entry: true,
-      with_new_goods: true,
-      max_follower_count: 1600000,
-      platform: "douyin",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      share_url: "https://www.douyin.com/user/...",
-    };
-
-    setTimeout(() => {
-      setKolData(mockKolData);
-      setLoading(false);
-    }, 1000);
-  }, [kolId]);
+    const urls = kolUrls
+      .split("\n")
+      .filter((url) => url.trim() && url.includes("douyin.com"));
+    setUrlCount(urls.length);
+  }, [kolUrls]);
 
   const handleBackClick = () => {
     navigate("/kol-search-analysis/douyin-search");
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout title="加载中..." subtitle="正在加载抖音KOL分析数据">
-        <div className="flex items-center justify-center py-8">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // 处理添加KOL
+  const handleAddKOLs = async () => {
+    if (!kolUrls.trim()) return;
 
-  if (!kolData) {
-    return (
-      <DashboardLayout title="抖音KOL分析" subtitle="深度分析KOL数据表现">
-        <div className="flex flex-col items-center justify-center py-12">
-          <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
-          <h3 className="text-xl font-medium mb-2">无法加载KOL数据</h3>
-          <p className="text-gray-600 mb-6 text-center max-w-md">
-            请从KOL搜索页面选择要分析的KOL。
-          </p>
-          <Button onClick={handleBackClick} className="flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            返回搜索页面
-          </Button>
-        </div>
-      </DashboardLayout>
-    );
-  }
+    setAddLoading(true);
+    // 模拟API调用
+    setTimeout(() => {
+      const urls = kolUrls
+        .split("\n")
+        .filter((url) => url.trim() && url.includes("douyin.com"));
+
+      setAddResult({
+        total_urls: urls.length,
+        total_successful: urls.length - 1,
+        total_failed: 1,
+        successful_urls: urls.slice(0, -1),
+        failed_urls: [
+          { url: urls[urls.length - 1], error: "账号私密或不存在" },
+        ],
+      });
+
+      setAddLoading(false);
+
+      // 清空输入框
+      setTimeout(() => {
+        setKolUrls("");
+        setAddResult(null);
+      }, 3000);
+    }, 2000);
+  };
+
+  // 处理KOL点击，跳转到详情分析
+  const handleKOLClick = (kol: DouyinInfluencer) => {
+    // 保存选中的KOL数据
+    sessionStorage.setItem("selectedKol", JSON.stringify(kol));
+    // 导航到详情分析页面，这里我们可以创建一个新的路由或者直接在当前页面展示详情
+    navigate(`/kol-search-analysis/douyin-analysis/${kol.id}`);
+  };
+
+  // 筛选KOL数据
+  const filteredKOLs = historyKOLs.filter(
+    (kol) =>
+      searchKeyword === "" ||
+      kol.nickname.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+      kol.unique_id.toLowerCase().includes(searchKeyword.toLowerCase()),
+  );
+
+  // 排序KOL数据
+  const sortedKOLs = [...filteredKOLs].sort((a, b) => {
+    switch (sortBy) {
+      case "follower_count":
+        return b.follower_count - a.follower_count;
+      case "total_favorited":
+        return b.total_favorited - a.total_favorited;
+      case "aweme_count":
+        return b.aweme_count - a.aweme_count;
+      case "created_at":
+      default:
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+    }
+  });
+
+  // 获取总数据统计
+  const totalStats = {
+    totalKOLs: historyKOLs.length,
+    totalFollowers: historyKOLs.reduce(
+      (sum, kol) => sum + kol.follower_count,
+      0,
+    ),
+    totalLikes: historyKOLs.reduce((sum, kol) => sum + kol.total_favorited, 0),
+    avgFollowers: Math.round(
+      historyKOLs.reduce((sum, kol) => sum + kol.follower_count, 0) /
+        historyKOLs.length,
+    ),
+    xingtuKOLs: historyKOLs.filter((kol) => kol.is_xingtu_kol).length,
+    liveCommerceKOLs: historyKOLs.filter((kol) => kol.is_live_commerce).length,
+  };
 
   return (
     <DashboardLayout
-      title={`${kolData.nickname} - 抖音KOL分析`}
-      subtitle="深度���析KOL数据表现和商业价值"
+      title="抖音KOL分析"
+      subtitle="添加和管理抖音KOL，深度分析KOL数据表现"
     >
       <div className="space-y-6">
         {/* Back Button */}
@@ -844,130 +286,504 @@ export default function DouyinKolAnalysis() {
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
             返回搜索
           </Button>
-          <div className="flex items-center space-x-4">
-            {!kolId && (
-              <Badge variant="secondary" className="text-xs">
-                📊 演示数据
-              </Badge>
-            )}
-            <div className="text-sm text-muted-foreground">
-              最后更新: {new Date().toLocaleString()}
-            </div>
+          <div className="text-sm text-muted-foreground">
+            最后更新: {new Date().toLocaleString()}
           </div>
         </div>
 
-        {/* KOL Profile Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-6">
-              <AvatarImage
-                src={kolData.avatar_url || ""}
-                alt={kolData.nickname}
-                fallbackText={kolData.nickname.charAt(0)}
-                size="xl"
-              />
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <h2 className="text-xl font-semibold">{kolData.nickname}</h2>
-                  <Badge className="bg-red-100 text-red-800">🎤 抖音KOL</Badge>
-                  {kolData.is_xingtu_kol && (
-                    <Badge variant="secondary">
-                      <Star className="mr-1 h-3 w-3" />
-                      星图达人
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                  <div>
-                    <div className="font-medium text-lg">
-                      {formatNumber(kolData.follower_count)}
-                    </div>
-                    <div className="text-muted-foreground">粉丝数</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">
-                      {kolData.aweme_count}
-                    </div>
-                    <div className="text-muted-foreground">作品数</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">
-                      {formatNumber(kolData.total_favorited)}
-                    </div>
-                    <div className="text-muted-foreground">获赞总数</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">A+</div>
-                    <div className="text-muted-foreground">星图等��</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-                  <span>📍 {kolData.ip_location}</span>
-                  <span>👤 {kolData.gender === 2 ? "女" : "男"}</span>
-                  <span>🎂 {kolData.age}岁</span>
-                  {kolData.is_live_commerce && <span>🛍️ 带货达人</span>}
-                </div>
-
-                {kolData.signature && (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {kolData.signature}
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Analysis Tabs */}
+        {/* Main Tabs */}
         <Card>
           <CardContent className="p-0">
-            <Tabs defaultValue="fantrends" className="w-full">
-              <TabsList className="grid w-full grid-cols-6 rounded-none border-b">
-                <TabsTrigger value="fantrends" className="rounded-none">
-                  粉丝趋势分析
+            <Tabs defaultValue="add" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
+                <TabsTrigger
+                  value="add"
+                  className="flex items-center gap-2 rounded-none"
+                >
+                  <Link className="w-4 h-4" />
+                  添加KOL
                 </TabsTrigger>
-                <TabsTrigger value="audience" className="rounded-none">
-                  观众分析
+                <TabsTrigger
+                  value="history"
+                  className="flex items-center gap-2 rounded-none"
+                >
+                  <Users className="w-4 h-4" />
+                  历史KOL数据
                 </TabsTrigger>
-                <TabsTrigger value="pricing" className="rounded-none">
-                  服务报价
-                </TabsTrigger>
-                <TabsTrigger value="video" className="rounded-none">
-                  视频表现
-                </TabsTrigger>
-                <TabsTrigger value="performance" className="rounded-none">
-                  达人表现
-                </TabsTrigger>
-                <TabsTrigger value="wordcloud" className="rounded-none">
-                  热门词云
+                <TabsTrigger
+                  value="overview"
+                  className="flex items-center gap-2 rounded-none"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  总数据展示
                 </TabsTrigger>
               </TabsList>
 
               <div className="p-6">
-                <TabsContent value="fantrends" className="mt-0">
-                  <FanTrendsAnalysisTab />
+                {/* 添加KOL Tab */}
+                <TabsContent value="add" className="mt-0">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center justify-between">
+                        <span className="flex items-center">
+                          <Link className="mr-2 h-4 w-4" />
+                          批量添加抖音KOL链接
+                        </span>
+                        <Badge
+                          variant={urlCount > 20 ? "destructive" : "secondary"}
+                          className="text-xs"
+                        >
+                          {urlCount}/20
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          抖音KOL主页链接 (每行一个链接，最多20个)
+                        </label>
+                        <Textarea
+                          placeholder={`请输入抖音KOL主页链接，每行一个，例如：
+https://www.douyin.com/user/MS4wLjABAAAA...
+https://www.douyin.com/user/MS4wLjABAAAA...`}
+                          value={kolUrls}
+                          onChange={(e) => setKolUrls(e.target.value)}
+                          rows={8}
+                          className="font-mono text-sm"
+                        />
+                        <div className="flex justify-between items-center text-xs text-muted-foreground">
+                          <span>支持格式: douyin.com/user/* 链接</span>
+                          <span className={urlCount > 20 ? "text-red-500" : ""}>
+                            已输入 {urlCount} 个链接
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex space-x-4">
+                        <Button
+                          onClick={handleAddKOLs}
+                          disabled={
+                            !kolUrls.trim() ||
+                            urlCount === 0 ||
+                            urlCount > 20 ||
+                            addLoading
+                          }
+                          className="flex-1"
+                        >
+                          {addLoading ? (
+                            <>
+                              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                              添加中...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="mr-2 h-4 w-4" />
+                              添加到分析队列
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* 添加结果 */}
+                      {addResult && (
+                        <Card className="border-green-200 bg-green-50">
+                          <CardContent className="pt-4">
+                            <div className="flex items-start space-x-3">
+                              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <div className="space-y-2 flex-1">
+                                <div className="font-medium text-green-800">
+                                  添加完成
+                                </div>
+                                <div className="text-sm text-green-700">
+                                  <span className="text-sm text-green-800">
+                                    成功添加 {addResult.total_successful}{" "}
+                                    个KOL到分析队列
+                                  </span>
+                                  {addResult.total_failed > 0 && (
+                                    <span className="text-red-600 ml-2">
+                                      失败 {addResult.total_failed} 个
+                                    </span>
+                                  )}
+                                </div>
+                                {addResult.total_failed > 0 && (
+                                  <div className="text-xs text-red-600">
+                                    失败原因: {addResult.failed_urls[0]?.error}
+                                  </div>
+                                )}
+                                <div className="text-xs text-green-700 bg-green-100 p-2 rounded">
+                                  <p className="text-xs text-green-800">
+                                    💡 成功添加后请到{" "}
+                                    <strong>历史KOL数据</strong> 查看和分析
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* 使用说明 */}
+                      <Card className="border-blue-200 bg-blue-50">
+                        <CardContent className="pt-4">
+                          <div className="space-y-2">
+                            <div className="font-medium text-blue-800 text-sm">
+                              使用说明
+                            </div>
+                            <div className="text-sm text-blue-700 space-y-1">
+                              <p>• 支持批量添加抖音KOL主页链接</p>
+                              <p>• 每行输入一个链接，最多支持20个</p>
+                              <p>• 添加成功后可在"历史KOL数据"中查看详细分析</p>
+                              <p>• 点击任意KOL可跳转到详细分析页面</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
-                <TabsContent value="audience" className="mt-0">
-                  <AudienceAnalysisTab />
+                {/* 历史KOL数据 Tab */}
+                <TabsContent value="history" className="mt-0">
+                  <div className="space-y-4">
+                    {/* 搜索和筛选 */}
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="搜索KOL昵称或抖音号..."
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            className="pl-10 w-64"
+                          />
+                        </div>
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                          <SelectTrigger className="w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="created_at">添加时间</SelectItem>
+                            <SelectItem value="follower_count">
+                              粉丝数
+                            </SelectItem>
+                            <SelectItem value="total_favorited">
+                              获赞数
+                            </SelectItem>
+                            <SelectItem value="aweme_count">作品数</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        共 {filteredKOLs.length} 个KOL
+                      </Badge>
+                    </div>
+
+                    {/* KOL列表 */}
+                    <Card>
+                      <CardContent className="p-0">
+                        <div className="rounded-md border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[300px]">
+                                  KOL信息
+                                </TableHead>
+                                <TableHead className="w-[100px]">
+                                  粉丝数
+                                </TableHead>
+                                <TableHead className="w-[100px]">
+                                  作品数
+                                </TableHead>
+                                <TableHead className="w-[100px]">
+                                  获赞总数
+                                </TableHead>
+                                <TableHead className="w-[120px]">
+                                  标签
+                                </TableHead>
+                                <TableHead className="w-[120px]">
+                                  添加时间
+                                </TableHead>
+                                <TableHead className="w-[80px]">操作</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {sortedKOLs.map((kol) => (
+                                <TableRow
+                                  key={kol.id}
+                                  className="cursor-pointer hover:bg-gray-50"
+                                  onClick={() => handleKOLClick(kol)}
+                                >
+                                  <TableCell>
+                                    <div className="flex items-center space-x-3">
+                                      <AvatarImage
+                                        src={kol.avatar_url || ""}
+                                        alt={kol.nickname}
+                                        fallbackText={kol.nickname.charAt(0)}
+                                        size="md"
+                                      />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-sm">
+                                          {kol.nickname}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground truncate">
+                                          @{kol.unique_id}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          📍 {kol.ip_location} ·{" "}
+                                          {kol.gender === 2 ? "女" : "男"} ·{" "}
+                                          {kol.age}岁
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="font-medium">
+                                    {formatNumber(kol.follower_count)}
+                                  </TableCell>
+                                  <TableCell>{kol.aweme_count}</TableCell>
+                                  <TableCell>
+                                    {formatNumber(kol.total_favorited)}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex flex-wrap gap-1">
+                                      {kol.is_xingtu_kol && (
+                                        <Badge
+                                          variant="default"
+                                          className="text-xs"
+                                        >
+                                          <Star className="mr-1 h-2 w-2" />
+                                          星图
+                                        </Badge>
+                                      )}
+                                      {kol.is_live_commerce && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          🛍️ 带货
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">
+                                    {new Date(
+                                      kol.created_at,
+                                    ).toLocaleDateString()}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(kol.share_url, "_blank");
+                                      }}
+                                      title="访问主页"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {sortedKOLs.length === 0 && (
+                      <div className="text-center py-8">
+                        <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-lg font-medium mb-2">
+                          {searchKeyword ? "未找到匹配的KOL" : "暂无KOL数据"}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {searchKeyword
+                            ? "请尝试不同的搜索关键词"
+                            : "请先在'添加KOL'中添加抖音KOL链接"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
 
-                <TabsContent value="pricing" className="mt-0">
-                  <ServicePricingTab />
-                </TabsContent>
+                {/* 总数据展示 Tab */}
+                <TabsContent value="overview" className="mt-0">
+                  <div className="space-y-6">
+                    {/* 总览数据卡片 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+                            <div className="text-3xl font-bold">
+                              {totalStats.totalKOLs}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              已添加的KOL总数
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                <TabsContent value="video" className="mt-0">
-                  <VideoPerformanceTab />
-                </TabsContent>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <Heart className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                            <div className="text-3xl font-bold">
+                              {formatNumber(totalStats.totalFollowers)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              总粉丝数
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                <TabsContent value="performance" className="mt-0">
-                  <CreatorPerformanceTab />
-                </TabsContent>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                            <div className="text-3xl font-bold">
+                              {formatNumber(totalStats.totalLikes)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              总获赞数
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                <TabsContent value="wordcloud" className="mt-0">
-                  <HotWordCloudTab />
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <BarChart3 className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+                            <div className="text-3xl font-bold">
+                              {formatNumber(totalStats.avgFollowers)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              平均粉丝数
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <Star className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
+                            <div className="text-3xl font-bold">
+                              {totalStats.xingtuKOLs}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              星图达人
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <DollarSign className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+                            <div className="text-3xl font-bold">
+                              {totalStats.liveCommerceKOLs}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              带货达人
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* 详细统计图表 */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center">
+                            <PieChart className="mr-2 h-4 w-4" />
+                            KOL类型分布
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm">星图达人</span>
+                              <span className="font-medium">
+                                {totalStats.xingtuKOLs} (
+                                {(
+                                  (totalStats.xingtuKOLs /
+                                    totalStats.totalKOLs) *
+                                  100
+                                ).toFixed(1)}
+                                %)
+                              </span>
+                            </div>
+                            <Progress
+                              value={
+                                (totalStats.xingtuKOLs / totalStats.totalKOLs) *
+                                100
+                              }
+                              className="h-2"
+                            />
+
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm">带货达人</span>
+                              <span className="font-medium">
+                                {totalStats.liveCommerceKOLs} (
+                                {(
+                                  (totalStats.liveCommerceKOLs /
+                                    totalStats.totalKOLs) *
+                                  100
+                                ).toFixed(1)}
+                                %)
+                              </span>
+                            </div>
+                            <Progress
+                              value={
+                                (totalStats.liveCommerceKOLs /
+                                  totalStats.totalKOLs) *
+                                100
+                              }
+                              className="h-2"
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center">
+                            <MapPin className="mr-2 h-4 w-4" />
+                            地域分布
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {["北京", "上海", "广州", "深圳"].map((city) => {
+                              const count = historyKOLs.filter(
+                                (kol) => kol.ip_location === city,
+                              ).length;
+                              const percentage =
+                                (count / totalStats.totalKOLs) * 100;
+                              return (
+                                <div
+                                  key={city}
+                                  className="flex items-center justify-between"
+                                >
+                                  <span className="text-sm">{city}</span>
+                                  <span className="font-medium">
+                                    {count} ({percentage.toFixed(1)}%)
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
                 </TabsContent>
               </div>
             </Tabs>
