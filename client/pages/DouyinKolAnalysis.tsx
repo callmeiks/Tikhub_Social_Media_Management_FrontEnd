@@ -67,7 +67,7 @@ const FanTrendsAnalysisTab: React.FC = () => {
             <div className="text-center">
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
               <div className="text-2xl font-bold text-green-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">本月增长率</div>
+              <div className="text-sm text-muted-foreground">��月增长率</div>
             </div>
           </CardContent>
         </Card>
@@ -423,7 +423,7 @@ const CreatorPerformanceTab: React.FC = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">2.8%</div>
               <div className="text-sm text-muted-foreground">
-                行业平均���出1.2%
+                行业平均�����出1.2%
               </div>
             </div>
           </CardContent>
@@ -632,14 +632,11 @@ const HotWordCloudTab: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-yellow-600 mb-2">A+</div>
-              <div className="text-sm text-muted-foreground mb-4">
-                优质创作者
-              </div>
-              <Progress value={85} className="h-2" />
-              <div className="text-xs text-muted-foreground mt-2">
-                综合评分: 85/100
+            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <Zap className="h-12 w-12 mx-auto mb-2" />
+                <p>热门话题词云图</p>
+                <p className="text-sm mt-1">展示该KOL相关的热门话题和关键词</p>
               </div>
             </div>
           </CardContent>
