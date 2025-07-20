@@ -56,6 +56,10 @@ import XRankings from "./pages/XRankings";
 import YouTubeRankings from "./pages/YouTubeRankings";
 import PipixiaRankings from "./pages/PipixiaRankings";
 import UniversalConverter from "./pages/UniversalConverter";
+import DouyinKolSearch from "./pages/DouyinKolSearch";
+import DouyinKolAnalysis from "./pages/DouyinKolAnalysis";
+import TikTokCreatorSearch from "./pages/TikTokCreatorSearch";
+import TikTokCreatorAnalysis from "./pages/TikTokCreatorAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -208,7 +212,26 @@ const App = () => (
           <Route path="/hot-rankings/x" element={<XRankings />} />
           <Route path="/hot-rankings/youtube" element={<YouTubeRankings />} />
           <Route path="/hot-rankings/pipixia" element={<PipixiaRankings />} />
-          <Route path="/kol-analysis/*" element={<DataCollection />} />
+
+          {/* KOL Search & Analysis Routes */}
+          <Route
+            path="/kol-search-analysis/douyin-search"
+            element={<DouyinKolSearch />}
+          />
+          <Route
+            path="/kol-search-analysis/douyin-analysis/:kolId"
+            element={<DouyinKolAnalysis />}
+          />
+          <Route
+            path="/kol-search-analysis/tiktok-search"
+            element={<TikTokCreatorSearch />}
+          />
+          <Route
+            path="/kol-search-analysis/tiktok-analysis/:creatorId"
+            element={<TikTokCreatorAnalysis />}
+          />
+          <Route path="/kol-search-analysis/*" element={<DataCollection />} />
+
           <Route path="/ads-products/*" element={<DataCollection />} />
 
           {/* Catch-all route for 404 */}
