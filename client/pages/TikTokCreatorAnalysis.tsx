@@ -747,8 +747,15 @@ export default function TikTokCreatorAnalysis() {
             <ArrowLeft className="mr-2 h-3.5 w-3.5" />
             Back to Search
           </Button>
-          <div className="text-sm text-muted-foreground">
-            Last updated: {new Date().toLocaleString()}
+          <div className="flex items-center space-x-4">
+            {!creatorId && (
+              <Badge variant="secondary" className="text-xs">
+                📊 Demo Data
+              </Badge>
+            )}
+            <div className="text-sm text-muted-foreground">
+              Last updated: {new Date().toLocaleString()}
+            </div>
           </div>
         </div>
 
