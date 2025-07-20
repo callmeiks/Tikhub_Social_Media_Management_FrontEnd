@@ -374,7 +374,7 @@ const ServicePricingTab: React.FC = () => {
           <div className="space-y-4">
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">美妆品牌A合作</div>
+                <div className="font-medium">���妆品牌A合作</div>
                 <Badge variant="secondary">2024年3月</Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-2">
@@ -619,8 +619,8 @@ const VideoPerformanceTab: React.FC = () => {
   );
 };
 
-// 星图指标组件
-const StarMetricsTab: React.FC = () => {
+// 热门词云组件
+const HotWordCloudTab: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -814,7 +814,7 @@ export default function DouyinKolAnalysis() {
   return (
     <DashboardLayout
       title={`${kolData.nickname} - 抖音KOL分析`}
-      subtitle="深度分析KOL数据表现和商业价值"
+      subtitle="深度���析KOL数据表现和商业价值"
     >
       <div className="space-y-6">
         {/* Back Button */}
