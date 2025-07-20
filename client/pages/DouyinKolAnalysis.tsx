@@ -109,7 +109,7 @@ const FanProfileTab: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* 年���分布 */}
+        {/* 年龄分布 */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center">
@@ -177,7 +177,7 @@ const FanProfileTab: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">���长率</div>
+              <div className="text-sm text-muted-foreground">增长率</div>
             </div>
           </div>
           <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
@@ -248,7 +248,7 @@ const ServicePricingTab: React.FC = () => {
                 <Badge variant="secondary">2024年3月</Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-2">
-                15秒产品��评视频，获得120万播放量，点赞数8.5万
+                15秒产品测评视频，获得120万播放量，点赞数8.5万
               </p>
               <div className="flex space-x-4 text-sm">
                 <span>播放量: 120万</span>
@@ -615,6 +615,7 @@ export default function DouyinKolAnalysis() {
     // 模拟获取KOL数据
     const mockKolData: DouyinInfluencer = {
       id: kolId || "mock-id",
+      task_id: "task-12345",
       sec_user_id: "MS4wLjABAAAA...",
       unique_id: "fashionista_lily",
       nickname: "时尚达人Lily",
@@ -752,7 +753,7 @@ export default function DouyinKolAnalysis() {
                 <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                   <span>📍 {kolData.ip_location}</span>
                   <span>👤 {kolData.gender === 2 ? "女" : "男"}</span>
-                  <span>🎂 {kolData.age}���</span>
+                  <span>🎂 {kolData.age}岁</span>
                   {kolData.is_live_commerce && <span>🛍️ 带货达人</span>}
                 </div>
 
