@@ -93,6 +93,7 @@ export default function TikTokCreatorSearch() {
   const mockResults: TikTokInfluencer[] = [
     {
       id: "1",
+      task_id: "task-001",
       sec_user_id: "MS4wLjABAAAA1",
       unique_id: "lifestyle_sarah",
       nickname: "Sarah Johnson",
@@ -113,6 +114,7 @@ export default function TikTokCreatorSearch() {
     },
     {
       id: "2",
+      task_id: "task-002",
       sec_user_id: "MS4wLjABAAAA2",
       unique_id: "techreview_mike",
       nickname: "Mike Chen",
@@ -133,6 +135,7 @@ export default function TikTokCreatorSearch() {
     },
     {
       id: "3",
+      task_id: "task-003",
       sec_user_id: "MS4wLjABAAAA3",
       unique_id: "dancing_queen",
       nickname: "Emma Rodriguez",
@@ -153,6 +156,7 @@ export default function TikTokCreatorSearch() {
     },
     {
       id: "4",
+      task_id: "task-004",
       sec_user_id: "MS4wLjABAAAA4",
       unique_id: "foodie_adventures",
       nickname: "James Wilson",
