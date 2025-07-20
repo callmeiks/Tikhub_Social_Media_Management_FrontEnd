@@ -687,8 +687,8 @@ const HotWordCloudTab: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
-            <Zap className="mr-2 h-4 w-4" />
-            星图数据指标
+            <MessageCircle className="mr-2 h-4 w-4" />
+            话题参与度分析
           </CardTitle>
         </CardHeader>
         <CardContent>
