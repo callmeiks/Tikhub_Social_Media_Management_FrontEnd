@@ -219,12 +219,20 @@ const App = () => (
             element={<DouyinKolSearch />}
           />
           <Route
+            path="/kol-search-analysis/douyin-analysis"
+            element={<DouyinKolAnalysis />}
+          />
+          <Route
             path="/kol-search-analysis/douyin-analysis/:kolId"
             element={<DouyinKolAnalysis />}
           />
           <Route
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
+          />
+          <Route
+            path="/kol-search-analysis/tiktok-analysis"
+            element={<TikTokCreatorAnalysis />}
           />
           <Route
             path="/kol-search-analysis/tiktok-analysis/:creatorId"
