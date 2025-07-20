@@ -118,15 +118,15 @@ const menuItems: MenuItem[] = [
     icon: Users,
     href: "/kol-search-analysis",
     subItems: [
-      { title: "抖音KOL分析", href: "/kol-search-analysis/douyin-analysis" },
       { title: "抖音KOL搜索", href: "/kol-search-analysis/douyin-search" },
-      {
-        title: "TikTok Creator分析",
-        href: "/kol-search-analysis/tiktok-analysis",
-      },
+      { title: "抖音KOL分析", href: "/kol-search-analysis/douyin-analysis" },
       {
         title: "TikTok Creator搜索",
         href: "/kol-search-analysis/tiktok-search",
+      },
+      {
+        title: "TikTok Creator分析",
+        href: "/kol-search-analysis/tiktok-analysis",
       },
     ],
   },
