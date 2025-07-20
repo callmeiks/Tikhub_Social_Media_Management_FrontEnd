@@ -327,7 +327,7 @@ const ServicePricingTab: React.FC = () => {
   const pricingData = [
     { type: "短视频植入", price: "5万-15万", desc: "15秒-60秒视频��容" },
     { type: "直播带货", price: "10万-30万", desc: "2-3小时直播时长" },
-    { type: "品牌合作", price: "20万-50万", desc: "深度品牌合作内容" },
+    { type: "品牌合作", price: "20万-50万", desc: "深度���牌合作内容" },
     { type: "产品测评", price: "3万-8万", desc: "产品体验类内容" },
   ];
 
@@ -654,7 +654,7 @@ const HotWordCloudTab: React.FC = () => {
               {[
                 { keyword: "时尚穿搭", count: 1250, trend: "up" },
                 { keyword: "美妆护肤", count: 980, trend: "up" },
-                { keyword: "生活方式", count: 756, trend: "down" },
+                { keyword: "生活���式", count: 756, trend: "down" },
                 { keyword: "潮流趋势", count: 642, trend: "up" },
                 { keyword: "日常分享", count: 528, trend: "stable" },
               ].map((item, index) => (
@@ -692,47 +692,54 @@ const HotWordCloudTab: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">4.8</div>
-              <div className="text-sm text-muted-foreground">内容质量评分</div>
-              <Progress value={96} className="h-2 mt-2" />
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">4.6</div>
-              <div className="text-sm text-muted-foreground">合作满意度</div>
+              <div className="text-2xl font-bold text-purple-600">92%</div>
+              <div className="text-sm text-muted-foreground">话题覆盖率</div>
               <Progress value={92} className="h-2 mt-2" />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">4.9</div>
-              <div className="text-sm text-muted-foreground">商业价值评分</div>
-              <Progress value={98} className="h-2 mt-2" />
+              <div className="text-2xl font-bold text-green-600">8.5K</div>
+              <div className="text-sm text-muted-foreground">平均互动量</div>
+              <Progress value={85} className="h-2 mt-2" />
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">4.2</div>
+              <div className="text-sm text-muted-foreground">话题引导力</div>
+              <Progress value={84} className="h-2 mt-2" />
             </div>
           </div>
 
           <Separator className="my-6" />
 
           <div className="space-y-4">
-            <h4 className="font-medium">合作历史记录</h4>
+            <h4 className="font-medium">近期热门话题参与</h4>
             <div className="space-y-3">
               {[
-                { brand: "美妆品牌A", date: "2024-03", rating: 4.8 },
-                { brand: "服装品牌B", date: "2024-02", rating: 4.6 },
-                { brand: "食品品牌C", date: "2024-01", rating: 4.9 },
+                { topic: "#春季时尚穿搭", engagement: "15.2万", trend: "热门" },
+                { topic: "#护肤心得分享", engagement: "12.8万", trend: "上升" },
+                { topic: "#生活美学", engagement: "9.6万", trend: "稳定" },
+                { topic: "#品质生活", engagement: "7.3万", trend: "新兴" },
               ].map((record, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-3 border rounded"
                 >
                   <div>
-                    <div className="font-medium">{record.brand}</div>
+                    <div className="font-medium">{record.topic}</div>
                     <div className="text-sm text-muted-foreground">
-                      {record.date}
+                      参与度: {record.engagement}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                    <span className="font-medium">{record.rating}</span>
+                    <Badge
+                      variant={
+                        record.trend === "热门" ? "default" : "secondary"
+                      }
+                      className="text-xs"
+                    >
+                      {record.trend}
+                    </Badge>
                   </div>
                 </div>
               ))}
