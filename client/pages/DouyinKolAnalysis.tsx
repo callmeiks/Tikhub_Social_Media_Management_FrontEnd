@@ -325,7 +325,7 @@ const AudienceAnalysisTab: React.FC = () => {
 // 服务报价组件
 const ServicePricingTab: React.FC = () => {
   const pricingData = [
-    { type: "短视频植入", price: "5万-15万", desc: "15秒-60秒视频内容" },
+    { type: "短视频植入", price: "5万-15万", desc: "15秒-60秒视频��容" },
     { type: "直播带货", price: "10万-30万", desc: "2-3小时直播时长" },
     { type: "品牌合作", price: "20万-50万", desc: "深度品牌合作内容" },
     { type: "产品测评", price: "3万-8万", desc: "产品体验类内容" },
@@ -407,8 +407,8 @@ const ServicePricingTab: React.FC = () => {
   );
 };
 
-// 性价比&转化率组件
-const ROIAnalysisTab: React.FC = () => {
+// 达人表现组件
+const CreatorPerformanceTab: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
