@@ -56,8 +56,138 @@ const formatPercentage = (num: number): string => {
   return `${num.toFixed(1)}%`;
 };
 
-// 粉丝画像组件
-const FanProfileTab: React.FC = () => {
+// 粉丝趋势分析组件
+const FanTrendsAnalysisTab: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      {/* 趋势总览 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
+              <div className="text-2xl font-bold text-green-600">+15.2%</div>
+              <div className="text-sm text-muted-foreground">本月增长率</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+              <div className="text-2xl font-bold">+8.7万</div>
+              <div className="text-sm text-muted-foreground">本月新增</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+              <div className="text-2xl font-bold">+2.5万</div>
+              <div className="text-sm text-muted-foreground">本周新增</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+              <div className="text-2xl font-bold">98.5%</div>
+              <div className="text-sm text-muted-foreground">留存率</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 粉丝增长趋势图 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <TrendingUp className="mr-2 h-4 w-4" />
+            粉丝增长趋势
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <BarChart3 className="h-16 w-16 mx-auto mb-4" />
+              <p className="text-lg font-medium">粉丝增长趋势图表</p>
+              <p className="text-sm">显示近30天的粉丝增长变化</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 粉丝活跃时间分析 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center">
+              <Activity className="mr-2 h-4 w-4" />
+              粉丝活跃时段
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { time: "08:00-10:00", activity: 78, color: "bg-green-500" },
+                { time: "12:00-14:00", activity: 92, color: "bg-blue-500" },
+                { time: "18:00-20:00", activity: 95, color: "bg-purple-500" },
+                { time: "20:00-22:00", activity: 88, color: "bg-orange-500" },
+              ].map((item) => (
+                <div key={item.time} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>{item.time}</span>
+                    <span className="font-medium">{item.activity}%</span>
+                  </div>
+                  <Progress value={item.activity} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center">
+              <PieChart className="mr-2 h-4 w-4" />
+              粉丝来源分析
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { source: "搜索发现", percentage: 42.5, color: "bg-blue-500" },
+                { source: "推荐算法", percentage: 35.8, color: "bg-green-500" },
+                {
+                  source: "话题页面",
+                  percentage: 12.3,
+                  color: "bg-purple-500",
+                },
+                { source: "分享链接", percentage: 9.4, color: "bg-orange-500" },
+              ].map((item) => (
+                <div
+                  key={item.source}
+                  className="flex items-center justify-between"
+                >
+                  <span className="text-sm">{item.source}</span>
+                  <span className="font-medium">{item.percentage}%</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// 观众分析组件
+const AudienceAnalysisTab: React.FC = () => {
   const fanGenderData = [
     { label: "男性", value: 45.2, color: "bg-blue-500" },
     { label: "女性", value: 54.8, color: "bg-pink-500" },
@@ -293,7 +423,7 @@ const ROIAnalysisTab: React.FC = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">2.8%</div>
               <div className="text-sm text-muted-foreground">
-                行业平均高出1.2%
+                行业平均���出1.2%
               </div>
             </div>
           </CardContent>
