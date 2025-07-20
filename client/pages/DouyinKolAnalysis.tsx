@@ -103,7 +103,7 @@ const FanTrendsAnalysisTab: React.FC = () => {
         </Card>
       </div>
 
-      {/* 粉丝增长趋势图 */}
+      {/* 粉丝增长趋势��� */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
@@ -206,7 +206,7 @@ const AudienceAnalysisTab: React.FC = () => {
     { city: "广州", percentage: 8.9 },
     { city: "深圳", percentage: 7.6 },
     { city: "杭州", percentage: 6.2 },
-    { city: "成都", percentage: 5.4 },
+    { city: "��都", percentage: 5.4 },
     { city: "武汉", percentage: 4.7 },
     { city: "西安", percentage: 4.1 },
   ];
@@ -651,22 +651,34 @@ const HotWordCloudTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">实名认证</span>
-                <Badge variant="default">已认证</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">星图达人</span>
-                <Badge variant="default">已认证</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">蓝V认证</span>
-                <Badge variant="secondary">未认证</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">MCN机构</span>
-                <Badge variant="default">已签约</Badge>
-              </div>
+              {[
+                { keyword: "时尚穿搭", count: 1250, trend: "up" },
+                { keyword: "美妆护肤", count: 980, trend: "up" },
+                { keyword: "生活方式", count: 756, trend: "down" },
+                { keyword: "潮流趋势", count: 642, trend: "up" },
+                { keyword: "日常分享", count: 528, trend: "stable" },
+              ].map((item, index) => (
+                <div
+                  key={item.keyword}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center">
+                    <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm">{item.keyword}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-sm">{item.count}</span>
+                    {item.trend === "up" && (
+                      <TrendingUp className="h-3 w-3 text-green-500" />
+                    )}
+                    {item.trend === "down" && (
+                      <TrendingDown className="h-3 w-3 text-red-500" />
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
