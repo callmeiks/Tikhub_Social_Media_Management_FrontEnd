@@ -67,7 +67,7 @@ const FanTrendsAnalysisTab: React.FC = () => {
             <div className="text-center">
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
               <div className="text-2xl font-bold text-green-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">��月增长率</div>
+              <div className="text-sm text-muted-foreground">本月增长率</div>
             </div>
           </CardContent>
         </Card>
@@ -423,7 +423,7 @@ const CreatorPerformanceTab: React.FC = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">2.8%</div>
               <div className="text-sm text-muted-foreground">
-                行业平均�����出1.2%
+                行业平均���出1.2%
               </div>
             </div>
           </CardContent>
@@ -645,8 +645,8 @@ const HotWordCloudTab: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center">
-              <Award className="mr-2 h-4 w-4 text-blue-500" />
-              认证信息
+              <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
+              热门关键词排行
             </CardTitle>
           </CardHeader>
           <CardContent>
