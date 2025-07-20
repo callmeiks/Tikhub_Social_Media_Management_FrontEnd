@@ -614,7 +614,7 @@ export default function DouyinKolAnalysis() {
   useEffect(() => {
     // 模拟获取KOL数据
     const mockKolData: DouyinInfluencer = {
-      id: kolId || "mock-id",
+      id: kolId || "demo-kol",
       task_id: "task-12345",
       sec_user_id: "MS4wLjABAAAA...",
       unique_id: "fashionista_lily",
@@ -670,7 +670,7 @@ export default function DouyinKolAnalysis() {
           <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-xl font-medium mb-2">无法加载KOL数据</h3>
           <p className="text-gray-600 mb-6 text-center max-w-md">
-            请从KOL搜索页面选择要分析的KOL。
+            请从KOL搜索页面选择要��析的KOL。
           </p>
           <Button onClick={handleBackClick} className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
