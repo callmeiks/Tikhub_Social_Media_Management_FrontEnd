@@ -28,27 +28,31 @@ interface TikTokInfluencer extends BaseInfluencer {
   platform: "tiktok";
   sec_user_id: string;
   unique_id: string;
-  uid: string;
-  category: string;
+  uid?: string;
+  category?: string;
   avatar_url: string;
   signature: string;
-  signature_language: string;
+  signature_language?: string;
   share_url: string;
-  ins_id: string;
-  twitter_id: string;
-  youtube_channel_id: string;
-  youtube_channel_title: string;
-  android_download_app_link: string;
-  ios_download_app_link: string;
-  is_enterprise_verify: boolean;
-  commerce_user_level: number;
-  is_star: boolean;
-  is_effect_artist: boolean;
-  live_commerce: boolean;
-  message_chat_entry: boolean;
-  with_commerce_entry: boolean;
-  with_new_goods: boolean;
+  ins_id?: string;
+  twitter_id?: string;
+  youtube_channel_id?: string;
+  youtube_channel_title?: string;
+  android_download_app_link?: string;
+  ios_download_app_link?: string;
+  is_enterprise_verify?: boolean;
+  commerce_user_level?: number;
+  is_star?: boolean;
+  is_effect_artist?: boolean;
+  live_commerce?: boolean;
+  message_chat_entry?: boolean;
+  with_commerce_entry?: boolean;
+  with_new_goods?: boolean;
   following_count: number;
+  region?: string;
+  language?: string;
+  is_verified?: boolean;
+  is_live_open?: boolean;
 }
 
 interface DouyinInfluencer extends BaseInfluencer {
@@ -216,10 +220,25 @@ interface InstagramInfluencer extends BaseInfluencer {
   date_joined_as_timestamp: string;
 }
 
-type Influencer = TikTokInfluencer | DouyinInfluencer | XiaohongshuInfluencer | KuaishouInfluencer | XInfluencer | YouTubeInfluencer | InstagramInfluencer;
+type Influencer =
+  | TikTokInfluencer
+  | DouyinInfluencer
+  | XiaohongshuInfluencer
+  | KuaishouInfluencer
+  | XInfluencer
+  | YouTubeInfluencer
+  | InstagramInfluencer;
 
 interface GetInfluencersParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "x" | "youtube" | "instagram" | "all";
+  platform:
+    | "tiktok"
+    | "douyin"
+    | "xiaohongshu"
+    | "kuaishou"
+    | "x"
+    | "youtube"
+    | "instagram"
+    | "all";
   page?: number;
   limit?: number;
   nickname?: string;
@@ -470,10 +489,24 @@ interface InstagramPost extends BasePost {
   keyword: string | null;
 }
 
-type Post = TikTokPost | DouyinPost | XiaohongshuPost | KuaishouPost | XPost | YouTubePost | InstagramPost;
+type Post =
+  | TikTokPost
+  | DouyinPost
+  | XiaohongshuPost
+  | KuaishouPost
+  | XPost
+  | YouTubePost
+  | InstagramPost;
 
 interface GetPostsParams {
-  platform: "tiktok" | "douyin" | "xiaohongshu" | "kuaishou" | "x" | "youtube" | "instagram";
+  platform:
+    | "tiktok"
+    | "douyin"
+    | "xiaohongshu"
+    | "kuaishou"
+    | "x"
+    | "youtube"
+    | "instagram";
   platform_user_id: string;
   page?: number;
   limit?: number;
@@ -551,7 +584,12 @@ interface DouyinUserFilters {
 }
 
 interface TikTokUserFilters {
-  user_search_follower_count?: "" | "ZERO_TO_ONE_K" | "ONE_K_TO_TEN_K" | "TEN_K_TO_ONE_H_K" | "ONE_H_K_PLUS";
+  user_search_follower_count?:
+    | ""
+    | "ZERO_TO_ONE_K"
+    | "ONE_K_TO_TEN_K"
+    | "TEN_K_TO_ONE_H_K"
+    | "ONE_H_K_PLUS";
   user_search_profile_type?: "" | "VERIFIED";
 }
 
@@ -563,7 +601,11 @@ interface KuaishouUserFilters {
   // No filters available for Kuaishou
 }
 
-type UserSearchFilters = DouyinUserFilters | TikTokUserFilters | XiaohongshuUserFilters | KuaishouUserFilters;
+type UserSearchFilters =
+  | DouyinUserFilters
+  | TikTokUserFilters
+  | XiaohongshuUserFilters
+  | KuaishouUserFilters;
 
 interface KeywordUserSearchParams {
   keyword: string;
@@ -1005,7 +1047,6 @@ class ApiClient {
     return response.json();
   }
 
-
   async getPosts(params: GetPostsParams): Promise<ApiResponse<Post>> {
     const { platform, platform_user_id, ...queryParams } = params;
     const searchParams = new URLSearchParams();
@@ -1020,9 +1061,9 @@ class ApiClient {
     const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
 
     // Use port 8001 for account-interaction API
-    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const apiUrl = this.baseURL.replace(":8000", ":8001");
     const url = `${apiUrl}/account-interaction/posts/${platform}/${platform_user_id}${query}`;
-    
+
     const headers: Record<string, string> = {};
     if (this.token) {
       headers.Authorization = `Bearer ${this.token}`;
@@ -1044,9 +1085,9 @@ class ApiClient {
 
   async getAccountDetail(accountId: string): Promise<Influencer> {
     // Use port 8001 for account-interaction API
-    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const apiUrl = this.baseURL.replace(":8000", ":8001");
     const url = `${apiUrl}/account-interaction/influencers`;
-    
+
     const headers: Record<string, string> = {};
     if (this.token) {
       headers.Authorization = `Bearer ${this.token}`;
@@ -1103,9 +1144,9 @@ class ApiClient {
     params: KeywordUserSearchParams,
   ): Promise<KeywordUserSearchResponse> {
     // The API endpoint expects port 8001 based on the documentation
-    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const apiUrl = this.baseURL.replace(":8000", ":8001");
     const url = `${apiUrl}/keyword-search-user/search`;
-    
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
@@ -1133,7 +1174,7 @@ class ApiClient {
     params: GetUserInfluencersParams = {},
   ): Promise<GetInfluencersResponse> {
     // The API endpoint expects port 8001 based on the documentation
-    const apiUrl = this.baseURL.replace(':8000', ':8001');
+    const apiUrl = this.baseURL.replace(":8000", ":8001");
     const searchParams = new URLSearchParams();
 
     if (params.platform) searchParams.append("platform", params.platform);
@@ -1142,7 +1183,7 @@ class ApiClient {
     if (params.limit) searchParams.append("limit", params.limit.toString());
 
     const url = `${apiUrl}/keyword-search-user/influencers?${searchParams.toString()}`;
-    
+
     const headers: Record<string, string> = {};
 
     if (this.token) {
@@ -1164,7 +1205,9 @@ class ApiClient {
   }
 
   // Douyin Rankings API Methods
-  async getDouyinHotRise(params: DouyinHotRiseParams = {}): Promise<DouyinHotTopic[]> {
+  async getDouyinHotRise(
+    params: DouyinHotRiseParams = {},
+  ): Promise<DouyinHotTopic[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-rise`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1181,13 +1224,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotCity(params: DouyinHotCityParams = {}): Promise<DouyinHotTopic[]> {
+  async getDouyinHotCity(
+    params: DouyinHotCityParams = {},
+  ): Promise<DouyinHotTopic[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-city`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1204,13 +1251,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotChallenge(params: DouyinHotChallengeParams = {}): Promise<DouyinHotTopic[]> {
+  async getDouyinHotChallenge(
+    params: DouyinHotChallengeParams = {},
+  ): Promise<DouyinHotTopic[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-challenge`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1227,13 +1278,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotSearch(params: DouyinHotSearchParams = {}): Promise<DouyinHotSearchItem[]> {
+  async getDouyinHotSearch(
+    params: DouyinHotSearchParams = {},
+  ): Promise<DouyinHotSearchItem[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-search`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1250,13 +1305,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotAccount(params: DouyinHotAccountParams = {}): Promise<DouyinHotAccount[]> {
+  async getDouyinHotAccount(
+    params: DouyinHotAccountParams = {},
+  ): Promise<DouyinHotAccount[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-account`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1273,13 +1332,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotVideo(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotVideo(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-video`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1296,13 +1359,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotLowFan(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotLowFan(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-low-fan`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1319,13 +1386,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotHighCompletionRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotHighCompletionRate(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-high-completion-rate`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1342,13 +1413,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotHighLikeRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotHighLikeRate(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-high-like-rate`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1365,13 +1440,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotHighFanRate(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotHighFanRate(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-high-fan-rate`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1388,13 +1467,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotTopics(params: DouyinHotVideoParams = {}): Promise<DouyinHotVideo[]> {
+  async getDouyinHotTopics(
+    params: DouyinHotVideoParams = {},
+  ): Promise<DouyinHotVideo[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-topics`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1411,13 +1494,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotWords(params: DouyinHotWordsParams = {}): Promise<DouyinHotWord[]> {
+  async getDouyinHotWords(
+    params: DouyinHotWordsParams = {},
+  ): Promise<DouyinHotWord[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-words`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1434,7 +1521,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -1457,13 +1546,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotBrand(params: DouyinHotBrandParams): Promise<DouyinHotBrand[]> {
+  async getDouyinHotBrand(
+    params: DouyinHotBrandParams,
+  ): Promise<DouyinHotBrand[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-brand`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1480,7 +1573,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -1503,13 +1598,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  async getDouyinHotActivityCalendar(params: DouyinHotActivityCalendarParams = {}): Promise<DouyinHotActivity[]> {
+  async getDouyinHotActivityCalendar(
+    params: DouyinHotActivityCalendarParams = {},
+  ): Promise<DouyinHotActivity[]> {
     const url = `${this.baseURL}/hot-rankings/douyin/hot-activity-calendar`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -1526,7 +1625,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -1534,58 +1635,86 @@ class ApiClient {
 
   // Kuaishou Hot Rankings API methods
   async getKuaishouHotBoard(): Promise<KuaishouHotRankingItem[]> {
-    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-board", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotRankingItem[]>(
+      "/hot-rankings/kuaishou/hot-board",
+      {
+        method: "POST",
+      },
+    );
   }
 
   async getKuaishouHotEntertainmentBoard(): Promise<KuaishouHotRankingItem[]> {
-    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-entertainment-board", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotRankingItem[]>(
+      "/hot-rankings/kuaishou/hot-entertainment-board",
+      {
+        method: "POST",
+      },
+    );
   }
 
   async getKuaishouHotSocialBoard(): Promise<KuaishouHotRankingItem[]> {
-    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-social-board", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotRankingItem[]>(
+      "/hot-rankings/kuaishou/hot-social-board",
+      {
+        method: "POST",
+      },
+    );
   }
 
   async getKuaishouHotUsefulBoard(): Promise<KuaishouHotRankingItem[]> {
-    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-useful-board", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotRankingItem[]>(
+      "/hot-rankings/kuaishou/hot-useful-board",
+      {
+        method: "POST",
+      },
+    );
   }
 
   async getKuaishouHotChallengeBoard(): Promise<KuaishouHotRankingItem[]> {
-    return this.request<KuaishouHotRankingItem[]>("/hot-rankings/kuaishou/hot-challenge-board", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotRankingItem[]>(
+      "/hot-rankings/kuaishou/hot-challenge-board",
+      {
+        method: "POST",
+      },
+    );
   }
 
   async getKuaishouHotSearchUsersRank(): Promise<KuaishouHotUser[]> {
-    return this.request<KuaishouHotUser[]>("/hot-rankings/kuaishou/hot-search-users-rank", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotUser[]>(
+      "/hot-rankings/kuaishou/hot-search-users-rank",
+      {
+        method: "POST",
+      },
+    );
   }
 
-  async getKuaishouHotLiveRank(params: KuaishouHotLiveParams = {}): Promise<KuaishouHotLive[]> {
-    return this.request<KuaishouHotLive[]>("/hot-rankings/kuaishou/hot-live-rank", {
-      method: "POST",
-      body: JSON.stringify({
-        sub_tab_id: params.sub_tab_id || 0,
-        sub_tab_name: params.sub_tab_name || null,
-      }),
-    });
+  async getKuaishouHotLiveRank(
+    params: KuaishouHotLiveParams = {},
+  ): Promise<KuaishouHotLive[]> {
+    return this.request<KuaishouHotLive[]>(
+      "/hot-rankings/kuaishou/hot-live-rank",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          sub_tab_id: params.sub_tab_id || 0,
+          sub_tab_name: params.sub_tab_name || null,
+        }),
+      },
+    );
   }
 
   async getKuaishouHotShoppingRank(): Promise<KuaishouHotProduct[]> {
-    return this.request<KuaishouHotProduct[]>("/hot-rankings/kuaishou/hot-shopping-rank", {
-      method: "POST",
-    });
+    return this.request<KuaishouHotProduct[]>(
+      "/hot-rankings/kuaishou/hot-shopping-rank",
+      {
+        method: "POST",
+      },
+    );
   }
 
-  async getKuaishouHotBrandRank(params: KuaishouHotBrandParams): Promise<any[]> {
+  async getKuaishouHotBrandRank(
+    params: KuaishouHotBrandParams,
+  ): Promise<any[]> {
     return this.request<any[]>("/hot-rankings/kuaishou/hot-brand-rank", {
       method: "POST",
       body: JSON.stringify(params),
@@ -1594,26 +1723,37 @@ class ApiClient {
 
   // Pipixia Hot Rankings API methods
   async getPipixiaHotSearchWords(): Promise<PipixiaHotSearchWord[]> {
-    return this.request<PipixiaHotSearchWord[]>("/hot-rankings/pipixia/hot-search-words", {
-      method: "GET",
-    });
+    return this.request<PipixiaHotSearchWord[]>(
+      "/hot-rankings/pipixia/hot-search-words",
+      {
+        method: "GET",
+      },
+    );
   }
 
   async getPipixiaHotSearchList(): Promise<PipixiaHotContent[]> {
-    return this.request<PipixiaHotContent[]>("/hot-rankings/pipixia/hot-search-list", {
-      method: "GET",
-    });
+    return this.request<PipixiaHotContent[]>(
+      "/hot-rankings/pipixia/hot-search-list",
+      {
+        method: "GET",
+      },
+    );
   }
 
   // Xiaohongshu Hot Rankings API methods
   async getXiaohongshuHotList(): Promise<XiaohongshuHotRankingItem[]> {
-    return this.request<XiaohongshuHotRankingItem[]>("/hot-rankings/xiaohongshu/hot-list", {
-      method: "GET",
-    });
+    return this.request<XiaohongshuHotRankingItem[]>(
+      "/hot-rankings/xiaohongshu/hot-list",
+      {
+        method: "GET",
+      },
+    );
   }
 
   // X Hot Rankings API methods
-  async getXHotTrending(params: XHotTrendingParams = {}): Promise<XHotTrendingItem[]> {
+  async getXHotTrending(
+    params: XHotTrendingParams = {},
+  ): Promise<XHotTrendingItem[]> {
     return this.request<XHotTrendingItem[]>("/hot-rankings/twitter/trending", {
       method: "POST",
       body: JSON.stringify({
@@ -1623,15 +1763,20 @@ class ApiClient {
   }
 
   // YouTube Hot Rankings API methods
-  async getYouTubeHotTrending(params: YouTubeHotTrendingParams = {}): Promise<YouTubeHotTrendingItem[]> {
-    return this.request<YouTubeHotTrendingItem[]>("/hot-rankings/youtube/trending-videos", {
-      method: "POST",
-      body: JSON.stringify({
-        language_code: params.language_code || "en",
-        country_code: params.country_code || "us",
-        section: params.section || "Now",
-      }),
-    });
+  async getYouTubeHotTrending(
+    params: YouTubeHotTrendingParams = {},
+  ): Promise<YouTubeHotTrendingItem[]> {
+    return this.request<YouTubeHotTrendingItem[]>(
+      "/hot-rankings/youtube/trending-videos",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          language_code: params.language_code || "en",
+          country_code: params.country_code || "us",
+          section: params.section || "Now",
+        }),
+      },
+    );
   }
 
   setToken(token: string) {
