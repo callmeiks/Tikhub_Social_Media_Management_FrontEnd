@@ -90,10 +90,11 @@ export default function DouyinKolSearch() {
     sortBy: "follower_count",
   });
 
-  // 模拟搜索结果数据
+  // ��拟搜索结果数据
   const mockResults: DouyinInfluencer[] = [
     {
       id: "1",
+      task_id: "task-001",
       sec_user_id: "MS4wLjABAAAA1",
       unique_id: "fashionista_lily",
       nickname: "时尚达人Lily",
@@ -122,6 +123,7 @@ export default function DouyinKolSearch() {
     },
     {
       id: "2",
+      task_id: "task-002",
       sec_user_id: "MS4wLjABAAAA2",
       unique_id: "beauty_queen",
       nickname: "美妆女王Mia",
@@ -150,6 +152,7 @@ export default function DouyinKolSearch() {
     },
     {
       id: "3",
+      task_id: "task-003",
       sec_user_id: "MS4wLjABAAAA3",
       unique_id: "fitness_coach",
       nickname: "健身教练Max",
@@ -446,7 +449,7 @@ export default function DouyinKolSearch() {
                 <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium mb-2">暂无搜索结果</h3>
                 <p className="text-muted-foreground">
-                  请调整搜索条件或筛选条件后重试
+                  请调整搜索条件或��选条件后重试
                 </p>
               </div>
             ) : (
