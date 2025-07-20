@@ -58,6 +58,7 @@ import PipixiaRankings from "./pages/PipixiaRankings";
 import UniversalConverter from "./pages/UniversalConverter";
 import DouyinKolSearch from "./pages/DouyinKolSearch";
 import DouyinKolAnalysis from "./pages/DouyinKolAnalysis";
+import DouyinKolAnalysisDetail from "./pages/DouyinKolAnalysisDetail";
 import TikTokCreatorSearch from "./pages/TikTokCreatorSearch";
 import TikTokCreatorAnalysis from "./pages/TikTokCreatorAnalysis";
 import NotFound from "./pages/NotFound";
