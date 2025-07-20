@@ -663,7 +663,7 @@ export default function TikTokCreatorAnalysis() {
   useEffect(() => {
     // 模拟获取Creator数据
     const mockCreatorData: TikTokInfluencer = {
-      id: creatorId || "mock-id",
+      id: creatorId || "demo-creator",
       task_id: "task-12345",
       sec_user_id: "MS4wLjABAAAA...",
       unique_id: "lifestyle_sarah",
