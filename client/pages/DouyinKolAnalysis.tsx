@@ -753,7 +753,7 @@ export default function DouyinKolAnalysis() {
                   </div>
                   <div>
                     <div className="font-medium text-lg">A+</div>
-                    <div className="text-muted-foreground">星图等级</div>
+                    <div className="text-muted-foreground">星图等��</div>
                   </div>
                 </div>
 
@@ -777,44 +777,51 @@ export default function DouyinKolAnalysis() {
         {/* Analysis Tabs */}
         <Card>
           <CardContent className="p-0">
-            <Tabs defaultValue="fans" className="w-full">
-              <TabsList className="grid w-full grid-cols-5 rounded-none border-b">
-                <TabsTrigger value="fans" className="rounded-none">
-                  粉丝&观众分析
+            <Tabs defaultValue="fantrends" className="w-full">
+              <TabsList className="grid w-full grid-cols-6 rounded-none border-b">
+                <TabsTrigger value="fantrends" className="rounded-none">
+                  粉丝趋势分析
+                </TabsTrigger>
+                <TabsTrigger value="audience" className="rounded-none">
+                  观众分析
                 </TabsTrigger>
                 <TabsTrigger value="pricing" className="rounded-none">
                   服务报价
                 </TabsTrigger>
-                <TabsTrigger value="roi" className="rounded-none">
-                  性价比&转化率
-                </TabsTrigger>
                 <TabsTrigger value="video" className="rounded-none">
-                  视频表现分析
+                  视频表现
                 </TabsTrigger>
-                <TabsTrigger value="star" className="rounded-none">
-                  星图指标
+                <TabsTrigger value="performance" className="rounded-none">
+                  达人表现
+                </TabsTrigger>
+                <TabsTrigger value="wordcloud" className="rounded-none">
+                  热门词云
                 </TabsTrigger>
               </TabsList>
 
               <div className="p-6">
-                <TabsContent value="fans" className="mt-0">
-                  <FanProfileTab />
+                <TabsContent value="fantrends" className="mt-0">
+                  <FanTrendsAnalysisTab />
+                </TabsContent>
+
+                <TabsContent value="audience" className="mt-0">
+                  <AudienceAnalysisTab />
                 </TabsContent>
 
                 <TabsContent value="pricing" className="mt-0">
                   <ServicePricingTab />
                 </TabsContent>
 
-                <TabsContent value="roi" className="mt-0">
-                  <ROIAnalysisTab />
-                </TabsContent>
-
                 <TabsContent value="video" className="mt-0">
                   <VideoPerformanceTab />
                 </TabsContent>
 
-                <TabsContent value="star" className="mt-0">
-                  <StarMetricsTab />
+                <TabsContent value="performance" className="mt-0">
+                  <CreatorPerformanceTab />
+                </TabsContent>
+
+                <TabsContent value="wordcloud" className="mt-0">
+                  <HotWordCloudTab />
                 </TabsContent>
               </div>
             </Tabs>
