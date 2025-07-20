@@ -225,7 +225,7 @@ const App = () => (
           />
           <Route
             path="/kol-search-analysis/douyin-analysis/:kolId"
-            element={<DouyinKolAnalysis />}
+            element={<DouyinKolAnalysisDetail />}
           />
           <Route
             path="/kol-search-analysis/tiktok-search"
