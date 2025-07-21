@@ -190,28 +190,28 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
               fill="transparent"
               className="hover:fill-gray-200 cursor-pointer"
             >
-              <title>{`${point.date}: ${formatNumber(point.fans)}`}</title>
+              <title>{`${point.date}: 粉丝数 ${formatNumber(point.fans)}`}</title>
             </circle>
           </g>
         ))}
         
-        {/* X轴日期标签 */}
-        <text
-          x={points[0]?.x || padding.left}
-          y={padding.top + chartHeight + 20}
-          textAnchor="middle"
-          className="text-xs fill-gray-600 font-mono"
-        >
-          {data[0]?.date?.substring(5)}
-        </text>
-        <text
-          x={points[points.length - 1]?.x || padding.left + chartWidth}
-          y={padding.top + chartHeight + 20}
-          textAnchor="middle"
-          className="text-xs fill-gray-600 font-mono"
-        >
-          {data[data.length - 1]?.date?.substring(5)}
-        </text>
+        {/* X轴日期标签 - 每4个数据点显示一个日期 */}
+        {points.map((point, index) => {
+          if (index % 4 === 0 || index === points.length - 1) {
+            return (
+              <text
+                key={index}
+                x={point.x}
+                y={padding.top + chartHeight + 20}
+                textAnchor="middle"
+                className="text-xs fill-gray-600 font-mono"
+              >
+                {data[index]?.date?.substring(5)}
+              </text>
+            );
+          }
+          return null;
+        })}
       </svg>
     </div>
   );
@@ -332,26 +332,27 @@ const DailyGrowthChart: React.FC<{ data: Array<{ date: string; fans_cnt: string 
               fill={bar.isPositive ? "#000000" : "#6b7280"}
               className="hover:opacity-70 cursor-pointer"
             >
-              <title>{`${bar.date}: ${bar.growth >= 0 ? '+' : ''}${bar.growth}`}</title>
+              <title>{`${bar.date}: 日增长 ${bar.growth >= 0 ? '+' : ''}${bar.growth}`}</title>
             </rect>
           </g>
         ))}
         
-        {/* X轴日期标签 (显示几个关键点) */}
-        {[0, Math.floor(bars.length / 2), bars.length - 1].map(index => {
-          const bar = bars[index];
-          if (!bar) return null;
-          return (
-            <text
-              key={index}
-              x={bar.x + bar.width / 2}
-              y={padding.top + chartHeight + 20}
-              textAnchor="middle"
-              className="text-xs fill-gray-600 font-mono"
-            >
-              {bar.date?.substring(5)}
-            </text>
-          );
+        {/* X轴日期标签 - 每4个数据点显示一个日期 */}
+        {bars.map((bar, index) => {
+          if (index % 4 === 0 || index === bars.length - 1) {
+            return (
+              <text
+                key={index}
+                x={bar.x + bar.width / 2}
+                y={padding.top + chartHeight + 20}
+                textAnchor="middle"
+                className="text-xs fill-gray-600 font-mono"
+              >
+                {bar.date?.substring(5)}
+              </text>
+            );
+          }
+          return null;
         })}
       </svg>
     </div>
