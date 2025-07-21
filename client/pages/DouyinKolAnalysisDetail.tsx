@@ -79,13 +79,154 @@ const formatPercentage = (num: number): string => {
   return `${num.toFixed(1)}%`;
 };
 
+// 粉丝数量折线图组件
+const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: string }> }> = ({ data }) => {
+  if (!data || data.length === 0) return null;
+
+  const width = 800;
+  const height = 200;
+  const padding = { top: 20, right: 20, bottom: 40, left: 60 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  // 计算数据范围
+  const fansValues = data.map(d => parseInt(d.fans_cnt));
+  const minFans = Math.min(...fansValues);
+  const maxFans = Math.max(...fansValues);
+  const fansRange = maxFans - minFans;
+
+  // 创建数据点
+  const points = data.map((d, index) => {
+    const x = padding.left + (index / (data.length - 1)) * chartWidth;
+    const y = padding.top + chartHeight - ((parseInt(d.fans_cnt) - minFans) / fansRange) * chartHeight;
+    return { x, y, date: d.date, fans: parseInt(d.fans_cnt) };
+  });
+
+  // 创建路径
+  const pathData = points.map((point, index) => 
+    index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`
+  ).join(' ');
+
+  // Y轴刻度
+  const yTicks = 5;
+  const yTickValues = Array.from({ length: yTicks }, (_, i) => {
+    const value = minFans + (i / (yTicks - 1)) * fansRange;
+    return {
+      value,
+      y: padding.top + chartHeight - (i / (yTicks - 1)) * chartHeight
+    };
+  });
+
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <svg width={width} height={height} className="overflow-visible">
+        {/* 网格线 */}
+        {yTickValues.map((tick, index) => (
+          <line
+            key={index}
+            x1={padding.left}
+            y1={tick.y}
+            x2={padding.left + chartWidth}
+            y2={tick.y}
+            stroke="#f0f0f0"
+            strokeWidth="1"
+          />
+        ))}
+        
+        {/* Y轴 */}
+        <line
+          x1={padding.left}
+          y1={padding.top}
+          x2={padding.left}
+          y2={padding.top + chartHeight}
+          stroke="#e0e0e0"
+          strokeWidth="2"
+        />
+        
+        {/* X轴 */}
+        <line
+          x1={padding.left}
+          y1={padding.top + chartHeight}
+          x2={padding.left + chartWidth}
+          y2={padding.top + chartHeight}
+          stroke="#e0e0e0"
+          strokeWidth="2"
+        />
+        
+        {/* Y轴标签 */}
+        {yTickValues.map((tick, index) => (
+          <text
+            key={index}
+            x={padding.left - 10}
+            y={tick.y + 4}
+            textAnchor="end"
+            className="text-xs fill-gray-600"
+          >
+            {formatNumber(tick.value)}
+          </text>
+        ))}
+        
+        {/* 折线 */}
+        <path
+          d={pathData}
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="2"
+          className="drop-shadow-sm"
+        />
+        
+        {/* 数据点 */}
+        {points.map((point, index) => (
+          <g key={index}>
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="4"
+              fill="#3b82f6"
+              className="drop-shadow-sm"
+            />
+            {/* 悬停提示 */}
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="8"
+              fill="transparent"
+              className="hover:fill-blue-100 cursor-pointer"
+            >
+              <title>{`${point.date}: ${formatNumber(point.fans)}`}</title>
+            </circle>
+          </g>
+        ))}
+        
+        {/* X轴日期标签 (只显示第一个和最后一个) */}
+        <text
+          x={points[0]?.x || padding.left}
+          y={padding.top + chartHeight + 20}
+          textAnchor="middle"
+          className="text-xs fill-gray-600"
+        >
+          {data[0]?.date}
+        </text>
+        <text
+          x={points[points.length - 1]?.x || padding.left + chartWidth}
+          y={padding.top + chartHeight + 20}
+          textAnchor="middle"
+          className="text-xs fill-gray-600"
+        >
+          {data[data.length - 1]?.date}
+        </text>
+      </svg>
+    </div>
+  );
+};
+
 // 粉丝趋势分析组件
 const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
   const [fansTrendData, setFansTrendData] = useState<FansTrendResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date>(() => {
     const date = new Date();
-    date.setMonth(date.getMonth() - 1);
+    date.setMonth(date.getMonth() - 3);
     return date;
   });
   const [endDate, setEndDate] = useState<Date>(new Date());
@@ -146,20 +287,21 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">开始日期</label>
+          <div className="flex items-center space-x-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium">开始日期</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
+                    size="sm"
                     className={cn(
-                      "w-[240px] justify-start text-left font-normal",
+                      "w-[140px] h-8 justify-start text-left font-normal text-xs",
                       !startDate && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "yyyy-MM-dd") : "选择开始日期"}
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {startDate ? format(startDate, "MM-dd") : "选择日期"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -172,19 +314,20 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">结束日期</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium">结束日期</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
+                    size="sm"
                     className={cn(
-                      "w-[240px] justify-start text-left font-normal",
+                      "w-[140px] h-8 justify-start text-left font-normal text-xs",
                       !endDate && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "yyyy-MM-dd") : "选择结束日期"}
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {endDate ? format(endDate, "MM-dd") : "选择日期"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -197,58 +340,46 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                 </PopoverContent>
               </Popover>
             </div>
-            <Button onClick={fetchFansTrend} disabled={loading} className="mt-6">
+            <Button onClick={fetchFansTrend} disabled={loading} size="sm" className="mt-4 h-8">
               {loading ? (
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
               ) : (
-                <Search className="mr-2 h-4 w-4" />
+                <Search className="mr-1 h-3 w-3" />
               )}
-              更新数据
+              更新
             </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* 趋势总览 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardContent className="pt-6">
+      <Card>
+        <CardContent className="py-4">
+          <div className="flex items-center justify-around">
             <div className="text-center">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold text-green-600">{calculateGrowthRate()}</div>
-              <div className="text-sm text-muted-foreground">总体增长率</div>
+              <div className="text-lg font-bold text-black">{calculateGrowthRate()}</div>
+              <div className="text-xs text-gray-600">总体增长率</div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
+            <div className="w-px h-10 bg-gray-200"></div>
             <div className="text-center">
-              <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">+{calculateMonthlyGrowth()}</div>
-              <div className="text-sm text-muted-foreground">期间变化</div>
+              <div className="text-lg font-bold text-black">+{calculateMonthlyGrowth()}</div>
+              <div className="text-xs text-gray-600">期间变化</div>
             </div>
-          </CardContent>
-        </Card>
-
-
-        <Card>
-          <CardContent className="pt-6">
+            <div className="w-px h-10 bg-gray-200"></div>
             <div className="text-center">
-              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">
+              <div className="text-lg font-bold text-black">
                 {fansTrendData?.fans_count.length ? 
                   formatNumber(parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt)) : 
                   '-'
                 }
               </div>
-              <div className="text-sm text-muted-foreground">当前粉丝数</div>
+              <div className="text-xs text-gray-600">当前粉丝数</div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* 粉丝数量数据表 */}
+      {/* 粉丝数量变化图表 */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
@@ -258,23 +389,8 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
         </CardHeader>
         <CardContent>
           {fansTrendData && fansTrendData.fans_count.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>日期</TableHead>
-                    <TableHead>粉丝数</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fansTrendData.fans_count.map((item) => (
-                    <TableRow key={item.date}>
-                      <TableCell>{item.date}</TableCell>
-                      <TableCell className="font-medium">{formatNumber(parseInt(item.fans_cnt))}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="w-full h-64">
+              <FansCountLineChart data={fansTrendData.fans_count} />
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
