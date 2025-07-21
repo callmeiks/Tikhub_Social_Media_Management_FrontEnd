@@ -869,8 +869,7 @@ interface FansTrendResponse {
   }>;
   fans_growth: Array<{
     date: string;
-    fans_growth: string;
-    fans_growth_rate: string;
+    fans_cnt: string;
   }>;
 }
 

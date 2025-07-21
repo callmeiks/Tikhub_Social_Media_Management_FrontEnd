@@ -79,13 +79,13 @@ const formatPercentage = (num: number): string => {
   return `${num.toFixed(1)}%`;
 };
 
-// 粉丝数量折线图组件
+// 粉丝数量折线图组件 - 黑白主题
 const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: string }> }> = ({ data }) => {
   if (!data || data.length === 0) return null;
 
-  const width = 800;
-  const height = 200;
-  const padding = { top: 20, right: 20, bottom: 40, left: 60 };
+  const width = 700;
+  const height = 180;
+  const padding = { top: 15, right: 15, bottom: 35, left: 50 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
@@ -93,7 +93,7 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
   const fansValues = data.map(d => parseInt(d.fans_cnt));
   const minFans = Math.min(...fansValues);
   const maxFans = Math.max(...fansValues);
-  const fansRange = maxFans - minFans;
+  const fansRange = maxFans - minFans || 1;
 
   // 创建数据点
   const points = data.map((d, index) => {
@@ -108,7 +108,7 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
   ).join(' ');
 
   // Y轴刻度
-  const yTicks = 5;
+  const yTicks = 4;
   const yTickValues = Array.from({ length: yTicks }, (_, i) => {
     const value = minFans + (i / (yTicks - 1)) * fansRange;
     return {
@@ -118,7 +118,7 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
   });
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg">
       <svg width={width} height={height} className="overflow-visible">
         {/* 网格线 */}
         {yTickValues.map((tick, index) => (
@@ -128,39 +128,38 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
             y1={tick.y}
             x2={padding.left + chartWidth}
             y2={tick.y}
-            stroke="#f0f0f0"
+            stroke="#e5e7eb"
             strokeWidth="1"
+            opacity="0.5"
           />
         ))}
         
-        {/* Y轴 */}
+        {/* 坐标轴 */}
         <line
           x1={padding.left}
           y1={padding.top}
           x2={padding.left}
           y2={padding.top + chartHeight}
-          stroke="#e0e0e0"
-          strokeWidth="2"
+          stroke="#374151"
+          strokeWidth="1"
         />
-        
-        {/* X轴 */}
         <line
           x1={padding.left}
           y1={padding.top + chartHeight}
           x2={padding.left + chartWidth}
           y2={padding.top + chartHeight}
-          stroke="#e0e0e0"
-          strokeWidth="2"
+          stroke="#374151"
+          strokeWidth="1"
         />
         
         {/* Y轴标签 */}
         {yTickValues.map((tick, index) => (
           <text
             key={index}
-            x={padding.left - 10}
-            y={tick.y + 4}
+            x={padding.left - 8}
+            y={tick.y + 3}
             textAnchor="end"
-            className="text-xs fill-gray-600"
+            className="text-xs fill-gray-600 font-mono"
           >
             {formatNumber(tick.value)}
           </text>
@@ -170,9 +169,8 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
         <path
           d={pathData}
           fill="none"
-          stroke="#3b82f6"
+          stroke="#000000"
           strokeWidth="2"
-          className="drop-shadow-sm"
         />
         
         {/* 数据点 */}
@@ -181,40 +179,180 @@ const FansCountLineChart: React.FC<{ data: Array<{ date: string; fans_cnt: strin
             <circle
               cx={point.x}
               cy={point.y}
-              r="4"
-              fill="#3b82f6"
-              className="drop-shadow-sm"
+              r="3"
+              fill="#000000"
             />
-            {/* 悬停提示 */}
+            {/* 悬停区域 */}
             <circle
               cx={point.x}
               cy={point.y}
-              r="8"
+              r="6"
               fill="transparent"
-              className="hover:fill-blue-100 cursor-pointer"
+              className="hover:fill-gray-200 cursor-pointer"
             >
               <title>{`${point.date}: ${formatNumber(point.fans)}`}</title>
             </circle>
           </g>
         ))}
         
-        {/* X轴日期标签 (只显示第一个和最后一个) */}
+        {/* X轴日期标签 */}
         <text
           x={points[0]?.x || padding.left}
           y={padding.top + chartHeight + 20}
           textAnchor="middle"
-          className="text-xs fill-gray-600"
+          className="text-xs fill-gray-600 font-mono"
         >
-          {data[0]?.date}
+          {data[0]?.date?.substring(5)}
         </text>
         <text
           x={points[points.length - 1]?.x || padding.left + chartWidth}
           y={padding.top + chartHeight + 20}
           textAnchor="middle"
-          className="text-xs fill-gray-600"
+          className="text-xs fill-gray-600 font-mono"
         >
-          {data[data.length - 1]?.date}
+          {data[data.length - 1]?.date?.substring(5)}
         </text>
+      </svg>
+    </div>
+  );
+};
+
+// 日增长图表组件 - 黑白主题
+const DailyGrowthChart: React.FC<{ data: Array<{ date: string; fans_cnt: string }> }> = ({ data }) => {
+  if (!data || data.length === 0) return null;
+
+  const width = 700;
+  const height = 180;
+  const padding = { top: 15, right: 15, bottom: 35, left: 50 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  // 计算数据范围
+  const growthValues = data.map(d => parseInt(d.fans_cnt));
+  const minGrowth = Math.min(...growthValues);
+  const maxGrowth = Math.max(...growthValues);
+  const growthRange = Math.max(Math.abs(minGrowth), Math.abs(maxGrowth)) * 2;
+  const zeroY = padding.top + chartHeight / 2;
+
+  // 创建柱状图数据点
+  const bars = data.map((d, index) => {
+    const x = padding.left + (index / data.length) * chartWidth;
+    const barWidth = chartWidth / data.length * 0.6;
+    const growthValue = parseInt(d.fans_cnt);
+    const barHeight = Math.abs(growthValue) / (growthRange / 2) * (chartHeight / 2);
+    const y = growthValue >= 0 ? zeroY - barHeight : zeroY;
+    
+    return { 
+      x, 
+      y, 
+      width: barWidth, 
+      height: barHeight, 
+      date: d.date, 
+      growth: growthValue,
+      isPositive: growthValue >= 0
+    };
+  });
+
+  // Y轴刻度
+  const yTicks = 5;
+  const yTickValues = Array.from({ length: yTicks }, (_, i) => {
+    const value = (growthRange / 2) - (i / (yTicks - 1)) * growthRange;
+    return {
+      value,
+      y: padding.top + (i / (yTicks - 1)) * chartHeight
+    };
+  });
+
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg">
+      <svg width={width} height={height} className="overflow-visible">
+        {/* 网格线 */}
+        {yTickValues.map((tick, index) => (
+          <line
+            key={index}
+            x1={padding.left}
+            y1={tick.y}
+            x2={padding.left + chartWidth}
+            y2={tick.y}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+            opacity="0.5"
+          />
+        ))}
+        
+        {/* 零轴线 */}
+        <line
+          x1={padding.left}
+          y1={zeroY}
+          x2={padding.left + chartWidth}
+          y2={zeroY}
+          stroke="#374151"
+          strokeWidth="1.5"
+        />
+        
+        {/* 坐标轴 */}
+        <line
+          x1={padding.left}
+          y1={padding.top}
+          x2={padding.left}
+          y2={padding.top + chartHeight}
+          stroke="#374151"
+          strokeWidth="1"
+        />
+        <line
+          x1={padding.left}
+          y1={padding.top + chartHeight}
+          x2={padding.left + chartWidth}
+          y2={padding.top + chartHeight}
+          stroke="#374151"
+          strokeWidth="1"
+        />
+        
+        {/* Y轴标签 */}
+        {yTickValues.map((tick, index) => (
+          <text
+            key={index}
+            x={padding.left - 8}
+            y={tick.y + 3}
+            textAnchor="end"
+            className="text-xs fill-gray-600 font-mono"
+          >
+            {tick.value > 0 ? `+${Math.round(tick.value)}` : Math.round(tick.value)}
+          </text>
+        ))}
+        
+        {/* 柱状图 */}
+        {bars.map((bar, index) => (
+          <g key={index}>
+            <rect
+              x={bar.x}
+              y={bar.y}
+              width={bar.width}
+              height={bar.height}
+              fill={bar.isPositive ? "#000000" : "#6b7280"}
+              className="hover:opacity-70 cursor-pointer"
+            >
+              <title>{`${bar.date}: ${bar.growth >= 0 ? '+' : ''}${bar.growth}`}</title>
+            </rect>
+          </g>
+        ))}
+        
+        {/* X轴日期标签 (显示几个关键点) */}
+        {[0, Math.floor(bars.length / 2), bars.length - 1].map(index => {
+          const bar = bars[index];
+          if (!bar) return null;
+          return (
+            <text
+              key={index}
+              x={bar.x + bar.width / 2}
+              y={padding.top + chartHeight + 20}
+              textAnchor="middle"
+              className="text-xs fill-gray-600 font-mono"
+            >
+              {bar.date?.substring(5)}
+            </text>
+          );
+        })}
       </svg>
     </div>
   );
@@ -401,49 +539,23 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
         </CardContent>
       </Card>
 
-      {/* 增长率数据表 */}
+      {/* 日增长图表 */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
             <TrendingUp className="mr-2 h-4 w-4" />
-            增长率变化
+            日增长变化
           </CardTitle>
         </CardHeader>
         <CardContent>
           {fansTrendData && fansTrendData.fans_growth.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>日期</TableHead>
-                    <TableHead>日增长</TableHead>
-                    <TableHead>增长率</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fansTrendData.fans_growth.map((item) => {
-                    const growthValue = parseFloat(item.fans_growth);
-                    const growthRate = parseFloat(item.fans_growth_rate);
-                    
-                    return (
-                      <TableRow key={item.date}>
-                        <TableCell>{item.date}</TableCell>
-                        <TableCell className={`font-medium ${growthValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {growthValue >= 0 ? '+' : ''}{formatNumber(growthValue)}
-                        </TableCell>
-                        <TableCell className={`font-medium ${growthRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {growthRate >= 0 ? '+' : ''}{growthRate.toFixed(2)}%
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+            <div className="w-full h-64">
+              <DailyGrowthChart data={fansTrendData.fans_growth} />
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>暂无增长率数据</p>
+              <p>暂无日增长数据</p>
             </div>
           )}
         </CardContent>
