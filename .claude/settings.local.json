@@ -8,7 +8,10 @@
       "Bash(npm run dev:*)",
       "Bash(node:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Bash(pkill:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

@@ -54,7 +54,13 @@ import {
   Plus,
   CheckCircle,
 } from "lucide-react";
-import { apiClient, type DouyinInfluencer } from "@/lib/api";
+import { 
+  apiClient, 
+  type DouyinInfluencer, 
+  type DouyinKolFetchInfoRequest,
+  type DouyinKolInfo,
+  type DouyinKolListParams
+} from "@/lib/api";
 import { AvatarImage } from "@/components/ui/avatar-image";
 
 // 工具函数
@@ -173,9 +179,9 @@ export default function DouyinKolAnalysis() {
   const [sortBy, setSortBy] = useState("created_at");
   const [urlCount, setUrlCount] = useState(0);
   const [addResult, setAddResult] = useState<any>(null);
-
-  const [historyKOLs, setHistoryKOLs] =
-    useState<DouyinInfluencer[]>(mockHistoryKOLs);
+  const [historyKOLs, setHistoryKOLs] = useState<DouyinKolInfo[]>([]);
+  const [totalKOLs, setTotalKOLs] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // 计算URL数量
   useEffect(() => {
@@ -184,6 +190,32 @@ export default function DouyinKolAnalysis() {
       .filter((url) => url.trim() && url.includes("douyin.com"));
     setUrlCount(urls.length);
   }, [kolUrls]);
+
+  // 获取KOL历史数据
+  const fetchKOLHistory = async () => {
+    setLoading(true);
+    try {
+      const params: DouyinKolListParams = {
+        page: currentPage,
+        limit: 20,
+        nickname: searchKeyword || undefined,
+        sort_by_fans: sortBy === "follower_count"
+      };
+      
+      const response = await apiClient.getDouyinKolList(params);
+      setHistoryKOLs(response.kols);
+      setTotalKOLs(response.total);
+    } catch (error) {
+      console.error("获取KOL历史数据失败:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始加载和搜索条件变化时重新获取数据
+  useEffect(() => {
+    fetchKOLHistory();
+  }, [currentPage, searchKeyword, sortBy]);
 
   const handleBackClick = () => {
     navigate("/kol-search-analysis/douyin-search");
@@ -194,79 +226,116 @@ export default function DouyinKolAnalysis() {
     if (!kolUrls.trim()) return;
 
     setAddLoading(true);
-    // 模拟API调用
-    setTimeout(() => {
+    try {
       const urls = kolUrls
         .split("\n")
         .filter((url) => url.trim() && url.includes("douyin.com"));
 
+      const response = await apiClient.fetchDouyinKolInfo({ urls });
+      
       setAddResult({
-        total_urls: urls.length,
-        total_successful: urls.length - 1,
-        total_failed: 1,
-        successful_urls: urls.slice(0, -1),
-        failed_urls: [
-          { url: urls[urls.length - 1], error: "账号私密或不存在" },
-        ],
+        total_successful: response.total_successful,
+        total_failed: response.total_failed,
+        failed_urls: response.failed_urls,
+        celery_tasks: response.celery_tasks
       });
 
-      setAddLoading(false);
+      // 如果添加成功，刷新历史数据
+      if (response.total_successful > 0) {
+        setTimeout(() => {
+          fetchKOLHistory();
+        }, 1000);
+      }
 
       // 清空输入框
       setTimeout(() => {
         setKolUrls("");
         setAddResult(null);
-      }, 3000);
-    }, 2000);
+      }, 5000);
+    } catch (error) {
+      console.error("添加KOL失败:", error);
+      setAddResult({
+        total_successful: 0,
+        total_failed: urlCount,
+        failed_urls: ["添加失败: " + (error instanceof Error ? error.message : "未知错误")],
+        celery_tasks: []
+      });
+    } finally {
+      setAddLoading(false);
+    }
   };
 
   // 处理KOL点击，跳转到详情分析
-  const handleKOLClick = (kol: DouyinInfluencer) => {
+  const handleKOLClick = (kol: DouyinKolInfo) => {
+    // 转换DouyinKolInfo为DouyinInfluencer格式以保持兼容性，并包含新增字段
+    const transformedKol: DouyinInfluencer & {
+      mcn_id?: string;
+      mcn_name?: string;
+      kol_id?: string;
+      is_online?: boolean;
+      is_game_author?: boolean;
+      is_plan_author?: boolean;
+    } = {
+      id: kol.id,
+      task_id: kol.kol_id,
+      sec_user_id: kol.sec_user_id || "",
+      unique_id: kol.unique_id,
+      nickname: kol.nick_name,
+      avatar_url: kol.avatar_uri,
+      signature: `${kol.city} · ${kol.gender === "female" ? "女" : "男"}`,
+      follower_count: kol.follower_count,
+      following_count: 0, // API中没有此字段
+      aweme_count: 0, // API中没有此字段
+      total_favorited: 0, // API中没有此字段
+      gender: kol.gender === "female" ? 2 : 1,
+      age: kol.age || 0,
+      ip_location: kol.city || kol.province,
+      is_star: kol.is_star,
+      is_effect_artist: false,
+      is_gov_media_vip: false,
+      is_live_commerce: kol.e_commerce_enable,
+      is_xingtu_kol: kol.is_star,
+      with_commerce_entry: kol.e_commerce_enable,
+      with_fusion_shop_entry: false,
+      with_new_goods: false,
+      max_follower_count: kol.follower_count,
+      platform: "douyin",
+      created_at: kol.created_at,
+      updated_at: kol.updated_at,
+      share_url: `https://www.douyin.com/user/${kol.core_user_id}`,
+      // 新增字段
+      mcn_id: kol.mcn_id,
+      mcn_name: kol.mcn_name,
+      kol_id: kol.kol_id,
+      is_online: kol.is_online,
+      is_game_author: kol.is_game_author,
+      is_plan_author: kol.is_plan_author,
+      e_commerce_enable: kol.e_commerce_enable,
+    };
+    
     // 保存选中的KOL数据
-    sessionStorage.setItem("selectedKol", JSON.stringify(kol));
-    // 导航到详情分析页面，这里我们可以创建一个新的路由或者直接在当前页面展示详情
+    sessionStorage.setItem("selectedKol", JSON.stringify(transformedKol));
+    // 导航到详情分析页面
     navigate(`/kol-search-analysis/douyin-analysis/${kol.id}`);
   };
 
-  // 筛选KOL数据
-  const filteredKOLs = historyKOLs.filter(
-    (kol) =>
-      searchKeyword === "" ||
-      kol.nickname.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      kol.unique_id.toLowerCase().includes(searchKeyword.toLowerCase()),
-  );
-
-  // 排序KOL数据
-  const sortedKOLs = [...filteredKOLs].sort((a, b) => {
-    switch (sortBy) {
-      case "follower_count":
-        return b.follower_count - a.follower_count;
-      case "total_favorited":
-        return b.total_favorited - a.total_favorited;
-      case "aweme_count":
-        return b.aweme_count - a.aweme_count;
-      case "created_at":
-      default:
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-    }
-  });
+  // 显示的KOL数据（服务器端已经过滤和排序）
+  const displayKOLs = historyKOLs;
 
   // 获取总数据统计
   const totalStats = {
-    totalKOLs: historyKOLs.length,
+    totalKOLs: totalKOLs,
     totalFollowers: historyKOLs.reduce(
       (sum, kol) => sum + kol.follower_count,
       0,
     ),
-    totalLikes: historyKOLs.reduce((sum, kol) => sum + kol.total_favorited, 0),
-    avgFollowers: Math.round(
+    totalLikes: 0, // API中没有total_favorited字段
+    avgFollowers: historyKOLs.length > 0 ? Math.round(
       historyKOLs.reduce((sum, kol) => sum + kol.follower_count, 0) /
         historyKOLs.length,
-    ),
-    xingtuKOLs: historyKOLs.filter((kol) => kol.is_xingtu_kol).length,
-    liveCommerceKOLs: historyKOLs.filter((kol) => kol.is_live_commerce).length,
+    ) : 0,
+    xingtuKOLs: historyKOLs.filter((kol) => kol.is_star).length,
+    liveCommerceKOLs: historyKOLs.filter((kol) => kol.e_commerce_enable).length,
   };
 
   return (
@@ -474,7 +543,7 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                         </Select>
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        共 {filteredKOLs.length} 个KOL
+                        共 {totalKOLs} 个KOL
                       </Badge>
                     </div>
 
@@ -491,11 +560,11 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                                 <TableHead className="w-[100px]">
                                   粉丝数
                                 </TableHead>
-                                <TableHead className="w-[100px]">
-                                  作品数
+                                <TableHead className="w-[120px]">
+                                  MCN机构
                                 </TableHead>
                                 <TableHead className="w-[100px]">
-                                  获赞总数
+                                  是否带货
                                 </TableHead>
                                 <TableHead className="w-[120px]">
                                   标签
@@ -507,7 +576,14 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {sortedKOLs.map((kol) => (
+                              {loading ? (
+                                <TableRow>
+                                  <TableCell colSpan={7} className="text-center py-8">
+                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-muted-foreground mb-2" />
+                                    <p className="text-sm text-muted-foreground">加载中...</p>
+                                  </TableCell>
+                                </TableRow>
+                              ) : displayKOLs.map((kol) => (
                                 <TableRow
                                   key={kol.id}
                                   className="cursor-pointer hover:bg-gray-50"
@@ -516,22 +592,22 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                                   <TableCell>
                                     <div className="flex items-center space-x-3">
                                       <AvatarImage
-                                        src={kol.avatar_url || ""}
-                                        alt={kol.nickname}
-                                        fallbackText={kol.nickname.charAt(0)}
+                                        src={kol.avatar_uri || ""}
+                                        alt={kol.nick_name}
+                                        fallbackText={kol.nick_name.charAt(0)}
                                         size="md"
                                       />
                                       <div className="flex-1 min-w-0">
                                         <div className="font-medium text-sm">
-                                          {kol.nickname}
+                                          {kol.nick_name}
                                         </div>
                                         <div className="text-xs text-muted-foreground truncate">
                                           @{kol.unique_id}
                                         </div>
                                         <div className="text-xs text-muted-foreground mt-1">
-                                          📍 {kol.ip_location} ·{" "}
-                                          {kol.gender === 2 ? "女" : "男"} ·{" "}
-                                          {kol.age}岁
+                                          📍 {kol.city || kol.province} ·{" "}
+                                          {kol.gender === "female" ? "女" : "男"} ·{" "}
+                                          {kol.age || "未知"}岁
                                         </div>
                                       </div>
                                     </div>
@@ -539,27 +615,28 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                                   <TableCell className="font-medium">
                                     {formatNumber(kol.follower_count)}
                                   </TableCell>
-                                  <TableCell>{kol.aweme_count}</TableCell>
                                   <TableCell>
-                                    {formatNumber(kol.total_favorited)}
+                                    <div className="text-sm">
+                                      {kol.mcn_name || '-'}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge 
+                                      variant={kol.e_commerce_enable ? "default" : "outline"}
+                                      className="text-xs"
+                                    >
+                                      {kol.e_commerce_enable ? '是' : '否'}
+                                    </Badge>
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex flex-wrap gap-1">
-                                      {kol.is_xingtu_kol && (
+                                      {kol.is_star && (
                                         <Badge
                                           variant="default"
                                           className="text-xs"
                                         >
                                           <Star className="mr-1 h-2 w-2" />
                                           星图
-                                        </Badge>
-                                      )}
-                                      {kol.is_live_commerce && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="text-xs"
-                                        >
-                                          🛍️ 带货
                                         </Badge>
                                       )}
                                     </div>
@@ -576,7 +653,7 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                                       className="h-6 w-6 p-0"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(kol.share_url, "_blank");
+                                        window.open(`https://www.douyin.com/user/${kol.core_user_id}`, "_blank");
                                       }}
                                       title="访问主页"
                                     >
@@ -591,7 +668,7 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                       </CardContent>
                     </Card>
 
-                    {sortedKOLs.length === 0 && (
+                    {!loading && displayKOLs.length === 0 && (
                       <div className="text-center py-8">
                         <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                         <h3 className="text-lg font-medium mb-2">
@@ -643,12 +720,12 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                       <Card>
                         <CardContent className="pt-6">
                           <div className="text-center">
-                            <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                            <Star className="h-8 w-8 mx-auto mb-2 text-green-500" />
                             <div className="text-3xl font-bold">
-                              {formatNumber(totalStats.totalLikes)}
+                              {totalStats.xingtuKOLs}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              总获赞数
+                              星图达人数
                             </div>
                           </div>
                         </CardContent>
@@ -663,20 +740,6 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               平均粉丝数
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardContent className="pt-6">
-                          <div className="text-center">
-                            <Star className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
-                            <div className="text-3xl font-bold">
-                              {totalStats.xingtuKOLs}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              星图达人
                             </div>
                           </div>
                         </CardContent>
@@ -712,18 +775,17 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                               <span className="text-sm">星图达人</span>
                               <span className="font-medium">
                                 {totalStats.xingtuKOLs} (
-                                {(
+                                {totalStats.totalKOLs > 0 ? (
                                   (totalStats.xingtuKOLs /
                                     totalStats.totalKOLs) *
                                   100
-                                ).toFixed(1)}
+                                ).toFixed(1) : 0}
                                 %)
                               </span>
                             </div>
                             <Progress
                               value={
-                                (totalStats.xingtuKOLs / totalStats.totalKOLs) *
-                                100
+                                totalStats.totalKOLs > 0 ? (totalStats.xingtuKOLs / totalStats.totalKOLs) * 100 : 0
                               }
                               className="h-2"
                             />
@@ -732,19 +794,19 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                               <span className="text-sm">带货达人</span>
                               <span className="font-medium">
                                 {totalStats.liveCommerceKOLs} (
-                                {(
+                                {totalStats.totalKOLs > 0 ? (
                                   (totalStats.liveCommerceKOLs /
                                     totalStats.totalKOLs) *
                                   100
-                                ).toFixed(1)}
+                                ).toFixed(1) : 0}
                                 %)
                               </span>
                             </div>
                             <Progress
                               value={
-                                (totalStats.liveCommerceKOLs /
+                                totalStats.totalKOLs > 0 ? (totalStats.liveCommerceKOLs /
                                   totalStats.totalKOLs) *
-                                100
+                                100 : 0
                               }
                               className="h-2"
                             />
@@ -763,10 +825,10 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                           <div className="space-y-4">
                             {["北京", "上海", "广州", "深圳"].map((city) => {
                               const count = historyKOLs.filter(
-                                (kol) => kol.ip_location === city,
+                                (kol) => kol.city === city || kol.province === city,
                               ).length;
                               const percentage =
-                                (count / totalStats.totalKOLs) * 100;
+                                totalStats.totalKOLs > 0 ? (count / totalStats.totalKOLs) * 100 : 0;
                               return (
                                 <div
                                   key={city}

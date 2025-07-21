@@ -40,6 +40,14 @@ import {
   PieChart,
   Activity,
   Search,
+  PlayCircle,
+  Video,
+  Clock,
+  Flame,
+  Trophy,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
 } from "lucide-react";
 import { 
   apiClient, 
@@ -77,6 +85,88 @@ const formatNumber = (num: number): string => {
 
 const formatPercentage = (num: number): string => {
   return `${num.toFixed(1)}%`;
+};
+
+// 格式化价格
+const formatServicePrice = (price: number): string => {
+  return `¥${price.toLocaleString()}`;
+};
+
+// 格式化时间戳为日期
+const formatTimestamp = (timestamp: string): string => {
+  const date = new Date(parseInt(timestamp) * 1000);
+  return date.toLocaleDateString('zh-CN');
+};
+
+// 缓存管理器
+interface CacheItem<T> {
+  data: T;
+  timestamp: number;
+  ttl: number; // Time to live in milliseconds
+}
+
+class TabDataCache {
+  private cache: Map<string, CacheItem<any>> = new Map();
+  
+  // 默认缓存5分钟
+  private defaultTTL = 15 * 60 * 1000;
+  
+  set<T>(key: string, data: T, ttl?: number): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttl || this.defaultTTL
+    });
+  }
+  
+  get<T>(key: string): T | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    
+    // 检查是否过期
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return item.data as T;
+  }
+  
+  clear(): void {
+    this.cache.clear();
+  }
+  
+  clearByPattern(pattern: string): void {
+    const keys = Array.from(this.cache.keys());
+    keys.forEach(key => {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    });
+  }
+}
+
+// 创建全局缓存实例
+const tabCache = new TabDataCache();
+
+// 获取启用状态显示
+const getEnableStatus = (enabled: boolean): string => {
+  return enabled ? '✅ 已启用' : '❌ 已禁用';
+};
+
+// 获取开放状态显示
+const getOpenStatus = (isOpen: boolean): string => {
+  return isOpen ? '✅ 已开放' : '❌ 未开放';
+};
+
+// 获取在线状态显示
+const getOnlineStatus = (status: number): string => {
+  return status === 1 ? '🟢 在线' : '🔴 离线';
+};
+
+// 获取折扣状态显示
+const getDiscountStatus = (hasDiscount: boolean): string => {
+  return hasDiscount ? '🎯 有折扣' : '无折扣';
 };
 
 // 粉丝数量折线图组件 - 黑白主题
@@ -372,6 +462,18 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
 
   const fetchFansTrend = async () => {
     if (!kolId) return;
+    
+    // 生成缓存键（包含日期范围）
+    const cacheKey = `fantrend_${kolId}_${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`;
+    
+    // 检查缓存
+    const cachedData = tabCache.get<FansTrendResponse>(cacheKey);
+    if (cachedData) {
+      setFansTrendData(cachedData);
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
       const response = await apiClient.getKolFansTrend({
@@ -380,6 +482,9 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
         end_date: endDate.toISOString().split('T')[0]
       });
       setFansTrendData(response);
+      
+      // 存入缓存
+      tabCache.set(cacheKey, response);
     } catch (error) {
       console.error("获取粉丝趋势数据失败:", error);
     } finally {
@@ -575,11 +680,26 @@ const AudienceAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
   useEffect(() => {
     const fetchAudienceData = async () => {
       if (!kolId) return;
+      
+      // 生成缓存键
+      const cacheKey = `audience_${kolId}`;
+      
+      // 检查缓存
+      const cachedData = tabCache.get<AudiencePortraitResponse>(cacheKey);
+      if (cachedData) {
+        setAudienceData(cachedData);
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
       setError(null);
       try {
         const response = await apiClient.getKolAudiencePortrait({ kol_id: kolId });
         setAudienceData(response);
+        
+        // 存入缓存
+        tabCache.set(cacheKey, response);
       } catch (error) {
         console.error("获取受众画像数据失败:", error);
         setError(error instanceof Error ? error.message : "获取数据失败");
@@ -1142,10 +1262,25 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
   useEffect(() => {
     const fetchServicePricing = async () => {
       if (!kolId) return;
+      
+      // 生成缓存键
+      const cacheKey = `pricing_${kolId}`;
+      
+      // 检查缓存
+      const cachedData = tabCache.get<ServicePricingResponse>(cacheKey);
+      if (cachedData) {
+        setServicePricingData(cachedData);
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
       try {
         const response = await apiClient.getKolServicePricing({ kol_id: kolId });
         setServicePricingData(response);
+        
+        // 存入缓存
+        tabCache.set(cacheKey, response);
       } catch (error) {
         console.error("获取服务报价数据失败:", error);
       } finally {
@@ -1164,49 +1299,8 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
     );
   }
 
-  const formatPrice = (price: number) => {
-    return `¥${(price / 10000).toFixed(1)}万`;
-  };
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <DollarSign className="mr-2 h-4 w-4" />
-            服务报价表
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {servicePricingData && servicePricingData.service_pricing.length > 0 ? (
-            <div className="space-y-4">
-              {servicePricingData.service_pricing.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <div className="font-medium">{item.desc}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {item.enable ? '可接单' : '暂不可用'} • {item.settlement_desc}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-lg">{formatPrice(item.price)}</div>
-                    <div className="text-xs text-muted-foreground">预估价格</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>暂无服务报价数据</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* 行业标签 */}
       {servicePricingData?.industry_tags && servicePricingData.industry_tags.length > 0 && (
         <Card>
@@ -1228,46 +1322,92 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <Target className="mr-2 h-4 w-4" />
-            历史合作案例
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">美妆品牌A合作</div>
-                <Badge variant="secondary">2024年3月</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                15秒产品测评视频，获得120万播放量，点赞数8.5万
-              </p>
-              <div className="flex space-x-4 text-sm">
-                <span>播放量: 120万</span>
-                <span>点赞: 8.5万</span>
-                <span>评论: 3.2万</span>
-              </div>
-            </div>
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">服装品牌B直播</div>
-                <Badge variant="secondary">2024年2月</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                3小时直播带货，销售额达到85万，转化率2.3%
-              </p>
-              <div className="flex space-x-4 text-sm">
-                <span>观看人数: 15万</span>
-                <span>销售额: 85万</span>
-                <span>转化率: 2.3%</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 服务报价方案 */}
+      <div className="space-y-4">
+        {servicePricingData && servicePricingData.service_pricing.length > 0 ? (
+          servicePricingData.service_pricing.map((item, index) => (
+            <Card key={index} className="border-l-4 border-l-blue-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  <span className="flex items-center">
+                    <DollarSign className="mr-2 h-5 w-5" />
+                    {item.desc}
+                  </span>
+                  <Badge variant={item.enable ? "default" : "secondary"}>
+                    {item.enable ? "可接单" : "暂不可用"}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">价格</div>
+                    <div className="text-lg font-bold text-green-600">
+                      {formatServicePrice(item.price || 0)}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">结算方式</div>
+                    <div className="text-sm">{item.settlement_desc || "固定价格"}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">字段类型</div>
+                    <div className="text-sm">{item.field || "price"}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">启用状态</div>
+                    <div className="text-sm">{getEnableStatus(item.enable)}</div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">开放状态</div>
+                    <div className="text-sm">{getOpenStatus(item.is_open)}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">在线状态</div>
+                    <div className="text-sm">{getOnlineStatus(item.online_status)}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">折扣状态</div>
+                    <div className="text-sm">{getDiscountStatus(item.has_discount)}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-gray-600">视频类型</div>
+                    <div className="text-sm">类型 {item.video_type}</div>
+                  </div>
+                </div>
+
+                {item.start_time && item.end_time && (
+                  <>
+                    <Separator />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium text-gray-600">开始时间</div>
+                        <div className="text-sm">{formatTimestamp(item.start_time)}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium text-gray-600">结束时间</div>
+                        <div className="text-sm">{formatTimestamp(item.end_time)}</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="text-center py-8 text-muted-foreground">
+              <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无服务报价数据</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
@@ -1276,10 +1416,23 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
 const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
   const [videoPerformanceData, setVideoPerformanceData] = useState<VideoPerformanceResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchVideoPerformance = async () => {
       if (!kolId) return;
+      
+      // 生成缓存键
+      const cacheKey = `video_${kolId}_1_3`;
+      
+      // 检查缓存
+      const cachedData = tabCache.get<VideoPerformanceResponse>(cacheKey);
+      if (cachedData) {
+        setVideoPerformanceData(cachedData);
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
       try {
         const response = await apiClient.getKolVideoPerformance({
@@ -1288,6 +1441,9 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
           range: "_3"
         });
         setVideoPerformanceData(response);
+        
+        // 存入缓存
+        tabCache.set(cacheKey, response);
       } catch (error) {
         console.error("获取视频表现数据失败:", error);
       } finally {
@@ -1298,6 +1454,28 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
     fetchVideoPerformance();
   }, [kolId]);
 
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('zh-CN');
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const getVideoThumbnail = (coverUri: string) => {
+    if (!coverUri) return null;
+    return `https://p3-pc.douyinpic.com/img/${coverUri}~c5_300x400.jpeg`;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -1305,128 +1483,502 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       </div>
     );
   }
+
+  const overview = videoPerformanceData?.video_performance_overview;
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Eye className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">
-                {videoPerformanceData?.video_performance_overview?.play_mid ? 
-                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.play_mid)) : '-'}
-              </div>
-              <div className="text-sm text-muted-foreground">平均播放量</div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-4">
+      {/* 总体表现指标 - 黑白小卡片 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <Eye className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.play_mid ? formatNumber(parseInt(overview.play_mid)) : '-'}
+          </div>
+          <div className="text-xs text-gray-500">中位播放量</div>
+        </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Heart className="h-8 w-8 mx-auto mb-2 text-red-500" />
-              <div className="text-2xl font-bold">
-                {videoPerformanceData?.video_performance_overview?.like_avg ? 
-                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.like_avg)) : '-'}
-              </div>
-              <div className="text-sm text-muted-foreground">平均点赞数</div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <Heart className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.like_avg ? formatNumber(parseInt(overview.like_avg)) : '-'}
+          </div>
+          <div className="text-xs text-gray-500">平均点赞数</div>
+        </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">
-                {videoPerformanceData?.video_performance_overview?.comment_avg ? 
-                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.comment_avg)) : '-'}
-              </div>
-              <div className="text-sm text-muted-foreground">平均评论数</div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <MessageCircle className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.comment_avg ? formatNumber(parseInt(overview.comment_avg)) : '-'}
+          </div>
+          <div className="text-xs text-gray-500">平均评论数</div>
+        </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Share2 className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">1.8万</div>
-              <div className="text-sm text-muted-foreground">平均分享数</div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <Share2 className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.share_avg ? formatNumber(parseInt(overview.share_avg)) : '-'}
+          </div>
+          <div className="text-xs text-gray-500">平均分享数</div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <PlayCircle className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.avg_duration ? formatDuration(parseInt(overview.avg_duration)) : '-'}
+          </div>
+          <div className="text-xs text-gray-500">平均时长</div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <TrendingUp className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+          <div className="text-lg font-bold text-black">
+            {overview?.interact_rate?.value ? `${(overview.interact_rate.value / 100).toFixed(1)}%` : '-'}
+          </div>
+          <div className="text-xs text-gray-500">互动率</div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            最近热门视频表现
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>视频标题</TableHead>
-                <TableHead>发布时间</TableHead>
-                <TableHead>播放量</TableHead>
-                <TableHead>点赞数</TableHead>
-                <TableHead>评论数</TableHead>
-                <TableHead>完播率</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                {
-                  title: "春季护肤小贴士分享",
-                  date: "2024-03-15",
-                  views: "256万",
-                  likes: "18.5万",
-                  comments: "5.2万",
-                  completion: "68%",
-                },
-                {
-                  title: "今日穿搭推荐",
-                  date: "2024-03-14",
-                  views: "189万",
-                  likes: "14.2万",
-                  comments: "3.8万",
-                  completion: "72%",
-                },
-                {
-                  title: "美食制作教程",
-                  date: "2024-03-13",
-                  views: "145万",
-                  likes: "12.8万",
-                  comments: "4.1万",
-                  completion: "65%",
-                },
-              ].map((video, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{video.title}</TableCell>
-                  <TableCell>{video.date}</TableCell>
-                  <TableCell>{video.views}</TableCell>
-                  <TableCell>{video.likes}</TableCell>
-                  <TableCell>{video.comments}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        parseInt(video.completion) > 70
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {video.completion}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* CPM 预期收益 - 黑白主题 */}
+      {overview?.expect_cpm && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-medium text-black mb-3 flex items-center">
+            <DollarSign className="mr-2 h-4 w-4 text-gray-600" />
+            CPM 预期收益
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-gray-50 rounded-lg border">
+              <div className="text-base font-bold text-black">
+                ¥{overview.expect_cpm.cpm_1_20 || '-'}
+              </div>
+              <div className="text-xs text-gray-500">1-20万粉丝</div>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg border">
+              <div className="text-base font-bold text-black">
+                ¥{overview.expect_cpm.cpm_21_60 || '-'}
+              </div>
+              <div className="text-xs text-gray-500">21-60万粉丝</div>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg border">
+              <div className="text-base font-bold text-black">
+                ¥{overview.expect_cpm.cpm_60 || '-'}
+              </div>
+              <div className="text-xs text-gray-500">60万+粉丝</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 个人热门视频卡片 - 带视频预览 */}
+      {videoPerformanceData?.personal_hot_videos && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-medium text-black mb-3 flex items-center">
+            <Flame className="mr-2 h-4 w-4 text-gray-600" />
+            个人热门视频
+          </h3>
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* 视频缩略图 */}
+            <div className="w-full md:w-48 flex-shrink-0">
+              <div className="relative aspect-[9/16] bg-gray-100 rounded-lg overflow-hidden">
+                {getVideoThumbnail(videoPerformanceData.personal_hot_videos.cover_uri) ? (
+                  <img
+                    src={getVideoThumbnail(videoPerformanceData.personal_hot_videos.cover_uri)}
+                    alt="视频封面"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <Video className="h-8 w-8 text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <PlayCircle className="h-12 w-12 text-white opacity-80" />
+                </div>
+                <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  {formatDuration(Math.floor(videoPerformanceData.personal_hot_videos.duration))}
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full mt-2"
+                onClick={() => window.open(videoPerformanceData.personal_hot_videos.url, '_blank')}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                观看视频
+              </Button>
+            </div>
+
+            {/* 视频信息 */}
+            <div className="flex-1">
+              <h4 className="font-medium text-black mb-2 line-clamp-2" title={videoPerformanceData.personal_hot_videos.title}>
+                {videoPerformanceData.personal_hot_videos.title}
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-500">发布时间:</span>
+                  <div className="font-medium text-black">{formatDate(parseInt(videoPerformanceData.personal_hot_videos.create_time))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">播放量:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.personal_hot_videos.stats.watch_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">点赞数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.personal_hot_videos.stats.like_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">评论数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.personal_hot_videos.stats.comment_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">分享数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.personal_hot_videos.stats.share_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">互动率:</span>
+                  <div className="font-bold text-black">{(videoPerformanceData.personal_hot_videos.stats.interact_rate * 100).toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 最新视频卡片 - 带视频预览 */}
+      {videoPerformanceData?.newest_videos && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-medium text-black mb-3 flex items-center">
+            <Clock className="mr-2 h-4 w-4 text-gray-600" />
+            最新视频
+          </h3>
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* 视频缩略图 */}
+            <div className="w-full md:w-48 flex-shrink-0">
+              <div className="relative aspect-[9/16] bg-gray-100 rounded-lg overflow-hidden">
+                {getVideoThumbnail(videoPerformanceData.newest_videos.cover_uri) ? (
+                  <img
+                    src={getVideoThumbnail(videoPerformanceData.newest_videos.cover_uri)}
+                    alt="视频封面"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <Video className="h-8 w-8 text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <PlayCircle className="h-12 w-12 text-white opacity-80" />
+                </div>
+                <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  {formatDuration(Math.floor(videoPerformanceData.newest_videos.duration))}
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full mt-2"
+                onClick={() => window.open(videoPerformanceData.newest_videos.url, '_blank')}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                观看视频
+              </Button>
+            </div>
+
+            {/* 视频信息 */}
+            <div className="flex-1">
+              <h4 className="font-medium text-black mb-2 line-clamp-2" title={videoPerformanceData.newest_videos.title}>
+                {videoPerformanceData.newest_videos.title}
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-500">发布时间:</span>
+                  <div className="font-medium text-black">{formatDate(parseInt(videoPerformanceData.newest_videos.create_time))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">播放量:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.newest_videos.stats.watch_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">点赞数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.newest_videos.stats.like_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">评论数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.newest_videos.stats.comment_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">分享数:</span>
+                  <div className="font-bold text-black">{formatNumber(parseInt(videoPerformanceData.newest_videos.stats.share_cnt))}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">互动率:</span>
+                  <div className="font-bold text-black">{(videoPerformanceData.newest_videos.stats.interact_rate * 100).toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 最新视频下拉表格 */}
+      {videoPerformanceData?.latest_videos && videoPerformanceData.latest_videos.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+            onClick={() => toggleSection('latest_videos')}
+          >
+            <h3 className="text-base font-medium text-black flex items-center">
+              <Video className="mr-2 h-4 w-4 text-gray-600" />
+              最新视频 ({videoPerformanceData.latest_videos.length})
+            </h3>
+            {expandedSections['latest_videos'] ? (
+              <ChevronUp className="h-4 w-4 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedSections['latest_videos'] && (
+            <div className="border-t">
+              <div className="rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[100px]">时长</TableHead>
+                      <TableHead className="w-[120px]">播放量</TableHead>
+                      <TableHead className="w-[100px]">点赞数</TableHead>
+                      <TableHead className="w-[100px]">评论数</TableHead>
+                      <TableHead className="w-[100px]">分享数</TableHead>
+                      <TableHead className="w-[80px]">操作</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {videoPerformanceData.latest_videos.slice(0, 10).map((video) => (
+                      <TableRow key={video.item_id} className="hover:bg-gray-50">
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                              {getVideoThumbnail(video.item_cover) ? (
+                                <img
+                                  src={getVideoThumbnail(video.item_cover)}
+                                  alt="视频封面"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center h-full">
+                                  <Video className="h-4 w-4 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-black truncate" title={video.title}>
+                                {video.title}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {formatDate(video.create_timestamp)}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{formatDuration(video.duration)}</TableCell>
+                        <TableCell className="text-sm font-medium">{formatNumber(video.play)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.like)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.comment)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.share)}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(video.url, '_blank')}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 星图视频下拉表格 */}
+      {videoPerformanceData?.latest_star_videos && videoPerformanceData.latest_star_videos.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+            onClick={() => toggleSection('star_videos')}
+          >
+            <h3 className="text-base font-medium text-black flex items-center">
+              <Star className="mr-2 h-4 w-4 text-gray-600" />
+              星图视频 ({videoPerformanceData.latest_star_videos.length})
+            </h3>
+            {expandedSections['star_videos'] ? (
+              <ChevronUp className="h-4 w-4 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedSections['star_videos'] && (
+            <div className="border-t">
+              <div className="rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[100px]">时长</TableHead>
+                      <TableHead className="w-[120px]">播放量</TableHead>
+                      <TableHead className="w-[100px]">点赞数</TableHead>
+                      <TableHead className="w-[100px]">评论数</TableHead>
+                      <TableHead className="w-[100px]">分享数</TableHead>
+                      <TableHead className="w-[80px]">操作</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {videoPerformanceData.latest_star_videos.slice(0, 10).map((video) => (
+                      <TableRow key={video.item_id} className="hover:bg-gray-50">
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                              {getVideoThumbnail(video.item_cover) ? (
+                                <img
+                                  src={getVideoThumbnail(video.item_cover)}
+                                  alt="视频封面"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center h-full">
+                                  <Video className="h-4 w-4 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-black truncate" title={video.title}>
+                                {video.title}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {formatDate(video.create_timestamp)}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{formatDuration(video.duration)}</TableCell>
+                        <TableCell className="text-sm font-medium">{formatNumber(video.play)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.like)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.comment)}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(video.share)}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(video.url, '_blank')}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 代表作视频下拉表格 */}
+      {videoPerformanceData?.masterpiece_videos && videoPerformanceData.masterpiece_videos.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+            onClick={() => toggleSection('masterpiece_videos')}
+          >
+            <h3 className="text-base font-medium text-black flex items-center">
+              <Trophy className="mr-2 h-4 w-4 text-gray-600" />
+              代表作视频 ({videoPerformanceData.masterpiece_videos.length})
+            </h3>
+            {expandedSections['masterpiece_videos'] ? (
+              <ChevronUp className="h-4 w-4 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedSections['masterpiece_videos'] && (
+            <div className="border-t">
+              <div className="rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[100px]">时长</TableHead>
+                      <TableHead className="w-[120px]">播放量</TableHead>
+                      <TableHead className="w-[100px]">点赞数</TableHead>
+                      <TableHead className="w-[100px]">评论数</TableHead>
+                      <TableHead className="w-[100px]">互动率</TableHead>
+                      <TableHead className="w-[80px]">操作</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {videoPerformanceData.masterpiece_videos.map((video) => (
+                      <TableRow key={video.id} className="hover:bg-gray-50">
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                              {getVideoThumbnail(video.cover_uri) ? (
+                                <img
+                                  src={getVideoThumbnail(video.cover_uri)}
+                                  alt="视频封面"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center h-full">
+                                  <Video className="h-4 w-4 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-black truncate" title={video.title}>
+                                {video.title}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {formatDate(parseInt(video.create_time))}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{formatDuration(Math.floor(video.duration))}</TableCell>
+                        <TableCell className="text-sm font-medium">{formatNumber(parseInt(video.stats.watch_cnt))}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(parseInt(video.stats.like_cnt))}</TableCell>
+                        <TableCell className="text-sm">{formatNumber(parseInt(video.stats.comment_cnt))}</TableCell>
+                        <TableCell>
+                          <Badge variant={video.stats.interact_rate > 0.03 ? "default" : "secondary"} className="text-xs">
+                            {(video.stats.interact_rate * 100).toFixed(1)}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(video.url, '_blank')}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -1448,6 +2000,10 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
     try {
       const response = await apiClient.getKolInfluenceMetrics({ kol_id: kolId });
       setData(response);
+      
+      // 存入缓存
+      const cacheKey = `performance_${kolId}`;
+      tabCache.set(cacheKey, response);
     } catch (error) {
       console.error("获取影响力指标失败:", error);
       setError(error instanceof Error ? error.message : "获取数据失败");
@@ -1457,9 +2013,25 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
   };
 
   useEffect(() => {
-    if (kolId) {
-      fetchInfluenceMetrics();
-    }
+    const fetchDataWithCache = async () => {
+      if (!kolId) return;
+      
+      // 生成缓存键
+      const cacheKey = `performance_${kolId}`;
+      
+      // 检查缓存
+      const cachedData = tabCache.get<InfluenceMetricsResponse>(cacheKey);
+      if (cachedData) {
+        setData(cachedData);
+        setLoading(false);
+        return;
+      }
+      
+      // 如果没有缓存，从API获取
+      await fetchInfluenceMetrics();
+    };
+    
+    fetchDataWithCache();
   }, [kolId]);
 
   if (loading) {
@@ -1489,79 +2061,107 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
     );
   }
 
+  const renderMetricCard = (
+    title: string,
+    icon: React.ReactNode,
+    metricData: any,
+    colorClass: string
+  ) => {
+    if (!metricData) return null;
+
+    const trendUp = metricData.link_relative_ratio > 0;
+    const trendPercent = Math.abs(metricData.link_relative_ratio * 100);
+
+    return (
+      <Card className="hover:shadow-md transition-shadow">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center justify-between">
+            <span className="flex items-center">
+              {icon}
+              {title}
+            </span>
+            <Badge
+              variant={trendUp ? "default" : "secondary"}
+              className={`text-xs ${trendUp ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+            >
+              {trendUp ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+              {trendPercent.toFixed(1)}%
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="text-center">
+              <div className={`text-3xl font-bold ${colorClass}`}>
+                {metricData.value ? metricData.value.toFixed(1) : '暂无'}
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-1">
+                <span className="text-xs text-muted-foreground">
+                  行业均值: {metricData.avg_value?.toFixed(1) || '-'}
+                </span>
+              </div>
+            </div>
+            
+            <Separator className="my-2" />
+            
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-center">
+                <div className="text-muted-foreground">排名</div>
+                <div className="font-medium">#{metricData.rank || '-'}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-muted-foreground">超越</div>
+                <div className="font-medium text-primary">
+                  {((1 - metricData.rank_percent) * 100).toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* 达人综合评分 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <Star className="mr-2 h-4 w-4" />
-              合作指数
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600">
-                {data?.cooperate_index?.toFixed(1) || '暂无'}
-              </div>
-              <div className="text-sm text-muted-foreground">合作潜力评分</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <Activity className="mr-2 h-4 w-4" />
-              CP指数
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">
-                {data?.cp_index?.toFixed(1) || '暂无'}
-              </div>
-              <div className="text-sm text-muted-foreground">内容传播指数</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              链接转化指数
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">
-                {data?.link_convert_index?.toFixed(1) || '暂无'}
-              </div>
-              <div className="text-sm text-muted-foreground">转化能力评分</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center">
-              <Award className="mr-2 h-4 w-4" />
-              传播指数
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">
-                {data?.link_spread_index?.toFixed(1) || '暂无'}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                内容传播力评分
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {renderMetricCard(
+          "合作指数",
+          <Star className="mr-2 h-4 w-4 text-yellow-600" />,
+          data?.cooperate_index,
+          "text-yellow-600"
+        )}
+        {renderMetricCard(
+          "CP指数",
+          <Activity className="mr-2 h-4 w-4 text-green-600" />,
+          data?.cp_index,
+          "text-green-600"
+        )}
+        {renderMetricCard(
+          "转化指数",
+          <TrendingUp className="mr-2 h-4 w-4 text-purple-600" />,
+          data?.link_convert_index,
+          "text-purple-600"
+        )}
+        {renderMetricCard(
+          "传播指数",
+          <Award className="mr-2 h-4 w-4 text-blue-600" />,
+          data?.link_spread_index,
+          "text-blue-600"
+        )}
+        {renderMetricCard(
+          "购物指数",
+          <DollarSign className="mr-2 h-4 w-4 text-orange-600" />,
+          data?.link_shopping_index,
+          "text-orange-600"
+        )}
+        {renderMetricCard(
+          "星图指数",
+          <Star className="mr-2 h-4 w-4 text-pink-600" />,
+          data?.link_star_index,
+          "text-pink-600"
+        )}
       </div>
 
       {/* 达人能力雷达图 */}
@@ -1576,26 +2176,74 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {[
-                { skill: "合作指数", score: data?.cooperate_index || 0 },
-                { skill: "CP指数", score: data?.cp_index || 0 },
-                { skill: "链接转化指数", score: data?.link_convert_index || 0 },
-                { skill: "传播指数", score: data?.link_spread_index || 0 },
-                { skill: "购物指数", score: data?.link_shopping_index || 0 },
+                { 
+                  skill: "合作指数", 
+                  score: data?.cooperate_index?.value || 0, 
+                  rank: data?.cooperate_index?.rank || '-', 
+                  avgValue: data?.cooperate_index?.avg_value || 0,
+                  linkRatio: data?.cooperate_index?.link_relative_ratio || 0,
+                  rankPercent: data?.cooperate_index?.rank_percent || 0
+                },
+                { 
+                  skill: "CP指数", 
+                  score: data?.cp_index?.value || 0, 
+                  rank: data?.cp_index?.rank || '-', 
+                  avgValue: data?.cp_index?.avg_value || 0,
+                  linkRatio: data?.cp_index?.link_relative_ratio || 0,
+                  rankPercent: data?.cp_index?.rank_percent || 0
+                },
+                { 
+                  skill: "转化指数", 
+                  score: data?.link_convert_index?.value || 0, 
+                  rank: data?.link_convert_index?.rank || '-', 
+                  avgValue: data?.link_convert_index?.avg_value || 0,
+                  linkRatio: data?.link_convert_index?.link_relative_ratio || 0,
+                  rankPercent: data?.link_convert_index?.rank_percent || 0
+                },
+                { 
+                  skill: "传播指数", 
+                  score: data?.link_spread_index?.value || 0, 
+                  rank: data?.link_spread_index?.rank || '-', 
+                  avgValue: data?.link_spread_index?.avg_value || 0,
+                  linkRatio: data?.link_spread_index?.link_relative_ratio || 0,
+                  rankPercent: data?.link_spread_index?.rank_percent || 0
+                },
+                { 
+                  skill: "购物指数", 
+                  score: data?.link_shopping_index?.value || 0, 
+                  rank: data?.link_shopping_index?.rank || '-', 
+                  avgValue: data?.link_shopping_index?.avg_value || 0,
+                  linkRatio: data?.link_shopping_index?.link_relative_ratio || 0,
+                  rankPercent: data?.link_shopping_index?.rank_percent || 0
+                },
+                { 
+                  skill: "星图指数", 
+                  score: data?.link_star_index?.value || 0, 
+                  rank: data?.link_star_index?.rank || '-', 
+                  avgValue: data?.link_star_index?.avg_value || 0,
+                  linkRatio: data?.link_star_index?.link_relative_ratio || 0,
+                  rankPercent: data?.link_star_index?.rank_percent || 0
+                },
               ].map((item) => (
                 <div key={item.skill} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>{item.skill}</span>
-                    <span className="font-medium">{item.score.toFixed(1)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{item.score.toFixed(1)}</span>
+                      {item.linkRatio !== 0 && (
+                        <span className={`text-xs flex items-center ${item.linkRatio > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {item.linkRatio > 0 ? '↑' : '↓'}{Math.abs(item.linkRatio * 100).toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <Progress value={Math.min(item.score, 100)} className="h-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>排名: #{item.rank}</span>
+                    <span>超越 {((1 - item.rankPercent) * 100).toFixed(1)}%</span>
+                  </div>
                 </div>
               ))}
-            </div>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <PieChart className="h-12 w-12 mx-auto mb-2" />
-                <p>影响力雷达图</p>
-              </div>
             </div>
           </div>
         </CardContent>
@@ -1620,6 +2268,10 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
     try {
       const response = await apiClient.getKolHotCommentWords({ kol_id: kolId });
       setData(response);
+      
+      // 存入缓存
+      const cacheKey = `wordcloud_${kolId}`;
+      tabCache.set(cacheKey, response);
     } catch (error) {
       console.error("获取热门评论词汇失败:", error);
       setError(error instanceof Error ? error.message : "获取数据失败");
@@ -1629,9 +2281,25 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
   };
 
   useEffect(() => {
-    if (kolId) {
-      fetchHotCommentWords();
-    }
+    const fetchDataWithCache = async () => {
+      if (!kolId) return;
+      
+      // 生成缓存键
+      const cacheKey = `wordcloud_${kolId}`;
+      
+      // 检查缓存
+      const cachedData = tabCache.get<HotCommentWordsResponse>(cacheKey);
+      if (cachedData) {
+        setData(cachedData);
+        setLoading(false);
+        return;
+      }
+      
+      // 如果没有缓存，从API获取
+      await fetchHotCommentWords();
+    };
+    
+    fetchDataWithCache();
   }, [kolId]);
 
   if (loading) {
@@ -1661,8 +2329,12 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
     );
   }
 
-  const hotWords = data?.hot_words || [];
-  const wordFrequency = data?.word_frequency || [];
+  const hotCommentWords = data?.hot_comment_words || [];
+  
+  // Calculate max hot_rate for scaling
+  const maxHotRate = hotCommentWords.length > 0 
+    ? Math.max(...hotCommentWords.map((word: any) => word.hot_rate))
+    : 1000;
 
   return (
     <div className="space-y-6">
@@ -1671,24 +2343,31 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
           <CardHeader>
             <CardTitle className="text-base flex items-center">
               <Zap className="mr-2 h-4 w-4 text-yellow-500" />
-              热门评论词汇
+              热门评论词云
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {hotWords.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {hotWords.map((word: any, index: number) => (
-                  <Badge
-                    key={index}
-                    variant={index < 5 ? "default" : "secondary"}
-                    className="text-sm"
-                    style={{
-                      fontSize: `${Math.max(0.8, Math.min(1.5, (word.frequency || 10) / 100))}rem`
-                    }}
-                  >
-                    {word.word || word}
-                  </Badge>
-                ))}
+            {hotCommentWords.length > 0 ? (
+              <div className="flex flex-wrap gap-2 justify-center items-center min-h-[200px]">
+                {hotCommentWords.map((word: any, index: number) => {
+                  const sizeRatio = word.hot_rate / maxHotRate;
+                  const fontSize = 0.8 + (sizeRatio * 1.5); // Font size between 0.8rem and 2.3rem
+                  
+                  return (
+                    <Badge
+                      key={index}
+                      variant={index < 3 ? "default" : index < 6 ? "secondary" : "outline"}
+                      className="cursor-pointer hover:shadow-md transition-all"
+                      style={{
+                        fontSize: `${fontSize}rem`,
+                        padding: `${0.25 + sizeRatio * 0.5}rem ${0.5 + sizeRatio * 0.75}rem`
+                      }}
+                    >
+                      {word.comment_token}
+                      <span className="ml-1 text-xs opacity-70">({word.hot_rate})</span>
+                    </Badge>
+                  );
+                })}
               </div>
             ) : (
               <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
@@ -1705,26 +2384,33 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
           <CardHeader>
             <CardTitle className="text-base flex items-center">
               <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
-              词频统计排行
+              热词排行榜
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {wordFrequency.length > 0 ? (
-                wordFrequency.slice(0, 10).map((item: any, index: number) => (
+              {hotCommentWords.length > 0 ? (
+                hotCommentWords.slice(0, 10).map((item: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between hover:bg-gray-50 p-2 rounded transition-colors"
                   >
                     <div className="flex items-center">
-                      <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
+                      <span className={`text-xs rounded px-2 py-1 mr-3 font-medium ${
+                        index < 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700'
+                      }`}>
                         {index + 1}
                       </span>
-                      <span className="text-sm">{item.word}</span>
+                      <span className="text-sm font-medium">{item.comment_token}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-sm">{item.count || item.frequency}</span>
-                      <TrendingUp className="h-3 w-3 text-green-500" />
+                    <div className="flex items-center space-x-3">
+                      <Progress 
+                        value={(item.hot_rate / maxHotRate) * 100} 
+                        className="h-2 w-20"
+                      />
+                      <span className="font-bold text-sm text-primary min-w-[50px] text-right">
+                        {item.hot_rate}
+                      </span>
                     </div>
                   </div>
                 ))
@@ -1737,6 +2423,46 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* 词云统计概览 */}
+      {hotCommentWords.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center">
+              <BarChart3 className="mr-2 h-4 w-4 text-indigo-500" />
+              热词分析概览
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-2xl font-bold text-gray-700">
+                  {hotCommentWords.length}
+                </div>
+                <div className="text-sm text-muted-foreground">热词总数</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-700">
+                  {hotCommentWords[0]?.comment_token || '-'}
+                </div>
+                <div className="text-sm text-muted-foreground">最热词汇</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-700">
+                  {hotCommentWords[0]?.hot_rate || 0}
+                </div>
+                <div className="text-sm text-muted-foreground">最高热度</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-700">
+                  {Math.round(hotCommentWords.reduce((sum, word) => sum + word.hot_rate, 0) / hotCommentWords.length) || 0}
+                </div>
+                <div className="text-sm text-muted-foreground">平均热度</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {data && data.topic_stats && (
         <Card>
@@ -1819,6 +2545,11 @@ export default function DouyinKolAnalysisDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 当KOL ID变化时，清除相关缓存
+    if (kolId) {
+      tabCache.clearByPattern(kolId);
+    }
+    
     // 首先尝试从sessionStorage获取数据
     const storedKol = sessionStorage.getItem("selectedKol");
     if (storedKol) {
@@ -1994,21 +2725,54 @@ export default function DouyinKolAnalysisDetail() {
                   </div>
                   <div>
                     <div className="font-medium text-lg">
-                      {kolData.aweme_count || '-'}
+                      {(() => {
+                        const storedKol = sessionStorage.getItem("selectedKol");
+                        if (storedKol) {
+                          try {
+                            const extendedData = JSON.parse(storedKol);
+                            return extendedData.mcn_name || '-';
+                          } catch (e) {
+                            return '-';
+                          }
+                        }
+                        return '-';
+                      })()}
                     </div>
-                    <div className="text-muted-foreground">作品数</div>
+                    <div className="text-muted-foreground">MCN机构</div>
                   </div>
                   <div>
                     <div className="font-medium text-lg">
-                      {kolData.total_favorited ? formatNumber(kolData.total_favorited) : '-'}
+                      {(() => {
+                        const storedKol = sessionStorage.getItem("selectedKol");
+                        if (storedKol) {
+                          try {
+                            const extendedData = JSON.parse(storedKol);
+                            return extendedData.is_star ? '是' : '否';
+                          } catch (e) {
+                            return kolData.is_xingtu_kol ? '是' : '否';
+                          }
+                        }
+                        return kolData.is_xingtu_kol ? '是' : '否';
+                      })()}
                     </div>
-                    <div className="text-muted-foreground">获赞总数</div>
+                    <div className="text-muted-foreground">是否星图</div>
                   </div>
                   <div>
                     <div className="font-medium text-lg">
-                      {kolData.is_xingtu_kol ? 'A+' : 'B'}
+                      {(() => {
+                        const storedKol = sessionStorage.getItem("selectedKol");
+                        if (storedKol) {
+                          try {
+                            const extendedData = JSON.parse(storedKol);
+                            return extendedData.e_commerce_enable ? '是' : '否';
+                          } catch (e) {
+                            return kolData.is_live_commerce ? '是' : '否';
+                          }
+                        }
+                        return kolData.is_live_commerce ? '是' : '否';
+                      })()}
                     </div>
-                    <div className="text-muted-foreground">星图等级</div>
+                    <div className="text-muted-foreground">是否带货</div>
                   </div>
                 </div>
 
@@ -2114,16 +2878,89 @@ export default function DouyinKolAnalysisDetail() {
                       <div className="font-medium">{kolData.unique_id}</div>
                     </div>
                     <div>
-                      <div className="text-gray-500">关注数</div>
-                      <div className="font-medium">{kolData.following_count || '-'}</div>
+                      <div className="text-gray-500">KOL ID</div>
+                      <div className="font-medium">
+                        {(() => {
+                          const storedKol = sessionStorage.getItem("selectedKol");
+                          if (storedKol) {
+                            try {
+                              const extendedData = JSON.parse(storedKol);
+                              return extendedData.kol_id || '-';
+                            } catch (e) {
+                              return '-';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-gray-500">是否星图</div>
-                      <div className="font-medium">{kolData.is_xingtu_kol ? '是' : '否'}</div>
+                      <div className="text-gray-500">是否在线</div>
+                      <div className="font-medium">
+                        {(() => {
+                          const storedKol = sessionStorage.getItem("selectedKol");
+                          if (storedKol) {
+                            try {
+                              const extendedData = JSON.parse(storedKol);
+                              return extendedData.is_online ? '在线' : '离线';
+                            } catch (e) {
+                              return '-';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-gray-500">是否带货</div>
-                      <div className="font-medium">{kolData.is_live_commerce ? '是' : '否'}</div>
+                      <div className="text-gray-500">游戏作者</div>
+                      <div className="font-medium">
+                        {(() => {
+                          const storedKol = sessionStorage.getItem("selectedKol");
+                          if (storedKol) {
+                            try {
+                              const extendedData = JSON.parse(storedKol);
+                              return extendedData.is_game_author ? '是' : '否';
+                            } catch (e) {
+                              return '-';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">方案作者</div>
+                      <div className="font-medium">
+                        {(() => {
+                          const storedKol = sessionStorage.getItem("selectedKol");
+                          if (storedKol) {
+                            try {
+                              const extendedData = JSON.parse(storedKol);
+                              return extendedData.is_plan_author ? '是' : '否';
+                            } catch (e) {
+                              return '-';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">MCN ID</div>
+                      <div className="font-medium">
+                        {(() => {
+                          const storedKol = sessionStorage.getItem("selectedKol");
+                          if (storedKol) {
+                            try {
+                              const extendedData = JSON.parse(storedKol);
+                              return extendedData.mcn_id || '-';
+                            } catch (e) {
+                              return '-';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2188,11 +3025,11 @@ export default function DouyinKolAnalysisDetail() {
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <CreatorPerformanceTab kolId={kolId || ''} />
+                  <CreatorPerformanceTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="wordcloud" className="mt-0">
-                  <HotWordCloudTab kolId={kolId || ''} />
+                  <HotWordCloudTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
               </div>
             </Tabs>

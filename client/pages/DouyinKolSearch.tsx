@@ -35,12 +35,14 @@ import {
   ArrowUp,
   ArrowDown,
   Download,
+  Plus,
 } from "lucide-react";
 import { 
   apiClient, 
   type DouyinInfluencer, 
   type DouyinKolSearchRequest, 
-  type DouyinKolSearchResult 
+  type DouyinKolSearchResult,
+  type DouyinKolFetchInfoRequest
 } from "@/lib/api";
 import { AvatarImage } from "@/components/ui/avatar-image";
 import * as XLSX from 'xlsx';
@@ -80,6 +82,7 @@ export default function DouyinKolSearch() {
   const [searchResults, setSearchResults] = useState<DouyinKolSearchResult[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [addingToAnalysis, setAddingToAnalysis] = useState<Set<string>>(new Set());
 
   const [filters, setFilters] = useState<SearchFilters>({
     keyword: "",
@@ -191,6 +194,42 @@ export default function DouyinKolSearch() {
       keyword: "",
       maxUsers: 50,
     });
+  };
+
+  const handleAddToAnalysis = async (kol: DouyinKolSearchResult) => {
+    const kolId = kol.kol_id;
+    
+    // 防止重复添加
+    if (addingToAnalysis.has(kolId)) {
+      return;
+    }
+
+    setAddingToAnalysis(prev => new Set(prev).add(kolId));
+
+    try {
+      // 构造抖音用户URL
+      const douyinUrl = `https://www.douyin.com/user/${kol.id}`;
+      
+      const response = await apiClient.fetchDouyinKolInfo({
+        urls: [douyinUrl]
+      });
+
+      console.log("添加KOL到分析列表成功:", response);
+      
+      // 可以显示成功消息或进行其他处理
+      // 这里可以添加toast通知等
+      alert(`成功添加 ${kol.nick_name} 到分析列表！任务ID: ${response.celery_tasks[0]?.task_id}`);
+      
+    } catch (error) {
+      console.error("添加KOL到分析列表失败:", error);
+      alert(`添加 ${kol.nick_name} 到分析列表失败: ${error instanceof Error ? error.message : "未知错误"}`);
+    } finally {
+      setAddingToAnalysis(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(kolId);
+        return newSet;
+      });
+    }
   };
 
   const getStarLevel = (kol: DouyinKolSearchResult): string => {
@@ -568,7 +607,7 @@ export default function DouyinKolSearch() {
                         <TableHead className="w-[100px]">星图指数</TableHead>
                         <TableHead className="w-[80px]">等级</TableHead>
                         <TableHead className="w-[120px]">标签</TableHead>
-                        <TableHead className="w-[80px]">详情</TableHead>
+                        <TableHead className="w-[160px]">操作</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -670,15 +709,31 @@ export default function DouyinKolSearch() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 px-2"
-                              onClick={() => handleKolClick(kol)}
-                            >
-                              <BarChart3 className="mr-1 h-3 w-3" />
-                              详情
-                            </Button>
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => handleKolClick(kol)}
+                              >
+                                <BarChart3 className="mr-1 h-3 w-3" />
+                                详情
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => handleAddToAnalysis(kol)}
+                                disabled={addingToAnalysis.has(kol.kol_id)}
+                              >
+                                {addingToAnalysis.has(kol.kol_id) ? (
+                                  <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Plus className="mr-1 h-3 w-3" />
+                                )}
+                                添加分析
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                             );
