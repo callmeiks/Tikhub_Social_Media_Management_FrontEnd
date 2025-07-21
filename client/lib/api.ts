@@ -498,6 +498,390 @@ type Post =
   | YouTubePost
   | InstagramPost;
 
+// 抖音KOL搜索请求参数
+interface DouyinKolSearchRequest {
+  keyword: string;
+  max_users: number;
+}
+
+// 抖音KOL搜索结果
+interface DouyinKolSearchResult {
+  assign_cpm_suggest_price: number | null;
+  author_status: number;
+  author_type: number;
+  avatar_uri: string;
+  nick_name: string;
+  id: string;
+  core_user_id: string;
+  city: string;
+  province: string;
+  content_theme_labels_180d: string[];
+  tags_relation: Record<string, string[]>;
+  follower: number;
+  fans_increment_rate_within_15d: number;
+  fans_increment_within_15d: number;
+  fans_increment_within_30d: number;
+  e_commerce_enable: boolean | null;
+  ecom_score: number | null;
+  ecom_video_product_num_30d: number | null;
+  price_1_20: number | null;
+  price_20_60: number | null;
+  price_60: number | null;
+  expected_play_num: number;
+  expected_natural_play_num: number;
+  brand_boost_vv: number | null;
+  vv_median_30d: number;
+  star_index: number | null;
+  link_convert_index: number | null;
+  link_shopping_index: number | null;
+  link_spread_index: number | null;
+  link_star_index: number | null;
+  interaction_median_30d: number;
+  gender: number;
+  kol_id: string;
+}
+
+interface DouyinKolSearchResponse {
+  results: DouyinKolSearchResult[];
+}
+
+// KOL管理接口
+interface DouyinKolFetchInfoRequest {
+  urls: string[];
+}
+
+interface DouyinKolFetchInfoResponse {
+  total_successful: number;
+  total_failed: number;
+  failed_urls: string[];
+  celery_tasks: {
+    task_id: string;
+    celery_id: string;
+    url: string;
+  }[];
+}
+
+interface DouyinKolListParams {
+  page?: number;
+  limit?: number;
+  nickname?: string;
+  sort_by_fans?: boolean;
+}
+
+interface DouyinKolInfo {
+  id: string;
+  kol_id: string;
+  sec_user_id: string | null;
+  core_user_id: string;
+  unique_id: string;
+  short_id: string;
+  nick_name: string;
+  avatar_uri: string;
+  gender: string;
+  age: number | null;
+  author_status: number | null;
+  author_type: number | null;
+  city: string;
+  province: string;
+  mcn_id: string;
+  mcn_name: string;
+  follower_count: number;
+  fans_increment_rate_within_15d: number | null;
+  fans_increment_within_15d: number | null;
+  fans_increment_within_30d: number | null;
+  is_star: boolean;
+  is_online: boolean;
+  is_game_author: boolean;
+  is_plan_author: boolean;
+  e_commerce_enable: boolean;
+  ecom_score: number | null;
+  ecom_video_product_num_30d: number | null;
+  assign_cpm_suggest_price: number | null;
+  price_1_20: number | null;
+  price_20_60: number | null;
+  price_60: number | null;
+  expected_play_num: number | null;
+  expected_natural_play_num: number | null;
+  brand_boost_vv: number | null;
+  vv_median_30d: number | null;
+  interaction_median_30d: number | null;
+  star_index: number | null;
+  link_convert_index: number | null;
+  link_shopping_index: number | null;
+  link_spread_index: number | null;
+  link_star_index: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DouyinKolListResponse {
+  kols: DouyinKolInfo[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+// KOL详情相关接口
+interface KolDetailRequest {
+  kol_id: string;
+}
+
+// 受众画像分析
+interface AudiencePortraitResponse {
+  city: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  city_level: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  interests: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  audience_category: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  age: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  gender: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  phone_type: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+  province: {
+    data: Array<{distribution_key: string; distribution_value: string}>;
+    description: string;
+  };
+}
+
+// 服务报价查询
+interface ServicePricingResponse {
+  industry_tags: string[];
+  service_pricing: Array<{
+    activity_info: any[];
+    author_id: string;
+    desc: string;
+    do_fold: boolean;
+    enable: boolean;
+    end_time: string;
+    field: string;
+    has_discount: boolean;
+    is_open: boolean;
+    need_price: boolean;
+    online_status: number;
+    origin_price: number;
+    platform_activity_id: string;
+    platform_source: number;
+    price: number;
+    settlement_desc: string;
+    settlement_type: number;
+    start_time: string;
+    task_category: number;
+    task_category_status: number;
+    template_list: any[];
+    video_type: number;
+  }>;
+}
+
+// 视频表现分析
+interface VideoPerformanceRequest extends KolDetailRequest {
+  type: string;
+  range: string;
+}
+
+interface VideoPerformanceResponse {
+  video_performance_overview: {
+    avg_duration: string;
+    base_resp: {
+      status_code: number;
+      status_message: string;
+    };
+    comment_avg: string;
+    expect_cpe: {
+      cpe_1_20: string;
+      cpe_21_60: string;
+      cpe_60: string;
+    };
+    expect_cpm: {
+      cpm_1_20: string;
+      cpm_21_60: string;
+      cpm_60: string;
+    };
+    interact_rate: {
+      label: string;
+      overtake: number;
+      value: number;
+    };
+    item_num: string;
+    item_rate: {
+      interact_rate: any;
+      item_num: {
+        label: string;
+        overtake: number;
+        value: number;
+      };
+      play_mid: {
+        label: string;
+        overtake: number;
+        value: number;
+      };
+    };
+    like_avg: string;
+    play_mid: string;
+    play_over_rate: {
+      label: string;
+      overtake: number;
+      value: number;
+    };
+    play_stability: {
+      label: string;
+      overtake: number;
+      value: number;
+    };
+    sales_expect_cpm: {
+      cpm_1_20: string;
+      cpm_21_60: string;
+      cpm_60: string;
+    };
+    share_avg: string;
+  };
+  latest_videos: Array<{
+    comment: number;
+    core_user_id: string;
+    create_time: number;
+    create_timestamp: number;
+    duration: number;
+    duration_min: number;
+    head_image_uri: string;
+    is_hot: boolean;
+    is_playlet: number;
+    item_animated_cover: string;
+    item_cover: string;
+    item_date: string;
+    item_id: string;
+    item_title: string;
+    like: number;
+    media_type: string;
+    original_status: number;
+    play: number;
+    share: number;
+    status: number;
+    title: string;
+    url: string;
+    video_id: string;
+  }>;
+  latest_star_videos: Array<{
+    comment: number;
+    core_user_id: string;
+    create_time: number;
+    create_timestamp: number;
+    duration: number;
+    duration_min: number;
+    head_image_uri: string;
+    is_hot: boolean;
+    is_playlet: number;
+    item_animated_cover: string;
+    item_cover: string;
+    item_date: string;
+    item_id: string;
+    item_title: string;
+    like: number;
+    media_type: string;
+    original_status: number;
+    play: number;
+    share: number;
+    status: number;
+    title: string;
+    url: string;
+    video_id: string;
+  }>;
+}
+
+// 影响力指标
+interface InfluenceMetricsResponse {
+  base_resp: {
+    status_code: number;
+    status_message: string;
+  };
+  cooperate_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+  cp_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+  link_convert_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+  link_shopping_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+  link_spread_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+  link_star_index: {
+    avg_value: number;
+    link_relative_ratio: number;
+    rank: string;
+    rank_percent: number;
+    value: number;
+  };
+}
+
+// 粉丝趋势分析
+interface FansTrendRequest extends KolDetailRequest {
+  start_date: string;
+  end_date: string;
+}
+
+interface FansTrendResponse {
+  fans_count: Array<{
+    date: string;
+    fans_cnt: string;
+  }>;
+  fans_growth: Array<{
+    date: string;
+    fans_growth: string;
+    fans_growth_rate: string;
+  }>;
+}
+
+// 热门评论词汇
+interface HotCommentWordsResponse {
+  hot_comment_words: Array<{
+    comment_token: string;
+    hot_rate: number;
+  }>;
+}
+
 interface GetPostsParams {
   platform:
     | "tiktok"
@@ -1022,8 +1406,10 @@ class ApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
+    customBaseURL?: string,
   ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
+    const baseURL = customBaseURL || this.baseURL;
+    const url = `${baseURL}${endpoint}`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
@@ -1779,6 +2165,122 @@ class ApiClient {
     );
   }
 
+  // 抖音KOL搜索API
+  async searchDouyinKol(params: DouyinKolSearchRequest): Promise<DouyinKolSearchResponse> {
+    return this.request<DouyinKolSearchResponse>(
+      "/douyin/kol/search",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 抖音KOL管理API - 添加KOL到分析列表
+  async fetchDouyinKolInfo(params: DouyinKolFetchInfoRequest): Promise<DouyinKolFetchInfoResponse> {
+    return this.request<DouyinKolFetchInfoResponse>(
+      "/douyin/kol/fetch-info",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 抖音KOL管理API - 获取KOL列表
+  async getDouyinKolList(params: DouyinKolListParams = {}): Promise<DouyinKolListResponse> {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.nickname) queryParams.append('nickname', params.nickname);
+    if (params.sort_by_fans !== undefined) queryParams.append('sort_by_fans', params.sort_by_fans.toString());
+
+    const endpoint = `/douyin/kol/list${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    
+    return this.request<DouyinKolListResponse>(
+      endpoint,
+      {
+        method: "GET",
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // KOL详情分析相关API
+  // 受众画像分析
+  async getKolAudiencePortrait(params: KolDetailRequest): Promise<AudiencePortraitResponse> {
+    return this.request<AudiencePortraitResponse>(
+      "/douyin/kol/audience-portrait",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 服务报价查询
+  async getKolServicePricing(params: KolDetailRequest): Promise<ServicePricingResponse> {
+    return this.request<ServicePricingResponse>(
+      "/douyin/kol/service-price",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 视频表现分析
+  async getKolVideoPerformance(params: VideoPerformanceRequest): Promise<VideoPerformanceResponse> {
+    return this.request<VideoPerformanceResponse>(
+      "/douyin/kol/video-performance",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 影响力指标
+  async getKolInfluenceMetrics(params: KolDetailRequest): Promise<InfluenceMetricsResponse> {
+    return this.request<InfluenceMetricsResponse>(
+      "/douyin/kol/influence-metrics",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 粉丝趋势分析
+  async getKolFansTrend(params: FansTrendRequest): Promise<FansTrendResponse> {
+    return this.request<FansTrendResponse>(
+      "/douyin/kol/fans-trend",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 热门评论词汇
+  async getKolHotCommentWords(params: KolDetailRequest): Promise<HotCommentWordsResponse> {
+    return this.request<HotCommentWordsResponse>(
+      "/douyin/kol/hot-comment-words",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
   setToken(token: string) {
     this.token = token;
     // 只有在没有环境变量token时才存储到localStorage
@@ -1806,6 +2308,23 @@ export type {
   XInfluencer,
   YouTubeInfluencer,
   InstagramInfluencer,
+  DouyinKolSearchRequest,
+  DouyinKolSearchResult,
+  DouyinKolSearchResponse,
+  DouyinKolFetchInfoRequest,
+  DouyinKolFetchInfoResponse,
+  DouyinKolListParams,
+  DouyinKolInfo,
+  DouyinKolListResponse,
+  KolDetailRequest,
+  AudiencePortraitResponse,
+  ServicePricingResponse,
+  VideoPerformanceRequest,
+  VideoPerformanceResponse,
+  InfluenceMetricsResponse,
+  FansTrendRequest,
+  FansTrendResponse,
+  HotCommentWordsResponse,
   Post,
   TikTokPost,
   DouyinPost,

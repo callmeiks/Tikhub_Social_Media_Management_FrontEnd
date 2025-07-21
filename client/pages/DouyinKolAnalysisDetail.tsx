@@ -29,6 +29,7 @@ import {
   Target,
   DollarSign,
   Calendar,
+  CalendarIcon,
   RefreshCw,
   AlertTriangle,
   ChevronRight,
@@ -38,9 +39,31 @@ import {
   Zap,
   PieChart,
   Activity,
+  Search,
 } from "lucide-react";
-import { apiClient, type DouyinInfluencer } from "@/lib/api";
+import { 
+  apiClient, 
+  type DouyinInfluencer, 
+  type DouyinKolInfo,
+  type KolDetailRequest,
+  type AudiencePortraitResponse,
+  type ServicePricingResponse,
+  type VideoPerformanceRequest,
+  type VideoPerformanceResponse,
+  type InfluenceMetricsResponse,
+  type FansTrendRequest,
+  type FansTrendResponse,
+  type HotCommentWordsResponse
+} from "@/lib/api";
 import { AvatarImage } from "@/components/ui/avatar-image";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // 工具函数
 const formatNumber = (num: number): string => {
@@ -57,17 +80,143 @@ const formatPercentage = (num: number): string => {
 };
 
 // 粉丝趋势分析组件
-const FanTrendsAnalysisTab: React.FC = () => {
+const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
+  const [fansTrendData, setFansTrendData] = useState<FansTrendResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState<Date>(() => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    return date;
+  });
+  const [endDate, setEndDate] = useState<Date>(new Date());
+
+  const fetchFansTrend = async () => {
+    if (!kolId) return;
+    setLoading(true);
+    try {
+      const response = await apiClient.getKolFansTrend({
+        kol_id: kolId,
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0]
+      });
+      setFansTrendData(response);
+    } catch (error) {
+      console.error("获取粉丝趋势数据失败:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFansTrend();
+  }, [kolId, startDate, endDate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const calculateGrowthRate = () => {
+    if (!fansTrendData || fansTrendData.fans_count.length < 2) return "0%";
+    const firstCount = parseInt(fansTrendData.fans_count[0].fans_cnt);
+    const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt);
+    const rate = ((lastCount - firstCount) / firstCount) * 100;
+    return `${rate > 0 ? '+' : ''}${rate.toFixed(1)}%`;
+  };
+
+  const calculateMonthlyGrowth = () => {
+    if (!fansTrendData || fansTrendData.fans_count.length < 2) return "0";
+    const firstCount = parseInt(fansTrendData.fans_count[0].fans_cnt);
+    const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt);
+    const growth = lastCount - firstCount;
+    return formatNumber(Math.abs(growth));
+  };
+
   return (
     <div className="space-y-6">
+      {/* 日期筛选器 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <Calendar className="mr-2 h-4 w-4" />
+            日期筛选
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">开始日期</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "yyyy-MM-dd") : "选择开始日期"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">结束日期</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "yyyy-MM-dd") : "选择结束日期"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Button onClick={fetchFansTrend} disabled={loading} className="mt-6">
+              {loading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="mr-2 h-4 w-4" />
+              )}
+              更新数据
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* 趋势总览 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold text-green-600">+15.2%</div>
-              <div className="text-sm text-muted-foreground">本月增长率</div>
+              <div className="text-2xl font-bold text-green-600">{calculateGrowthRate()}</div>
+              <div className="text-sm text-muted-foreground">总体增长率</div>
             </div>
           </CardContent>
         </Card>
@@ -76,228 +225,719 @@ const FanTrendsAnalysisTab: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">+8.7万</div>
-              <div className="text-sm text-muted-foreground">本月新增</div>
+              <div className="text-2xl font-bold">+{calculateMonthlyGrowth()}</div>
+              <div className="text-sm text-muted-foreground">期间变化</div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">+2.5万</div>
-              <div className="text-sm text-muted-foreground">本周新增</div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
               <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">98.5%</div>
-              <div className="text-sm text-muted-foreground">留存率</div>
+              <div className="text-2xl font-bold">
+                {fansTrendData?.fans_count.length ? 
+                  formatNumber(parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt)) : 
+                  '-'
+                }
+              </div>
+              <div className="text-sm text-muted-foreground">当前粉丝数</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 粉丝增长趋势图 */}
+      {/* 粉丝数量数据表 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <Users className="mr-2 h-4 w-4" />
+            粉丝数量变化
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {fansTrendData && fansTrendData.fans_count.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>日期</TableHead>
+                    <TableHead>粉丝数</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {fansTrendData.fans_count.map((item) => (
+                    <TableRow key={item.date}>
+                      <TableCell>{item.date}</TableCell>
+                      <TableCell className="font-medium">{formatNumber(parseInt(item.fans_cnt))}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无粉丝数量数据</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 增长率数据表 */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
             <TrendingUp className="mr-2 h-4 w-4" />
-            粉丝增长趋势
+            增长率变化
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <BarChart3 className="h-16 w-16 mx-auto mb-4" />
-              <p className="text-lg font-medium">粉丝增长趋势图表</p>
-              <p className="text-sm">显示近30天的粉丝增长变化</p>
+          {fansTrendData && fansTrendData.fans_growth.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>日期</TableHead>
+                    <TableHead>日增长</TableHead>
+                    <TableHead>增长率</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {fansTrendData.fans_growth.map((item) => {
+                    const growthValue = parseFloat(item.fans_growth);
+                    const growthRate = parseFloat(item.fans_growth_rate);
+                    
+                    return (
+                      <TableRow key={item.date}>
+                        <TableCell>{item.date}</TableCell>
+                        <TableCell className={`font-medium ${growthValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {growthValue >= 0 ? '+' : ''}{formatNumber(growthValue)}
+                        </TableCell>
+                        <TableCell className={`font-medium ${growthRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {growthRate >= 0 ? '+' : ''}{growthRate.toFixed(2)}%
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无增长率数据</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* 粉丝活跃时间分析 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Activity className="mr-2 h-4 w-4" />
-              粉丝活跃时段
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { time: "08:00-10:00", activity: 78, color: "bg-green-500" },
-                { time: "12:00-14:00", activity: 92, color: "bg-blue-500" },
-                { time: "18:00-20:00", activity: 95, color: "bg-purple-500" },
-                { time: "20:00-22:00", activity: 88, color: "bg-orange-500" },
-              ].map((item) => (
-                <div key={item.time} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.time}</span>
-                    <span className="font-medium">{item.activity}%</span>
-                  </div>
-                  <Progress value={item.activity} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <PieChart className="mr-2 h-4 w-4" />
-              粉丝来源分析
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { source: "搜索发现", percentage: 42.5, color: "bg-blue-500" },
-                { source: "推荐算法", percentage: 35.8, color: "bg-green-500" },
-                {
-                  source: "话题页面",
-                  percentage: 12.3,
-                  color: "bg-purple-500",
-                },
-                { source: "分享链接", percentage: 9.4, color: "bg-orange-500" },
-              ].map((item) => (
-                <div
-                  key={item.source}
-                  className="flex items-center justify-between"
-                >
-                  <span className="text-sm">{item.source}</span>
-                  <span className="font-medium">{item.percentage}%</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
 
 // 观众分析组件
-const AudienceAnalysisTab: React.FC = () => {
-  const fanGenderData = [
-    { label: "男性", value: 45.2, color: "bg-blue-500" },
-    { label: "女性", value: 54.8, color: "bg-pink-500" },
-  ];
+const AudienceAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
+  const [audienceData, setAudienceData] = useState<AudiencePortraitResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fanAgeData = [
-    { label: "18-24岁", value: 35.6, color: "bg-green-500" },
-    { label: "25-34岁", value: 42.3, color: "bg-blue-500" },
-    { label: "35-44岁", value: 16.8, color: "bg-orange-500" },
-    { label: "45岁以上", value: 5.3, color: "bg-gray-500" },
-  ];
+  useEffect(() => {
+    const fetchAudienceData = async () => {
+      if (!kolId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await apiClient.getKolAudiencePortrait({ kol_id: kolId });
+        setAudienceData(response);
+      } catch (error) {
+        console.error("获取受众画像数据失败:", error);
+        setError(error instanceof Error ? error.message : "获取数据失败");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fanCityData = [
-    { city: "北京", percentage: 12.5 },
-    { city: "上海", percentage: 10.8 },
-    { city: "广州", percentage: 8.9 },
-    { city: "深圳", percentage: 7.6 },
-    { city: "杭州", percentage: 6.2 },
-    { city: "成都", percentage: 5.4 },
-    { city: "武汉", percentage: 4.7 },
-    { city: "西安", percentage: 4.1 },
-  ];
+    fetchAudienceData();
+  }, [kolId]);
 
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 性别分布 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Users className="mr-2 h-4 w-4" />
-              性别分布
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {fanGenderData.map((item) => (
-                <div key={item.label} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span className="font-medium">
-                      {formatPercentage(item.value)}
-                    </span>
-                  </div>
-                  <Progress value={item.value} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 年龄分布 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Calendar className="mr-2 h-4 w-4" />
-              年龄分布
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {fanAgeData.map((item) => (
-                <div key={item.label} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span className="font-medium">
-                      {formatPercentage(item.value)}
-                    </span>
-                  </div>
-                  <Progress value={item.value} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">加载受众分析数据中...</p>
       </div>
+    );
+  }
 
-      {/* 地域分布 */}
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <AlertTriangle className="h-12 w-12 mx-auto text-red-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2 text-red-600">加载失败</h3>
+        <p className="text-muted-foreground">{error}</p>
+        <Button variant="outline" size="sm" className="mt-4" onClick={() => window.location.reload()}>
+          重新加载
+        </Button>
+      </div>
+    );
+  }
+
+  if (!audienceData) {
+    return (
+      <div className="text-center py-8">
+        <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">暂无受众分析数据</p>
+      </div>
+    );
+  }
+
+  // 通用格式化函数
+  const formatDistributionData = (data: any[], needTotal = false) => {
+    if (!data || data.length === 0) return { items: [], total: 0 };
+    const total = data.reduce((sum, item) => sum + parseInt(item.distribution_value || "0"), 0);
+    const items = data.map(item => ({
+      key: item.distribution_key,
+      value: parseInt(item.distribution_value || "0"),
+      percentage: total > 0 ? (parseInt(item.distribution_value || "0") / total * 100) : 0
+    }));
+    return { items, total };
+  };
+
+  // 真正的饼图组件 (用于性别和年龄)
+  const PieChartVisualization: React.FC<{ data: any[], title: string, description?: string }> = ({ data, title, description }) => {
+    const { items } = formatDistributionData(data);
+    const colors = [
+      '#3b82f6', '#ec4899', '#10b981', '#f59e0b', 
+      '#8b5cf6', '#ef4444', '#6366f1', '#f97316'
+    ];
+
+    // 计算饼图路径
+    const createPieChart = (data: any[]) => {
+      let cumulativePercentage = 0;
+      const radius = 80;
+      const centerX = 100;
+      const centerY = 100;
+
+      return data.map((item, index) => {
+        const startAngle = cumulativePercentage * 3.6; // 转换为度数
+        const endAngle = (cumulativePercentage + item.percentage) * 3.6;
+        
+        const startAngleRad = (startAngle - 90) * (Math.PI / 180);
+        const endAngleRad = (endAngle - 90) * (Math.PI / 180);
+        
+        const x1 = centerX + radius * Math.cos(startAngleRad);
+        const y1 = centerY + radius * Math.sin(startAngleRad);
+        const x2 = centerX + radius * Math.cos(endAngleRad);
+        const y2 = centerY + radius * Math.sin(endAngleRad);
+        
+        const largeArc = item.percentage > 50 ? 1 : 0;
+        
+        const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        
+        cumulativePercentage += item.percentage;
+        
+        return {
+          path: pathData,
+          color: colors[index % colors.length],
+          percentage: item.percentage,
+          key: item.key,
+          value: item.value
+        };
+      });
+    };
+
+    const pieData = createPieChart(items);
+
+    return (
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center">
-            <MapPin className="mr-2 h-4 w-4" />
-            粉丝地域分布
+            <PieChart className="mr-2 h-4 w-4" />
+            {title}
           </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {fanCityData.map((item, index) => (
-              <div key={item.city} className="text-center">
-                <div className="text-lg font-semibold">
-                  {formatPercentage(item.percentage)}
+          <div className="flex items-center space-x-6">
+            {/* 饼图 */}
+            <div className="flex-shrink-0">
+              <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-sm">
+                {pieData.map((slice, index) => (
+                  <path
+                    key={index}
+                    d={slice.path}
+                    fill={slice.color}
+                    stroke="white"
+                    strokeWidth="2"
+                    className="hover:opacity-80 transition-opacity"
+                  />
+                ))}
+              </svg>
+            </div>
+            
+            {/* 图例 */}
+            <div className="flex-1 space-y-3">
+              {items.map((item, index) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: colors[index % colors.length] }}
+                    ></div>
+                    <span className="text-sm font-medium">
+                      {item.key === 'male' ? '男性' : item.key === 'female' ? '女性' : item.key}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-sm">{item.percentage.toFixed(1)}%</div>
+                    <div className="text-xs text-muted-foreground">{formatNumber(item.value)}</div>
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">{item.city}</div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // 纵向条形图组件 (用于城市等级和观众分类)
+  const BarChartVisualization: React.FC<{ data: any[], title: string, description?: string }> = ({ data, title, description }) => {
+    const { items } = formatDistributionData(data);
+    const colors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 
+      'bg-pink-500', 'bg-indigo-500', 'bg-yellow-500', 'bg-red-500'
+    ];
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            {title}
+          </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {items.map((item, index) => (
+              <div key={item.key} className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{item.key}</span>
+                  <span className="font-semibold">{item.percentage.toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-3 relative overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${colors[index % colors.length]} transition-all duration-1000 ease-out`}
+                    style={{ width: `${item.percentage}%` }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-end pr-2">
+                    <span className="text-xs text-white font-medium">
+                      {formatNumber(item.value)}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
+    );
+  };
+
+  // 重点数据卡片组件 (用于城市分布TOP5)
+  const HighlightCardVisualization: React.FC<{ data: any[], title: string, description?: string, showTop?: number }> = ({ 
+    data, title, description, showTop = 5 
+  }) => {
+    const { items } = formatDistributionData(data);
+    const topItems = items.slice(0, showTop);
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <MapPin className="mr-2 h-4 w-4" />
+            {title}
+          </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-5 gap-2">
+            {topItems.map((item, index) => (
+              <div key={item.key} className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg border border-blue-200">
+                <div className="text-lg font-bold text-blue-600">
+                  {item.percentage.toFixed(1)}%
+                </div>
+                <div className="text-xs font-medium text-blue-800 mt-1">
+                  {item.key}
+                </div>
+                <div className="text-xs text-blue-600 mt-1">
+                  {formatNumber(item.value)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // 省份分布 - 地图风格展示
+  const ProvinceMapVisualization: React.FC<{ data: any[], title: string, description?: string, showTop?: number }> = ({ 
+    data, title, description, showTop = 8 
+  }) => {
+    const { items } = formatDistributionData(data);
+    const topProvinces = items.slice(0, showTop);
+    const maxPercentage = Math.max(...topProvinces.map(item => item.percentage));
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <MapPin className="mr-2 h-4 w-4" />
+            {title}
+          </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {topProvinces.map((item, index) => (
+              <div key={item.key} className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs bg-green-100 text-green-800 rounded px-2 py-1 font-medium">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm font-medium">{item.key}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-semibold text-sm">{item.percentage.toFixed(1)}%</span>
+                    <span className="text-xs text-muted-foreground ml-2">{formatNumber(item.value)}</span>
+                  </div>
+                </div>
+                <div className="w-full bg-green-100 rounded-full h-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-1000"
+                    style={{ width: `${(item.percentage / maxPercentage) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // 兴趣标签云
+  const InterestsCloudVisualization: React.FC<{ data: any[], title: string, description?: string, showTop?: number }> = ({ 
+    data, title, description, showTop = 8 
+  }) => {
+    const { items } = formatDistributionData(data);
+    const topInterests = items.slice(0, showTop);
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <Star className="mr-2 h-4 w-4" />
+            {title}
+          </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            {topInterests.map((item, index) => {
+              const size = Math.max(0.8, Math.min(1.6, item.percentage / 10));
+              return (
+                <div
+                  key={item.key}
+                  className="relative bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full border border-purple-200 hover:shadow-md transition-all"
+                  style={{ fontSize: `${size}rem` }}
+                >
+                  <span className="font-medium text-purple-800">{item.key}</span>
+                  <div className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {index + 1}
+                  </div>
+                  <div className="text-xs text-purple-600 text-center mt-1">
+                    {item.percentage.toFixed(1)}%
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // 手机品牌市场占有率
+  const PhoneMarketVisualization: React.FC<{ data: any[], title: string, description?: string, showTop?: number }> = ({ 
+    data, title, description, showTop = 8 
+  }) => {
+    const { items } = formatDistributionData(data);
+    const topBrands = items.slice(0, showTop);
+    
+    const brandIcons: { [key: string]: string } = {
+      'iPhone': '🍎',
+      '华为': '📱',
+      '小米': '📱',
+      'oppo': '📱',
+      'vivo': '📱',
+      '荣耀': '📱',
+      '红米': '📱',
+      '其他': '📱'
+    };
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center">
+            <Star className="mr-2 h-4 w-4" />
+            {title}
+          </CardTitle>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            {topBrands.map((item, index) => (
+              <div key={item.key} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg border border-orange-200">
+                <div className="text-2xl">
+                  {brandIcons[item.key] || '📱'}
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm text-gray-800">{item.key}</div>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <div className="font-semibold text-orange-600">{item.percentage.toFixed(1)}%</div>
+                    <div className="text-xs text-gray-500">{formatNumber(item.value)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 受众画像核心洞察 - 简洁黑白设计 */}
+      <Card className="border border-gray-300">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center">
+            <Users className="mr-2 h-4 w-4" />
+            受众画像核心洞察
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {audienceData.gender && (() => {
+              const genderData = formatDistributionData(audienceData.gender.data);
+              const femaleData = genderData.items.find(item => item.key === 'female');
+              const maleData = genderData.items.find(item => item.key === 'male');
+              const dominantGender = femaleData && maleData ? 
+                (femaleData.percentage > maleData.percentage ? femaleData : maleData) : 
+                genderData.items.sort((a, b) => b.percentage - a.percentage)[0];
+              
+              return (
+                <div className="text-center p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-400 transition-colors">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {dominantGender?.percentage.toFixed(0)}%
+                  </div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">
+                    {dominantGender?.key === 'female' ? '女性占主导' : dominantGender?.key === 'male' ? '男性占主导' : '性别分布'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {formatNumber(dominantGender?.value || 0)}
+                  </div>
+                </div>
+              );
+            })()}
+            
+            {audienceData.age && (() => {
+              const ageData = formatDistributionData(audienceData.age.data);
+              const topAge = ageData.items.sort((a, b) => b.percentage - a.percentage)[0];
+              
+              return (
+                <div className="text-center p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-400 transition-colors">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {topAge?.key || 'N/A'}
+                  </div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">主要年龄段</div>
+                  <div className="text-xs text-gray-500">
+                    {topAge?.percentage.toFixed(1)}% 占比
+                  </div>
+                </div>
+              );
+            })()}
+            
+            {audienceData.city_level && (() => {
+              const cityLevelData = formatDistributionData(audienceData.city_level.data);
+              const topCityLevel = cityLevelData.items.sort((a, b) => b.percentage - a.percentage)[0];
+              
+              return (
+                <div className="text-center p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-400 transition-colors">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {topCityLevel?.key || 'N/A'}
+                  </div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">主力城市等级</div>
+                  <div className="text-xs text-gray-500">消费能力</div>
+                </div>
+              );
+            })()}
+            
+            {audienceData.interests && (() => {
+              const interestsData = formatDistributionData(audienceData.interests.data);
+              const topInterest = interestsData.items.sort((a, b) => b.percentage - a.percentage)[0];
+              
+              return (
+                <div className="text-center p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-400 transition-colors">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {topInterest?.key || 'N/A'}
+                  </div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">兴趣偏好</div>
+                  <div className="text-xs text-gray-500">
+                    {topInterest?.percentage.toFixed(1)}%
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 饼图区域 - 性别和年龄分布 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {audienceData.gender && (
+          <PieChartVisualization
+            data={audienceData.gender.data}
+            title="性别分布"
+            description={audienceData.gender.description}
+          />
+        )}
+        
+        {audienceData.age && (
+          <PieChartVisualization
+            data={audienceData.age.data}
+            title="年龄分布"
+            description={audienceData.age.description}
+          />
+        )}
+      </div>
+
+      {/* 条形图区域 - 城市等级和观众分类 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {audienceData.city_level && (
+          <BarChartVisualization
+            data={audienceData.city_level.data}
+            title="城市等级分布"
+            description={audienceData.city_level.description}
+          />
+        )}
+        
+        {audienceData.audience_category && (
+          <BarChartVisualization
+            data={audienceData.audience_category.data}
+            title="观众分类分布"
+            description={audienceData.audience_category.description}
+          />
+        )}
+      </div>
+
+      {/* 城市分布 - 重点卡片展示 */}
+      {audienceData.city && (
+        <HighlightCardVisualization
+          data={audienceData.city.data}
+          title="重点城市分布 TOP5"
+          description={audienceData.city.description}
+          showTop={5}
+        />
+      )}
+
+      {/* 其他数据可视化区域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 省份分布 */}
+        {audienceData.province && (
+          <ProvinceMapVisualization
+            data={audienceData.province.data}
+            title="省份分布排行"
+            description={audienceData.province.description}
+            showTop={8}
+          />
+        )}
+        
+        {/* 手机品牌分布 */}
+        {audienceData.phone_type && (
+          <PhoneMarketVisualization
+            data={audienceData.phone_type.data}
+            title="手机品牌市场占有率"
+            description={audienceData.phone_type.description}
+            showTop={8}
+          />
+        )}
+      </div>
+
+      {/* 兴趣标签云 */}
+      {audienceData.interests && (
+        <InterestsCloudVisualization
+          data={audienceData.interests.data}
+          title="兴趣偏好标签云"
+          description={audienceData.interests.description}
+          showTop={8}
+        />
+      )}
     </div>
   );
 };
 
 // 服务报价组件
-const ServicePricingTab: React.FC = () => {
-  const pricingData = [
-    { type: "短视频植入", price: "5万-15万", desc: "15秒-60秒视频内容" },
-    { type: "直播带货", price: "10万-30万", desc: "2-3小时直播时长" },
-    { type: "品牌合作", price: "20万-50万", desc: "深度品牌合作内容" },
-    { type: "产品测评", price: "3万-8万", desc: "产品体验类内容" },
-  ];
+const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
+  const [servicePricingData, setServicePricingData] = useState<ServicePricingResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServicePricing = async () => {
+      if (!kolId) return;
+      setLoading(true);
+      try {
+        const response = await apiClient.getKolServicePricing({ kol_id: kolId });
+        setServicePricingData(response);
+      } catch (error) {
+        console.error("获取服务报价数据失败:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServicePricing();
+  }, [kolId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const formatPrice = (price: number) => {
+    return `¥${(price / 10000).toFixed(1)}万`;
+  };
 
   return (
     <div className="space-y-6">
@@ -309,27 +949,55 @@ const ServicePricingTab: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {pricingData.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <div className="font-medium">{item.type}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {item.desc}
+          {servicePricingData && servicePricingData.service_pricing.length > 0 ? (
+            <div className="space-y-4">
+              {servicePricingData.service_pricing.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <div className="font-medium">{item.desc}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {item.enable ? '可接单' : '暂不可用'} • {item.settlement_desc}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-lg">{formatPrice(item.price)}</div>
+                    <div className="text-xs text-muted-foreground">预估价格</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-semibold text-lg">{item.price}</div>
-                  <div className="text-xs text-muted-foreground">预估价格</div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无服务报价数据</p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* 行业标签 */}
+      {servicePricingData?.industry_tags && servicePricingData.industry_tags.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center">
+              <Target className="mr-2 h-4 w-4" />
+              主要服务行业
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {servicePricingData.industry_tags.map((tag, index) => (
+                <Badge key={index} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -376,7 +1044,38 @@ const ServicePricingTab: React.FC = () => {
 };
 
 // 视频表现组件
-const VideoPerformanceTab: React.FC = () => {
+const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
+  const [videoPerformanceData, setVideoPerformanceData] = useState<VideoPerformanceResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideoPerformance = async () => {
+      if (!kolId) return;
+      setLoading(true);
+      try {
+        const response = await apiClient.getKolVideoPerformance({
+          kol_id: kolId,
+          type: "_1",
+          range: "_3"
+        });
+        setVideoPerformanceData(response);
+      } catch (error) {
+        console.error("获取视频表现数据失败:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideoPerformance();
+  }, [kolId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -384,7 +1083,10 @@ const VideoPerformanceTab: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <Eye className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">158万</div>
+              <div className="text-2xl font-bold">
+                {videoPerformanceData?.video_performance_overview?.play_mid ? 
+                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.play_mid)) : '-'}
+              </div>
               <div className="text-sm text-muted-foreground">平均播放量</div>
             </div>
           </CardContent>
@@ -394,7 +1096,10 @@ const VideoPerformanceTab: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <Heart className="h-8 w-8 mx-auto mb-2 text-red-500" />
-              <div className="text-2xl font-bold">12.5万</div>
+              <div className="text-2xl font-bold">
+                {videoPerformanceData?.video_performance_overview?.like_avg ? 
+                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.like_avg)) : '-'}
+              </div>
               <div className="text-sm text-muted-foreground">平均点赞数</div>
             </div>
           </CardContent>
@@ -404,7 +1109,10 @@ const VideoPerformanceTab: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <MessageCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">3.2万</div>
+              <div className="text-2xl font-bold">
+                {videoPerformanceData?.video_performance_overview?.comment_avg ? 
+                  formatNumber(parseInt(videoPerformanceData.video_performance_overview.comment_avg)) : '-'}
+              </div>
               <div className="text-sm text-muted-foreground">平均评论数</div>
             </div>
           </CardContent>
@@ -494,8 +1202,64 @@ const VideoPerformanceTab: React.FC = () => {
   );
 };
 
+
 // 达人表现组件
-const CreatorPerformanceTab: React.FC = () => {
+interface CreatorPerformanceTabProps {
+  kolId: string;
+}
+
+const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchInfluenceMetrics = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.getKolInfluenceMetrics({ kol_id: kolId });
+      setData(response);
+    } catch (error) {
+      console.error("获取影响力指标失败:", error);
+      setError(error instanceof Error ? error.message : "获取数据失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (kolId) {
+      fetchInfluenceMetrics();
+    }
+  }, [kolId]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-8">
+        <RefreshCw className="h-6 w-6 mx-auto animate-spin text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">加载影响力指标中...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <AlertTriangle className="h-12 w-12 mx-auto text-red-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2 text-red-600">加载失败</h3>
+        <p className="text-muted-foreground">{error}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={fetchInfluenceMetrics}
+        >
+          重新加载
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* 达人综合评分 */}
@@ -504,13 +1268,15 @@ const CreatorPerformanceTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-sm flex items-center">
               <Star className="mr-2 h-4 w-4" />
-              综合评分
+              合作指数
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600">9.2</div>
-              <div className="text-sm text-muted-foreground">满分10分</div>
+              <div className="text-3xl font-bold text-yellow-600">
+                {data?.cooperate_index?.toFixed(1) || '暂无'}
+              </div>
+              <div className="text-sm text-muted-foreground">合作潜力评分</div>
             </div>
           </CardContent>
         </Card>
@@ -519,13 +1285,15 @@ const CreatorPerformanceTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-sm flex items-center">
               <Activity className="mr-2 h-4 w-4" />
-              活跃度
+              CP指数
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">85%</div>
-              <div className="text-sm text-muted-foreground">近30天活跃度</div>
+              <div className="text-3xl font-bold text-green-600">
+                {data?.cp_index?.toFixed(1) || '暂无'}
+              </div>
+              <div className="text-sm text-muted-foreground">内容传播指数</div>
             </div>
           </CardContent>
         </Card>
@@ -534,13 +1302,15 @@ const CreatorPerformanceTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-sm flex items-center">
               <TrendingUp className="mr-2 h-4 w-4" />
-              影响力指数
+              链接转化指数
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">8.7</div>
-              <div className="text-sm text-muted-foreground">行业排名前15%</div>
+              <div className="text-3xl font-bold text-purple-600">
+                {data?.link_convert_index?.toFixed(1) || '暂无'}
+              </div>
+              <div className="text-sm text-muted-foreground">转化能力评分</div>
             </div>
           </CardContent>
         </Card>
@@ -549,14 +1319,16 @@ const CreatorPerformanceTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-sm flex items-center">
               <Award className="mr-2 h-4 w-4" />
-              专业度
+              传播指数
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">9.1</div>
+              <div className="text-3xl font-bold text-blue-600">
+                {data?.link_spread_index?.toFixed(1) || '暂无'}
+              </div>
               <div className="text-sm text-muted-foreground">
-                内容专业性评分
+                内容传播力评分
               </div>
             </div>
           </CardContent>
@@ -568,32 +1340,32 @@ const CreatorPerformanceTab: React.FC = () => {
         <CardHeader>
           <CardTitle className="text-base flex items-center">
             <BarChart3 className="mr-2 h-4 w-4" />
-            达人能力分析
+            达人影响力分析
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {[
-                { skill: "内容创作能力", score: 92 },
-                { skill: "粉丝互动能力", score: 88 },
-                { skill: "商业变现能力", score: 85 },
-                { skill: "品牌适配度", score: 90 },
-                { skill: "话题引导能力", score: 87 },
+                { skill: "合作指数", score: data?.cooperate_index || 0 },
+                { skill: "CP指数", score: data?.cp_index || 0 },
+                { skill: "链接转化指数", score: data?.link_convert_index || 0 },
+                { skill: "传播指数", score: data?.link_spread_index || 0 },
+                { skill: "购物指数", score: data?.link_shopping_index || 0 },
               ].map((item) => (
                 <div key={item.skill} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>{item.skill}</span>
-                    <span className="font-medium">{item.score}/100</span>
+                    <span className="font-medium">{item.score.toFixed(1)}</span>
                   </div>
-                  <Progress value={item.score} className="h-2" />
+                  <Progress value={Math.min(item.score, 100)} className="h-2" />
                 </div>
               ))}
             </div>
             <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <PieChart className="h-12 w-12 mx-auto mb-2" />
-                <p>能力雷达图</p>
+                <p>影响力雷达图</p>
               </div>
             </div>
           </div>
@@ -604,7 +1376,65 @@ const CreatorPerformanceTab: React.FC = () => {
 };
 
 // 热门词云组件
-const HotWordCloudTab: React.FC = () => {
+interface HotWordCloudTabProps {
+  kolId: string;
+}
+
+const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchHotCommentWords = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.getKolHotCommentWords({ kol_id: kolId });
+      setData(response);
+    } catch (error) {
+      console.error("获取热门评论词汇失败:", error);
+      setError(error instanceof Error ? error.message : "获取数据失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (kolId) {
+      fetchHotCommentWords();
+    }
+  }, [kolId]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-8">
+        <RefreshCw className="h-6 w-6 mx-auto animate-spin text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">加载热门词汇中...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <AlertTriangle className="h-12 w-12 mx-auto text-red-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2 text-red-600">加载失败</h3>
+        <p className="text-muted-foreground">{error}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={fetchHotCommentWords}
+        >
+          重新加载
+        </Button>
+      </div>
+    );
+  }
+
+  const hotWords = data?.hot_words || [];
+  const wordFrequency = data?.word_frequency || [];
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -612,17 +1442,33 @@ const HotWordCloudTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-base flex items-center">
               <Zap className="mr-2 h-4 w-4 text-yellow-500" />
-              热门话题词云
+              热门评论词汇
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <Zap className="h-12 w-12 mx-auto mb-2" />
-                <p>热门话题词云图</p>
-                <p className="text-sm mt-1">展示该KOL相关的热门话题和关键词</p>
+            {hotWords.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {hotWords.map((word: any, index: number) => (
+                  <Badge
+                    key={index}
+                    variant={index < 5 ? "default" : "secondary"}
+                    className="text-sm"
+                    style={{
+                      fontSize: `${Math.max(0.8, Math.min(1.5, (word.frequency || 10) / 100))}rem`
+                    }}
+                  >
+                    {word.word || word}
+                  </Badge>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <Zap className="h-12 w-12 mx-auto mb-2" />
+                  <p>暂无热门词汇数据</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -630,107 +1476,109 @@ const HotWordCloudTab: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-base flex items-center">
               <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
-              热门关键词排行
+              词频统计排行
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { keyword: "时尚穿搭", count: 1250, trend: "up" },
-                { keyword: "美妆护肤", count: 980, trend: "up" },
-                { keyword: "生活方式", count: 756, trend: "down" },
-                { keyword: "潮流趋势", count: 642, trend: "up" },
-                { keyword: "日常分享", count: 528, trend: "stable" },
-              ].map((item, index) => (
-                <div
-                  key={item.keyword}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center">
-                    <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
-                      {index + 1}
-                    </span>
-                    <span className="text-sm">{item.keyword}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-sm">{item.count}</span>
-                    {item.trend === "up" && (
+              {wordFrequency.length > 0 ? (
+                wordFrequency.slice(0, 10).map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm">{item.word}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-sm">{item.count || item.frequency}</span>
                       <TrendingUp className="h-3 w-3 text-green-500" />
-                    )}
-                    {item.trend === "down" && (
-                      <TrendingDown className="h-3 w-3 text-red-500" />
-                    )}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p className="text-sm">暂无词频统计数据</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            话题参与度分析
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">92%</div>
-              <div className="text-sm text-muted-foreground">话题覆盖率</div>
-              <Progress value={92} className="h-2 mt-2" />
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">8.5K</div>
-              <div className="text-sm text-muted-foreground">平均互动量</div>
-              <Progress value={85} className="h-2 mt-2" />
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">4.2</div>
-              <div className="text-sm text-muted-foreground">话题引导力</div>
-              <Progress value={84} className="h-2 mt-2" />
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          <div className="space-y-4">
-            <h4 className="font-medium">近期热门话题参与</h4>
-            <div className="space-y-3">
-              {[
-                { topic: "#春季时尚穿搭", engagement: "15.2万", trend: "热门" },
-                { topic: "#护肤心得分享", engagement: "12.8万", trend: "上升" },
-                { topic: "#生活美学", engagement: "9.6万", trend: "稳定" },
-                { topic: "#品质生活", engagement: "7.3万", trend: "新兴" },
-              ].map((record, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 border rounded"
-                >
-                  <div>
-                    <div className="font-medium">{record.topic}</div>
-                    <div className="text-sm text-muted-foreground">
-                      参与度: {record.engagement}
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Badge
-                      variant={
-                        record.trend === "热门" ? "default" : "secondary"
-                      }
-                      className="text-xs"
-                    >
-                      {record.trend}
-                    </Badge>
-                  </div>
+      {data && data.topic_stats && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center">
+              <MessageCircle className="mr-2 h-4 w-4" />
+              话题参与度分析
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {data.topic_stats?.coverage_rate ? `${(data.topic_stats.coverage_rate * 100).toFixed(1)}%` : '暂无'}
                 </div>
-              ))}
+                <div className="text-sm text-muted-foreground">话题覆盖率</div>
+                <Progress value={data.topic_stats?.coverage_rate * 100 || 0} className="h-2 mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {data.topic_stats?.avg_engagement || '暂无'}
+                </div>
+                <div className="text-sm text-muted-foreground">平均互动量</div>
+                <Progress value={70} className="h-2 mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {data.topic_stats?.influence_score?.toFixed(1) || '暂无'}
+                </div>
+                <div className="text-sm text-muted-foreground">话题引导力</div>
+                <Progress value={data.topic_stats?.influence_score || 0} className="h-2 mt-2" />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            <Separator className="my-6" />
+
+            <div className="space-y-4">
+              <h4 className="font-medium">近期热门话题参与</h4>
+              <div className="space-y-3">
+                {data.recent_topics && data.recent_topics.length > 0 ? (
+                  data.recent_topics.map((record: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 border rounded"
+                    >
+                      <div>
+                        <div className="font-medium">{record.topic || record.hashtag}</div>
+                        <div className="text-sm text-muted-foreground">
+                          参与度: {record.engagement || record.count}
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Badge
+                          variant={record.trend === "hot" || record.trend === "热门" ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {record.trend || record.status || '稳定'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p className="text-sm">暂无话题参与数据</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
@@ -877,6 +1725,37 @@ export default function DouyinKolAnalysisDetail() {
                   )}
                 </div>
 
+                {/* MCN信息 */}
+                {(() => {
+                  const storedKol = sessionStorage.getItem("selectedKol");
+                  if (storedKol) {
+                    try {
+                      const extendedData = JSON.parse(storedKol);
+                      if (extendedData.mcn_name || extendedData.mcn_id) {
+                        return (
+                          <div className="flex items-center space-x-4 mb-3 text-sm">
+                            <Badge variant="outline" className="text-xs">
+                              🏢 MCN机构
+                            </Badge>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium">{extendedData.mcn_name || '未知机构'}</span>
+                              {extendedData.mcn_id && (
+                                <span className="text-xs text-muted-foreground">
+                                  (ID: {extendedData.mcn_id})
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                    } catch (e) {
+                      console.error('Error parsing stored KOL data for MCN info:', e);
+                    }
+                  }
+                  return null;
+                })()}
+
+                {/* 基础数据 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                   <div>
                     <div className="font-medium text-lg">
@@ -886,19 +1765,137 @@ export default function DouyinKolAnalysisDetail() {
                   </div>
                   <div>
                     <div className="font-medium text-lg">
-                      {kolData.aweme_count}
+                      {kolData.aweme_count || '-'}
                     </div>
                     <div className="text-muted-foreground">作品数</div>
                   </div>
                   <div>
                     <div className="font-medium text-lg">
-                      {formatNumber(kolData.total_favorited)}
+                      {kolData.total_favorited ? formatNumber(kolData.total_favorited) : '-'}
                     </div>
                     <div className="text-muted-foreground">获赞总数</div>
                   </div>
                   <div>
-                    <div className="font-medium text-lg">A+</div>
+                    <div className="font-medium text-lg">
+                      {kolData.is_xingtu_kol ? 'A+' : 'B'}
+                    </div>
                     <div className="text-muted-foreground">星图等级</div>
+                  </div>
+                </div>
+
+                {/* 详细信息展示 */}
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">详细信息</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
+                    {/* 检查是否有扩展数据 */}
+                    {(() => {
+                      const storedKol = sessionStorage.getItem("selectedKol");
+                      if (storedKol) {
+                        try {
+                          const extendedData = JSON.parse(storedKol);
+                          // 如果数据来源于API，显示更多字段
+                          if (extendedData.mcn_name || extendedData.star_index || extendedData.vv_median_30d) {
+                            return (
+                              <>
+                                <div>
+                                  <div className="text-gray-500">MCN机构</div>
+                                  <div className="font-medium">{extendedData.mcn_name || '-'}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">星图指数</div>
+                                  <div className="font-medium">
+                                    {extendedData.star_index ? extendedData.star_index.toFixed(1) : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">平均播放量</div>
+                                  <div className="font-medium">
+                                    {extendedData.vv_median_30d ? formatNumber(extendedData.vv_median_30d) : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">互动中位数</div>
+                                  <div className="font-medium">
+                                    {extendedData.interaction_median_30d ? formatNumber(extendedData.interaction_median_30d) : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">30天涨粉</div>
+                                  <div className="font-medium">
+                                    {extendedData.fans_increment_within_30d ? formatNumber(extendedData.fans_increment_within_30d) : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">15天涨粉率</div>
+                                  <div className="font-medium">
+                                    {extendedData.fans_increment_rate_within_15d ? 
+                                      `${(extendedData.fans_increment_rate_within_15d * 100).toFixed(2)}%` : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">电商评分</div>
+                                  <div className="font-medium">
+                                    {extendedData.ecom_score ? extendedData.ecom_score.toFixed(1) : '-'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500">建议CPM</div>
+                                  <div className="font-medium">
+                                    {extendedData.assign_cpm_suggest_price ? 
+                                      `¥${extendedData.assign_cpm_suggest_price}` : '-'}
+                                  </div>
+                                </div>
+                                {extendedData.price_1_20 && (
+                                  <div>
+                                    <div className="text-gray-500">1-20s报价</div>
+                                    <div className="font-medium">¥{extendedData.price_1_20}</div>
+                                  </div>
+                                )}
+                                {extendedData.price_20_60 && (
+                                  <div>
+                                    <div className="text-gray-500">20-60s报价</div>
+                                    <div className="font-medium">¥{extendedData.price_20_60}</div>
+                                  </div>
+                                )}
+                                {extendedData.price_60 && (
+                                  <div>
+                                    <div className="text-gray-500">60s+报价</div>
+                                    <div className="font-medium">¥{extendedData.price_60}</div>
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="text-gray-500">在线状态</div>
+                                  <div className="font-medium">
+                                    {extendedData.is_online ? '在线' : '离线'}
+                                  </div>
+                                </div>
+                              </>
+                            );
+                          }
+                        } catch (e) {
+                          console.error('Error parsing stored KOL data:', e);
+                        }
+                      }
+                      return null;
+                    })()}
+                    
+                    {/* 基础信息 */}
+                    <div>
+                      <div className="text-gray-500">抖音ID</div>
+                      <div className="font-medium">{kolData.unique_id}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">关注数</div>
+                      <div className="font-medium">{kolData.following_count || '-'}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">是否星图</div>
+                      <div className="font-medium">{kolData.is_xingtu_kol ? '是' : '否'}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">是否带货</div>
+                      <div className="font-medium">{kolData.is_live_commerce ? '是' : '否'}</div>
+                    </div>
                   </div>
                 </div>
 
@@ -946,27 +1943,27 @@ export default function DouyinKolAnalysisDetail() {
 
               <div className="p-6">
                 <TabsContent value="fantrends" className="mt-0">
-                  <FanTrendsAnalysisTab />
+                  <FanTrendsAnalysisTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="audience" className="mt-0">
-                  <AudienceAnalysisTab />
+                  <AudienceAnalysisTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="pricing" className="mt-0">
-                  <ServicePricingTab />
+                  <ServicePricingTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="video" className="mt-0">
-                  <VideoPerformanceTab />
+                  <VideoPerformanceTab kolId={kolData.task_id || kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <CreatorPerformanceTab />
+                  <CreatorPerformanceTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="wordcloud" className="mt-0">
-                  <HotWordCloudTab />
+                  <HotWordCloudTab kolId={kolId || ''} />
                 </TabsContent>
               </div>
             </Tabs>
