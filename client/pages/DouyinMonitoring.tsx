@@ -282,7 +282,7 @@ export default function DouyinMonitoring() {
           } else {
             const newInfluencer = {
               id: Date.now() + i + 1000,
-              username: `批量添加的达人 ${i + 1}`,
+              username: `批量添加���达人 ${i + 1}`,
               avatar: "/api/placeholder/60/60",
               url: task.url,
               addedAt: task.addedAt,
@@ -360,6 +360,59 @@ export default function DouyinMonitoring() {
     }
   };
 
+  const handleClearCompletedTasks = () => {
+    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
+      )
+    );
+  };
+
+  const getTaskStatusBadge = (status: TaskItem['status']) => {
+    switch (status) {
+      case 'waiting':
+        return (
+          <Badge variant="outline" className="text-blue-600 border-blue-200">
+            <Clock className="h-3 w-3 mr-1" />
+            等待中
+          </Badge>
+        );
+      case 'processing':
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            处理中
+          </Badge>
+        );
+      case 'completed':
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            已完成
+          </Badge>
+        );
+      case 'failed':
+        return (
+          <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+            <X className="h-3 w-3 mr-1" />
+            失败
+          </Badge>
+        );
+      default:
+        return <Badge variant="secondary">未知</Badge>;
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
@@ -407,7 +460,7 @@ export default function DouyinMonitoring() {
   return (
     <DashboardLayout
       title="抖音监控"
-      subtitle="实时监控抖音平台的达人和作品数据变化"
+      subtitle="实时监控抖音平台的达��和作品数据变化"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
