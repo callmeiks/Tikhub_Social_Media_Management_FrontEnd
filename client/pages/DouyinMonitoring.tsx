@@ -79,7 +79,7 @@ const mockContentData = [
     initialStats: {
       views: "230万",
       likes: "15.6万",
-      comments: "3.2���",
+      comments: "3.2万",
       shares: "8.5千",
     },
   },
@@ -637,6 +637,108 @@ export default function DouyinMonitoring() {
               </CardContent>
             </Card>
 
+            {/* 达人监控添加区域 */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  批量添加达人监控
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* File Upload Option */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    方式一：上传文件
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      选择包含抖音达人链接的文本文件（每行一个链接）
+                    </p>
+                    <Input
+                      type="file"
+                      accept=".txt,.csv"
+                      onChange={handleInfluencerFileUpload}
+                      className="max-w-xs mx-auto"
+                    />
+                    {influencerUploadedFile && (
+                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                        <FileText className="h-4 w-4 mr-1" />
+                        已上传：{influencerUploadedFile.name}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Manual Input Option */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    方式二：手动输入
+                  </label>
+                  <div className="space-y-3">
+                    <Textarea
+                      placeholder="请输入抖音达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456&#10;https://www.douyin.com/user/789012"
+                      value={influencerUrls}
+                      onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                      className="min-h-[120px]"
+                    />
+                    <div className="text-xs text-gray-500">
+                      💡 仅支持抖音达人主页链接
+                    </div>
+                  </div>
+                </div>
+
+                {/* URL Validation Summary */}
+                {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                    {validInfluencerUrls.length > 0 && (
+                      <div className="flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm font-medium text-green-800">
+                            有效达人链接 ({validInfluencerUrls.length} 个)
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {invalidInfluencerUrls.length > 0 && (
+                      <div className="flex items-start space-x-2">
+                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm font-medium text-red-800">
+                            无效链接 ({invalidInfluencerUrls.length} 个)
+                          </div>
+                          <div className="text-xs text-red-600 mt-1">
+                            请确保链接包含 "douyin.com"
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Action Button */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleAddInfluencerBatch}
+                    disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                    className="px-8"
+                  >
+                    {isAddingInfluencer ? (
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Plus className="mr-2 h-4 w-4" />
+                    )}
+                    {isAddingInfluencer
+                      ? "批量添加中..."
+                      : `批量添加达人 (${validInfluencerUrls.length})`}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Task Queue Section */}
             {taskQueue.length > 0 && (
               <Card className="mt-6">
@@ -903,7 +1005,7 @@ export default function DouyinMonitoring() {
                             </TableCell>
                             <TableCell>
                               <div className="text-sm font-medium text-green-600">
-                                ↗️ 增长��
+                                ↗️ 增长中
                               </div>
                             </TableCell>
                             <TableCell>
@@ -993,7 +1095,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂无监控达人，请先添加达��链接
                     </p>
                   </div>
                 ) : (
@@ -1108,7 +1210,7 @@ export default function DouyinMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 趋势图���开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、作品数、获赞总数的时间趋势变化
