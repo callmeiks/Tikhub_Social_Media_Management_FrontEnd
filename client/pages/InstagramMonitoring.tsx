@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import { TaskItem, createTaskQueueItems, processTaskQueue } from "@/lib/taskQueue";
+import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -206,6 +208,7 @@ export default function InstagramMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("instagram.com");
@@ -343,6 +346,24 @@ export default function InstagramMonitoring() {
     if (confirm("确定要停止监控这个用户吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
+      )
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -505,7 +526,7 @@ export default function InstagramMonitoring() {
                     />
                     <div className="text-xs text-gray-500">
                       💡
-                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
+                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识���类型
                     </div>
                   </div>
                 </div>
@@ -569,6 +590,13 @@ export default function InstagramMonitoring() {
                 </div>
               </CardContent>
             </Card>
+
+            <TaskQueueSection
+              taskQueue={taskQueue}
+              onClearCompleted={handleClearCompletedTasks}
+              onClearAll={handleClearAllTasks}
+              onRetryFailed={handleRetryFailedTask}
+            />
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
