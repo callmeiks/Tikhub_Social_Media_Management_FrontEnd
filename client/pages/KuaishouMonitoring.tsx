@@ -223,7 +223,7 @@ export default function KuaishouMonitoring() {
         const newContentItem = {
           id: Date.now() + i,
           title: `批量添加的作品监控 ${i + 1}`,
-          author: "创作者名称",
+          author: "创作者名��",
           url: task.url,
           thumbnail: "/api/placeholder/120/120",
           addedAt: task.addedAt,
@@ -292,6 +292,24 @@ export default function KuaishouMonitoring() {
     if (confirm("确定要停止监控这个达人吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
+      )
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -436,7 +454,7 @@ export default function KuaishouMonitoring() {
                   </label>
                   <div className="space-y-3">
                     <Textarea
-                      placeholder="请输入快手链接，每行一个链接&#10;作品链接示例：&#10;https://www.kuaishou.com/short-video/3xfhb2k3jgn8qxt&#10;&#10;达人主页链接示例：&#10;https://www.kuaishou.com/profile/3xfhb2k3jgn8"
+                      placeholder="请输入快手链接，每行一个链接&#10;作品链接示���：&#10;https://www.kuaishou.com/short-video/3xfhb2k3jgn8qxt&#10;&#10;达人主页链接示例：&#10;https://www.kuaishou.com/profile/3xfhb2k3jgn8"
                       value={batchUrls}
                       onChange={(e) => handleBatchUrlsChange(e.target.value)}
                       className="min-h-[120px]"
@@ -458,7 +476,7 @@ export default function KuaishouMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            作品链接: {validUrls.filter(isContentUrl).length} 个
+                            作品链���: {validUrls.filter(isContentUrl).length} 个
                             <br />
                             达人链接:{" "}
                             {
@@ -688,7 +706,7 @@ export default function KuaishouMonitoring() {
                     达人监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃���控:{" "}
+                    活跃监控:{" "}
                     {
                       influencerData.filter((item) => item.status === "active")
                         .length
