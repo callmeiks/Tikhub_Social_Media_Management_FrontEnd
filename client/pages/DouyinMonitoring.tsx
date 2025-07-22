@@ -576,7 +576,7 @@ export default function DouyinMonitoring() {
                   </label>
                   <div className="space-y-3">
                     <Textarea
-                      placeholder="请输入抖音链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456"
+                      placeholder="请输入抖音作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;https://www.douyin.com/note/789012"
                       value={contentUrls}
                       onChange={(e) => handleContentUrlsChange(e.target.value)}
                       className="min-h-[120px]"
@@ -932,7 +932,7 @@ export default function DouyinMonitoring() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[300px]">作��信息</TableHead>
+                          <TableHead className="w-[300px]">作品信息</TableHead>
                           <TableHead className="w-[120px]">
                             当前播放量
                           </TableHead>
@@ -1025,7 +1025,7 @@ export default function DouyinMonitoring() {
                                   </DialogTrigger>
                                   <DialogContent className="max-w-4xl">
                                     <DialogHeader>
-                                      <DialogTitle>作品监控趋势</DialogTitle>
+                                      <DialogTitle>作品监��趋势</DialogTitle>
                                       <DialogDescription>
                                         {content.title} - 抖音
                                       </DialogDescription>
@@ -1079,7 +1079,7 @@ export default function DouyinMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监控列表 ({influencerData.length})
+                    达��监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
                     活跃监控:{" "}
