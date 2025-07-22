@@ -588,7 +588,7 @@ export default function DouyinMonitoring() {
                 </div>
 
                 {/* URL Validation Summary */}
-                {(validUrls.length > 0 || invalidUrls.length > 0) && (
+                {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
                   <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                     {validUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
@@ -847,7 +847,7 @@ export default function DouyinMonitoring() {
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
                           <TableHead className="w-[100px]">增长率</TableHead>
-                          <TableHead className="w-[100px]">���态</TableHead>
+                          <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1003,7 +1003,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先��加达人链接
+                      暂无监控达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
@@ -1118,7 +1118,7 @@ export default function DouyinMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 ���势图表开发中...
+                                        📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、作品数、获赞总数的时间趋势变化
