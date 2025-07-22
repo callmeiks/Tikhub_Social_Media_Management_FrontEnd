@@ -192,6 +192,7 @@ const App = () => (
           />
 
           {/* Data Monitoring Routes */}
+          <Route path="/data-monitoring" element={<DataMonitoring />} />
           <Route
             path="/data-monitoring/content-monitoring"
             element={<ContentMonitoring />}
