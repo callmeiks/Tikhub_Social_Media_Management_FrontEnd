@@ -169,11 +169,16 @@ const mockInfluencerData = [
 export default function DouyinMonitoring() {
   const [contentData, setContentData] = useState(mockContentData);
   const [influencerData, setInfluencerData] = useState(mockInfluencerData);
-  const [batchUrls, setBatchUrls] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [validUrls, setValidUrls] = useState([]);
-  const [invalidUrls, setInvalidUrls] = useState([]);
+  const [contentUrls, setContentUrls] = useState("");
+  const [influencerUrls, setInfluencerUrls] = useState("");
+  const [isAddingContent, setIsAddingContent] = useState(false);
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [contentUploadedFile, setContentUploadedFile] = useState(null);
+  const [influencerUploadedFile, setInfluencerUploadedFile] = useState(null);
+  const [validContentUrls, setValidContentUrls] = useState([]);
+  const [invalidContentUrls, setInvalidContentUrls] = useState([]);
+  const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
+  const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
