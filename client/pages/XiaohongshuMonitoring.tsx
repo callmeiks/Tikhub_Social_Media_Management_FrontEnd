@@ -7,14 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -45,6 +37,7 @@ import {
   Crown,
   Verified,
   Image,
+  Bookmark,
 } from "lucide-react";
 
 // Sample monitoring data for Xiaohongshu content
@@ -93,6 +86,28 @@ const mockContentData = [
       shares: "2.7千",
     },
   },
+  {
+    id: 3,
+    title: "北欧风家居装修攻略 ✨",
+    author: "家居生活达人",
+    url: "https://www.xiaohongshu.com/explore/63f1111222333444",
+    thumbnail: "/api/placeholder/120/120", 
+    addedAt: "2024-01-13 14:15",
+    status: "active",
+    type: "图文",
+    currentStats: {
+      views: "31.2万",
+      likes: "8.7万",
+      comments: "2.1万",
+      shares: "4.5千",
+    },
+    initialStats: {
+      views: "28.9万",
+      likes: "7.2万",
+      comments: "1.8万",
+      shares: "3.8千",
+    },
+  },
 ];
 
 // Sample monitoring data for Xiaohongshu influencers
@@ -133,7 +148,7 @@ const mockInfluencerData = [
     addedAt: "2024-01-14 16:20",
     status: "active",
     verified: true,
-    userType: "美妆��肤博主",
+    userType: "美妆护肤博主",
     currentStats: {
       followers: "124.5万",
       following: "89",
@@ -151,6 +166,34 @@ const mockInfluencerData = [
       avgLikes: "18.9万",
       avgComments: "5.4万",
       engagementRate: "19.5%",
+    },
+  },
+  {
+    id: 3,
+    username: "家居生活达人",
+    avatar: "/api/placeholder/60/60",
+    url: "https://www.xiaohongshu.com/user/profile/5f1111222333444",
+    addedAt: "2024-01-13 14:15",
+    status: "active",
+    verified: true,
+    userType: "生活方式博主",
+    currentStats: {
+      followers: "89.3万",
+      following: "156",
+      works: "723",
+      totalLikes: "1650万",
+    },
+    initialStats: {
+      followers: "85.7万",
+      following: "152",
+      works: "718",
+      totalLikes: "1580万",
+    },
+    recentActivity: {
+      postsThisWeek: 4,
+      avgLikes: "8.7万",
+      avgComments: "2.1万",
+      engagementRate: "12.4%",
     },
   },
 ];
@@ -215,7 +258,7 @@ export default function XiaohongshuMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
+      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -282,9 +325,7 @@ export default function XiaohongshuMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`,
-      );
+      alert(`成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`);
     }, 2000);
   };
 
@@ -355,7 +396,7 @@ export default function XiaohongshuMonitoring() {
   return (
     <DashboardLayout
       title="小红书监控"
-      subtitle="实时监���小红书平台的博主和笔记数据变化"
+      subtitle="实时监控小红书平台的博主和笔记数据变化"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -381,9 +422,7 @@ export default function XiaohongshuMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">
-                  博主监控: {influencerData.length}
-                </span>
+                <span className="text-sm">博主监控: {influencerData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -472,14 +511,8 @@ export default function XiaohongshuMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            笔记链接: {validUrls.filter(isContentUrl).length} 个
-                            <br />
-                            博主链接:{" "}
-                            {
-                              validUrls.filter((url) => !isContentUrl(url))
-                                .length
-                            }{" "}
-                            个
+                            笔记链接: {validUrls.filter(isContentUrl).length} 个<br/>
+                            博主链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
                           </div>
                         </div>
                       </div>
@@ -531,11 +564,7 @@ export default function XiaohongshuMonitoring() {
                     笔记监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      contentData.filter((item) => item.status === "active")
-                        .length
-                    }
+                    活跃监控: {contentData.filter((item) => item.status === "active").length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -548,102 +577,85 @@ export default function XiaohongshuMonitoring() {
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[300px]">笔记信息</TableHead>
-                          <TableHead className="w-[80px]">类型</TableHead>
-                          <TableHead className="w-[100px]">当前浏览</TableHead>
-                          <TableHead className="w-[100px]">当前点赞</TableHead>
-                          <TableHead className="w-[100px]">当前评论</TableHead>
-                          <TableHead className="w-[100px]">增长率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
-                          <TableHead className="w-[120px]">操作</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {contentData.map((content) => (
-                          <TableRow key={content.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
-                                  {getContentTypeIcon(content.type)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {contentData.map((content) => (
+                      <Card key={content.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                        {/* Content Image/Thumbnail */}
+                        <div className="relative h-48 bg-gradient-to-br from-red-400 via-pink-400 to-orange-400">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Bookmark className="h-12 w-12 text-white/80" />
+                          </div>
+                          {/* Type Badge */}
+                          <div className="absolute top-3 left-3">
+                            <Badge variant="secondary" className="bg-white/90 text-xs flex items-center gap-1">
+                              {getContentTypeIcon(content.type)}
+                              {content.type}
+                            </Badge>
+                          </div>
+                          {/* Status Badge */}
+                          <div className="absolute top-3 right-3">
+                            {getStatusBadge(content.status)}
+                          </div>
+                          {/* Trending Indicator */}
+                          <div className="absolute bottom-3 right-3">
+                            <div className="bg-white/90 rounded-full px-2 py-1 text-xs font-medium text-green-600">
+                              ↗️ 增长中
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <CardContent className="p-4">
+                          {/* Content Info */}
+                          <div className="space-y-3">
+                            <div>
+                              <h3 className="font-medium text-sm line-clamp-2 leading-tight" title={content.title}>
+                                {content.title}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                by {content.author}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                添加于 {content.addedAt}
+                              </p>
+                            </div>
+                            
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Eye className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div>
-                                  <div
-                                    className="max-w-[200px] truncate font-medium"
-                                    title={content.title}
-                                  >
-                                    {content.title}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    by {content.author}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    添加于 {content.addedAt}
-                                  </div>
+                                <div className="font-medium">{content.currentStats.views}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.views, content.initialStats.views)}
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="text-xs">
-                                {content.type}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {content.currentStats.views}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Heart className="h-3 w-3 text-red-500" />
+                                </div>
+                                <div className="font-medium">{content.currentStats.likes}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.likes, content.initialStats.likes)}
+                                </div>
                               </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.views,
-                                  content.initialStats.views,
-                                )}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <MessageCircle className="h-3 w-3 text-green-500" />
+                                </div>
+                                <div className="font-medium">{content.currentStats.comments}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.comments, content.initialStats.comments)}
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {content.currentStats.likes}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.likes,
-                                  content.initialStats.likes,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {content.currentStats.comments}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.comments,
-                                  content.initialStats.comments,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm font-medium text-green-600">
-                                ↗️ 增长中
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(content.status)}
-                            </TableCell>
-                            <TableCell>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -668,29 +680,27 @@ export default function XiaohongshuMonitoring() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() =>
-                                    window.open(content.url, "_blank")
-                                  }
+                                  className="h-8 w-8 p-0"
+                                  title="打开原链接"
+                                  onClick={() => window.open(content.url, "_blank")}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveContent(content.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                title="删除监控"
+                                onClick={() => handleRemoveContent(content.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </CardContent>
@@ -706,11 +716,7 @@ export default function XiaohongshuMonitoring() {
                     博主监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      influencerData.filter((item) => item.status === "active")
-                        .length
-                    }
+                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -723,105 +729,91 @@ export default function XiaohongshuMonitoring() {
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[250px]">博主信息</TableHead>
-                          <TableHead className="w-[120px]">
-                            当前粉丝数
-                          </TableHead>
-                          <TableHead className="w-[100px]">笔记数</TableHead>
-                          <TableHead className="w-[120px]">获赞总数</TableHead>
-                          <TableHead className="w-[100px]">互动率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
-                          <TableHead className="w-[120px]">操作</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {influencerData.map((influencer) => (
-                          <TableRow key={influencer.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-red-400 to-pink-500 flex items-center justify-center text-white text-sm font-bold">
-                                  {influencer.username.charAt(0)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {influencerData.map((influencer) => (
+                      <Card key={influencer.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                        {/* User Profile Header */}
+                        <div className="relative h-32 bg-gradient-to-br from-red-400 via-pink-400 to-orange-400">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg font-bold">
+                              {influencer.username.charAt(0)}
+                            </div>
+                          </div>
+                          {/* Verification Badge */}
+                          {influencer.verified && (
+                            <div className="absolute top-3 right-3">
+                              {getVerificationIcon(influencer.verified, influencer.userType)}
+                            </div>
+                          )}
+                          {/* Status Badge */}
+                          <div className="absolute bottom-3 right-3">
+                            {getStatusBadge(influencer.status)}
+                          </div>
+                        </div>
+                        
+                        <CardContent className="p-4">
+                          <div className="space-y-3">
+                            {/* User Info */}
+                            <div className="text-center">
+                              <h3 className="font-medium text-sm flex items-center justify-center gap-1">
+                                {influencer.username}
+                                {getVerificationIcon(influencer.verified, influencer.userType)}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {influencer.userType}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                添加于 {influencer.addedAt}
+                              </p>
+                            </div>
+                            
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Users className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div>
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-medium">
-                                      {influencer.username}
-                                    </span>
-                                    {getVerificationIcon(
-                                      influencer.verified,
-                                      influencer.userType,
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {influencer.userType}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    添加于 {influencer.addedAt}
-                                  </div>
+                                <div className="font-medium">{influencer.currentStats.followers}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.followers, influencer.initialStats.followers)}
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Users className="h-3 w-3 mr-1 text-blue-500" />
-                                {influencer.currentStats.followers}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Video className="h-3 w-3 text-purple-500" />
+                                </div>
+                                <div className="font-medium">{influencer.currentStats.works}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.works, influencer.initialStats.works)}
+                                </div>
                               </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.followers,
-                                  influencer.initialStats.followers,
-                                )}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Heart className="h-3 w-3 text-red-500" />
+                                </div>
+                                <div className="font-medium">{influencer.currentStats.totalLikes}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.totalLikes, influencer.initialStats.totalLikes)}
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Video className="h-3 w-3 mr-1 text-purple-500" />
-                                {influencer.currentStats.works}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.works,
-                                  influencer.initialStats.works,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {influencer.currentStats.totalLikes}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.totalLikes,
-                                  influencer.initialStats.totalLikes,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate}
+                            </div>
+                            
+                            {/* Engagement Rate */}
+                            <div className="text-center pt-2 border-t">
+                              <div className="text-sm font-medium text-green-600">
+                                {influencer.recentActivity.engagementRate} 互动率
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek}{" "}
-                                笔记
+                                本周 {influencer.recentActivity.postsThisWeek} 笔记
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(influencer.status)}
-                            </TableCell>
-                            <TableCell>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -846,29 +838,27 @@ export default function XiaohongshuMonitoring() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() =>
-                                    window.open(influencer.url, "_blank")
-                                  }
+                                  className="h-8 w-8 p-0"
+                                  title="打开原链接"
+                                  onClick={() => window.open(influencer.url, "_blank")}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveInfluencer(influencer.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                title="删除监控"
+                                onClick={() => handleRemoveInfluencer(influencer.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </CardContent>
