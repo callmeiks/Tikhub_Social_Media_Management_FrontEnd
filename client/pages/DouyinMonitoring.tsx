@@ -257,150 +257,111 @@ export default function DouyinMonitoring() {
     processInfluencerUrls(urls);
   };
 
-  const handleAddBatchContent = async () => {
-    if (validUrls.length === 0) {
-      alert("请输入有效的抖音链接");
+  const handleAddContentBatch = async () => {
+    if (validContentUrls.length === 0) {
+      alert("请输入有效的抖音作品链接");
       return;
     }
 
-    setIsAdding(true);
+    setIsAddingContent(true);
 
-    // Create task items for each URL
-    const newTasks: TaskItem[] = validUrls.map((url) => ({
+    const newTasks = validContentUrls.map((url) => ({
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       url,
-      type: isContentUrl(url) ? "content" : "influencer",
-      status: "waiting",
+      type: "content" as const,
+      status: "waiting" as const,
       addedAt: new Date().toLocaleString("zh-CN"),
     }));
 
-    // Add all tasks to queue
-    setTaskQueue(newTasks);
+    setTaskQueue((prev) => [...prev, ...newTasks]);
 
-    // Process tasks one by one
-    for (let i = 0; i < newTasks.length; i++) {
-      const task = newTasks[i];
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newContentItem = {
+        id: Date.now() + i,
+        title: `批量添加的作品监控 ${i + 1}`,
+        author: "作者名称",
+        url: task.url,
+        thumbnail: "/api/placeholder/120/120",
+        addedAt: task.addedAt,
+        status: "active",
+        currentStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+        initialStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+      };
+      setContentData((prev) => [newContentItem, ...prev]);
+    });
 
-      // Update task status to processing
-      setTaskQueue((prev) =>
-        prev.map((t) =>
-          t.id === task.id ? { ...t, status: "processing" } : t,
-        ),
-      );
+    setContentUrls("");
+    setValidContentUrls([]);
+    setInvalidContentUrls([]);
+    setContentUploadedFile(null);
+    setIsAddingContent(false);
+  };
 
-      // Simulate processing time
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1500 + Math.random() * 1000),
-      );
-
-      try {
-        // Simulate random success/failure (90% success rate)
-        const success = Math.random() > 0.1;
-
-        if (success) {
-          // Add to monitoring data
-          if (task.type === "content") {
-            const newContentItem = {
-              id: Date.now() + i,
-              title: `批量添加的作品监控 ${i + 1}`,
-              author: "作者名称",
-              url: task.url,
-              thumbnail: "/api/placeholder/120/120",
-              addedAt: task.addedAt,
-              status: "active",
-              currentStats: {
-                views: "0",
-                likes: "0",
-                comments: "0",
-                shares: "0",
-              },
-              initialStats: {
-                views: "0",
-                likes: "0",
-                comments: "0",
-                shares: "0",
-              },
-            };
-            setContentData((prev) => [newContentItem, ...prev]);
-          } else {
-            const newInfluencer = {
-              id: Date.now() + i + 1000,
-              username: `批量添加的达人 ${i + 1}`,
-              avatar: "/api/placeholder/60/60",
-              url: task.url,
-              addedAt: task.addedAt,
-              status: "active",
-              verified: false,
-              userType: "普通用户",
-              currentStats: {
-                followers: "0",
-                following: "0",
-                works: "0",
-                totalLikes: "0",
-              },
-              initialStats: {
-                followers: "0",
-                following: "0",
-                works: "0",
-                totalLikes: "0",
-              },
-              recentActivity: {
-                postsThisWeek: 0,
-                avgLikes: "0",
-                avgComments: "0",
-                engagementRate: "0%",
-              },
-            };
-            setInfluencerData((prev) => [newInfluencer, ...prev]);
-          }
-
-          // Mark task as completed
-          setTaskQueue((prev) =>
-            prev.map((t) =>
-              t.id === task.id
-                ? {
-                    ...t,
-                    status: "completed",
-                    completedAt: new Date().toLocaleString("zh-CN"),
-                  }
-                : t,
-            ),
-          );
-        } else {
-          // Mark task as failed
-          setTaskQueue((prev) =>
-            prev.map((t) =>
-              t.id === task.id
-                ? {
-                    ...t,
-                    status: "failed",
-                    error: "链接解析失败，请检查链接有效性",
-                  }
-                : t,
-            ),
-          );
-        }
-      } catch (error) {
-        // Mark task as failed
-        setTaskQueue((prev) =>
-          prev.map((t) =>
-            t.id === task.id
-              ? {
-                  ...t,
-                  status: "failed",
-                  error: "处理过程中发生错误",
-                }
-              : t,
-          ),
-        );
-      }
+  const handleAddInfluencerBatch = async () => {
+    if (validInfluencerUrls.length === 0) {
+      alert("请输入有效的抖音达人链接");
+      return;
     }
 
-    setBatchUrls("");
-    setValidUrls([]);
-    setInvalidUrls([]);
-    setUploadedFile(null);
-    setIsAdding(false);
+    setIsAddingInfluencer(true);
+
+    const newTasks = validInfluencerUrls.map((url) => ({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      type: "influencer" as const,
+      status: "waiting" as const,
+      addedAt: new Date().toLocaleString("zh-CN"),
+    }));
+
+    setTaskQueue((prev) => [...prev, ...newTasks]);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newInfluencer = {
+        id: Date.now() + i + 1000,
+        username: `批量添加的达人 ${i + 1}`,
+        avatar: "/api/placeholder/60/60",
+        url: task.url,
+        addedAt: task.addedAt,
+        status: "active",
+        verified: false,
+        userType: "普通用户",
+        currentStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        initialStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        recentActivity: {
+          postsThisWeek: 0,
+          avgLikes: "0",
+          avgComments: "0",
+          engagementRate: "0%",
+        },
+      };
+      setInfluencerData((prev) => [newInfluencer, ...prev]);
+    });
+
+    setInfluencerUrls("");
+    setValidInfluencerUrls([]);
+    setInvalidInfluencerUrls([]);
+    setInfluencerUploadedFile(null);
+    setIsAddingInfluencer(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -621,7 +582,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作品链接和达人主页链接，系统会自动识别类型
+                      💡 支持同时添加作��链接和达人主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -1055,7 +1016,7 @@ export default function DouyinMonitoring() {
                             当前粉丝数
                           </TableHead>
                           <TableHead className="w-[100px]">作品数</TableHead>
-                          <TableHead className="w-[120px]">获赞总数</TableHead>
+                          <TableHead className="w-[120px]">获赞总��</TableHead>
                           <TableHead className="w-[100px]">互动率</TableHead>
                           <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
