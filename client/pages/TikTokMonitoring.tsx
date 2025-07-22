@@ -80,7 +80,7 @@ const mockContentData = [
     status: "active",
     currentStats: {
       views: "512.3万",
-      likes: "28.9���",
+      likes: "28.9万",
       comments: "12.8万",
       shares: "15.6千",
     },
@@ -228,7 +228,7 @@ export default function TikTokMonitoring() {
 
   const handleAddBatchContent = async () => {
     if (validUrls.length === 0) {
-      alert("请输入��效的TikTok链接");
+      alert("请输入有效的TikTok链接");
       return;
     }
 
@@ -365,6 +365,59 @@ export default function TikTokMonitoring() {
   const handleRemoveInfluencer = (id: number) => {
     if (confirm("确定要停止监控这个达人吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
+      )
+    );
+  };
+
+  const getTaskStatusBadge = (status: TaskItem['status']) => {
+    switch (status) {
+      case 'waiting':
+        return (
+          <Badge variant="outline" className="text-blue-600 border-blue-200">
+            <Clock className="h-3 w-3 mr-1" />
+            等待中
+          </Badge>
+        );
+      case 'processing':
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            处理中
+          </Badge>
+        );
+      case 'completed':
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            已完成
+          </Badge>
+        );
+      case 'failed':
+        return (
+          <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+            <X className="h-3 w-3 mr-1" />
+            失败
+          </Badge>
+        );
+      default:
+        return <Badge variant="secondary">未知</Badge>;
     }
   };
 
@@ -506,7 +559,7 @@ export default function TikTokMonitoring() {
                 {/* Manual Input Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式二：手动输入
+                    ��式二：手动输入
                   </label>
                   <div className="space-y-3">
                     <Textarea
