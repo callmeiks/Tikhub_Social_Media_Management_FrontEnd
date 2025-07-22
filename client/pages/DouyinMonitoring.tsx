@@ -49,6 +49,17 @@ import {
   X,
 } from "lucide-react";
 
+// Task queue interfaces
+interface TaskItem {
+  id: string;
+  url: string;
+  type: 'content' | 'influencer';
+  status: 'waiting' | 'processing' | 'completed' | 'failed';
+  addedAt: string;
+  completedAt?: string;
+  error?: string;
+}
+
 // Sample monitoring data for Douyin content
 const mockContentData = [
   {
@@ -412,7 +423,7 @@ export default function DouyinMonitoring() {
                 {/* File Upload Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式一：上传文件
+                    ��式一：上传文件
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -447,7 +458,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作品链接和达人主页链接，系统会自动��别类型
+                      💡 支持同时添加作品链接和达人主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -506,7 +517,7 @@ export default function DouyinMonitoring() {
                     )}
                     {isAdding
                       ? "批量添加中..."
-                      : `批量添�� (${validUrls.length})`}
+                      : `批量添加 (${validUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
@@ -706,7 +717,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂无监���达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
