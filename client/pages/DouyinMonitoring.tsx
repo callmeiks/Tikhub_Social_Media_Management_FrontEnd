@@ -595,18 +595,18 @@ export default function DouyinMonitoring() {
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-green-800">
-                            有��作品链接 ({validContentUrls.length} 个)
+                            有效作品链接 ({validContentUrls.length} 个)
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {invalidUrls.length > 0 && (
+                    {invalidContentUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
                         <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidUrls.length} 个)
+                            无效链接 ({invalidContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-red-600 mt-1">
                             请确保链接包含 "douyin.com"
@@ -822,7 +822,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控作品，请先添��作品链接
+                      暂无监控作品，请先添加作品链接
                     </p>
                   </div>
                 ) : (
