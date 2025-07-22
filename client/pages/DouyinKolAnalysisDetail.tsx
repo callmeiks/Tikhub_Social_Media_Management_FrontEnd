@@ -2687,189 +2687,228 @@ export default function DouyinKolAnalysisDetail() {
 
                 {/* MCN信息 */}
                 {(() => {
+                  // 获取合并后的数据
+                  let extendedData = null;
                   const storedKol = sessionStorage.getItem("selectedKol");
                   if (storedKol) {
                     try {
-                      const extendedData = JSON.parse(storedKol);
-                      if (extendedData.mcn_name || extendedData.mcn_id) {
-                        return (
-                          <div className="flex items-center space-x-4 mb-3 text-sm">
-                            <Badge variant="outline" className="text-xs">
-                              🏢 MCN机构
-                            </Badge>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-medium">{extendedData.mcn_name || '未知机构'}</span>
-                              {extendedData.mcn_id && (
-                                <span className="text-xs text-muted-foreground">
-                                  (ID: {extendedData.mcn_id})
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      }
+                      extendedData = JSON.parse(storedKol);
                     } catch (e) {
                       console.error('Error parsing stored KOL data for MCN info:', e);
                     }
+                  }
+                  
+                  // 如果没有扩展数据，使用API数据，如果有则优先使用扩展数据
+                  const data = extendedData || kolData;
+                  
+                  if (data.mcn_name || data.mcn_id) {
+                    return (
+                      <div className="flex items-center space-x-4 mb-3 text-sm">
+                        <Badge variant="outline" className="text-xs">
+                          🏢 MCN机构
+                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">{data.mcn_name || '未知机构'}</span>
+                          {data.mcn_id && (
+                            <span className="text-xs text-muted-foreground">
+                              (ID: {data.mcn_id})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
                   }
                   return null;
                 })()}
 
                 {/* 基础数据 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                  <div>
-                    <div className="font-medium text-lg">
-                      {formatNumber(kolData.follower_count)}
-                    </div>
-                    <div className="text-muted-foreground">粉丝数</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">
-                      {(() => {
-                        const storedKol = sessionStorage.getItem("selectedKol");
-                        if (storedKol) {
-                          try {
-                            const extendedData = JSON.parse(storedKol);
-                            return extendedData.mcn_name || '-';
-                          } catch (e) {
-                            return '-';
-                          }
-                        }
-                        return '-';
-                      })()}
-                    </div>
-                    <div className="text-muted-foreground">MCN机构</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">
-                      {(() => {
-                        const storedKol = sessionStorage.getItem("selectedKol");
-                        if (storedKol) {
-                          try {
-                            const extendedData = JSON.parse(storedKol);
-                            return extendedData.is_star ? '是' : '否';
-                          } catch (e) {
-                            return kolData.is_xingtu_kol ? '是' : '否';
-                          }
-                        }
-                        return kolData.is_xingtu_kol ? '是' : '否';
-                      })()}
-                    </div>
-                    <div className="text-muted-foreground">是否星图</div>
-                  </div>
-                  <div>
-                    <div className="font-medium text-lg">
-                      {(() => {
-                        const storedKol = sessionStorage.getItem("selectedKol");
-                        if (storedKol) {
-                          try {
-                            const extendedData = JSON.parse(storedKol);
-                            return extendedData.e_commerce_enable ? '是' : '否';
-                          } catch (e) {
-                            return kolData.is_live_commerce ? '是' : '否';
-                          }
-                        }
-                        return kolData.is_live_commerce ? '是' : '否';
-                      })()}
-                    </div>
-                    <div className="text-muted-foreground">是否带货</div>
-                  </div>
+                  {(() => {
+                    // 获取合并后的数据
+                    let extendedData = null;
+                    const storedKol = sessionStorage.getItem("selectedKol");
+                    if (storedKol) {
+                      try {
+                        extendedData = JSON.parse(storedKol);
+                      } catch (e) {
+                        console.error('Error parsing stored KOL data:', e);
+                      }
+                    }
+                    
+                    // 如果没有扩展数据，使用API数据，如果有则优先使用扩展数据
+                    const data = extendedData || kolData;
+                    
+                    return (
+                      <>
+                        <div>
+                          <div className="font-medium text-lg">
+                            {formatNumber(data.follower_count)}
+                          </div>
+                          <div className="text-muted-foreground">粉丝数</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-lg">
+                            {data.mcn_name || '-'}
+                          </div>
+                          <div className="text-muted-foreground">MCN机构</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-lg">
+                            {data.is_star !== undefined ? (data.is_star ? '是' : '否') : (data.is_xingtu_kol ? '是' : '否')}
+                          </div>
+                          <div className="text-muted-foreground">是否星图</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-lg">
+                            {data.e_commerce_enable !== undefined ? (data.e_commerce_enable ? '是' : '否') : (data.is_live_commerce ? '是' : '否')}
+                          </div>
+                          <div className="text-muted-foreground">是否带货</div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* 详细信息展示 */}
                 <div className="border-t pt-4 mt-4">
                   <h3 className="text-sm font-medium text-gray-900 mb-3">详细信息</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
-                    {/* 检查是否有扩展数据 */}
+                    {/* 获取合并后的数据 */}
                     {(() => {
+                      // 尝试从sessionStorage获取扩展数据
+                      let extendedData = null;
                       const storedKol = sessionStorage.getItem("selectedKol");
                       if (storedKol) {
                         try {
-                          const extendedData = JSON.parse(storedKol);
-                          // 如果数据来源于API，显示更多字段
-                          if (extendedData.mcn_name || extendedData.star_index || extendedData.vv_median_30d) {
-                            return (
-                              <>
-                                <div>
-                                  <div className="text-gray-500">MCN机构</div>
-                                  <div className="font-medium">{extendedData.mcn_name || '-'}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">星图指数</div>
-                                  <div className="font-medium">
-                                    {extendedData.star_index ? extendedData.star_index.toFixed(1) : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">平均播放量</div>
-                                  <div className="font-medium">
-                                    {extendedData.vv_median_30d ? formatNumber(extendedData.vv_median_30d) : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">互动中位数</div>
-                                  <div className="font-medium">
-                                    {extendedData.interaction_median_30d ? formatNumber(extendedData.interaction_median_30d) : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">30天涨粉</div>
-                                  <div className="font-medium">
-                                    {extendedData.fans_increment_within_30d ? formatNumber(extendedData.fans_increment_within_30d) : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">15天涨粉率</div>
-                                  <div className="font-medium">
-                                    {extendedData.fans_increment_rate_within_15d ? 
-                                      `${(extendedData.fans_increment_rate_within_15d * 100).toFixed(2)}%` : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">电商评分</div>
-                                  <div className="font-medium">
-                                    {extendedData.ecom_score ? extendedData.ecom_score.toFixed(1) : '-'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-500">建议CPM</div>
-                                  <div className="font-medium">
-                                    {extendedData.assign_cpm_suggest_price ? 
-                                      `¥${extendedData.assign_cpm_suggest_price}` : '-'}
-                                  </div>
-                                </div>
-                                {extendedData.price_1_20 && (
-                                  <div>
-                                    <div className="text-gray-500">1-20s报价</div>
-                                    <div className="font-medium">¥{extendedData.price_1_20}</div>
-                                  </div>
-                                )}
-                                {extendedData.price_20_60 && (
-                                  <div>
-                                    <div className="text-gray-500">20-60s报价</div>
-                                    <div className="font-medium">¥{extendedData.price_20_60}</div>
-                                  </div>
-                                )}
-                                {extendedData.price_60 && (
-                                  <div>
-                                    <div className="text-gray-500">60s+报价</div>
-                                    <div className="font-medium">¥{extendedData.price_60}</div>
-                                  </div>
-                                )}
-                                <div>
-                                  <div className="text-gray-500">在线状态</div>
-                                  <div className="font-medium">
-                                    {extendedData.is_online ? '在线' : '离线'}
-                                  </div>
-                                </div>
-                              </>
-                            );
-                          }
+                          extendedData = JSON.parse(storedKol);
                         } catch (e) {
                           console.error('Error parsing stored KOL data:', e);
                         }
                       }
-                      return null;
+                      
+                      // 如果没有扩展数据，使用API数据，如果有则优先使用扩展数据
+                      const data = extendedData || kolData;
+                      
+                      return (
+                        <>
+                          <div>
+                            <div className="text-gray-500">MCN机构</div>
+                            <div className="font-medium">{data.mcn_name || '-'}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">星图指数</div>
+                            <div className="font-medium">
+                              {data.star_index !== null && data.star_index !== undefined ? data.star_index.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">平均播放量</div>
+                            <div className="font-medium">
+                              {data.vv_median_30d !== null && data.vv_median_30d !== undefined ? formatNumber(data.vv_median_30d) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">互动中位数</div>
+                            <div className="font-medium">
+                              {data.interaction_median_30d !== null && data.interaction_median_30d !== undefined ? formatNumber(data.interaction_median_30d) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">15天涨粉</div>
+                            <div className="font-medium" style={{color: (data.fans_increment_within_15d || 0) < 0 ? '#ef4444' : '#10b981'}}>
+                              {data.fans_increment_within_15d !== null && data.fans_increment_within_15d !== undefined ? 
+                                (data.fans_increment_within_15d >= 0 ? '+' : '') + formatNumber(data.fans_increment_within_15d) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">30天涨粉</div>
+                            <div className="font-medium" style={{color: (data.fans_increment_within_30d || 0) < 0 ? '#ef4444' : '#10b981'}}>
+                              {data.fans_increment_within_30d !== null && data.fans_increment_within_30d !== undefined ? 
+                                (data.fans_increment_within_30d >= 0 ? '+' : '') + formatNumber(data.fans_increment_within_30d) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">15天涨粉率</div>
+                            <div className="font-medium" style={{color: (data.fans_increment_rate_within_15d || 0) < 0 ? '#ef4444' : '#10b981'}}>
+                              {data.fans_increment_rate_within_15d !== null && data.fans_increment_rate_within_15d !== undefined ? 
+                                `${(data.fans_increment_rate_within_15d * 100).toFixed(2)}%` : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">电商评分</div>
+                            <div className="font-medium">
+                              {data.ecom_score !== null && data.ecom_score !== undefined ? data.ecom_score.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">预期播放量</div>
+                            <div className="font-medium">
+                              {data.expected_play_num !== null && data.expected_play_num !== undefined ? formatNumber(data.expected_play_num) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">自然播放量</div>
+                            <div className="font-medium">
+                              {data.expected_natural_play_num !== null && data.expected_natural_play_num !== undefined ? formatNumber(data.expected_natural_play_num) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">建议CPM</div>
+                            <div className="font-medium">
+                              {data.assign_cpm_suggest_price !== null && data.assign_cpm_suggest_price !== undefined ? 
+                                `¥${data.assign_cpm_suggest_price}` : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">链接转化指数</div>
+                            <div className="font-medium">
+                              {data.link_convert_index !== null && data.link_convert_index !== undefined ? data.link_convert_index.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">链接购物指数</div>
+                            <div className="font-medium">
+                              {data.link_shopping_index !== null && data.link_shopping_index !== undefined ? data.link_shopping_index.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">链接传播指数</div>
+                            <div className="font-medium">
+                              {data.link_spread_index !== null && data.link_spread_index !== undefined ? data.link_spread_index.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">链接星图指数</div>
+                            <div className="font-medium">
+                              {data.link_star_index !== null && data.link_star_index !== undefined ? data.link_star_index.toFixed(1) : '-'}
+                            </div>
+                          </div>
+                          {data.price_1_20 !== null && data.price_1_20 !== undefined && (
+                            <div>
+                              <div className="text-gray-500">1-20s报价</div>
+                              <div className="font-medium">¥{formatNumber(data.price_1_20)}</div>
+                            </div>
+                          )}
+                          {data.price_20_60 !== null && data.price_20_60 !== undefined && (
+                            <div>
+                              <div className="text-gray-500">20-60s报价</div>
+                              <div className="font-medium">¥{formatNumber(data.price_20_60)}</div>
+                            </div>
+                          )}
+                          {data.price_60 !== null && data.price_60 !== undefined && (
+                            <div>
+                              <div className="text-gray-500">60s+报价</div>
+                              <div className="font-medium">¥{formatNumber(data.price_60)}</div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-gray-500">在线状态</div>
+                            <div className="font-medium">
+                              {data.is_online ? '在线' : '离线'}
+                            </div>
+                          </div>
+                        </>
+                      );
                     })()}
                     
                     {/* 基础信息 */}
