@@ -44,7 +44,21 @@ import {
   Video,
   Crown,
   Verified,
+  Clock,
+  Loader2,
+  X,
 } from "lucide-react";
+
+// Task queue interfaces
+interface TaskItem {
+  id: string;
+  url: string;
+  type: "content" | "influencer";
+  status: "waiting" | "processing" | "completed" | "failed";
+  addedAt: string;
+  completedAt?: string;
+  error?: string;
+}
 
 // Sample monitoring data for TikTok content
 const mockContentData = [
@@ -160,6 +174,7 @@ export default function TikTokMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("tiktok.com");
@@ -210,78 +225,143 @@ export default function TikTokMonitoring() {
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的作品监控 ${index + 1}`,
-          author: "Creator Name",
-          url: url,
-          thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          currentStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-          initialStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
+    // Create task items for each URL
+    const newTasks: TaskItem[] = validUrls.map((url) => ({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      type: isContentUrl(url) ? "content" : "influencer",
+      status: "waiting",
+      addedAt: new Date().toLocaleString("zh-CN"),
+    }));
 
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的达人 ${index + 1}`,
-          avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          verified: false,
-          userType: "Personal Account",
-          currentStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          initialStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          recentActivity: {
-            postsThisWeek: 0,
-            avgLikes: "0",
-            avgComments: "0",
-            engagementRate: "0%",
-          },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
-      }
+    // Add all tasks to queue
+    setTaskQueue(newTasks);
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`,
+    // Process tasks one by one
+    for (let i = 0; i < newTasks.length; i++) {
+      const task = newTasks[i];
+
+      // Update task status to processing
+      setTaskQueue((prev) =>
+        prev.map((t) =>
+          t.id === task.id ? { ...t, status: "processing" } : t,
+        ),
       );
-    }, 2000);
+
+      // Simulate processing time
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1500 + Math.random() * 1000),
+      );
+
+      try {
+        // Simulate random success/failure (90% success rate)
+        const success = Math.random() > 0.1;
+
+        if (success) {
+          // Add to monitoring data
+          if (task.type === "content") {
+            const newContentItem = {
+              id: Date.now() + i,
+              title: `批量添加的作品监控 ${i + 1}`,
+              author: "Creator Name",
+              url: task.url,
+              thumbnail: "/api/placeholder/120/120",
+              addedAt: task.addedAt,
+              status: "active",
+              currentStats: {
+                views: "0",
+                likes: "0",
+                comments: "0",
+                shares: "0",
+              },
+              initialStats: {
+                views: "0",
+                likes: "0",
+                comments: "0",
+                shares: "0",
+              },
+            };
+            setContentData((prev) => [newContentItem, ...prev]);
+          } else {
+            const newInfluencer = {
+              id: Date.now() + i + 1000,
+              username: `批量添加���达人 ${i + 1}`,
+              avatar: "/api/placeholder/60/60",
+              url: task.url,
+              addedAt: task.addedAt,
+              status: "active",
+              verified: false,
+              userType: "Personal Account",
+              currentStats: {
+                followers: "0",
+                following: "0",
+                works: "0",
+                totalLikes: "0",
+              },
+              initialStats: {
+                followers: "0",
+                following: "0",
+                works: "0",
+                totalLikes: "0",
+              },
+              recentActivity: {
+                postsThisWeek: 0,
+                avgLikes: "0",
+                avgComments: "0",
+                engagementRate: "0%",
+              },
+            };
+            setInfluencerData((prev) => [newInfluencer, ...prev]);
+          }
+
+          // Mark task as completed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "completed",
+                    completedAt: new Date().toLocaleString("zh-CN"),
+                  }
+                : t,
+            ),
+          );
+        } else {
+          // Mark task as failed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "failed",
+                    error: "链接解析失败，请检查链接有效性",
+                  }
+                : t,
+            ),
+          );
+        }
+      } catch (error) {
+        // Mark task as failed
+        setTaskQueue((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  status: "failed",
+                  error: "处理过程中发生错误",
+                }
+              : t,
+          ),
+        );
+      }
+    }
+
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -293,6 +373,64 @@ export default function TikTokMonitoring() {
   const handleRemoveInfluencer = (id: number) => {
     if (confirm("确定要停止监控这个达人吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue((prev) => prev.filter((task) => task.status !== "completed"));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "waiting", error: undefined }
+          : task,
+      ),
+    );
+  };
+
+  const getTaskStatusBadge = (status: TaskItem["status"]) => {
+    switch (status) {
+      case "waiting":
+        return (
+          <Badge variant="outline" className="text-blue-600 border-blue-200">
+            <Clock className="h-3 w-3 mr-1" />
+            等待中
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            处理中
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            已完成
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge
+            variant="destructive"
+            className="bg-red-100 text-red-800 border-red-200"
+          >
+            <X className="h-3 w-3 mr-1" />
+            失败
+          </Badge>
+        );
+      default:
+        return <Badge variant="secondary">未知</Badge>;
     }
   };
 
@@ -508,6 +646,168 @@ export default function TikTokMonitoring() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Task Queue Section */}
+            {taskQueue.length > 0 && (
+              <Card className="mt-6">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span className="flex items-center">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      任务队列 ({taskQueue.length})
+                    </span>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearCompletedTasks}
+                        disabled={
+                          !taskQueue.some((task) => task.status === "completed")
+                        }
+                        className="h-7 text-xs"
+                      >
+                        清除已完成
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearAllTasks}
+                        className="h-7 text-xs"
+                      >
+                        清空所有
+                      </Button>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Queue Statistics */}
+                    <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-blue-600">
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "waiting",
+                            ).length
+                          }
+                        </div>
+                        <div className="text-xs text-gray-600">等待中</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-yellow-600">
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "processing",
+                            ).length
+                          }
+                        </div>
+                        <div className="text-xs text-gray-600">处理中</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-green-600">
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "completed",
+                            ).length
+                          }
+                        </div>
+                        <div className="text-xs text-gray-600">已完成</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-red-600">
+                          {
+                            taskQueue.filter((task) => task.status === "failed")
+                              .length
+                          }
+                        </div>
+                        <div className="text-xs text-gray-600">失败</div>
+                      </div>
+                    </div>
+
+                    {/* Task List */}
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[400px]">链接</TableHead>
+                            <TableHead className="w-[100px]">类型</TableHead>
+                            <TableHead className="w-[120px]">状态</TableHead>
+                            <TableHead className="w-[150px]">
+                              添加时间
+                            </TableHead>
+                            <TableHead className="w-[150px]">
+                              完成时间
+                            </TableHead>
+                            <TableHead className="w-[100px]">操作</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {taskQueue.map((task) => (
+                            <TableRow key={task.id}>
+                              <TableCell className="font-medium">
+                                <div
+                                  className="max-w-[350px] truncate"
+                                  title={task.url}
+                                >
+                                  {task.url}
+                                </div>
+                                {task.error && (
+                                  <div className="text-xs text-red-600 mt-1">
+                                    {task.error}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="text-xs">
+                                  {task.type === "content" ? "作品" : "达人"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {getTaskStatusBadge(task.status)}
+                              </TableCell>
+                              <TableCell className="text-sm text-gray-600">
+                                {task.addedAt}
+                              </TableCell>
+                              <TableCell className="text-sm text-gray-600">
+                                {task.completedAt || "-"}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center space-x-1">
+                                  {task.status === "failed" && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 text-blue-500 hover:text-blue-700"
+                                      onClick={() =>
+                                        handleRetryFailedTask(task.id)
+                                      }
+                                      title="重试"
+                                    >
+                                      <RefreshCw className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() =>
+                                      window.open(task.url, "_blank")
+                                    }
+                                    title="查看链接"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
@@ -703,7 +1003,7 @@ export default function TikTokMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂��监控达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (

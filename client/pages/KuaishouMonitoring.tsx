@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import {
+  TaskItem,
+  createTaskQueueItems,
+  processTaskQueue,
+} from "@/lib/taskQueue";
+import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -161,6 +167,7 @@ export default function KuaishouMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
@@ -211,19 +218,19 @@ export default function KuaishouMonitoring() {
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的作品监控 ${index + 1}`,
+    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
+    setTaskQueue(newTasks);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      if (task.type === "content") {
+        const newContentItem = {
+          id: Date.now() + i,
+          title: `批量添加的作品监控 ${i + 1}`,
           author: "创作者名称",
-          url: url,
+          url: task.url,
           thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
+          addedAt: task.addedAt,
           status: "active",
           currentStats: {
             views: "0",
@@ -237,18 +244,15 @@ export default function KuaishouMonitoring() {
             comments: "0",
             shares: "0",
           },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
-
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的达人 ${index + 1}`,
+        };
+        setContentData((prev) => [newContentItem, ...prev]);
+      } else {
+        const newInfluencer = {
+          id: Date.now() + i + 1000,
+          username: `批量添加的达人 ${i + 1}`,
           avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
+          url: task.url,
+          addedAt: task.addedAt,
           status: "active",
           verified: false,
           userType: "普通用户",
@@ -270,19 +274,16 @@ export default function KuaishouMonitoring() {
             avgComments: "0",
             engagementRate: "0%",
           },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
+        };
+        setInfluencerData((prev) => [newInfluencer, ...prev]);
       }
+    });
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`,
-      );
-    }, 2000);
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -295,6 +296,26 @@ export default function KuaishouMonitoring() {
     if (confirm("确定要停止监控这个达人吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue((prev) => prev.filter((task) => task.status !== "completed"));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "waiting", error: undefined }
+          : task,
+      ),
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -509,6 +530,13 @@ export default function KuaishouMonitoring() {
                 </div>
               </CardContent>
             </Card>
+
+            <TaskQueueSection
+              taskQueue={taskQueue}
+              onClearCompleted={handleClearCompletedTasks}
+              onClearAll={handleClearAllTasks}
+              onRetryFailed={handleRetryFailedTask}
+            />
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
@@ -704,7 +732,7 @@ export default function KuaishouMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂无监��达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
@@ -822,7 +850,7 @@ export default function KuaishouMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、作品数、获赞总数的时间趋势变化
+                                          将显示粉丝数、作品数、获赞总数的时间趋��变化
                                         </span>
                                       </div>
                                     </div>
