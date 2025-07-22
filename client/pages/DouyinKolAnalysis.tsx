@@ -311,6 +311,25 @@ export default function DouyinKolAnalysis() {
       is_game_author: kol.is_game_author,
       is_plan_author: kol.is_plan_author,
       e_commerce_enable: kol.e_commerce_enable,
+      // 数据分析字段
+      fans_increment_rate_within_15d: kol.fans_increment_rate_within_15d,
+      fans_increment_within_15d: kol.fans_increment_within_15d,
+      fans_increment_within_30d: kol.fans_increment_within_30d,
+      ecom_score: kol.ecom_score,
+      assign_cpm_suggest_price: kol.assign_cpm_suggest_price,
+      price_1_20: kol.price_1_20,
+      price_20_60: kol.price_20_60,
+      price_60: kol.price_60,
+      expected_play_num: kol.expected_play_num,
+      expected_natural_play_num: kol.expected_natural_play_num,
+      brand_boost_vv: kol.brand_boost_vv,
+      vv_median_30d: kol.vv_median_30d,
+      interaction_median_30d: kol.interaction_median_30d,
+      star_index: kol.star_index,
+      link_convert_index: kol.link_convert_index,
+      link_shopping_index: kol.link_shopping_index,
+      link_spread_index: kol.link_spread_index,
+      link_star_index: kol.link_star_index,
     };
     
     // 保存选中的KOL数据
