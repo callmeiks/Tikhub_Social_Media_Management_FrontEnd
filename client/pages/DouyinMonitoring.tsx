@@ -174,6 +174,7 @@ export default function DouyinMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("douyin.com");
@@ -423,7 +424,7 @@ export default function DouyinMonitoring() {
                 {/* File Upload Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    ��式一：上传文件
+                    方式一：上传文件
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -657,7 +658,7 @@ export default function DouyinMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示播放量、点赞数、评论数的时间趋势变化
+                                          将显示播放量、点赞数、评��数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
@@ -717,7 +718,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监���达人，请先添加达人链接
+                      暂无监控达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
