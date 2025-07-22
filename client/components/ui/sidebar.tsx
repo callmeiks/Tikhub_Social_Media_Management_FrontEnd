@@ -91,11 +91,11 @@ const menuItems: MenuItem[] = [
     icon: BarChart3,
     href: "/data-monitoring",
     subItems: [
-      {
-        title: "指定作品监控",
-        href: "/data-monitoring/content-monitoring",
-      },
-      { title: "达人监控", href: "/data-monitoring/influencer-monitoring" },
+      { title: "抖音监控", href: "/data-monitoring/douyin" },
+      { title: "TikTok监控", href: "/data-monitoring/tiktok" },
+      { title: "小红书监控", href: "/data-monitoring/xiaohongshu" },
+      { title: "快手监控", href: "/data-monitoring/kuaishou" },
+      { title: "Instagram监控", href: "/data-monitoring/instagram" },
       { title: "自定义监控榜单", href: "/data-monitoring/custom-rankings" },
       { title: "当前任务管理", href: "/data-monitoring/task-management" },
     ],
