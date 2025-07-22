@@ -96,6 +96,7 @@ const menuItems: MenuItem[] = [
       { title: "小红书监控", href: "/data-monitoring/xiaohongshu" },
       { title: "快手监控", href: "/data-monitoring/kuaishou" },
       { title: "Instagram监控", href: "/data-monitoring/instagram" },
+      { title: "X监控", href: "/data-monitoring/x" },
       { title: "自定义监控榜单", href: "/data-monitoring/custom-rankings" },
       { title: "当前任务管理", href: "/data-monitoring/task-management" },
     ],
@@ -313,7 +314,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                     </CollapsibleTrigger>
                     {hasSubItems && isOpen && (
                       <CollapsibleContent className="space-y-0.5 mt-1">
-                        {item.subItems?.map((subItem) =>
+                        {item.subItems?.map((subItem) => (
                           subItem.external ? (
                             <Button
                               key={subItem.href}
@@ -322,9 +323,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                 "w-full justify-start pl-10 pr-3 py-2 text-xs h-8 transition-all duration-150",
                                 "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                               )}
-                              onClick={() =>
-                                window.open(subItem.href, "_blank")
-                              }
+                              onClick={() => window.open(subItem.href, '_blank')}
                             >
                               <span className="truncate">{subItem.title}</span>
                               {subItem.badge && (
@@ -353,9 +352,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                                 )}
                               >
-                                <span className="truncate">
-                                  {subItem.title}
-                                </span>
+                                <span className="truncate">{subItem.title}</span>
                                 {subItem.badge && (
                                   <Badge
                                     variant="secondary"
@@ -372,8 +369,8 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                 )}
                               </Button>
                             </Link>
-                          ),
-                        )}
+                          )
+                        ))}
                       </CollapsibleContent>
                     )}
                   </Collapsible>
