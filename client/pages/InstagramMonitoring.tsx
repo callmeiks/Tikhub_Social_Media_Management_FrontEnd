@@ -7,14 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -94,6 +86,28 @@ const mockContentData = [
       shares: "721",
     },
   },
+  {
+    id: 3,
+    title: "Modern minimalist home tour ✨",
+    author: "homestyle_daily",
+    url: "https://www.instagram.com/p/GHI789JKL012/",
+    thumbnail: "/api/placeholder/120/120",
+    addedAt: "2024-01-13 14:15",
+    status: "active",
+    type: "Photo",
+    currentStats: {
+      views: "78.5K",
+      likes: "12.4K",
+      comments: "534",
+      shares: "289",
+    },
+    initialStats: {
+      views: "65.2K",
+      likes: "9.8K",
+      comments: "412",
+      shares: "201",
+    },
+  },
 ];
 
 // Sample monitoring data for Instagram influencers
@@ -154,6 +168,34 @@ const mockInfluencerData = [
       engagementRate: "19.8%",
     },
   },
+  {
+    id: 3,
+    username: "homestyle_daily",
+    avatar: "/api/placeholder/60/60", 
+    url: "https://www.instagram.com/homestyle_daily/",
+    addedAt: "2024-01-13 14:15",
+    status: "active",
+    verified: true,
+    userType: "Lifestyle Creator",
+    currentStats: {
+      followers: "156.3K",
+      following: "892",
+      works: "1.5K",
+      totalLikes: "4.2M",
+    },
+    initialStats: {
+      followers: "149.7K",
+      following: "875",
+      works: "1.47K",
+      totalLikes: "3.9M",
+    },
+    recentActivity: {
+      postsThisWeek: 5,
+      avgLikes: "12.4K",
+      avgComments: "534",
+      engagementRate: "8.9%",
+    },
+  },
 ];
 
 export default function InstagramMonitoring() {
@@ -170,9 +212,7 @@ export default function InstagramMonitoring() {
   };
 
   const isContentUrl = (url: string) => {
-    return (
-      url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/")
-    );
+    return url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/");
   };
 
   const processBatchUrls = (urls: string) => {
@@ -218,7 +258,7 @@ export default function InstagramMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
+      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -285,9 +325,7 @@ export default function InstagramMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`,
-      );
+      alert(`成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`);
     }, 2000);
   };
 
@@ -346,12 +384,8 @@ export default function InstagramMonitoring() {
   };
 
   const calculateGrowth = (current: string, initial: string) => {
-    const currentNum = parseFloat(
-      current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
-    );
-    const initialNum = parseFloat(
-      initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
-    );
+    const currentNum = parseFloat(current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
+    const initialNum = parseFloat(initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
 
     if (initialNum === 0) return "0%";
     const growth = ((currentNum - initialNum) / initialNum) * 100;
@@ -361,7 +395,7 @@ export default function InstagramMonitoring() {
   return (
     <DashboardLayout
       title="Instagram监控"
-      subtitle="实时监控Instagram平台的用户和内容数据��化"
+      subtitle="实时监控Instagram平台的用户和内容数据变化"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -387,9 +421,7 @@ export default function InstagramMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">
-                  用户监控: {influencerData.length}
-                </span>
+                <span className="text-sm">用户监控: {influencerData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -456,14 +488,13 @@ export default function InstagramMonitoring() {
                   </label>
                   <div className="space-y-3">
                     <Textarea
-                      placeholder="请输入Instagram链接，每行一个链接&#10;帖子链接示例：&#10;https://www.instagram.com/p/ABC123DEF456/&#10;https://www.instagram.com/reel/DEF456GHI789/&#10;&#10;用户主页链接示例：&#10;https://www.instagram.com/username/"
+                      placeholder="请输入Instagram链接，每行一个链接&#10;帖���链接示例：&#10;https://www.instagram.com/p/ABC123DEF456/&#10;https://www.instagram.com/reel/DEF456GHI789/&#10;&#10;用户主页链接示例：&#10;https://www.instagram.com/username/"
                       value={batchUrls}
                       onChange={(e) => handleBatchUrlsChange(e.target.value)}
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡
-                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
+                      💡 支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -479,14 +510,8 @@ export default function InstagramMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            内容链接: {validUrls.filter(isContentUrl).length} 个
-                            <br />
-                            用户链接:{" "}
-                            {
-                              validUrls.filter((url) => !isContentUrl(url))
-                                .length
-                            }{" "}
-                            个
+                            内容链接: {validUrls.filter(isContentUrl).length} 个<br/>
+                            用户链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
                           </div>
                         </div>
                       </div>
@@ -538,11 +563,7 @@ export default function InstagramMonitoring() {
                     内容监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      contentData.filter((item) => item.status === "active")
-                        .length
-                    }
+                    活跃监控: {contentData.filter((item) => item.status === "active").length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -555,106 +576,85 @@ export default function InstagramMonitoring() {
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[300px]">内容信息</TableHead>
-                          <TableHead className="w-[80px]">类型</TableHead>
-                          <TableHead className="w-[100px]">当前浏览</TableHead>
-                          <TableHead className="w-[100px]">当前点赞</TableHead>
-                          <TableHead className="w-[100px]">当前评论</TableHead>
-                          <TableHead className="w-[100px]">增长率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
-                          <TableHead className="w-[120px]">操作</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {contentData.map((content) => (
-                          <TableRow key={content.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-                                  <Camera className="h-5 w-5 text-white" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {contentData.map((content) => (
+                      <Card key={content.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                        {/* Content Image/Thumbnail */}
+                        <div className="relative h-48 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Camera className="h-12 w-12 text-white/80" />
+                          </div>
+                          {/* Type Badge */}
+                          <div className="absolute top-3 left-3">
+                            <Badge variant="secondary" className="bg-white/90 text-xs flex items-center gap-1">
+                              {getContentTypeIcon(content.type)}
+                              {content.type}
+                            </Badge>
+                          </div>
+                          {/* Status Badge */}
+                          <div className="absolute top-3 right-3">
+                            {getStatusBadge(content.status)}
+                          </div>
+                          {/* Trending Indicator */}
+                          <div className="absolute bottom-3 right-3">
+                            <div className="bg-white/90 rounded-full px-2 py-1 text-xs font-medium text-green-600">
+                              ↗️ 增长中
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <CardContent className="p-4">
+                          {/* Content Info */}
+                          <div className="space-y-3">
+                            <div>
+                              <h3 className="font-medium text-sm line-clamp-2 leading-tight" title={content.title}>
+                                {content.title}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                by @{content.author}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                添加于 {content.addedAt}
+                              </p>
+                            </div>
+                            
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Eye className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div>
-                                  <div
-                                    className="max-w-[200px] truncate font-medium"
-                                    title={content.title}
-                                  >
-                                    {content.title}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    by @{content.author}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    添加于 {content.addedAt}
-                                  </div>
+                                <div className="font-medium">{content.currentStats.views}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.views, content.initialStats.views)}
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant="outline"
-                                className="text-xs flex items-center gap-1"
-                              >
-                                {getContentTypeIcon(content.type)}
-                                {content.type}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {content.currentStats.views}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Heart className="h-3 w-3 text-red-500" />
+                                </div>
+                                <div className="font-medium">{content.currentStats.likes}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.likes, content.initialStats.likes)}
+                                </div>
                               </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.views,
-                                  content.initialStats.views,
-                                )}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <MessageCircle className="h-3 w-3 text-green-500" />
+                                </div>
+                                <div className="font-medium">{content.currentStats.comments}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(content.currentStats.comments, content.initialStats.comments)}
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {content.currentStats.likes}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.likes,
-                                  content.initialStats.likes,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {content.currentStats.comments}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.comments,
-                                  content.initialStats.comments,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm font-medium text-green-600">
-                                ↗️ 增长中
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(content.status)}
-                            </TableCell>
-                            <TableCell>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -667,7 +667,7 @@ export default function InstagramMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发��...
+                                        📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示浏览量、点赞数、评论数的时间趋势变化
@@ -679,29 +679,27 @@ export default function InstagramMonitoring() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() =>
-                                    window.open(content.url, "_blank")
-                                  }
+                                  className="h-8 w-8 p-0"
+                                  title="打开原链接"
+                                  onClick={() => window.open(content.url, "_blank")}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveContent(content.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                title="删除监控"
+                                onClick={() => handleRemoveContent(content.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </CardContent>
@@ -717,11 +715,7 @@ export default function InstagramMonitoring() {
                     用户监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      influencerData.filter((item) => item.status === "active")
-                        .length
-                    }
+                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -734,105 +728,91 @@ export default function InstagramMonitoring() {
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[250px]">用户信息</TableHead>
-                          <TableHead className="w-[120px]">
-                            当前粉丝数
-                          </TableHead>
-                          <TableHead className="w-[100px]">帖子数</TableHead>
-                          <TableHead className="w-[120px]">获赞总数</TableHead>
-                          <TableHead className="w-[100px]">互动率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
-                          <TableHead className="w-[120px]">操作</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {influencerData.map((influencer) => (
-                          <TableRow key={influencer.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center text-white text-sm font-bold">
-                                  {influencer.username.charAt(0).toUpperCase()}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {influencerData.map((influencer) => (
+                      <Card key={influencer.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                        {/* User Profile Header */}
+                        <div className="relative h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg font-bold">
+                              {influencer.username.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                          {/* Verification Badge */}
+                          {influencer.verified && (
+                            <div className="absolute top-3 right-3">
+                              {getVerificationIcon(influencer.verified, influencer.userType)}
+                            </div>
+                          )}
+                          {/* Status Badge */}
+                          <div className="absolute bottom-3 right-3">
+                            {getStatusBadge(influencer.status)}
+                          </div>
+                        </div>
+                        
+                        <CardContent className="p-4">
+                          <div className="space-y-3">
+                            {/* User Info */}
+                            <div className="text-center">
+                              <h3 className="font-medium text-sm flex items-center justify-center gap-1">
+                                @{influencer.username}
+                                {getVerificationIcon(influencer.verified, influencer.userType)}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {influencer.userType}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                添加于 {influencer.addedAt}
+                              </p>
+                            </div>
+                            
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Users className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div>
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-medium">
-                                      @{influencer.username}
-                                    </span>
-                                    {getVerificationIcon(
-                                      influencer.verified,
-                                      influencer.userType,
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {influencer.userType}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    添加于 {influencer.addedAt}
-                                  </div>
+                                <div className="font-medium">{influencer.currentStats.followers}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.followers, influencer.initialStats.followers)}
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Users className="h-3 w-3 mr-1 text-blue-500" />
-                                {influencer.currentStats.followers}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Video className="h-3 w-3 text-purple-500" />
+                                </div>
+                                <div className="font-medium">{influencer.currentStats.works}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.works, influencer.initialStats.works)}
+                                </div>
                               </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.followers,
-                                  influencer.initialStats.followers,
-                                )}
+                              <div className="text-center">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Heart className="h-3 w-3 text-red-500" />
+                                </div>
+                                <div className="font-medium">{influencer.currentStats.totalLikes}</div>
+                                <div className="text-green-600 text-xs">
+                                  {calculateGrowth(influencer.currentStats.totalLikes, influencer.initialStats.totalLikes)}
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Video className="h-3 w-3 mr-1 text-purple-500" />
-                                {influencer.currentStats.works}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.works,
-                                  influencer.initialStats.works,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="flex items-center">
-                                <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {influencer.currentStats.totalLikes}
-                              </div>
-                              <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.totalLikes,
-                                  influencer.initialStats.totalLikes,
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              <div className="font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate}
+                            </div>
+                            
+                            {/* Engagement Rate */}
+                            <div className="text-center pt-2 border-t">
+                              <div className="text-sm font-medium text-green-600">
+                                {influencer.recentActivity.engagementRate} 互动率
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek}{" "}
-                                帖子
+                                本周 {influencer.recentActivity.postsThisWeek} 帖子
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(influencer.status)}
-                            </TableCell>
-                            <TableCell>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                    >
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -857,29 +837,27 @@ export default function InstagramMonitoring() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() =>
-                                    window.open(influencer.url, "_blank")
-                                  }
+                                  className="h-8 w-8 p-0"
+                                  title="打开原链接"
+                                  onClick={() => window.open(influencer.url, "_blank")}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveInfluencer(influencer.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                title="删除监控"
+                                onClick={() => handleRemoveInfluencer(influencer.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </CardContent>
