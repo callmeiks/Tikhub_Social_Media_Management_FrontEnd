@@ -214,19 +214,19 @@ export default function KuaishouMonitoring() {
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的作品监控 ${index + 1}`,
+    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
+    setTaskQueue(newTasks);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      if (task.type === 'content') {
+        const newContentItem = {
+          id: Date.now() + i,
+          title: `批量添加的作品监控 ${i + 1}`,
           author: "创作者名称",
-          url: url,
+          url: task.url,
           thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
+          addedAt: task.addedAt,
           status: "active",
           currentStats: {
             views: "0",
@@ -240,18 +240,15 @@ export default function KuaishouMonitoring() {
             comments: "0",
             shares: "0",
           },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
-
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的达人 ${index + 1}`,
+        };
+        setContentData(prev => [newContentItem, ...prev]);
+      } else {
+        const newInfluencer = {
+          id: Date.now() + i + 1000,
+          username: `批量添加的达人 ${i + 1}`,
           avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
+          url: task.url,
+          addedAt: task.addedAt,
           status: "active",
           verified: false,
           userType: "普通用户",
@@ -273,19 +270,16 @@ export default function KuaishouMonitoring() {
             avgComments: "0",
             engagementRate: "0%",
           },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
+        };
+        setInfluencerData(prev => [newInfluencer, ...prev]);
       }
+    });
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`,
-      );
-    }, 2000);
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -637,7 +631,7 @@ export default function KuaishouMonitoring() {
                                   </DialogTrigger>
                                   <DialogContent className="max-w-4xl">
                                     <DialogHeader>
-                                      <DialogTitle>作品监控趋���</DialogTitle>
+                                      <DialogTitle>作品监控趋势</DialogTitle>
                                       <DialogDescription>
                                         {content.title} - 快手
                                       </DialogDescription>
@@ -691,10 +685,10 @@ export default function KuaishouMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监���列表 ({influencerData.length})
+                    达人监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
+                    活跃���控:{" "}
                     {
                       influencerData.filter((item) => item.status === "active")
                         .length
