@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import { TaskItem, createTaskQueueItems, processTaskQueue } from "@/lib/taskQueue";
+import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -359,7 +361,7 @@ export default function KuaishouMonitoring() {
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              ⚡ 快手平台监控
+              ⚡ 快手平台��控
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -445,7 +447,7 @@ export default function KuaishouMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作品链接和达人主页链接，系统会自动识别类型
+                      💡 支持同时添加作品链接和达人主页链接，系统会自动识���类型
                     </div>
                   </div>
                 </div>
@@ -504,7 +506,7 @@ export default function KuaishouMonitoring() {
                     )}
                     {isAdding
                       ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                      : `批量添�� (${validUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
