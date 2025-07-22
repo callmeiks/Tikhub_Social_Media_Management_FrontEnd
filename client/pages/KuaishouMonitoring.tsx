@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
-import { TaskItem, createTaskQueueItems, processTaskQueue } from "@/lib/taskQueue";
+import {
+  TaskItem,
+  createTaskQueueItems,
+  processTaskQueue,
+} from "@/lib/taskQueue";
 import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -219,7 +223,7 @@ export default function KuaishouMonitoring() {
     setTaskQueue(newTasks);
 
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      if (task.type === 'content') {
+      if (task.type === "content") {
         const newContentItem = {
           id: Date.now() + i,
           title: `批量添加的作品监控 ${i + 1}`,
@@ -241,7 +245,7 @@ export default function KuaishouMonitoring() {
             shares: "0",
           },
         };
-        setContentData(prev => [newContentItem, ...prev]);
+        setContentData((prev) => [newContentItem, ...prev]);
       } else {
         const newInfluencer = {
           id: Date.now() + i + 1000,
@@ -271,7 +275,7 @@ export default function KuaishouMonitoring() {
             engagementRate: "0%",
           },
         };
-        setInfluencerData(prev => [newInfluencer, ...prev]);
+        setInfluencerData((prev) => [newInfluencer, ...prev]);
       }
     });
 
@@ -295,7 +299,7 @@ export default function KuaishouMonitoring() {
   };
 
   const handleClearCompletedTasks = () => {
-    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+    setTaskQueue((prev) => prev.filter((task) => task.status !== "completed"));
   };
 
   const handleClearAllTasks = () => {
@@ -305,10 +309,12 @@ export default function KuaishouMonitoring() {
   };
 
   const handleRetryFailedTask = (taskId: string) => {
-    setTaskQueue(prev =>
-      prev.map(task =>
-        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
-      )
+    setTaskQueue((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "waiting", error: undefined }
+          : task,
+      ),
     );
   };
 

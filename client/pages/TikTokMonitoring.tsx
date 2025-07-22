@@ -53,8 +53,8 @@ import {
 interface TaskItem {
   id: string;
   url: string;
-  type: 'content' | 'influencer';
-  status: 'waiting' | 'processing' | 'completed' | 'failed';
+  type: "content" | "influencer";
+  status: "waiting" | "processing" | "completed" | "failed";
   addedAt: string;
   completedAt?: string;
   error?: string;
@@ -230,8 +230,8 @@ export default function TikTokMonitoring() {
     const newTasks: TaskItem[] = validUrls.map((url) => ({
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       url,
-      type: isContentUrl(url) ? 'content' : 'influencer',
-      status: 'waiting',
+      type: isContentUrl(url) ? "content" : "influencer",
+      status: "waiting",
       addedAt: new Date().toLocaleString("zh-CN"),
     }));
 
@@ -243,12 +243,16 @@ export default function TikTokMonitoring() {
       const task = newTasks[i];
 
       // Update task status to processing
-      setTaskQueue(prev =>
-        prev.map(t => t.id === task.id ? { ...t, status: 'processing' } : t)
+      setTaskQueue((prev) =>
+        prev.map((t) =>
+          t.id === task.id ? { ...t, status: "processing" } : t,
+        ),
       );
 
       // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1500 + Math.random() * 1000),
+      );
 
       try {
         // Simulate random success/failure (90% success rate)
@@ -256,7 +260,7 @@ export default function TikTokMonitoring() {
 
         if (success) {
           // Add to monitoring data
-          if (task.type === 'content') {
+          if (task.type === "content") {
             const newContentItem = {
               id: Date.now() + i,
               title: `批量添加的作品监控 ${i + 1}`,
@@ -278,7 +282,7 @@ export default function TikTokMonitoring() {
                 shares: "0",
               },
             };
-            setContentData(prev => [newContentItem, ...prev]);
+            setContentData((prev) => [newContentItem, ...prev]);
           } else {
             const newInfluencer = {
               id: Date.now() + i + 1000,
@@ -308,35 +312,47 @@ export default function TikTokMonitoring() {
                 engagementRate: "0%",
               },
             };
-            setInfluencerData(prev => [newInfluencer, ...prev]);
+            setInfluencerData((prev) => [newInfluencer, ...prev]);
           }
 
           // Mark task as completed
-          setTaskQueue(prev =>
-            prev.map(t => t.id === task.id ? {
-              ...t,
-              status: 'completed',
-              completedAt: new Date().toLocaleString("zh-CN")
-            } : t)
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "completed",
+                    completedAt: new Date().toLocaleString("zh-CN"),
+                  }
+                : t,
+            ),
           );
         } else {
           // Mark task as failed
-          setTaskQueue(prev =>
-            prev.map(t => t.id === task.id ? {
-              ...t,
-              status: 'failed',
-              error: '链接解析失败，请检查链接有效性'
-            } : t)
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "failed",
+                    error: "链接解析失败，请检查链接有效性",
+                  }
+                : t,
+            ),
           );
         }
       } catch (error) {
         // Mark task as failed
-        setTaskQueue(prev =>
-          prev.map(t => t.id === task.id ? {
-            ...t,
-            status: 'failed',
-            error: '处理过程中发生错误'
-          } : t)
+        setTaskQueue((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  status: "failed",
+                  error: "处理过程中发生错误",
+                }
+              : t,
+          ),
         );
       }
     }
@@ -361,7 +377,7 @@ export default function TikTokMonitoring() {
   };
 
   const handleClearCompletedTasks = () => {
-    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+    setTaskQueue((prev) => prev.filter((task) => task.status !== "completed"));
   };
 
   const handleClearAllTasks = () => {
@@ -371,39 +387,44 @@ export default function TikTokMonitoring() {
   };
 
   const handleRetryFailedTask = (taskId: string) => {
-    setTaskQueue(prev =>
-      prev.map(task =>
-        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
-      )
+    setTaskQueue((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "waiting", error: undefined }
+          : task,
+      ),
     );
   };
 
-  const getTaskStatusBadge = (status: TaskItem['status']) => {
+  const getTaskStatusBadge = (status: TaskItem["status"]) => {
     switch (status) {
-      case 'waiting':
+      case "waiting":
         return (
           <Badge variant="outline" className="text-blue-600 border-blue-200">
             <Clock className="h-3 w-3 mr-1" />
             等待中
           </Badge>
         );
-      case 'processing':
+      case "processing":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             处理中
           </Badge>
         );
-      case 'completed':
+      case "completed":
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
             已完成
           </Badge>
         );
-      case 'failed':
+      case "failed":
         return (
-          <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+          <Badge
+            variant="destructive"
+            className="bg-red-100 text-red-800 border-red-200"
+          >
             <X className="h-3 w-3 mr-1" />
             失败
           </Badge>
@@ -640,7 +661,9 @@ export default function TikTokMonitoring() {
                         variant="outline"
                         size="sm"
                         onClick={handleClearCompletedTasks}
-                        disabled={!taskQueue.some(task => task.status === 'completed')}
+                        disabled={
+                          !taskQueue.some((task) => task.status === "completed")
+                        }
                         className="h-7 text-xs"
                       >
                         清除已完成
@@ -662,25 +685,40 @@ export default function TikTokMonitoring() {
                     <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                       <div className="text-center">
                         <div className="text-lg font-semibold text-blue-600">
-                          {taskQueue.filter(task => task.status === 'waiting').length}
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "waiting",
+                            ).length
+                          }
                         </div>
                         <div className="text-xs text-gray-600">等待中</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold text-yellow-600">
-                          {taskQueue.filter(task => task.status === 'processing').length}
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "processing",
+                            ).length
+                          }
                         </div>
                         <div className="text-xs text-gray-600">处理中</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold text-green-600">
-                          {taskQueue.filter(task => task.status === 'completed').length}
+                          {
+                            taskQueue.filter(
+                              (task) => task.status === "completed",
+                            ).length
+                          }
                         </div>
                         <div className="text-xs text-gray-600">已完成</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold text-red-600">
-                          {taskQueue.filter(task => task.status === 'failed').length}
+                          {
+                            taskQueue.filter((task) => task.status === "failed")
+                              .length
+                          }
                         </div>
                         <div className="text-xs text-gray-600">失败</div>
                       </div>
@@ -694,8 +732,12 @@ export default function TikTokMonitoring() {
                             <TableHead className="w-[400px]">链接</TableHead>
                             <TableHead className="w-[100px]">类型</TableHead>
                             <TableHead className="w-[120px]">状态</TableHead>
-                            <TableHead className="w-[150px]">添加时间</TableHead>
-                            <TableHead className="w-[150px]">完成时间</TableHead>
+                            <TableHead className="w-[150px]">
+                              添加时间
+                            </TableHead>
+                            <TableHead className="w-[150px]">
+                              完成时间
+                            </TableHead>
                             <TableHead className="w-[100px]">操作</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -703,7 +745,10 @@ export default function TikTokMonitoring() {
                           {taskQueue.map((task) => (
                             <TableRow key={task.id}>
                               <TableCell className="font-medium">
-                                <div className="max-w-[350px] truncate" title={task.url}>
+                                <div
+                                  className="max-w-[350px] truncate"
+                                  title={task.url}
+                                >
                                   {task.url}
                                 </div>
                                 {task.error && (
@@ -714,7 +759,7 @@ export default function TikTokMonitoring() {
                               </TableCell>
                               <TableCell>
                                 <Badge variant="secondary" className="text-xs">
-                                  {task.type === 'content' ? '作品' : '达人'}
+                                  {task.type === "content" ? "作品" : "达人"}
                                 </Badge>
                               </TableCell>
                               <TableCell>
@@ -724,16 +769,18 @@ export default function TikTokMonitoring() {
                                 {task.addedAt}
                               </TableCell>
                               <TableCell className="text-sm text-gray-600">
-                                {task.completedAt || '-'}
+                                {task.completedAt || "-"}
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center space-x-1">
-                                  {task.status === 'failed' && (
+                                  {task.status === "failed" && (
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       className="h-6 w-6 p-0 text-blue-500 hover:text-blue-700"
-                                      onClick={() => handleRetryFailedTask(task.id)}
+                                      onClick={() =>
+                                        handleRetryFailedTask(task.id)
+                                      }
                                       title="重试"
                                     >
                                       <RefreshCw className="h-3 w-3" />
@@ -743,7 +790,9 @@ export default function TikTokMonitoring() {
                                     variant="ghost"
                                     size="sm"
                                     className="h-6 w-6 p-0"
-                                    onClick={() => window.open(task.url, "_blank")}
+                                    onClick={() =>
+                                      window.open(task.url, "_blank")
+                                    }
                                     title="查看链接"
                                   >
                                     <ExternalLink className="h-3 w-3" />

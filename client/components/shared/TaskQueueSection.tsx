@@ -27,38 +27,41 @@ interface TaskQueueSectionProps {
   onRetryFailed: (taskId: string) => void;
 }
 
-export function TaskQueueSection({ 
-  taskQueue, 
-  onClearCompleted, 
-  onClearAll, 
-  onRetryFailed 
+export function TaskQueueSection({
+  taskQueue,
+  onClearCompleted,
+  onClearAll,
+  onRetryFailed,
 }: TaskQueueSectionProps) {
-  const getTaskStatusBadge = (status: TaskItem['status']) => {
+  const getTaskStatusBadge = (status: TaskItem["status"]) => {
     switch (status) {
-      case 'waiting':
+      case "waiting":
         return (
           <Badge variant="outline" className="text-blue-600 border-blue-200">
             <Clock className="h-3 w-3 mr-1" />
             等待中
           </Badge>
         );
-      case 'processing':
+      case "processing":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             处理中
           </Badge>
         );
-      case 'completed':
+      case "completed":
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
             已完成
           </Badge>
         );
-      case 'failed':
+      case "failed":
         return (
-          <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+          <Badge
+            variant="destructive"
+            className="bg-red-100 text-red-800 border-red-200"
+          >
             <X className="h-3 w-3 mr-1" />
             失败
           </Badge>
@@ -85,7 +88,7 @@ export function TaskQueueSection({
               variant="outline"
               size="sm"
               onClick={onClearCompleted}
-              disabled={!taskQueue.some(task => task.status === 'completed')}
+              disabled={!taskQueue.some((task) => task.status === "completed")}
               className="h-7 text-xs"
             >
               清除已完成
@@ -107,25 +110,28 @@ export function TaskQueueSection({
           <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
               <div className="text-lg font-semibold text-blue-600">
-                {taskQueue.filter(task => task.status === 'waiting').length}
+                {taskQueue.filter((task) => task.status === "waiting").length}
               </div>
               <div className="text-xs text-gray-600">等待中</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-yellow-600">
-                {taskQueue.filter(task => task.status === 'processing').length}
+                {
+                  taskQueue.filter((task) => task.status === "processing")
+                    .length
+                }
               </div>
               <div className="text-xs text-gray-600">处理中</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-green-600">
-                {taskQueue.filter(task => task.status === 'completed').length}
+                {taskQueue.filter((task) => task.status === "completed").length}
               </div>
               <div className="text-xs text-gray-600">已完成</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-red-600">
-                {taskQueue.filter(task => task.status === 'failed').length}
+                {taskQueue.filter((task) => task.status === "failed").length}
               </div>
               <div className="text-xs text-gray-600">失败</div>
             </div>
@@ -159,21 +165,19 @@ export function TaskQueueSection({
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="text-xs">
-                        {task.type === 'content' ? '作品' : '达人'}
+                        {task.type === "content" ? "作品" : "达人"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {getTaskStatusBadge(task.status)}
-                    </TableCell>
+                    <TableCell>{getTaskStatusBadge(task.status)}</TableCell>
                     <TableCell className="text-sm text-gray-600">
                       {task.addedAt}
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {task.completedAt || '-'}
+                      {task.completedAt || "-"}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-1">
-                        {task.status === 'failed' && (
+                        {task.status === "failed" && (
                           <Button
                             variant="ghost"
                             size="sm"
