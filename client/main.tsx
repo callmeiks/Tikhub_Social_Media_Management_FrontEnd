@@ -257,9 +257,9 @@ const App = () => (
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
           />
-          
+
           <Route path="/ads-products/*" element={<DataCollection />} />
-          
+
           {/* KOL Search & Analysis default route - moved after specific routes */}
           <Route path="/kol-search-analysis" element={<DataCollection />} />
 

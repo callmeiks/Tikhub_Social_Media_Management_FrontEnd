@@ -215,7 +215,7 @@ export default function XiaohongshuMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
+      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -282,7 +282,9 @@ export default function XiaohongshuMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(`成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`);
+      alert(
+        `成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`,
+      );
     }, 2000);
   };
 
@@ -379,7 +381,9 @@ export default function XiaohongshuMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">博主监控: {influencerData.length}</span>
+                <span className="text-sm">
+                  博主监控: {influencerData.length}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -468,8 +472,14 @@ export default function XiaohongshuMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            笔记链接: {validUrls.filter(isContentUrl).length} 个<br/>
-                            博主链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
+                            笔记链接: {validUrls.filter(isContentUrl).length} 个
+                            <br />
+                            博主链接:{" "}
+                            {
+                              validUrls.filter((url) => !isContentUrl(url))
+                                .length
+                            }{" "}
+                            个
                           </div>
                         </div>
                       </div>
@@ -521,7 +531,11 @@ export default function XiaohongshuMonitoring() {
                     笔记监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {contentData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -692,7 +706,11 @@ export default function XiaohongshuMonitoring() {
                     博主监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -710,7 +728,9 @@ export default function XiaohongshuMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[250px]">博主信息</TableHead>
-                          <TableHead className="w-[120px]">当前粉丝数</TableHead>
+                          <TableHead className="w-[120px]">
+                            当前粉丝数
+                          </TableHead>
                           <TableHead className="w-[100px]">笔记数</TableHead>
                           <TableHead className="w-[120px]">获赞总数</TableHead>
                           <TableHead className="w-[100px]">互动率</TableHead>
@@ -786,7 +806,8 @@ export default function XiaohongshuMonitoring() {
                                 {influencer.recentActivity.engagementRate}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek} 笔记
+                                本周 {influencer.recentActivity.postsThisWeek}{" "}
+                                笔记
                               </div>
                             </TableCell>
                             <TableCell>

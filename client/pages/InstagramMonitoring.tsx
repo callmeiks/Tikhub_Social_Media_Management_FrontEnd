@@ -170,7 +170,9 @@ export default function InstagramMonitoring() {
   };
 
   const isContentUrl = (url: string) => {
-    return url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/");
+    return (
+      url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/")
+    );
   };
 
   const processBatchUrls = (urls: string) => {
@@ -216,7 +218,7 @@ export default function InstagramMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
+      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -283,7 +285,9 @@ export default function InstagramMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(`成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`);
+      alert(
+        `成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`,
+      );
     }, 2000);
   };
 
@@ -342,8 +346,12 @@ export default function InstagramMonitoring() {
   };
 
   const calculateGrowth = (current: string, initial: string) => {
-    const currentNum = parseFloat(current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
-    const initialNum = parseFloat(initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
+    const currentNum = parseFloat(
+      current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
+    );
+    const initialNum = parseFloat(
+      initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
+    );
 
     if (initialNum === 0) return "0%";
     const growth = ((currentNum - initialNum) / initialNum) * 100;
@@ -379,7 +387,9 @@ export default function InstagramMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">用户监控: {influencerData.length}</span>
+                <span className="text-sm">
+                  用户监控: {influencerData.length}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -452,7 +462,8 @@ export default function InstagramMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
+                      💡
+                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -468,8 +479,14 @@ export default function InstagramMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            内容链接: {validUrls.filter(isContentUrl).length} 个<br/>
-                            用户链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
+                            内容链接: {validUrls.filter(isContentUrl).length} 个
+                            <br />
+                            用户链接:{" "}
+                            {
+                              validUrls.filter((url) => !isContentUrl(url))
+                                .length
+                            }{" "}
+                            个
                           </div>
                         </div>
                       </div>
@@ -521,7 +538,11 @@ export default function InstagramMonitoring() {
                     内容监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {contentData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -573,7 +594,10 @@ export default function InstagramMonitoring() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                              <Badge
+                                variant="outline"
+                                className="text-xs flex items-center gap-1"
+                              >
                                 {getContentTypeIcon(content.type)}
                                 {content.type}
                               </Badge>
@@ -693,7 +717,11 @@ export default function InstagramMonitoring() {
                     用户监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -711,7 +739,9 @@ export default function InstagramMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[250px]">用户信息</TableHead>
-                          <TableHead className="w-[120px]">当前粉丝数</TableHead>
+                          <TableHead className="w-[120px]">
+                            当前粉丝数
+                          </TableHead>
                           <TableHead className="w-[100px]">帖子数</TableHead>
                           <TableHead className="w-[120px]">获赞总数</TableHead>
                           <TableHead className="w-[100px]">互动率</TableHead>
@@ -787,7 +817,8 @@ export default function InstagramMonitoring() {
                                 {influencer.recentActivity.engagementRate}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek} 帖子
+                                本周 {influencer.recentActivity.postsThisWeek}{" "}
+                                帖子
                               </div>
                             </TableCell>
                             <TableCell>

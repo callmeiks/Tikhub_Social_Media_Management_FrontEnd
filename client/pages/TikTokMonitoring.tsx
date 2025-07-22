@@ -212,7 +212,7 @@ export default function TikTokMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
+      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -278,7 +278,9 @@ export default function TikTokMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(`成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`);
+      alert(
+        `成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`,
+      );
     }, 2000);
   };
 
@@ -367,7 +369,9 @@ export default function TikTokMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">达人监控: {influencerData.length}</span>
+                <span className="text-sm">
+                  达人监控: {influencerData.length}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -456,8 +460,14 @@ export default function TikTokMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            作品链接: {validUrls.filter(isContentUrl).length} 个<br/>
-                            达人链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
+                            作品链接: {validUrls.filter(isContentUrl).length} 个
+                            <br />
+                            达人链接:{" "}
+                            {
+                              validUrls.filter((url) => !isContentUrl(url))
+                                .length
+                            }{" "}
+                            个
                           </div>
                         </div>
                       </div>
@@ -509,7 +519,11 @@ export default function TikTokMonitoring() {
                     作品监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {contentData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -527,7 +541,9 @@ export default function TikTokMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[300px]">作品信息</TableHead>
-                          <TableHead className="w-[120px]">当前播放量</TableHead>
+                          <TableHead className="w-[120px]">
+                            当前播放量
+                          </TableHead>
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
                           <TableHead className="w-[100px]">增长率</TableHead>
@@ -674,7 +690,11 @@ export default function TikTokMonitoring() {
                     达人监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -692,7 +712,9 @@ export default function TikTokMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[250px]">达人信息</TableHead>
-                          <TableHead className="w-[120px]">当前粉丝数</TableHead>
+                          <TableHead className="w-[120px]">
+                            当前粉丝数
+                          </TableHead>
                           <TableHead className="w-[100px]">作品数</TableHead>
                           <TableHead className="w-[120px]">获赞总数</TableHead>
                           <TableHead className="w-[100px]">互动率</TableHead>
@@ -768,7 +790,8 @@ export default function TikTokMonitoring() {
                                 {influencer.recentActivity.engagementRate}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek} 作品
+                                本周 {influencer.recentActivity.postsThisWeek}{" "}
+                                作品
                               </div>
                             </TableCell>
                             <TableCell>
