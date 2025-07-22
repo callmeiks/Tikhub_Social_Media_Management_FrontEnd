@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import { TaskItem, createTaskQueueItems, processTaskQueue } from "@/lib/taskQueue";
+import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -210,6 +212,7 @@ export default function XMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("x.com") || url.includes("twitter.com");
@@ -345,6 +348,24 @@ export default function XMonitoring() {
     if (confirm("确定要停止监控这个用户吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue(prev => prev.filter(task => task.status !== 'completed'));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, status: 'waiting', error: undefined } : task
+      )
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -570,6 +591,13 @@ export default function XMonitoring() {
                 </div>
               </CardContent>
             </Card>
+
+            <TaskQueueSection
+              taskQueue={taskQueue}
+              onClearCompleted={handleClearCompletedTasks}
+              onClearAll={handleClearAllTasks}
+              onRetryFailed={handleRetryFailedTask}
+            />
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
@@ -916,7 +944,7 @@ export default function XMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、推文数、获赞总数的时间趋势变化
+                                          将��示粉丝数、推文数、获赞总数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
