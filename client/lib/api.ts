@@ -2167,7 +2167,7 @@ class ApiClient {
   // 抖音KOL搜索API
   async searchDouyinKol(params: DouyinKolSearchRequest): Promise<DouyinKolSearchResponse> {
     return this.request<DouyinKolSearchResponse>(
-      "/douyin/kol/search",
+      "/kol/douyin/search",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2179,7 +2179,7 @@ class ApiClient {
   // 抖音KOL管理API - 添加KOL到分析列表
   async fetchDouyinKolInfo(params: DouyinKolFetchInfoRequest): Promise<DouyinKolFetchInfoResponse> {
     return this.request<DouyinKolFetchInfoResponse>(
-      "/douyin/kol/fetch-info",
+      "/kol/douyin/fetch-info",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2196,7 +2196,7 @@ class ApiClient {
     if (params.nickname) queryParams.append('nickname', params.nickname);
     if (params.sort_by_fans !== undefined) queryParams.append('sort_by_fans', params.sort_by_fans.toString());
 
-    const endpoint = `/douyin/kol/list${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const endpoint = `/kol/douyin/list${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     
     return this.request<DouyinKolListResponse>(
       endpoint,
@@ -2211,7 +2211,7 @@ class ApiClient {
   // 受众画像分析
   async getKolAudiencePortrait(params: KolDetailRequest): Promise<AudiencePortraitResponse> {
     return this.request<AudiencePortraitResponse>(
-      "/douyin/kol/audience-portrait",
+      "/kol/douyin/audience-portrait",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2223,7 +2223,7 @@ class ApiClient {
   // 服务报价查询
   async getKolServicePricing(params: KolDetailRequest): Promise<ServicePricingResponse> {
     return this.request<ServicePricingResponse>(
-      "/douyin/kol/service-price",
+      "/kol/douyin/service-price",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2235,7 +2235,7 @@ class ApiClient {
   // 视频表现分析
   async getKolVideoPerformance(params: VideoPerformanceRequest): Promise<VideoPerformanceResponse> {
     return this.request<VideoPerformanceResponse>(
-      "/douyin/kol/video-performance",
+      "/kol/douyin/video-performance",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2247,7 +2247,7 @@ class ApiClient {
   // 影响力指标
   async getKolInfluenceMetrics(params: KolDetailRequest): Promise<InfluenceMetricsResponse> {
     return this.request<InfluenceMetricsResponse>(
-      "/douyin/kol/influence-metrics",
+      "/kol/douyin/influence-metrics",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2259,7 +2259,7 @@ class ApiClient {
   // 粉丝趋势分析
   async getKolFansTrend(params: FansTrendRequest): Promise<FansTrendResponse> {
     return this.request<FansTrendResponse>(
-      "/douyin/kol/fans-trend",
+      "/kol/douyin/fans-trend",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2271,10 +2271,65 @@ class ApiClient {
   // 热门评论词汇
   async getKolHotCommentWords(params: KolDetailRequest): Promise<HotCommentWordsResponse> {
     return this.request<HotCommentWordsResponse>(
-      "/douyin/kol/hot-comment-words",
+      "/kol/douyin/hot-comment-words",
       {
         method: "POST",
         body: JSON.stringify(params),
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 获取用户的KOL任务列表
+  async getDouyinKolTasks(): Promise<any> {
+    return this.request<any>(
+      "/kol/douyin/tasks",
+      {
+        method: "GET",
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 获取Top 50 KOLs
+  async getDouyinTop50Kols(): Promise<any> {
+    return this.request<any>(
+      "/kol/douyin/top50",
+      {
+        method: "GET",
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 取消KOL任务
+  async cancelDouyinKolTask(taskId: string): Promise<any> {
+    return this.request<any>(
+      `/kol/douyin/task/${taskId}/cancel`,
+      {
+        method: "POST",
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 重试KOL任务
+  async retryDouyinKolTask(taskId: string): Promise<any> {
+    return this.request<any>(
+      `/kol/douyin/task/${taskId}/retry`,
+      {
+        method: "POST",
+      },
+      "http://127.0.0.1:8002/api"
+    );
+  }
+
+  // 获取KOL详情（根据ID）
+  async getDouyinKolDetails(kolId: string): Promise<any> {
+    return this.request<any>(
+      `/kol/douyin/${kolId}`,
+      {
+        method: "GET",
       },
       "http://127.0.0.1:8002/api"
     );

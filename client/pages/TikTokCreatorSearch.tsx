@@ -21,6 +21,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   Search,
   Users,
   RefreshCw,
@@ -28,6 +35,10 @@ import {
   TrendingUp,
   Globe,
   ExternalLink,
+  ChevronDown,
+  Eye,
+  Heart,
+  Calendar,
 } from "lucide-react";
 import { AvatarImage } from "@/components/ui/avatar-image";
 
@@ -72,12 +83,7 @@ const searchCache = new SearchDataCache();
 
 // 工具函数
 const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  }
-  return num.toString();
+  return num.toLocaleString();
 };
 
 // API 响应接口
@@ -191,7 +197,7 @@ export default function TikTokCreatorSearch() {
         
       const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/kol/search-tiktok-creators`, {
+      const response = await fetch(`${API_BASE_URL}/kol/tiktok/search-creators`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,11 +239,6 @@ export default function TikTokCreatorSearch() {
     }
   };
 
-  const handleCreatorClick = (creator: TikTokCreatorResult) => {
-    // 保存Creator数据到sessionStorage以便分析页面使用
-    sessionStorage.setItem("selectedCreator", JSON.stringify(creator));
-    window.open(`/kol-search-analysis/tiktok-analysis/${creator.tcm_id}`, '_blank');
-  };
 
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -426,7 +427,6 @@ export default function TikTokCreatorSearch() {
                         </TableHead>
                         <TableHead className="w-[100px]">Followers</TableHead>
                         <TableHead className="w-[100px]">Total Likes</TableHead>
-                        <TableHead className="w-[100px]">Videos</TableHead>
                         <TableHead className="w-[100px]">Avg Views</TableHead>
                         <TableHead className="w-[80px]">Level</TableHead>
                         <TableHead className="w-[80px]">Actions</TableHead>
@@ -435,7 +435,7 @@ export default function TikTokCreatorSearch() {
                     <TableBody>
                       {searchResults.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-8">
+                          <TableCell colSpan={6} className="text-center py-8">
                             <div className="text-muted-foreground">
                               {hasSearched ? (
                                 <>
@@ -491,7 +491,6 @@ export default function TikTokCreatorSearch() {
                             <TableCell>
                               {formatNumber(creator.liked_cnt)}
                             </TableCell>
-                            <TableCell>{creator.items.length}</TableCell>
                             <TableCell>
                               {formatNumber(Math.round(avgViews))}
                             </TableCell>
@@ -506,15 +505,66 @@ export default function TikTokCreatorSearch() {
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() => handleCreatorClick(creator)}
-                                  title="View Analysis"
-                                >
-                                  <BarChart3 className="h-3 w-3" />
-                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      title="View Videos"
+                                    >
+                                      <ChevronDown className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-80">
+                                    <div className="p-2">
+                                      <div className="font-medium text-sm mb-2">Recent Videos</div>
+                                      {creator.items.length === 0 ? (
+                                        <div className="text-center text-muted-foreground py-4">
+                                          No videos available
+                                        </div>
+                                      ) : (
+                                        <div className="space-y-2 max-h-80 overflow-y-auto">
+                                          {creator.items.slice(0, 10).map((video, index) => (
+                                            <div key={video.item_id} className="border rounded-lg p-2 hover:bg-gray-50">
+                                              <div className="flex space-x-2">
+                                                <img 
+                                                  src={video.cover_url} 
+                                                  alt="Video cover"
+                                                  className="w-16 h-12 object-cover rounded"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                  <div className="text-xs text-muted-foreground mb-1">
+                                                    {new Date(video.create_time * 1000).toLocaleDateString()}
+                                                  </div>
+                                                  <div className="flex items-center space-x-3 text-xs">
+                                                    <div className="flex items-center space-x-1">
+                                                      <Eye className="h-3 w-3" />
+                                                      <span>{formatNumber(video.vv)}</span>
+                                                    </div>
+                                                    <div className="flex items-center space-x-1">
+                                                      <Heart className="h-3 w-3" />
+                                                      <span>{formatNumber(video.liked_cnt)}</span>
+                                                    </div>
+                                                  </div>
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 px-2 mt-1 text-xs"
+                                                    onClick={() => window.open(video.tt_link, "_blank")}
+                                                  >
+                                                    <ExternalLink className="h-2 w-2 mr-1" />
+                                                    View
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                                 <Button
                                   variant="ghost"
                                   size="sm"
