@@ -539,8 +539,8 @@ export default function DouyinMonitoring() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center">
-                  <Plus className="mr-2 h-4 w-4" />
-                  批量添加抖音监控
+                  <Video className="mr-2 h-4 w-4" />
+                  批量添加作品监控
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -932,7 +932,7 @@ export default function DouyinMonitoring() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[300px]">作品信息</TableHead>
+                          <TableHead className="w-[300px]">作��信息</TableHead>
                           <TableHead className="w-[120px]">
                             当前播放量
                           </TableHead>
@@ -1095,7 +1095,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达��链接
+                      暂无监控达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
@@ -1210,7 +1210,7 @@ export default function DouyinMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图���开发中...
+                                        📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、作品数、获赞总数的时间趋势变化
