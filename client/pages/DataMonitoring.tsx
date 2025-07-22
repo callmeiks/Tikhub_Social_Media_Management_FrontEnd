@@ -59,6 +59,15 @@ const platformMonitoring = [
     href: "/data-monitoring/instagram",
     color: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
     stats: { influencers: 18, content: 54 }
+  },
+  {
+    id: "x",
+    name: "X监控",
+    emoji: "🐦",
+    description: "监控X(Twitter)用户和推文数据",
+    href: "/data-monitoring/x",
+    color: "bg-black text-white",
+    stats: { influencers: 15, content: 42 }
   }
 ];
 
