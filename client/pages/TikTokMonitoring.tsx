@@ -80,7 +80,7 @@ const mockContentData = [
     status: "active",
     currentStats: {
       views: "512.3万",
-      likes: "28.9万",
+      likes: "28.9���",
       comments: "12.8万",
       shares: "15.6千",
     },
@@ -228,83 +228,132 @@ export default function TikTokMonitoring() {
 
   const handleAddBatchContent = async () => {
     if (validUrls.length === 0) {
-      alert("请输入有效的TikTok链接");
+      alert("请输入��效的TikTok链接");
       return;
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的作品监控 ${index + 1}`,
-          author: "Creator Name",
-          url: url,
-          thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          currentStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-          initialStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
+    // Create task items for each URL
+    const newTasks: TaskItem[] = validUrls.map((url) => ({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      type: isContentUrl(url) ? 'content' : 'influencer',
+      status: 'waiting',
+      addedAt: new Date().toLocaleString("zh-CN"),
+    }));
 
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的达人 ${index + 1}`,
-          avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          verified: false,
-          userType: "Personal Account",
-          currentStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          initialStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          recentActivity: {
-            postsThisWeek: 0,
-            avgLikes: "0",
-            avgComments: "0",
-            engagementRate: "0%",
-          },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
-      }
+    // Add all tasks to queue
+    setTaskQueue(newTasks);
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个作品监控和 ${influencerUrls.length} 个达人监控！`,
+    // Process tasks one by one
+    for (let i = 0; i < newTasks.length; i++) {
+      const task = newTasks[i];
+
+      // Update task status to processing
+      setTaskQueue(prev =>
+        prev.map(t => t.id === task.id ? { ...t, status: 'processing' } : t)
       );
-    }, 2000);
+
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+
+      try {
+        // Simulate random success/failure (90% success rate)
+        const success = Math.random() > 0.1;
+
+        if (success) {
+          // Add to monitoring data
+          if (task.type === 'content') {
+            const newContentItem = {
+              id: Date.now() + i,
+              title: `批量添加的作品监控 ${i + 1}`,
+              author: "Creator Name",
+              url: task.url,
+              thumbnail: "/api/placeholder/120/120",
+              addedAt: task.addedAt,
+              status: "active",
+              currentStats: {
+                views: "0",
+                likes: "0",
+                comments: "0",
+                shares: "0",
+              },
+              initialStats: {
+                views: "0",
+                likes: "0",
+                comments: "0",
+                shares: "0",
+              },
+            };
+            setContentData(prev => [newContentItem, ...prev]);
+          } else {
+            const newInfluencer = {
+              id: Date.now() + i + 1000,
+              username: `批量添加的达人 ${i + 1}`,
+              avatar: "/api/placeholder/60/60",
+              url: task.url,
+              addedAt: task.addedAt,
+              status: "active",
+              verified: false,
+              userType: "Personal Account",
+              currentStats: {
+                followers: "0",
+                following: "0",
+                works: "0",
+                totalLikes: "0",
+              },
+              initialStats: {
+                followers: "0",
+                following: "0",
+                works: "0",
+                totalLikes: "0",
+              },
+              recentActivity: {
+                postsThisWeek: 0,
+                avgLikes: "0",
+                avgComments: "0",
+                engagementRate: "0%",
+              },
+            };
+            setInfluencerData(prev => [newInfluencer, ...prev]);
+          }
+
+          // Mark task as completed
+          setTaskQueue(prev =>
+            prev.map(t => t.id === task.id ? {
+              ...t,
+              status: 'completed',
+              completedAt: new Date().toLocaleString("zh-CN")
+            } : t)
+          );
+        } else {
+          // Mark task as failed
+          setTaskQueue(prev =>
+            prev.map(t => t.id === task.id ? {
+              ...t,
+              status: 'failed',
+              error: '链接解析失败，请检查链接有效性'
+            } : t)
+          );
+        }
+      } catch (error) {
+        // Mark task as failed
+        setTaskQueue(prev =>
+          prev.map(t => t.id === task.id ? {
+            ...t,
+            status: 'failed',
+            error: '处理过程中发生错误'
+          } : t)
+        );
+      }
+    }
+
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
