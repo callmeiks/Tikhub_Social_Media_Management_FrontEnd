@@ -23,14 +23,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Monitor,
   UserCheck,
   Plus,
@@ -962,7 +954,7 @@ export default function TikTokMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂��监控达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
