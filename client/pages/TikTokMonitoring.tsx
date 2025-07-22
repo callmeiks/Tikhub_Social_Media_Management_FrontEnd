@@ -23,6 +23,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -44,7 +52,21 @@ import {
   Video,
   Crown,
   Verified,
+  Clock,
+  Loader2,
+  X,
 } from "lucide-react";
+
+// Task queue interfaces
+interface TaskItem {
+  id: string;
+  url: string;
+  type: 'content' | 'influencer';
+  status: 'waiting' | 'processing' | 'completed' | 'failed';
+  addedAt: string;
+  completedAt?: string;
+  error?: string;
+}
 
 // Sample monitoring data for TikTok content
 const mockContentData = [
@@ -160,6 +182,7 @@ export default function TikTokMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("tiktok.com");
