@@ -47,6 +47,45 @@ import {
 import { AvatarImage } from "@/components/ui/avatar-image";
 import * as XLSX from 'xlsx';
 
+// 缓存管理器
+interface CacheItem<T> {
+  data: T;
+  timestamp: number;
+  ttl: number; // Time to live in milliseconds
+}
+
+class SearchDataCache {
+  private defaultTTL = 15 * 60 * 1000;
+  
+  set<T>(key: string, data: T): void {
+    localStorage.setItem(key, JSON.stringify({
+      data,
+      timestamp: Date.now(),
+      ttl: this.defaultTTL
+    }));
+  }
+  
+  get<T>(key: string): T | null {
+    const item = localStorage.getItem(key);
+    if (!item) return null;
+    
+    try {
+      const parsed = JSON.parse(item);
+      if (Date.now() - parsed.timestamp > parsed.ttl) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.data as T;
+    } catch {
+      localStorage.removeItem(key);
+      return null;
+    }
+  }
+}
+
+// 创建全局缓存实例
+const searchCache = new SearchDataCache();
+
 // 工具函数
 const formatNumber = (num: number): string => {
   if (num >= 10000) {
@@ -84,9 +123,9 @@ export default function DouyinKolSearch() {
   const [error, setError] = useState<string | null>(null);
   const [addingToAnalysis, setAddingToAnalysis] = useState<Set<string>>(new Set());
 
-  const [filters, setFilters] = useState<SearchFilters>({
-    keyword: "",
-    maxUsers: 50,
+  const [filters, setFilters] = useState<SearchFilters>(() => {
+    const cached = searchCache.get<{filters: SearchFilters, results: DouyinKolSearchResult[], total: number}>('douyin_search_state');
+    return cached?.filters || { keyword: "", maxUsers: 50 };
   });
 
   const [resultFilters, setResultFilters] = useState<ResultFilters>({
@@ -96,9 +135,34 @@ export default function DouyinKolSearch() {
     minStarLevel: 'all',
   });
 
+  // 页面加载时恢复缓存状态
+  useEffect(() => {
+    const cached = searchCache.get<{filters: SearchFilters, results: DouyinKolSearchResult[], total: number}>('douyin_search_state');
+    if (cached) {
+      setSearchResults(cached.results);
+      setTotalResults(cached.total);
+    }
+  }, []);
+
 
   const handleSearch = async () => {
     if (!filters.keyword.trim()) {
+      return;
+    }
+
+    // 生成缓存键
+    const cacheKey = `search_${filters.keyword}_${filters.maxUsers}`;
+    
+    // 检查缓存
+    const cachedData = searchCache.get<{
+      results: DouyinKolSearchResult[];
+      total: number;
+    }>(cacheKey);
+    
+    if (cachedData) {
+      setSearchResults(cachedData.results);
+      setTotalResults(cachedData.total);
+      console.log("Using cached search results:", cachedData.results.length, "items");
       return;
     }
 
@@ -130,6 +194,20 @@ export default function DouyinKolSearch() {
         
         setSearchResults(validatedResults);
         setTotalResults(validatedResults.length);
+        
+        // 存入缓存
+        searchCache.set(cacheKey, {
+          results: validatedResults,
+          total: validatedResults.length
+        });
+
+        // 保存全局状态
+        searchCache.set('douyin_search_state', {
+          filters,
+          results: validatedResults,
+          total: validatedResults.length
+        });
+        
         console.log("Search results set successfully:", validatedResults.length, "items");
       } else {
         console.warn("Invalid response structure:", response);
@@ -176,7 +254,7 @@ export default function DouyinKolSearch() {
       platform: "douyin",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      share_url: `https://www.douyin.com/user/${kol.id}`,
+      share_url: `https://www.douyin.com/user/${kol.id}`, // kol.id 是 sec_user_id
     };
     
     // 保存转换后的KOL数据到sessionStorage
@@ -207,22 +285,31 @@ export default function DouyinKolSearch() {
     setAddingToAnalysis(prev => new Set(prev).add(kolId));
 
     try {
-      // 构造抖音用户URL
-      const douyinUrl = `https://www.douyin.com/user/${kol.id}`;
-      
+      // 直接传入 kol_id
       const response = await apiClient.fetchDouyinKolInfo({
-        urls: [douyinUrl]
+        urls: [kol.kol_id]
       });
 
-      console.log("添加KOL到分析列表成功:", response);
+      console.log("添加KOL到分析列表响应:", response);
       
-      // 可以显示成功消息或进行其他处理
-      // 这里可以添加toast通知等
-      alert(`成功添加 ${kol.nick_name} 到分析列表！任务ID: ${response.celery_tasks[0]?.task_id}`);
+      // 检查响应结果
+      if (response.total_successful > 0) {
+        // 成功添加
+        alert(`成功添加 ${kol.nick_name} 到分析列表！任务ID: ${response.celery_tasks[0]?.task_id || '未知'}`);
+      } else if (response.total_failed > 0) {
+        // 添加失败
+        const errorMessage = response.failed_urls && response.failed_urls.length > 0 
+          ? response.failed_urls[0].error || "添加失败"
+          : "添加失败";
+        alert(`KOL添加失败: ${errorMessage}`);
+      } else {
+        // 未知状态
+        alert(`添加 ${kol.nick_name} 状态未知，请检查分析列表`);
+      }
       
     } catch (error) {
       console.error("添加KOL到分析列表失败:", error);
-      alert(`添加 ${kol.nick_name} 到分析列表失败: ${error instanceof Error ? error.message : "未知错误"}`);
+      alert(`添加 ${kol.nick_name} 到分析列表失败: ${error instanceof Error ? error.message : "网络或服务器错误"}`);
     } finally {
       setAddingToAnalysis(prev => {
         const newSet = new Set(prev);
