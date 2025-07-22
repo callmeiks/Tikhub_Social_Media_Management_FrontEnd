@@ -557,7 +557,7 @@ export default function DouyinMonitoring() {
                     <Input
                       type="file"
                       accept=".txt,.csv"
-                      onChange={handleFileUpload}
+                      onChange={handleContentFileUpload}
                       className="max-w-xs mx-auto"
                     />
                     {uploadedFile && (
@@ -846,7 +846,7 @@ export default function DouyinMonitoring() {
                           </TableHead>
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
-                          <TableHead className="w-[100px]">增长率</TableHead>
+                          <TableHead className="w-[100px]">增长���</TableHead>
                           <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
