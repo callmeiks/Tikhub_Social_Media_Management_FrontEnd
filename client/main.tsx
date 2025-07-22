@@ -47,6 +47,11 @@ import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
 import InfluencerMonitoring from "./pages/InfluencerMonitoring";
 import CustomRankings from "./pages/CustomRankings";
+import DouyinMonitoring from "./pages/DouyinMonitoring";
+import TikTokMonitoring from "./pages/TikTokMonitoring";
+import XiaohongshuMonitoring from "./pages/XiaohongshuMonitoring";
+import KuaishouMonitoring from "./pages/KuaishouMonitoring";
+import InstagramMonitoring from "./pages/InstagramMonitoring";
 import HotRankings from "./pages/HotRankings";
 import DouyinRankings from "./pages/DouyinRankings";
 import TikTokRankings from "./pages/TikTokRankings";
@@ -197,6 +202,28 @@ const App = () => (
           <Route
             path="/data-monitoring/custom-rankings"
             element={<CustomRankings />}
+          />
+
+          {/* Platform-specific monitoring routes */}
+          <Route
+            path="/data-monitoring/douyin"
+            element={<DouyinMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/tiktok"
+            element={<TikTokMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/xiaohongshu"
+            element={<XiaohongshuMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/kuaishou"
+            element={<KuaishouMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/instagram"
+            element={<InstagramMonitoring />}
           />
 
           {/* Placeholder routes for other categories - will be implemented later */}
