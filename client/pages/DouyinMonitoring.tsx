@@ -278,7 +278,7 @@ export default function DouyinMonitoring() {
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
       const newContentItem = {
         id: Date.now() + i,
-        title: `批量添加���作品监控 ${i + 1}`,
+        title: `批量添加的作品监控 ${i + 1}`,
         author: "作者名称",
         url: task.url,
         thumbnail: "/api/placeholder/120/120",
@@ -577,8 +577,8 @@ export default function DouyinMonitoring() {
                   <div className="space-y-3">
                     <Textarea
                       placeholder="请输入抖音链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456"
-                      value={batchUrls}
-                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
+                      value={contentUrls}
+                      onChange={(e) => handleContentUrlsChange(e.target.value)}
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
@@ -842,12 +842,12 @@ export default function DouyinMonitoring() {
                         <TableRow>
                           <TableHead className="w-[300px]">作品信息</TableHead>
                           <TableHead className="w-[120px]">
-                            当��播放量
+                            当前播放量
                           </TableHead>
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
                           <TableHead className="w-[100px]">增长率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
+                          <TableHead className="w-[100px]">���态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1003,7 +1003,7 @@ export default function DouyinMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂无监控达人，请先��加达人链接
                     </p>
                   </div>
                 ) : (
@@ -1118,7 +1118,7 @@ export default function DouyinMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 ���势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、作品数、获赞总数的时间趋势变化
