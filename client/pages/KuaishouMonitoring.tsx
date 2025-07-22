@@ -223,7 +223,7 @@ export default function KuaishouMonitoring() {
         const newContentItem = {
           id: Date.now() + i,
           title: `批量添加的作品监控 ${i + 1}`,
-          author: "创作者名��",
+          author: "创作者名称",
           url: task.url,
           thumbnail: "/api/placeholder/120/120",
           addedAt: task.addedAt,
@@ -454,7 +454,7 @@ export default function KuaishouMonitoring() {
                   </label>
                   <div className="space-y-3">
                     <Textarea
-                      placeholder="请输入快手链接，每行一个链接&#10;作品链接示���：&#10;https://www.kuaishou.com/short-video/3xfhb2k3jgn8qxt&#10;&#10;达人主页链接示例：&#10;https://www.kuaishou.com/profile/3xfhb2k3jgn8"
+                      placeholder="请输入快手链接，每行一个链接&#10;作品链接示例：&#10;https://www.kuaishou.com/short-video/3xfhb2k3jgn8qxt&#10;&#10;达人主页链接示例：&#10;https://www.kuaishou.com/profile/3xfhb2k3jgn8"
                       value={batchUrls}
                       onChange={(e) => handleBatchUrlsChange(e.target.value)}
                       className="min-h-[120px]"
@@ -476,7 +476,7 @@ export default function KuaishouMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            作品链���: {validUrls.filter(isContentUrl).length} 个
+                            作品链接: {validUrls.filter(isContentUrl).length} 个
                             <br />
                             达人链接:{" "}
                             {
@@ -524,6 +524,13 @@ export default function KuaishouMonitoring() {
                 </div>
               </CardContent>
             </Card>
+
+            <TaskQueueSection
+              taskQueue={taskQueue}
+              onClearCompleted={handleClearCompletedTasks}
+              onClearAll={handleClearAllTasks}
+              onRetryFailed={handleRetryFailedTask}
+            />
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
@@ -719,7 +726,7 @@ export default function KuaishouMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控达人，请先添加达人链接
+                      暂无监��达人，请先添加达人链接
                     </p>
                   </div>
                 ) : (
@@ -837,7 +844,7 @@ export default function KuaishouMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、作品数、获赞总数的时间趋势变化
+                                          将显示粉丝数、作品数、获赞总数的时间趋��变化
                                         </span>
                                       </div>
                                     </div>
