@@ -278,7 +278,7 @@ export default function DouyinMonitoring() {
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
       const newContentItem = {
         id: Date.now() + i,
-        title: `批量添加的作品监控 ${i + 1}`,
+        title: `批量添加���作品监控 ${i + 1}`,
         author: "作者名称",
         url: task.url,
         thumbnail: "/api/placeholder/120/120",
@@ -560,10 +560,10 @@ export default function DouyinMonitoring() {
                       onChange={handleContentFileUpload}
                       className="max-w-xs mx-auto"
                     />
-                    {uploadedFile && (
+                    {contentUploadedFile && (
                       <div className="mt-2 flex items-center justify-center text-sm text-green-600">
                         <FileText className="h-4 w-4 mr-1" />
-                        已上传：{uploadedFile.name}
+                        已上传：{contentUploadedFile.name}
                       </div>
                     )}
                   </div>
@@ -842,11 +842,11 @@ export default function DouyinMonitoring() {
                         <TableRow>
                           <TableHead className="w-[300px]">作品信息</TableHead>
                           <TableHead className="w-[120px]">
-                            当前播放量
+                            当��播放量
                           </TableHead>
                           <TableHead className="w-[100px]">当前点赞</TableHead>
                           <TableHead className="w-[100px]">当前评论</TableHead>
-                          <TableHead className="w-[100px]">增长���</TableHead>
+                          <TableHead className="w-[100px]">增长率</TableHead>
                           <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
