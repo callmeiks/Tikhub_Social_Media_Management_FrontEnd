@@ -31,6 +31,7 @@ import {
   Heart,
   MessageCircle,
   Share2,
+  Bookmark,
   ExternalLink,
   Play,
   BarChart3,
@@ -75,12 +76,14 @@ const mockContentData = [
       likes: "18.2万",
       comments: "4.5万",
       shares: "12.1千",
+      favorites: "8.7千",
     },
     initialStats: {
       views: "230万",
       likes: "15.6万",
       comments: "3.2万",
       shares: "8.5千",
+      favorites: "7.2千",
     },
   },
   {
@@ -96,12 +99,14 @@ const mockContentData = [
       likes: "12.7万",
       comments: "8.9万",
       shares: "5.6千",
+      favorites: "4.3千",
     },
     initialStats: {
       views: "165万",
       likes: "10.8万",
       comments: "6.2万",
       shares: "4.2千",
+      favorites: "3.8千",
     },
   },
 ];
@@ -289,12 +294,14 @@ export default function DouyinMonitoring() {
           likes: "0",
           comments: "0",
           shares: "0",
+          favorites: "0",
         },
         initialStats: {
           views: "0",
           likes: "0",
           comments: "0",
           shares: "0",
+          favorites: "0",
         },
       };
       setContentData((prev) => [newContentItem, ...prev]);
@@ -547,7 +554,7 @@ export default function DouyinMonitoring() {
                 {/* File Upload Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式一：上传文件
+                    方式���：上传文件
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -684,7 +691,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 仅支持抖音达人主页链接
+                      💡 仅支持抖音达人主���链接
                     </div>
                   </div>
                 </div>
@@ -933,13 +940,15 @@ export default function DouyinMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[300px]">作品信息</TableHead>
-                          <TableHead className="w-[120px]">
+                          <TableHead className="w-[100px]">
                             当前播放量
                           </TableHead>
-                          <TableHead className="w-[100px]">当前点赞</TableHead>
-                          <TableHead className="w-[100px]">当前评论</TableHead>
-                          <TableHead className="w-[100px]">增长率</TableHead>
-                          <TableHead className="w-[100px]">状态</TableHead>
+                          <TableHead className="w-[80px]">当前点赞</TableHead>
+                          <TableHead className="w-[80px]">当前评论</TableHead>
+                          <TableHead className="w-[80px]">分享量</TableHead>
+                          <TableHead className="w-[80px]">收藏量</TableHead>
+                          <TableHead className="w-[80px]">增长率</TableHead>
+                          <TableHead className="w-[80px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1000,6 +1009,30 @@ export default function DouyinMonitoring() {
                                 {calculateGrowth(
                                   content.currentStats.comments,
                                   content.initialStats.comments,
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <div className="flex items-center">
+                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                {content.currentStats.shares}
+                              </div>
+                              <div className="text-xs text-green-600">
+                                {calculateGrowth(
+                                  content.currentStats.shares,
+                                  content.initialStats.shares,
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <div className="flex items-center">
+                                <Bookmark className="h-3 w-3 mr-1 text-orange-500" />
+                                {content.currentStats.favorites}
+                              </div>
+                              <div className="text-xs text-green-600">
+                                {calculateGrowth(
+                                  content.currentStats.favorites,
+                                  content.initialStats.favorites,
                                 )}
                               </div>
                             </TableCell>
