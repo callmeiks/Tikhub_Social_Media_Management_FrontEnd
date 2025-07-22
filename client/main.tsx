@@ -47,6 +47,7 @@ import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
 import InfluencerMonitoring from "./pages/InfluencerMonitoring";
 import CustomRankings from "./pages/CustomRankings";
+import DataMonitoring from "./pages/DataMonitoring";
 import DouyinMonitoring from "./pages/DouyinMonitoring";
 import TikTokMonitoring from "./pages/TikTokMonitoring";
 import XiaohongshuMonitoring from "./pages/XiaohongshuMonitoring";
@@ -257,9 +258,9 @@ const App = () => (
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
           />
-
+          
           <Route path="/ads-products/*" element={<DataCollection />} />
-
+          
           {/* KOL Search & Analysis default route - moved after specific routes */}
           <Route path="/kol-search-analysis" element={<DataCollection />} />
 
