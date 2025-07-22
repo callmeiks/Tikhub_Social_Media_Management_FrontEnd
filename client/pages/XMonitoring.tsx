@@ -263,19 +263,19 @@ export default function XMonitoring() {
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的推文监控 ${index + 1}`,
+    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
+    setTaskQueue(newTasks);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      if (task.type === 'content') {
+        const newContentItem = {
+          id: Date.now() + i,
+          title: `批量添加的推文监控 ${i + 1}`,
           author: "username",
-          url: url,
+          url: task.url,
           thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
+          addedAt: task.addedAt,
           status: "active",
           type: "Tweet",
           currentStats: {
@@ -290,18 +290,15 @@ export default function XMonitoring() {
             comments: "0",
             shares: "0",
           },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
-
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的用户 ${index + 1}`,
+        };
+        setContentData(prev => [newContentItem, ...prev]);
+      } else {
+        const newInfluencer = {
+          id: Date.now() + i + 1000,
+          username: `批量添加的用户 ${i + 1}`,
           avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
+          url: task.url,
+          addedAt: task.addedAt,
           status: "active",
           verified: false,
           userType: "Personal",
@@ -323,19 +320,16 @@ export default function XMonitoring() {
             avgComments: "0",
             engagementRate: "0%",
           },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
+        };
+        setInfluencerData(prev => [newInfluencer, ...prev]);
       }
+    });
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个推文监控和 ${influencerUrls.length} 个用户监控！`,
-      );
-    }, 2000);
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -467,7 +461,7 @@ export default function XMonitoring() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加监控
+              添加监��
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
@@ -609,7 +603,7 @@ export default function XMonitoring() {
                     推文监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
+                    活跃��控:{" "}
                     {
                       contentData.filter((item) => item.status === "active")
                         .length
@@ -944,7 +938,7 @@ export default function XMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将��示粉丝数、推文数、获赞总数的时间趋势变化
+                                          将显示粉丝数、推文数、获赞总数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
