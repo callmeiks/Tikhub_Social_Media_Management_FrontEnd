@@ -228,6 +228,10 @@ const App = () => (
             path="/data-monitoring/instagram"
             element={<InstagramMonitoring />}
           />
+          <Route
+            path="/data-monitoring/x"
+            element={<XMonitoring />}
+          />
 
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/hot-rankings" element={<HotRankings />} />
