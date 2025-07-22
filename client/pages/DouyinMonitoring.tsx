@@ -64,7 +64,7 @@ interface TaskItem {
 const mockContentData = [
   {
     id: 1,
-    title: "超火的韩式裸妆教程！新手必看",
+    title: "超火的韩式��妆教程！新手必看",
     author: "美妆达人小丽",
     url: "https://www.douyin.com/video/123456",
     thumbnail: "/api/placeholder/120/120",
@@ -189,7 +189,7 @@ export default function DouyinMonitoring() {
     return url.includes("/video/") || url.includes("/note/");
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
@@ -200,27 +200,61 @@ export default function DouyinMonitoring() {
       (url) => !validateUrl(url) && url.length > 0,
     );
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter((url) => validateUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) && url.length > 0,
+    );
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
+  };
+
+  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setContentUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setBatchUrls(content);
-        processBatchUrls(content);
+        setContentUrls(content);
+        processContentUrls(content);
       };
       reader.readAsText(file);
     }
   };
 
-  const handleBatchUrlsChange = (urls: string) => {
-    setBatchUrls(urls);
-    processBatchUrls(urls);
+  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setInfluencerUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setInfluencerUrls(content);
+        processInfluencerUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleContentUrlsChange = (urls: string) => {
+    setContentUrls(urls);
+    processContentUrls(urls);
+  };
+
+  const handleInfluencerUrlsChange = (urls: string) => {
+    setInfluencerUrls(urls);
+    processInfluencerUrls(urls);
   };
 
   const handleAddBatchContent = async () => {
@@ -577,7 +611,7 @@ export default function DouyinMonitoring() {
                 {/* Manual Input Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式二：手动输入
+                    方式二：手动输���
                   </label>
                   <div className="space-y-3">
                     <Textarea
