@@ -53,6 +53,7 @@ import TikTokMonitoring from "./pages/TikTokMonitoring";
 import XiaohongshuMonitoring from "./pages/XiaohongshuMonitoring";
 import KuaishouMonitoring from "./pages/KuaishouMonitoring";
 import InstagramMonitoring from "./pages/InstagramMonitoring";
+import XMonitoring from "./pages/XMonitoring";
 import HotRankings from "./pages/HotRankings";
 import DouyinRankings from "./pages/DouyinRankings";
 import TikTokRankings from "./pages/TikTokRankings";
