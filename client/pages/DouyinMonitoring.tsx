@@ -510,7 +510,7 @@ export default function DouyinMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">作品监控: {contentData.length}</span>
+                <span className="text-sm">作品��控: {contentData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
@@ -554,7 +554,7 @@ export default function DouyinMonitoring() {
                 {/* File Upload Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式���：上传文件
+                    方式一：上传文件
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -681,7 +681,7 @@ export default function DouyinMonitoring() {
                 {/* Manual Input Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式二：手动输入
+                    方式二：手动输���
                   </label>
                   <div className="space-y-3">
                     <Textarea
@@ -691,7 +691,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 仅支持抖音达人主���链接
+                      💡 仅支持抖音达人主页链接
                     </div>
                   </div>
                 </div>
@@ -939,17 +939,17 @@ export default function DouyinMonitoring() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[300px]">作品信息</TableHead>
-                          <TableHead className="w-[100px]">
+                          <TableHead className="w-[250px]">作品信息</TableHead>
+                          <TableHead className="w-[90px]">
                             当前播放量
                           </TableHead>
-                          <TableHead className="w-[80px]">当前点赞</TableHead>
-                          <TableHead className="w-[80px]">当前评论</TableHead>
-                          <TableHead className="w-[80px]">分享量</TableHead>
-                          <TableHead className="w-[80px]">收藏量</TableHead>
-                          <TableHead className="w-[80px]">增长率</TableHead>
-                          <TableHead className="w-[80px]">状态</TableHead>
-                          <TableHead className="w-[120px]">操作</TableHead>
+                          <TableHead className="w-[75px]">当前点赞</TableHead>
+                          <TableHead className="w-[75px]">当前评论</TableHead>
+                          <TableHead className="w-[75px]">分享量</TableHead>
+                          <TableHead className="w-[75px]">收藏量</TableHead>
+                          <TableHead className="w-[75px]">增长率</TableHead>
+                          <TableHead className="w-[75px]">状态</TableHead>
+                          <TableHead className="w-[100px]">操作</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
