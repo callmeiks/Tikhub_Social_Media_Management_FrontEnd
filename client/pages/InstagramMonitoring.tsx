@@ -261,21 +261,21 @@ export default function InstagramMonitoring() {
     }
 
     setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `Batch added post ${index + 1}`,
+    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
+    setTaskQueue(newTasks);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      if (task.type === 'content') {
+        const newContentItem = {
+          id: Date.now() + i,
+          title: `Batch added post ${i + 1}`,
           author: "username",
-          url: url,
+          url: task.url,
           thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
+          addedAt: task.addedAt,
           status: "active",
-          type: url.includes("/reel/") ? "Reel" : "Photo",
+          type: task.url.includes("/reel/") ? "Reel" : "Photo",
           currentStats: {
             views: "0",
             likes: "0",
@@ -288,18 +288,15 @@ export default function InstagramMonitoring() {
             comments: "0",
             shares: "0",
           },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
-
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的用户 ${index + 1}`,
+        };
+        setContentData(prev => [newContentItem, ...prev]);
+      } else {
+        const newInfluencer = {
+          id: Date.now() + i + 1000,
+          username: `批量添加的用户 ${i + 1}`,
           avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
+          url: task.url,
+          addedAt: task.addedAt,
           status: "active",
           verified: false,
           userType: "Personal",
@@ -321,23 +318,20 @@ export default function InstagramMonitoring() {
             avgComments: "0",
             engagementRate: "0%",
           },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
+        };
+        setInfluencerData(prev => [newInfluencer, ...prev]);
       }
+    });
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`,
-      );
-    }, 2000);
+    setBatchUrls("");
+    setValidUrls([]);
+    setInvalidUrls([]);
+    setUploadedFile(null);
+    setIsAdding(false);
   };
 
   const handleRemoveContent = (id: number) => {
-    if (confirm("确定要停止监控这个内容吗？")) {
+    if (confirm("确定要���止监控这个内容吗？")) {
       setContentData((prev) => prev.filter((item) => item.id !== id));
     }
   };
@@ -429,7 +423,7 @@ export default function InstagramMonitoring() {
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
             <RefreshCw className="mr-2 h-3.5 w-3.5" />
-            刷新数据
+            刷���数据
           </Button>
         </div>
       }
@@ -519,14 +513,14 @@ export default function InstagramMonitoring() {
                   </label>
                   <div className="space-y-3">
                     <Textarea
-                      placeholder="请输入Instagram链接，每行一个链接&#10;帖���链接示例：&#10;https://www.instagram.com/p/ABC123DEF456/&#10;https://www.instagram.com/reel/DEF456GHI789/&#10;&#10;用户主页链接示例：&#10;https://www.instagram.com/username/"
+                      placeholder="请输入Instagram链接，每���一个链接&#10;帖���链接示例：&#10;https://www.instagram.com/p/ABC123DEF456/&#10;https://www.instagram.com/reel/DEF456GHI789/&#10;&#10;用户主页链接示例：&#10;https://www.instagram.com/username/"
                       value={batchUrls}
                       onChange={(e) => handleBatchUrlsChange(e.target.value)}
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
                       💡
-                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识���类型
+                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
