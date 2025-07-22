@@ -47,6 +47,13 @@ import KeywordAccountSearch from "./pages/KeywordAccountSearch";
 import ContentMonitoring from "./pages/ContentMonitoring";
 import InfluencerMonitoring from "./pages/InfluencerMonitoring";
 import CustomRankings from "./pages/CustomRankings";
+import DataMonitoring from "./pages/DataMonitoring";
+import DouyinMonitoring from "./pages/DouyinMonitoring";
+import TikTokMonitoring from "./pages/TikTokMonitoring";
+import XiaohongshuMonitoring from "./pages/XiaohongshuMonitoring";
+import KuaishouMonitoring from "./pages/KuaishouMonitoring";
+import InstagramMonitoring from "./pages/InstagramMonitoring";
+import XMonitoring from "./pages/XMonitoring";
 import HotRankings from "./pages/HotRankings";
 import DouyinRankings from "./pages/DouyinRankings";
 import TikTokRankings from "./pages/TikTokRankings";
@@ -186,6 +193,7 @@ const App = () => (
           />
 
           {/* Data Monitoring Routes */}
+          <Route path="/data-monitoring" element={<DataMonitoring />} />
           <Route
             path="/data-monitoring/content-monitoring"
             element={<ContentMonitoring />}
@@ -199,8 +207,30 @@ const App = () => (
             element={<CustomRankings />}
           />
 
+          {/* Platform-specific monitoring routes */}
+          <Route
+            path="/data-monitoring/douyin"
+            element={<DouyinMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/tiktok"
+            element={<TikTokMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/xiaohongshu"
+            element={<XiaohongshuMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/kuaishou"
+            element={<KuaishouMonitoring />}
+          />
+          <Route
+            path="/data-monitoring/instagram"
+            element={<InstagramMonitoring />}
+          />
+          <Route path="/data-monitoring/x" element={<XMonitoring />} />
+
           {/* Placeholder routes for other categories - will be implemented later */}
-          <Route path="/data-monitoring/*" element={<DataCollection />} />
           <Route path="/hot-rankings" element={<HotRankings />} />
           <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
           <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
@@ -230,9 +260,9 @@ const App = () => (
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
           />
-          
+
           <Route path="/ads-products/*" element={<DataCollection />} />
-          
+
           {/* KOL Search & Analysis default route - moved after specific routes */}
           <Route path="/kol-search-analysis" element={<DataCollection />} />
 
