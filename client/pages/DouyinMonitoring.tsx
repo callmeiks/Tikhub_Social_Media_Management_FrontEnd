@@ -44,6 +44,9 @@ import {
   Video,
   Crown,
   Verified,
+  Clock,
+  Loader2,
+  X,
 } from "lucide-react";
 
 // Sample monitoring data for Douyin content
@@ -444,7 +447,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作品链接和达人主页链接，系统会自动识别类型
+                      💡 支持同时添加作品链接和达人主页链接，系统会自动��别类型
                     </div>
                   </div>
                 </div>
@@ -503,7 +506,7 @@ export default function DouyinMonitoring() {
                     )}
                     {isAdding
                       ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                      : `批量添�� (${validUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
