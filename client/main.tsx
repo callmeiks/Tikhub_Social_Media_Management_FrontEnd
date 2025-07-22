@@ -229,7 +229,6 @@ const App = () => (
           />
 
           {/* Placeholder routes for other categories - will be implemented later */}
-          <Route path="/data-monitoring/*" element={<DataCollection />} />
           <Route path="/hot-rankings" element={<HotRankings />} />
           <Route path="/hot-rankings/douyin" element={<DouyinRankings />} />
           <Route path="/hot-rankings/tiktok" element={<TikTokRankings />} />
