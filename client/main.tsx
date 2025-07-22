@@ -239,9 +239,11 @@ const App = () => (
             path="/kol-search-analysis/tiktok-analysis/:creatorId"
             element={<TikTokCreatorAnalysis />}
           />
-          <Route path="/kol-search-analysis/*" element={<DataCollection />} />
-
+          
           <Route path="/ads-products/*" element={<DataCollection />} />
+          
+          {/* KOL Search & Analysis default route - moved after specific routes */}
+          <Route path="/kol-search-analysis" element={<DataCollection />} />
 
           {/* Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
