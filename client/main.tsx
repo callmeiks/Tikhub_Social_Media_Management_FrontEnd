@@ -60,7 +60,6 @@ import DouyinKolSearch from "./pages/DouyinKolSearch";
 import DouyinKolAnalysis from "./pages/DouyinKolAnalysis";
 import DouyinKolAnalysisDetail from "./pages/DouyinKolAnalysisDetail";
 import TikTokCreatorSearch from "./pages/TikTokCreatorSearch";
-import TikTokCreatorAnalysis from "./pages/TikTokCreatorAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -230,14 +229,6 @@ const App = () => (
           <Route
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
-          />
-          <Route
-            path="/kol-search-analysis/tiktok-analysis"
-            element={<TikTokCreatorAnalysis />}
-          />
-          <Route
-            path="/kol-search-analysis/tiktok-analysis/:creatorId"
-            element={<TikTokCreatorAnalysis />}
           />
           
           <Route path="/ads-products/*" element={<DataCollection />} />

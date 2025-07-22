@@ -30,6 +30,7 @@ interface SubMenuItem {
   title: string;
   href: string;
   badge?: string;
+  external?: boolean;
 }
 
 interface MenuItem {
@@ -126,7 +127,8 @@ const menuItems: MenuItem[] = [
       },
       {
         title: "TikTok Creator分析",
-        href: "/kol-search-analysis/tiktok-analysis",
+        href: "https://tikhub-creator-frontend-self.vercel.app/login",
+        external: true,
       },
     ],
   },
@@ -312,15 +314,15 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                     {hasSubItems && isOpen && (
                       <CollapsibleContent className="space-y-0.5 mt-1">
                         {item.subItems?.map((subItem) => (
-                          <Link key={subItem.href} to={subItem.href}>
+                          subItem.external ? (
                             <Button
+                              key={subItem.href}
                               variant="ghost"
                               className={cn(
                                 "w-full justify-start pl-10 pr-3 py-2 text-xs h-8 transition-all duration-150",
-                                isItemActive(subItem.href)
-                                  ? "bg-sidebar-accent text-sidebar-foreground font-medium"
-                                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                                "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                               )}
+                              onClick={() => window.open(subItem.href, '_blank')}
                             >
                               <span className="truncate">{subItem.title}</span>
                               {subItem.badge && (
@@ -338,7 +340,35 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
                                 </Badge>
                               )}
                             </Button>
-                          </Link>
+                          ) : (
+                            <Link key={subItem.href} to={subItem.href}>
+                              <Button
+                                variant="ghost"
+                                className={cn(
+                                  "w-full justify-start pl-10 pr-3 py-2 text-xs h-8 transition-all duration-150",
+                                  isItemActive(subItem.href)
+                                    ? "bg-sidebar-accent text-sidebar-foreground font-medium"
+                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                                )}
+                              >
+                                <span className="truncate">{subItem.title}</span>
+                                {subItem.badge && (
+                                  <Badge
+                                    variant="secondary"
+                                    className={cn(
+                                      "ml-auto text-xs px-1.5 py-0.5 text-white",
+                                      subItem.badge === "HOT"
+                                        ? "bg-orange-500"
+                                        : "bg-brand-accent",
+                                    )}
+                                  >
+                                    {subItem.badge === "HOT" && "🔥 "}
+                                    {subItem.badge}
+                                  </Badge>
+                                )}
+                              </Button>
+                            </Link>
+                          )
                         ))}
                       </CollapsibleContent>
                     )}
