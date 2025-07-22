@@ -171,7 +171,7 @@ const mockInfluencerData = [
   {
     id: 3,
     username: "homestyle_daily",
-    avatar: "/api/placeholder/60/60", 
+    avatar: "/api/placeholder/60/60",
     url: "https://www.instagram.com/homestyle_daily/",
     addedAt: "2024-01-13 14:15",
     status: "active",
@@ -212,7 +212,9 @@ export default function InstagramMonitoring() {
   };
 
   const isContentUrl = (url: string) => {
-    return url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/");
+    return (
+      url.includes("/p/") || url.includes("/reel/") || url.includes("/tv/")
+    );
   };
 
   const processBatchUrls = (urls: string) => {
@@ -258,7 +260,7 @@ export default function InstagramMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
+      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -325,7 +327,9 @@ export default function InstagramMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(`成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`);
+      alert(
+        `成功添加 ${contentUrls.length} 个内容监控和 ${influencerUrls.length} 个用户监控！`,
+      );
     }, 2000);
   };
 
@@ -384,8 +388,12 @@ export default function InstagramMonitoring() {
   };
 
   const calculateGrowth = (current: string, initial: string) => {
-    const currentNum = parseFloat(current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
-    const initialNum = parseFloat(initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""));
+    const currentNum = parseFloat(
+      current.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
+    );
+    const initialNum = parseFloat(
+      initial.replace(/[K,M]/g, "").replace(/[^\d.]/g, ""),
+    );
 
     if (initialNum === 0) return "0%";
     const growth = ((currentNum - initialNum) / initialNum) * 100;
@@ -421,7 +429,9 @@ export default function InstagramMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">用户监控: {influencerData.length}</span>
+                <span className="text-sm">
+                  用户监控: {influencerData.length}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -494,7 +504,8 @@ export default function InstagramMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
+                      💡
+                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -510,8 +521,14 @@ export default function InstagramMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            内容链接: {validUrls.filter(isContentUrl).length} 个<br/>
-                            用户链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
+                            内容链接: {validUrls.filter(isContentUrl).length} 个
+                            <br />
+                            用户链接:{" "}
+                            {
+                              validUrls.filter((url) => !isContentUrl(url))
+                                .length
+                            }{" "}
+                            个
                           </div>
                         </div>
                       </div>
@@ -563,7 +580,11 @@ export default function InstagramMonitoring() {
                     内容监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {contentData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -578,7 +599,10 @@ export default function InstagramMonitoring() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {contentData.map((content) => (
-                      <Card key={content.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                      <Card
+                        key={content.id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                      >
                         {/* Content Image/Thumbnail */}
                         <div className="relative h-48 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400">
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -586,7 +610,10 @@ export default function InstagramMonitoring() {
                           </div>
                           {/* Type Badge */}
                           <div className="absolute top-3 left-3">
-                            <Badge variant="secondary" className="bg-white/90 text-xs flex items-center gap-1">
+                            <Badge
+                              variant="secondary"
+                              className="bg-white/90 text-xs flex items-center gap-1"
+                            >
                               {getContentTypeIcon(content.type)}
                               {content.type}
                             </Badge>
@@ -602,12 +629,15 @@ export default function InstagramMonitoring() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <CardContent className="p-4">
                           {/* Content Info */}
                           <div className="space-y-3">
                             <div>
-                              <h3 className="font-medium text-sm line-clamp-2 leading-tight" title={content.title}>
+                              <h3
+                                className="font-medium text-sm line-clamp-2 leading-tight"
+                                title={content.title}
+                              >
                                 {content.title}
                               </h3>
                               <p className="text-xs text-muted-foreground mt-1">
@@ -617,44 +647,64 @@ export default function InstagramMonitoring() {
                                 添加于 {content.addedAt}
                               </p>
                             </div>
-                            
+
                             {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-2 text-xs">
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Eye className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.views}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.views}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.views, content.initialStats.views)}
+                                  {calculateGrowth(
+                                    content.currentStats.views,
+                                    content.initialStats.views,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.likes}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.likes}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.likes, content.initialStats.likes)}
+                                  {calculateGrowth(
+                                    content.currentStats.likes,
+                                    content.initialStats.likes,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <MessageCircle className="h-3 w-3 text-green-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.comments}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.comments}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.comments, content.initialStats.comments)}
+                                  {calculateGrowth(
+                                    content.currentStats.comments,
+                                    content.initialStats.comments,
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Action Buttons */}
                             <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      title="查看趋势"
+                                    >
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -681,7 +731,9 @@ export default function InstagramMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() => window.open(content.url, "_blank")}
+                                  onClick={() =>
+                                    window.open(content.url, "_blank")
+                                  }
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -715,7 +767,11 @@ export default function InstagramMonitoring() {
                     用户监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -730,7 +786,10 @@ export default function InstagramMonitoring() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {influencerData.map((influencer) => (
-                      <Card key={influencer.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                      <Card
+                        key={influencer.id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                      >
                         {/* User Profile Header */}
                         <div className="relative h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400">
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -741,7 +800,10 @@ export default function InstagramMonitoring() {
                           {/* Verification Badge */}
                           {influencer.verified && (
                             <div className="absolute top-3 right-3">
-                              {getVerificationIcon(influencer.verified, influencer.userType)}
+                              {getVerificationIcon(
+                                influencer.verified,
+                                influencer.userType,
+                              )}
                             </div>
                           )}
                           {/* Status Badge */}
@@ -749,14 +811,17 @@ export default function InstagramMonitoring() {
                             {getStatusBadge(influencer.status)}
                           </div>
                         </div>
-                        
+
                         <CardContent className="p-4">
                           <div className="space-y-3">
                             {/* User Info */}
                             <div className="text-center">
                               <h3 className="font-medium text-sm flex items-center justify-center gap-1">
                                 @{influencer.username}
-                                {getVerificationIcon(influencer.verified, influencer.userType)}
+                                {getVerificationIcon(
+                                  influencer.verified,
+                                  influencer.userType,
+                                )}
                               </h3>
                               <p className="text-xs text-muted-foreground mt-1">
                                 {influencer.userType}
@@ -765,54 +830,76 @@ export default function InstagramMonitoring() {
                                 添加于 {influencer.addedAt}
                               </p>
                             </div>
-                            
+
                             {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-2 text-xs">
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Users className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.followers}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.followers}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.followers, influencer.initialStats.followers)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.followers,
+                                    influencer.initialStats.followers,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Video className="h-3 w-3 text-purple-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.works}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.works}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.works, influencer.initialStats.works)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.works,
+                                    influencer.initialStats.works,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.totalLikes}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.totalLikes}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.totalLikes, influencer.initialStats.totalLikes)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.totalLikes,
+                                    influencer.initialStats.totalLikes,
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Engagement Rate */}
                             <div className="text-center pt-2 border-t">
                               <div className="text-sm font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate} 互动率
+                                {influencer.recentActivity.engagementRate}{" "}
+                                互动率
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek} 帖子
+                                本周 {influencer.recentActivity.postsThisWeek}{" "}
+                                帖子
                               </div>
                             </div>
-                            
+
                             {/* Action Buttons */}
                             <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      title="查看趋势"
+                                    >
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -839,7 +926,9 @@ export default function InstagramMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() => window.open(influencer.url, "_blank")}
+                                  onClick={() =>
+                                    window.open(influencer.url, "_blank")
+                                  }
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -849,7 +938,9 @@ export default function InstagramMonitoring() {
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                                 title="删除监控"
-                                onClick={() => handleRemoveInfluencer(influencer.id)}
+                                onClick={() =>
+                                  handleRemoveInfluencer(influencer.id)
+                                }
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>

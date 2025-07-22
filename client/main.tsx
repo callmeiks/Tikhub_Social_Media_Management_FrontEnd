@@ -228,10 +228,7 @@ const App = () => (
             path="/data-monitoring/instagram"
             element={<InstagramMonitoring />}
           />
-          <Route
-            path="/data-monitoring/x"
-            element={<XMonitoring />}
-          />
+          <Route path="/data-monitoring/x" element={<XMonitoring />} />
 
           {/* Placeholder routes for other categories - will be implemented later */}
           <Route path="/hot-rankings" element={<HotRankings />} />
@@ -263,9 +260,9 @@ const App = () => (
             path="/kol-search-analysis/tiktok-search"
             element={<TikTokCreatorSearch />}
           />
-          
+
           <Route path="/ads-products/*" element={<DataCollection />} />
-          
+
           {/* KOL Search & Analysis default route - moved after specific routes */}
           <Route path="/kol-search-analysis" element={<DataCollection />} />
 

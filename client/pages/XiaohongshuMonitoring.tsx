@@ -91,7 +91,7 @@ const mockContentData = [
     title: "北欧风家居装修攻略 ✨",
     author: "家居生活达人",
     url: "https://www.xiaohongshu.com/explore/63f1111222333444",
-    thumbnail: "/api/placeholder/120/120", 
+    thumbnail: "/api/placeholder/120/120",
     addedAt: "2024-01-13 14:15",
     status: "active",
     type: "图文",
@@ -258,7 +258,7 @@ export default function XiaohongshuMonitoring() {
     setIsAdding(true);
     setTimeout(() => {
       const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter(url => !isContentUrl(url));
+      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
 
       // Add content monitoring
       if (contentUrls.length > 0) {
@@ -325,7 +325,9 @@ export default function XiaohongshuMonitoring() {
       setInvalidUrls([]);
       setUploadedFile(null);
       setIsAdding(false);
-      alert(`成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`);
+      alert(
+        `成功添加 ${contentUrls.length} 个笔记监控和 ${influencerUrls.length} 个博主监控！`,
+      );
     }, 2000);
   };
 
@@ -422,7 +424,9 @@ export default function XiaohongshuMonitoring() {
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
-                <span className="text-sm">博主监控: {influencerData.length}</span>
+                <span className="text-sm">
+                  博主监控: {influencerData.length}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -511,8 +515,14 @@ export default function XiaohongshuMonitoring() {
                             有效链接 ({validUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            笔记链接: {validUrls.filter(isContentUrl).length} 个<br/>
-                            博主链接: {validUrls.filter(url => !isContentUrl(url)).length} 个
+                            笔记链接: {validUrls.filter(isContentUrl).length} 个
+                            <br />
+                            博主链接:{" "}
+                            {
+                              validUrls.filter((url) => !isContentUrl(url))
+                                .length
+                            }{" "}
+                            个
                           </div>
                         </div>
                       </div>
@@ -564,7 +574,11 @@ export default function XiaohongshuMonitoring() {
                     笔记监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {contentData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -579,7 +593,10 @@ export default function XiaohongshuMonitoring() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {contentData.map((content) => (
-                      <Card key={content.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                      <Card
+                        key={content.id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                      >
                         {/* Content Image/Thumbnail */}
                         <div className="relative h-48 bg-gradient-to-br from-red-400 via-pink-400 to-orange-400">
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -587,7 +604,10 @@ export default function XiaohongshuMonitoring() {
                           </div>
                           {/* Type Badge */}
                           <div className="absolute top-3 left-3">
-                            <Badge variant="secondary" className="bg-white/90 text-xs flex items-center gap-1">
+                            <Badge
+                              variant="secondary"
+                              className="bg-white/90 text-xs flex items-center gap-1"
+                            >
                               {getContentTypeIcon(content.type)}
                               {content.type}
                             </Badge>
@@ -603,12 +623,15 @@ export default function XiaohongshuMonitoring() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <CardContent className="p-4">
                           {/* Content Info */}
                           <div className="space-y-3">
                             <div>
-                              <h3 className="font-medium text-sm line-clamp-2 leading-tight" title={content.title}>
+                              <h3
+                                className="font-medium text-sm line-clamp-2 leading-tight"
+                                title={content.title}
+                              >
                                 {content.title}
                               </h3>
                               <p className="text-xs text-muted-foreground mt-1">
@@ -618,44 +641,64 @@ export default function XiaohongshuMonitoring() {
                                 添加于 {content.addedAt}
                               </p>
                             </div>
-                            
+
                             {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-2 text-xs">
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Eye className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.views}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.views}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.views, content.initialStats.views)}
+                                  {calculateGrowth(
+                                    content.currentStats.views,
+                                    content.initialStats.views,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.likes}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.likes}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.likes, content.initialStats.likes)}
+                                  {calculateGrowth(
+                                    content.currentStats.likes,
+                                    content.initialStats.likes,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <MessageCircle className="h-3 w-3 text-green-500" />
                                 </div>
-                                <div className="font-medium">{content.currentStats.comments}</div>
+                                <div className="font-medium">
+                                  {content.currentStats.comments}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(content.currentStats.comments, content.initialStats.comments)}
+                                  {calculateGrowth(
+                                    content.currentStats.comments,
+                                    content.initialStats.comments,
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Action Buttons */}
                             <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      title="查看趋势"
+                                    >
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -682,7 +725,9 @@ export default function XiaohongshuMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() => window.open(content.url, "_blank")}
+                                  onClick={() =>
+                                    window.open(content.url, "_blank")
+                                  }
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -716,7 +761,11 @@ export default function XiaohongshuMonitoring() {
                     博主监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控: {influencerData.filter((item) => item.status === "active").length}
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -731,7 +780,10 @@ export default function XiaohongshuMonitoring() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {influencerData.map((influencer) => (
-                      <Card key={influencer.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+                      <Card
+                        key={influencer.id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                      >
                         {/* User Profile Header */}
                         <div className="relative h-32 bg-gradient-to-br from-red-400 via-pink-400 to-orange-400">
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -742,7 +794,10 @@ export default function XiaohongshuMonitoring() {
                           {/* Verification Badge */}
                           {influencer.verified && (
                             <div className="absolute top-3 right-3">
-                              {getVerificationIcon(influencer.verified, influencer.userType)}
+                              {getVerificationIcon(
+                                influencer.verified,
+                                influencer.userType,
+                              )}
                             </div>
                           )}
                           {/* Status Badge */}
@@ -750,14 +805,17 @@ export default function XiaohongshuMonitoring() {
                             {getStatusBadge(influencer.status)}
                           </div>
                         </div>
-                        
+
                         <CardContent className="p-4">
                           <div className="space-y-3">
                             {/* User Info */}
                             <div className="text-center">
                               <h3 className="font-medium text-sm flex items-center justify-center gap-1">
                                 {influencer.username}
-                                {getVerificationIcon(influencer.verified, influencer.userType)}
+                                {getVerificationIcon(
+                                  influencer.verified,
+                                  influencer.userType,
+                                )}
                               </h3>
                               <p className="text-xs text-muted-foreground mt-1">
                                 {influencer.userType}
@@ -766,54 +824,76 @@ export default function XiaohongshuMonitoring() {
                                 添加于 {influencer.addedAt}
                               </p>
                             </div>
-                            
+
                             {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-2 text-xs">
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Users className="h-3 w-3 text-blue-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.followers}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.followers}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.followers, influencer.initialStats.followers)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.followers,
+                                    influencer.initialStats.followers,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Video className="h-3 w-3 text-purple-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.works}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.works}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.works, influencer.initialStats.works)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.works,
+                                    influencer.initialStats.works,
+                                  )}
                                 </div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center mb-1">
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
-                                <div className="font-medium">{influencer.currentStats.totalLikes}</div>
+                                <div className="font-medium">
+                                  {influencer.currentStats.totalLikes}
+                                </div>
                                 <div className="text-green-600 text-xs">
-                                  {calculateGrowth(influencer.currentStats.totalLikes, influencer.initialStats.totalLikes)}
+                                  {calculateGrowth(
+                                    influencer.currentStats.totalLikes,
+                                    influencer.initialStats.totalLikes,
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Engagement Rate */}
                             <div className="text-center pt-2 border-t">
                               <div className="text-sm font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate} 互动率
+                                {influencer.recentActivity.engagementRate}{" "}
+                                互动率
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek} 笔记
+                                本周 {influencer.recentActivity.postsThisWeek}{" "}
+                                笔记
                               </div>
                             </div>
-                            
+
                             {/* Action Buttons */}
                             <div className="flex items-center justify-between pt-2 border-t">
                               <div className="flex items-center space-x-1">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="查看趋势">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      title="查看趋势"
+                                    >
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
                                   </DialogTrigger>
@@ -840,7 +920,9 @@ export default function XiaohongshuMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() => window.open(influencer.url, "_blank")}
+                                  onClick={() =>
+                                    window.open(influencer.url, "_blank")
+                                  }
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -850,7 +932,9 @@ export default function XiaohongshuMonitoring() {
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                                 title="删除监控"
-                                onClick={() => handleRemoveInfluencer(influencer.id)}
+                                onClick={() =>
+                                  handleRemoveInfluencer(influencer.id)
+                                }
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>

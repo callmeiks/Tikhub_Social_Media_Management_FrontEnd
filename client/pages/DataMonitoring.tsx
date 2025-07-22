@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { 
-  Monitor, 
-  UserCheck, 
-  BarChart3, 
+import {
+  Monitor,
+  UserCheck,
+  BarChart3,
   ArrowRight,
   CheckCircle,
   TrendingUp,
-  Settings
+  Settings,
 } from "lucide-react";
 
 const platformMonitoring = [
@@ -22,7 +22,7 @@ const platformMonitoring = [
     description: "监控抖音达人和作品数据变化",
     href: "/data-monitoring/douyin",
     color: "bg-black text-white",
-    stats: { influencers: 45, content: 128 }
+    stats: { influencers: 45, content: 128 },
   },
   {
     id: "tiktok",
@@ -31,7 +31,7 @@ const platformMonitoring = [
     description: "监控TikTok创作者和视频数据",
     href: "/data-monitoring/tiktok",
     color: "bg-black text-white",
-    stats: { influencers: 32, content: 89 }
+    stats: { influencers: 32, content: 89 },
   },
   {
     id: "xiaohongshu",
@@ -40,7 +40,7 @@ const platformMonitoring = [
     description: "监控小红书博主和笔记数据",
     href: "/data-monitoring/xiaohongshu",
     color: "bg-red-500 text-white",
-    stats: { influencers: 67, content: 203 }
+    stats: { influencers: 67, content: 203 },
   },
   {
     id: "kuaishou",
@@ -49,7 +49,7 @@ const platformMonitoring = [
     description: "监控快手达人和作品数据",
     href: "/data-monitoring/kuaishou",
     color: "bg-orange-500 text-white",
-    stats: { influencers: 23, content: 76 }
+    stats: { influencers: 23, content: 76 },
   },
   {
     id: "instagram",
@@ -58,7 +58,7 @@ const platformMonitoring = [
     description: "监控Instagram用户和内容数据",
     href: "/data-monitoring/instagram",
     color: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
-    stats: { influencers: 18, content: 54 }
+    stats: { influencers: 18, content: 54 },
   },
   {
     id: "x",
@@ -67,8 +67,8 @@ const platformMonitoring = [
     description: "监控X(Twitter)用户和推文数据",
     href: "/data-monitoring/x",
     color: "bg-black text-white",
-    stats: { influencers: 15, content: 42 }
-  }
+    stats: { influencers: 15, content: 42 },
+  },
 ];
 
 const otherTools = [
@@ -77,20 +77,26 @@ const otherTools = [
     description: "创建和管理自定义的监控榜单",
     href: "/data-monitoring/custom-rankings",
     icon: BarChart3,
-    badge: "工具"
+    badge: "工具",
   },
   {
     title: "当前任务管理",
     description: "管理所有正在进行的监控任务",
     href: "/data-monitoring/task-management",
     icon: Settings,
-    badge: "管理"
-  }
+    badge: "管理",
+  },
 ];
 
 export default function DataMonitoring() {
-  const totalInfluencers = platformMonitoring.reduce((sum, platform) => sum + platform.stats.influencers, 0);
-  const totalContent = platformMonitoring.reduce((sum, platform) => sum + platform.stats.content, 0);
+  const totalInfluencers = platformMonitoring.reduce(
+    (sum, platform) => sum + platform.stats.influencers,
+    0,
+  );
+  const totalContent = platformMonitoring.reduce(
+    (sum, platform) => sum + platform.stats.content,
+    0,
+  );
 
   return (
     <DashboardLayout
@@ -115,12 +121,10 @@ export default function DataMonitoring() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalInfluencers}</div>
-              <p className="text-xs text-muted-foreground">
-                +12% 与上月相比
-              </p>
+              <p className="text-xs text-muted-foreground">+12% 与上月相比</p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">总监控作品</CardTitle>
@@ -128,22 +132,20 @@ export default function DataMonitoring() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalContent}</div>
-              <p className="text-xs text-muted-foreground">
-                +8% 与上月相比
-              </p>
+              <p className="text-xs text-muted-foreground">+8% 与上月相比</p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">活跃平台</CardTitle>
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{platformMonitoring.length}</div>
-              <p className="text-xs text-muted-foreground">
-                全部平台正常运行
-              </p>
+              <div className="text-2xl font-bold">
+                {platformMonitoring.length}
+              </div>
+              <p className="text-xs text-muted-foreground">全部平台正常运行</p>
             </CardContent>
           </Card>
         </div>
@@ -153,15 +155,22 @@ export default function DataMonitoring() {
           <h2 className="text-lg font-semibold mb-4">平台监控</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {platformMonitoring.map((platform) => (
-              <Card key={platform.id} className="group hover:shadow-lg transition-all duration-200">
+              <Card
+                key={platform.id}
+                className="group hover:shadow-lg transition-all duration-200"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-lg`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-lg`}
+                      >
                         {platform.emoji}
                       </div>
                       <div>
-                        <CardTitle className="text-base">{platform.name}</CardTitle>
+                        <CardTitle className="text-base">
+                          {platform.name}
+                        </CardTitle>
                         <p className="text-sm text-muted-foreground">
                           {platform.description}
                         </p>
@@ -176,13 +185,17 @@ export default function DataMonitoring() {
                       <div className="text-lg font-semibold text-blue-600">
                         {platform.stats.influencers}
                       </div>
-                      <div className="text-xs text-muted-foreground">达人监控</div>
+                      <div className="text-xs text-muted-foreground">
+                        达人监控
+                      </div>
                     </div>
                     <div className="text-center">
                       <div className="text-lg font-semibold text-green-600">
                         {platform.stats.content}
                       </div>
-                      <div className="text-xs text-muted-foreground">作品监控</div>
+                      <div className="text-xs text-muted-foreground">
+                        作品监控
+                      </div>
                     </div>
                   </div>
                   <Link to={platform.href} className="block">
@@ -201,7 +214,10 @@ export default function DataMonitoring() {
           <h2 className="text-lg font-semibold mb-4">监控工具</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {otherTools.map((tool, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-200">
+              <Card
+                key={index}
+                className="group hover:shadow-lg transition-all duration-200"
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
