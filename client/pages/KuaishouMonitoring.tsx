@@ -163,6 +163,7 @@ export default function KuaishouMonitoring() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [validUrls, setValidUrls] = useState([]);
   const [invalidUrls, setInvalidUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
@@ -361,7 +362,7 @@ export default function KuaishouMonitoring() {
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              ⚡ 快手平台��控
+              ⚡ 快手平台监控
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -447,7 +448,7 @@ export default function KuaishouMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作品链接和达人主页链接，系统会自动识���类型
+                      💡 支持同时添加作品链接和达人主页链接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -506,7 +507,7 @@ export default function KuaishouMonitoring() {
                     )}
                     {isAdding
                       ? "批量添加中..."
-                      : `批量添�� (${validUrls.length})`}
+                      : `批量添加 (${validUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
@@ -636,7 +637,7 @@ export default function KuaishouMonitoring() {
                                   </DialogTrigger>
                                   <DialogContent className="max-w-4xl">
                                     <DialogHeader>
-                                      <DialogTitle>作品监控趋势</DialogTitle>
+                                      <DialogTitle>作品监控趋���</DialogTitle>
                                       <DialogDescription>
                                         {content.title} - 快手
                                       </DialogDescription>
@@ -690,7 +691,7 @@ export default function KuaishouMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监控列表 ({influencerData.length})
+                    达人监���列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
                     活跃监控:{" "}
