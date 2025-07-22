@@ -582,7 +582,7 @@ export default function DouyinMonitoring() {
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
-                      💡 支持同时添加作��链接和达人主页链接，系统会自动识别类型
+                      💡 仅支持抖音作品/视频链接
                     </div>
                   </div>
                 </div>
@@ -708,7 +708,7 @@ export default function DouyinMonitoring() {
                         <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidInfluencerUrls.length} 个)
+                            无效链接 ({invalidInfluencerUrls.length} ���)
                           </div>
                           <div className="text-xs text-red-600 mt-1">
                             请确保链接包含 "douyin.com"
