@@ -79,7 +79,7 @@ const mockContentData = [
     initialStats: {
       views: "230万",
       likes: "15.6万",
-      comments: "3.2万",
+      comments: "3.2���",
       shares: "8.5千",
     },
   },
@@ -620,18 +620,18 @@ export default function DouyinMonitoring() {
                 {/* Action Button */}
                 <div className="flex justify-end">
                   <Button
-                    onClick={handleAddBatchContent}
-                    disabled={isAdding || validUrls.length === 0}
+                    onClick={handleAddContentBatch}
+                    disabled={isAddingContent || validContentUrls.length === 0}
                     className="px-8"
                   >
-                    {isAdding ? (
+                    {isAddingContent ? (
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Plus className="mr-2 h-4 w-4" />
                     )}
-                    {isAdding
+                    {isAddingContent
                       ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                      : `批量添加作品 (${validContentUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
@@ -903,7 +903,7 @@ export default function DouyinMonitoring() {
                             </TableCell>
                             <TableCell>
                               <div className="text-sm font-medium text-green-600">
-                                ↗️ 增长中
+                                ↗️ 增长��
                               </div>
                             </TableCell>
                             <TableCell>
