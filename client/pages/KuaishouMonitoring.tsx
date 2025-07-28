@@ -240,9 +240,14 @@ export default function KuaishouMonitoring() {
     }
   };
 
-  const handleBatchUrlsChange = (urls: string) => {
-    setBatchUrls(urls);
-    processBatchUrls(urls);
+  const handleContentUrlsChange = (urls: string) => {
+    setContentUrls(urls);
+    processContentUrls(urls);
+  };
+
+  const handleInfluencerUrlsChange = (urls: string) => {
+    setInfluencerUrls(urls);
+    processInfluencerUrls(urls);
   };
 
   const handleAddBatchContent = async () => {
@@ -470,7 +475,7 @@ export default function KuaishouMonitoring() {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 mb-2">
-                      选择包含快手链接的文本文件（每行一个链接）
+                      选择包含快手��接的文本文件（每行一个链接）
                     </p>
                     <Input
                       type="file"
