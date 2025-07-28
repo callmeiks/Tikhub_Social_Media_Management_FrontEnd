@@ -606,6 +606,25 @@ export default function KuaishouMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -627,7 +646,7 @@ export default function KuaishouMonitoring() {
                     <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含达人主页链接��文本文件
+                        选择包含达人主页链接的文本文件
                       </p>
                       <Input
                         type="file"
@@ -824,7 +843,7 @@ export default function KuaishouMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 趋势图��开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示播放量、点赞数、评论数的时间趋势变化
