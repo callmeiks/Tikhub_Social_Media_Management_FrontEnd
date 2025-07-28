@@ -752,7 +752,26 @@ export default function DouyinMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       手动输入
