@@ -29,6 +29,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock } from "lucide-react";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -111,7 +119,7 @@ const mockInfluencerData = [
     verified: true,
     userType: "三农创作者",
     currentStats: {
-      followers: "187.5万",
+      followers: "187.5���",
       following: "156",
       works: "342",
       totalLikes: "3890万",
@@ -173,6 +181,8 @@ export default function KuaishouMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
@@ -573,7 +583,7 @@ export default function KuaishouMonitoring() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监控添加
+                    达人监控��加
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
