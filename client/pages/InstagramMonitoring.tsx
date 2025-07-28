@@ -589,21 +589,21 @@ export default function InstagramMonitoring() {
                 </div>
 
                 {/* URL Validation Summary */}
-                {(validUrls.length > 0 || invalidUrls.length > 0) && (
+                {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
                   <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validUrls.length > 0 && (
+                    {validContentUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-green-800">
-                            有效链接 ({validUrls.length} 个)
+                            有效链接 ({validContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            内容链接: {validUrls.filter(isContentUrl).length} 个
+                            内容链接: {validContentUrls.filter(isContentUrl).length} 个
                             <br />
                             用户链接:{" "}
                             {
-                              validUrls.filter((url) => !isContentUrl(url))
+                              validContentUrls.filter((url) => !isContentUrl(url))
                                 .length
                             }{" "}
                             个
@@ -612,12 +612,12 @@ export default function InstagramMonitoring() {
                       </div>
                     )}
 
-                    {invalidUrls.length > 0 && (
+                    {invalidContentUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
                         <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidUrls.length} 个)
+                            无效链接 ({invalidContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-red-600 mt-1">
                             请确保链接包含 "instagram.com"
@@ -802,7 +802,7 @@ export default function InstagramMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋��图表开发中...
+                                        📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示浏览量、点赞数、评论数的时间趋势变化
