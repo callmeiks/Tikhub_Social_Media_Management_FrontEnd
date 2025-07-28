@@ -21,6 +21,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock } from "lucide-react";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -222,6 +230,8 @@ export default function XMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("x.com") || url.includes("twitter.com");
@@ -1069,7 +1079,7 @@ export default function XMonitoring() {
                                         📊 ���势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、推文数、获赞总数的时间趋势变化
+                                          将显示粉丝数、推文数、获赞总数的时间��势变化
                                         </span>
                                       </div>
                                     </div>
