@@ -733,7 +733,7 @@ export default function DouyinMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动���入在上方 */}
+                  {/* 手动输入在上方 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       手动输入
@@ -998,13 +998,30 @@ export default function DouyinMonitoring() {
                     <Monitor className="mr-2 h-4 w-4" />
                     作品监控列表 ({contentData.length})
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      contentData.filter((item) => item.status === "active")
-                        .length
-                    }
-                  </Badge>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">监控间隔:</span>
+                      <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                        <SelectTrigger className="w-[120px] h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1m">1 分钟</SelectItem>
+                          <SelectItem value="1h">1 小时</SelectItem>
+                          <SelectItem value="4h">4 小时</SelectItem>
+                          <SelectItem value="24h">24 小时</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      活跃监控:{" "}
+                      {
+                        contentData.filter((item) => item.status === "active")
+                          .length
+                      }
+                    </Badge>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
