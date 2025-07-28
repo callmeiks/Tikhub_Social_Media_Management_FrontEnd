@@ -581,7 +581,7 @@ export default function DouyinMonitoring() {
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              🎤 抖音平台���控
+              🎤 抖音平台监控
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -631,7 +631,26 @@ export default function DouyinMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       手动输入
@@ -891,7 +910,7 @@ export default function DouyinMonitoring() {
                             ).length
                           }
                         </div>
-                        <div className="text-xs text-gray-600">���完成</div>
+                        <div className="text-xs text-gray-600">已完成</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold text-red-600">
