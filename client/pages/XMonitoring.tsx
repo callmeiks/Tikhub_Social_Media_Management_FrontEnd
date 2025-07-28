@@ -289,9 +289,14 @@ export default function XMonitoring() {
     }
   };
 
-  const handleBatchUrlsChange = (urls: string) => {
-    setBatchUrls(urls);
-    processBatchUrls(urls);
+  const handleContentUrlsChange = (urls: string) => {
+    setContentUrls(urls);
+    processContentUrls(urls);
+  };
+
+  const handleInfluencerUrlsChange = (urls: string) => {
+    setInfluencerUrls(urls);
+    processInfluencerUrls(urls);
   };
 
   const handleAddBatchContent = async () => {
@@ -579,7 +584,7 @@ export default function XMonitoring() {
                           <div className="text-xs text-green-600 mt-1">
                             推文链接: {validUrls.filter(isContentUrl).length} 个
                             <br />
-                            用户链接:{" "}
+                            用���链接:{" "}
                             {
                               validUrls.filter((url) => !isContentUrl(url))
                                 .length
