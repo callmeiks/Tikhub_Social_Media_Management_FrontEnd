@@ -188,10 +188,12 @@ export default function KuaishouMonitoring() {
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url) && isContentUrl(url));
-    const invalid = urlList.filter(
-      (url) => !validateUrl(url) || !isContentUrl(url),
-    ).filter((url) => url.length > 0);
+    const valid = urlList.filter(
+      (url) => validateUrl(url) && isContentUrl(url),
+    );
+    const invalid = urlList
+      .filter((url) => !validateUrl(url) || !isContentUrl(url))
+      .filter((url) => url.length > 0);
 
     setValidContentUrls(valid);
     setInvalidContentUrls(invalid);
@@ -203,16 +205,20 @@ export default function KuaishouMonitoring() {
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url) && !isContentUrl(url));
-    const invalid = urlList.filter(
-      (url) => !validateUrl(url) || isContentUrl(url),
-    ).filter((url) => url.length > 0);
+    const valid = urlList.filter(
+      (url) => validateUrl(url) && !isContentUrl(url),
+    );
+    const invalid = urlList
+      .filter((url) => !validateUrl(url) || isContentUrl(url))
+      .filter((url) => url.length > 0);
 
     setValidInfluencerUrls(valid);
     setInvalidInfluencerUrls(invalid);
   };
 
-  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setContentUploadedFile(file);
@@ -226,7 +232,9 @@ export default function KuaishouMonitoring() {
     }
   };
 
-  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInfluencerFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setInfluencerUploadedFile(file);
@@ -489,7 +497,9 @@ export default function KuaishouMonitoring() {
                 <CardContent className="space-y-4">
                   {/* Manual Input */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">手动输入作品链接</label>
+                    <label className="text-sm font-medium">
+                      手动输入作品链接
+                    </label>
                     <Textarea
                       placeholder="请输入快手作品链接，每行一个链接&#10;示例：&#10;https://www.kuaishou.com/short-video/3xfhb2k3jgn8qxt"
                       value={contentUrls}
@@ -522,7 +532,8 @@ export default function KuaishouMonitoring() {
                   </div>
 
                   {/* URL Validation */}
-                  {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
+                  {(validContentUrls.length > 0 ||
+                    invalidContentUrls.length > 0) && (
                     <div className="space-y-2 p-3 bg-gray-50 rounded-lg text-xs">
                       {validContentUrls.length > 0 && (
                         <div className="flex items-center space-x-2 text-green-600">
@@ -568,11 +579,15 @@ export default function KuaishouMonitoring() {
                 <CardContent className="space-y-4">
                   {/* Manual Input */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">手动输入达人主页链接</label>
+                    <label className="text-sm font-medium">
+                      手动输入达人主页链接
+                    </label>
                     <Textarea
                       placeholder="请输入快手达人主页链接，每行一个链接&#10;示例：&#10;https://www.kuaishou.com/profile/3xfhb2k3jgn8"
                       value={influencerUrls}
-                      onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                      onChange={(e) =>
+                        handleInfluencerUrlsChange(e.target.value)
+                      }
                       className="min-h-[180px]"
                     />
                   </div>
@@ -601,7 +616,8 @@ export default function KuaishouMonitoring() {
                   </div>
 
                   {/* URL Validation */}
-                  {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                  {(validInfluencerUrls.length > 0 ||
+                    invalidInfluencerUrls.length > 0) && (
                     <div className="space-y-2 p-3 bg-gray-50 rounded-lg text-xs">
                       {validInfluencerUrls.length > 0 && (
                         <div className="flex items-center space-x-2 text-green-600">
@@ -612,7 +628,9 @@ export default function KuaishouMonitoring() {
                       {invalidInfluencerUrls.length > 0 && (
                         <div className="flex items-center space-x-2 text-red-600">
                           <AlertTriangle className="h-3 w-3" />
-                          <span>无效链接: {invalidInfluencerUrls.length} 个</span>
+                          <span>
+                            无效链接: {invalidInfluencerUrls.length} 个
+                          </span>
                         </div>
                       )}
                     </div>
@@ -621,7 +639,9 @@ export default function KuaishouMonitoring() {
                   {/* Action Button */}
                   <Button
                     onClick={handleAddInfluencerBatch}
-                    disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                    disabled={
+                      isAddingInfluencer || validInfluencerUrls.length === 0
+                    }
                     className="w-full"
                   >
                     {isAddingInfluencer ? (
