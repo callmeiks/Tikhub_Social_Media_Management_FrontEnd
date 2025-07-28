@@ -590,17 +590,17 @@ export default function XMonitoring() {
                 </div>
 
                 {/* URL Validation Summary */}
-                {(validUrls.length > 0 || invalidUrls.length > 0) && (
+                {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
                   <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validUrls.length > 0 && (
+                    {validContentUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-green-800">
-                            有效链接 ({validUrls.length} 个)
+                            有效链接 ({validContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            推文链接: {validUrls.filter(isContentUrl).length} 个
+                            推文链���: {validUrls.filter(isContentUrl).length} 个
                             <br />
                             用户链接:{" "}
                             {
