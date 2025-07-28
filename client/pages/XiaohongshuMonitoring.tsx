@@ -15,6 +15,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -108,7 +115,7 @@ const mockContentData = [
     status: "active",
     type: "图文",
     currentStats: {
-      views: "31.2万",
+      views: "31.2���",
       likes: "8.7万",
       comments: "2.1万",
       shares: "4.5千",
@@ -224,6 +231,8 @@ export default function XiaohongshuMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("xiaohongshu.com");
@@ -634,7 +643,7 @@ export default function XiaohongshuMonitoring() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
                     <Video className="mr-2 h-4 w-4" />
-                    批量添加作品监控
+                    批量添���作品监控
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
