@@ -211,11 +211,16 @@ const mockInfluencerData = [
 export default function XMonitoring() {
   const [contentData, setContentData] = useState(mockContentData);
   const [influencerData, setInfluencerData] = useState(mockInfluencerData);
-  const [batchUrls, setBatchUrls] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [validUrls, setValidUrls] = useState([]);
-  const [invalidUrls, setInvalidUrls] = useState([]);
+  const [contentUrls, setContentUrls] = useState("");
+  const [influencerUrls, setInfluencerUrls] = useState("");
+  const [isAddingContent, setIsAddingContent] = useState(false);
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [contentUploadedFile, setContentUploadedFile] = useState(null);
+  const [influencerUploadedFile, setInfluencerUploadedFile] = useState(null);
+  const [validContentUrls, setValidContentUrls] = useState([]);
+  const [invalidContentUrls, setInvalidContentUrls] = useState([]);
+  const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
+  const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
@@ -527,7 +532,7 @@ export default function XMonitoring() {
                     />
                     <div className="text-xs text-gray-500">
                       💡
-                      支持同时添加推文链接和用户主页链接，同时支持x.com和twitter.com域名
+                      ��持同时添加推文链接和用户主页链接，同时支持x.com和twitter.com域名
                     </div>
                   </div>
                 </div>
