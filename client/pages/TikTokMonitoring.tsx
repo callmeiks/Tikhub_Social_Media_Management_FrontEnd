@@ -23,6 +23,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -1298,7 +1305,7 @@ export default function TikTokMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、作品数、获赞总数的时间趋势变化
+                                          将显示粉丝���、作品数、获赞总数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
