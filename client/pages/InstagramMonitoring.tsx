@@ -229,19 +229,34 @@ export default function InstagramMonitoring() {
     );
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url));
+    const valid = urlList.filter((url) => validateUrl(url) && isContentUrl(url));
     const invalid = urlList.filter(
-      (url) => !validateUrl(url) && url.length > 0,
-    );
+      (url) => !validateUrl(url) || !isContentUrl(url),
+    ).filter((url) => url.length > 0);
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
+  };
+
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter((url) => validateUrl(url) && !isContentUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) || isContentUrl(url),
+    ).filter((url) => url.length > 0);
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -500,7 +515,7 @@ export default function InstagramMonitoring() {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 mb-2">
-                      选择包含Instagram链接的文本文件（���行一个链接）
+                      选择包含Instagram链接的文本文件（每行一个链接）
                     </p>
                     <Input
                       type="file"
