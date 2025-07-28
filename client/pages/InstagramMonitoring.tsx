@@ -207,11 +207,16 @@ const mockInfluencerData = [
 export default function InstagramMonitoring() {
   const [contentData, setContentData] = useState(mockContentData);
   const [influencerData, setInfluencerData] = useState(mockInfluencerData);
-  const [batchUrls, setBatchUrls] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [validUrls, setValidUrls] = useState([]);
-  const [invalidUrls, setInvalidUrls] = useState([]);
+  const [contentUrls, setContentUrls] = useState("");
+  const [influencerUrls, setInfluencerUrls] = useState("");
+  const [isAddingContent, setIsAddingContent] = useState(false);
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [contentUploadedFile, setContentUploadedFile] = useState(null);
+  const [influencerUploadedFile, setInfluencerUploadedFile] = useState(null);
+  const [validContentUrls, setValidContentUrls] = useState([]);
+  const [invalidContentUrls, setInvalidContentUrls] = useState([]);
+  const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
+  const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
@@ -495,7 +500,7 @@ export default function InstagramMonitoring() {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 mb-2">
-                      选择包含Instagram链接的文本文件（每行一个链接）
+                      选择包含Instagram链接的文本文件（���行一个链接）
                     </p>
                     <Input
                       type="file"
