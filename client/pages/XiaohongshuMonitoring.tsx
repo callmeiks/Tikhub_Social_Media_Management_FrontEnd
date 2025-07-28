@@ -46,7 +46,7 @@ import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 const mockContentData = [
   {
     id: 1,
-    title: "秋日穿搭分享 | 温柔知性风格搭配",
+    title: "秋日��搭分享 | 温柔知性风格搭配",
     author: "时尚博主小雅",
     url: "https://www.xiaohongshu.com/explore/63f1234567890abc",
     thumbnail: "/api/placeholder/120/120",
@@ -203,11 +203,16 @@ const mockInfluencerData = [
 export default function XiaohongshuMonitoring() {
   const [contentData, setContentData] = useState(mockContentData);
   const [influencerData, setInfluencerData] = useState(mockInfluencerData);
-  const [batchUrls, setBatchUrls] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [validUrls, setValidUrls] = useState([]);
-  const [invalidUrls, setInvalidUrls] = useState([]);
+  const [contentUrls, setContentUrls] = useState("");
+  const [influencerUrls, setInfluencerUrls] = useState("");
+  const [isAddingContent, setIsAddingContent] = useState(false);
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [contentUploadedFile, setContentUploadedFile] = useState(null);
+  const [influencerUploadedFile, setInfluencerUploadedFile] = useState(null);
+  const [validContentUrls, setValidContentUrls] = useState([]);
+  const [invalidContentUrls, setInvalidContentUrls] = useState([]);
+  const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
+  const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
@@ -218,7 +223,7 @@ export default function XiaohongshuMonitoring() {
     return url.includes("/explore/") || url.includes("/discovery/");
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
@@ -229,27 +234,61 @@ export default function XiaohongshuMonitoring() {
       (url) => !validateUrl(url) && url.length > 0,
     );
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter((url) => validateUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) && url.length > 0,
+    );
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
+  };
+
+  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setContentUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setBatchUrls(content);
-        processBatchUrls(content);
+        setContentUrls(content);
+        processContentUrls(content);
       };
       reader.readAsText(file);
     }
   };
 
-  const handleBatchUrlsChange = (urls: string) => {
-    setBatchUrls(urls);
-    processBatchUrls(urls);
+  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setInfluencerUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setInfluencerUrls(content);
+        processInfluencerUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleContentUrlsChange = (urls: string) => {
+    setContentUrls(urls);
+    processContentUrls(urls);
+  };
+
+  const handleInfluencerUrlsChange = (urls: string) => {
+    setInfluencerUrls(urls);
+    processInfluencerUrls(urls);
   };
 
   const handleAddBatchContent = async () => {
@@ -329,13 +368,13 @@ export default function XiaohongshuMonitoring() {
   };
 
   const handleRemoveContent = (id: number) => {
-    if (confirm("确定要停止监控这个笔记吗？")) {
+    if (confirm("确��要停止监控这个笔记吗？")) {
       setContentData((prev) => prev.filter((item) => item.id !== id));
     }
   };
 
   const handleRemoveInfluencer = (id: number) => {
-    if (confirm("确定要停止监控这个博主吗？")) {
+    if (confirm("确定要���止监控这个博主吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
   };
@@ -504,7 +543,7 @@ export default function XiaohongshuMonitoring() {
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含小红书链接的文本文件（每行一个链接）
+                        选择包含小红书链接的文本文件（每行一个链接���
                       </p>
                       <Input
                         type="file"
@@ -704,7 +743,7 @@ export default function XiaohongshuMonitoring() {
                   <div className="text-center py-8">
                     <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控笔记，请先添加笔记链接
+                      暂无监控笔记，请先添加���记链接
                     </p>
                   </div>
                 ) : (
