@@ -65,7 +65,7 @@ interface TaskItem {
 const mockContentData = [
   {
     id: 1,
-    title: "超火的韩式��妆教程！新手必看",
+    title: "超火的韩式化妆教程！新手必看",
     author: "美妆达人小丽",
     url: "https://www.douyin.com/video/123456",
     thumbnail: "/api/placeholder/120/120",
@@ -88,7 +88,7 @@ const mockContentData = [
   },
   {
     id: 2,
-    title: "今日穿搭分享 | 冬日温暖系搭配",
+    title: "今日穿搭分��� | 冬日温暖系搭配",
     author: "时尚博主Amy",
     url: "https://www.douyin.com/video/789012",
     thumbnail: "/api/placeholder/120/120",
@@ -260,6 +260,75 @@ export default function DouyinMonitoring() {
   const handleInfluencerUrlsChange = (urls: string) => {
     setInfluencerUrls(urls);
     processInfluencerUrls(urls);
+  };
+
+  const processTaskQueue = async (
+    tasks: TaskItem[],
+    setTaskQueue: React.Dispatch<React.SetStateAction<TaskItem[]>>,
+    onSuccess: (task: TaskItem, index: number) => void,
+  ) => {
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+
+      // Update task status to processing
+      setTaskQueue((prev) =>
+        prev.map((t) => (t.id === task.id ? { ...t, status: "processing" } : t)),
+      );
+
+      // Simulate processing time
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1500 + Math.random() * 1000),
+      );
+
+      try {
+        // Simulate random success/failure (90% success rate)
+        const success = Math.random() > 0.1;
+
+        if (success) {
+          // Call success callback
+          onSuccess(task, i);
+
+          // Mark task as completed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "completed",
+                    completedAt: new Date().toLocaleString("zh-CN"),
+                  }
+                : t,
+            ),
+          );
+        } else {
+          // Mark task as failed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "failed",
+                    error: "链接解析失败，请检查链接有效性",
+                  }
+                : t,
+            ),
+          );
+        }
+      } catch (error) {
+        // Mark task as failed
+        setTaskQueue((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  status: "failed",
+                  error: "处理过程中发生错误",
+                }
+              : t,
+          ),
+        );
+      }
+    }
   };
 
   const handleAddContentBatch = async () => {
@@ -510,7 +579,7 @@ export default function DouyinMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">作品��控: {contentData.length}</span>
+                <span className="text-sm">作品监控: {contentData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
@@ -543,208 +612,211 @@ export default function DouyinMonitoring() {
           </TabsList>
 
           <TabsContent value="add" className="mt-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Video className="mr-2 h-4 w-4" />
-                  批量添加作品监控
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* File Upload Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式一：上传文件
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      选择包含抖音链接的文本文件（每行一个链接）
-                    </p>
-                    <Input
-                      type="file"
-                      accept=".txt,.csv"
-                      onChange={handleContentFileUpload}
-                      className="max-w-xs mx-auto"
-                    />
-                    {contentUploadedFile && (
-                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
-                        <FileText className="h-4 w-4 mr-1" />
-                        已上传：{contentUploadedFile.name}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 左侧：批量添加作品监控 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <Video className="mr-2 h-4 w-4" />
+                    批量添加作品监控
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* 手动输入在上方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入
+                    </label>
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="请输入抖音作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;https://www.douyin.com/note/789012"
+                        value={contentUrls}
+                        onChange={(e) => handleContentUrlsChange(e.target.value)}
+                        className="min-h-[120px]"
+                      />
+                      <div className="text-xs text-gray-500">
+                        💡 仅支持抖音作品/视频链接
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Manual Input Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式二：手动输���
-                  </label>
-                  <div className="space-y-3">
-                    <Textarea
-                      placeholder="请输入抖音作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;https://www.douyin.com/note/789012"
-                      value={contentUrls}
-                      onChange={(e) => handleContentUrlsChange(e.target.value)}
-                      className="min-h-[120px]"
-                    />
-                    <div className="text-xs text-gray-500">
-                      💡 仅支持抖音作品/视频链接
                     </div>
                   </div>
-                </div>
 
-                {/* URL Validation Summary */}
-                {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
-                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validContentUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-green-800">
-                            有效作品链接 ({validContentUrls.length} 个)
-                          </div>
+                  {/* 上传文件在下方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      上传文件
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        选择包含抖音链接的文本文件（每行一个链接）
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleContentFileUpload}
+                        className="max-w-xs mx-auto"
+                      />
+                      {contentUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                          <FileText className="h-4 w-4 mr-1" />
+                          已上传：{contentUploadedFile.name}
                         </div>
-                      </div>
-                    )}
-
-                    {invalidContentUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidContentUrls.length} 个)
-                          </div>
-                          <div className="text-xs text-red-600 mt-1">
-                            请确保链接包含 "douyin.com"
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Action Button */}
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleAddContentBatch}
-                    disabled={isAddingContent || validContentUrls.length === 0}
-                    className="px-8"
-                  >
-                    {isAddingContent ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="mr-2 h-4 w-4" />
-                    )}
-                    {isAddingContent
-                      ? "批量添加中..."
-                      : `批量添加作品 (${validContentUrls.length})`}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 达人监控添加区域 */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  批量添加达人监控
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* File Upload Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式一：上传文件
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      选择包含抖音达人链接的文本文件（每行一个链接）
-                    </p>
-                    <Input
-                      type="file"
-                      accept=".txt,.csv"
-                      onChange={handleInfluencerFileUpload}
-                      className="max-w-xs mx-auto"
-                    />
-                    {influencerUploadedFile && (
-                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
-                        <FileText className="h-4 w-4 mr-1" />
-                        已上传：{influencerUploadedFile.name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Manual Input Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式二：手动输���
-                  </label>
-                  <div className="space-y-3">
-                    <Textarea
-                      placeholder="请输入抖音达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456&#10;https://www.douyin.com/user/789012"
-                      value={influencerUrls}
-                      onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
-                      className="min-h-[120px]"
-                    />
-                    <div className="text-xs text-gray-500">
-                      💡 仅支持抖音达人主页链接
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* URL Validation Summary */}
-                {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
-                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validInfluencerUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-green-800">
-                            有效达人链接 ({validInfluencerUrls.length} 个)
+                  {/* URL Validation Summary */}
+                  {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      {validContentUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-green-800">
+                              有效作品链接 ({validContentUrls.length} 个)
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {invalidInfluencerUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidInfluencerUrls.length} ���)
-                          </div>
-                          <div className="text-xs text-red-600 mt-1">
-                            请确保链接包含 "douyin.com"
+                      {invalidContentUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-red-800">
+                              无效链接 ({invalidContentUrls.length} 个)
+                            </div>
+                            <div className="text-xs text-red-600 mt-1">
+                              请确保链接包含 "douyin.com"
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleAddContentBatch}
+                      disabled={isAddingContent || validContentUrls.length === 0}
+                      className="px-8"
+                    >
+                      {isAddingContent ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                      )}
+                      {isAddingContent
+                        ? "批量添加中..."
+                        : `批量添加作品 (${validContentUrls.length})`}
+                    </Button>
                   </div>
-                )}
+                </CardContent>
+              </Card>
 
-                {/* Action Button */}
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleAddInfluencerBatch}
-                    disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
-                    className="px-8"
-                  >
-                    {isAddingInfluencer ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="mr-2 h-4 w-4" />
-                    )}
-                    {isAddingInfluencer
-                      ? "批量添加中..."
-                      : `批量添加达人 (${validInfluencerUrls.length})`}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              {/* 右侧：批量添加达人监控 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    批量添加达人监控
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* 手动输入在上方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入
+                    </label>
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="请输入抖音达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456&#10;https://www.douyin.com/user/789012"
+                        value={influencerUrls}
+                        onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                        className="min-h-[120px]"
+                      />
+                      <div className="text-xs text-gray-500">
+                        💡 仅支持抖音达人主页链接
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 上传文件在下方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      上传文件
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        选择包含抖音达人链接的文本文件（每行一个链接）
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleInfluencerFileUpload}
+                        className="max-w-xs mx-auto"
+                      />
+                      {influencerUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                          <FileText className="h-4 w-4 mr-1" />
+                          已上传：{influencerUploadedFile.name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* URL Validation Summary */}
+                  {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      {validInfluencerUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-green-800">
+                              有效达人链接 ({validInfluencerUrls.length} 个)
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {invalidInfluencerUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-red-800">
+                              无效链接 ({invalidInfluencerUrls.length} 个)
+                            </div>
+                            <div className="text-xs text-red-600 mt-1">
+                              请确保链接包含 "douyin.com"
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleAddInfluencerBatch}
+                      disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                      className="px-8"
+                    >
+                      {isAddingInfluencer ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                      )}
+                      {isAddingInfluencer
+                        ? "批量添加中..."
+                        : `批量添加达人 (${validInfluencerUrls.length})`}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Task Queue Section */}
             {taskQueue.length > 0 && (
@@ -1058,7 +1130,7 @@ export default function DouyinMonitoring() {
                                   </DialogTrigger>
                                   <DialogContent className="max-w-4xl">
                                     <DialogHeader>
-                                      <DialogTitle>作品监��趋势</DialogTitle>
+                                      <DialogTitle>作品监控趋势</DialogTitle>
                                       <DialogDescription>
                                         {content.title} - 抖音
                                       </DialogDescription>
@@ -1112,7 +1184,7 @@ export default function DouyinMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达��监控列表 ({influencerData.length})
+                    达人监控列表 ({influencerData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
                     活跃监控:{" "}
@@ -1141,7 +1213,7 @@ export default function DouyinMonitoring() {
                             当前粉丝数
                           </TableHead>
                           <TableHead className="w-[100px]">作品数</TableHead>
-                          <TableHead className="w-[120px]">获赞总��</TableHead>
+                          <TableHead className="w-[120px]">获赞总数</TableHead>
                           <TableHead className="w-[100px]">互动率</TableHead>
                           <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
