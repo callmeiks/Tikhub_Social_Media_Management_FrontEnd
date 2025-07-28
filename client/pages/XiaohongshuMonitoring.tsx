@@ -291,80 +291,183 @@ export default function XiaohongshuMonitoring() {
     processInfluencerUrls(urls);
   };
 
-  const handleAddBatchContent = async () => {
-    if (validUrls.length === 0) {
-      alert("请输入有效的小红书链接");
+  const processTaskQueue = async (
+    tasks: TaskItem[],
+    setTaskQueue: React.Dispatch<React.SetStateAction<TaskItem[]>>,
+    onSuccess: (task: TaskItem, index: number) => void,
+  ) => {
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+
+      // Update task status to processing
+      setTaskQueue((prev) =>
+        prev.map((t) => (t.id === task.id ? { ...t, status: "processing" } : t)),
+      );
+
+      // Simulate processing time
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1500 + Math.random() * 1000),
+      );
+
+      try {
+        // Simulate random success/failure (90% success rate)
+        const success = Math.random() > 0.1;
+
+        if (success) {
+          // Call success callback
+          onSuccess(task, i);
+
+          // Mark task as completed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "completed",
+                    completedAt: new Date().toLocaleString("zh-CN"),
+                  }
+                : t,
+            ),
+          );
+        } else {
+          // Mark task as failed
+          setTaskQueue((prev) =>
+            prev.map((t) =>
+              t.id === task.id
+                ? {
+                    ...t,
+                    status: "failed",
+                    error: "链接解析失败，请检查链接有效性",
+                  }
+                : t,
+            ),
+          );
+        }
+      } catch (error) {
+        // Mark task as failed
+        setTaskQueue((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  status: "failed",
+                  error: "处理过程中发生错误",
+                }
+              : t,
+          ),
+        );
+      }
+    }
+  };
+
+  const handleAddContentBatch = async () => {
+    if (validContentUrls.length === 0) {
+      alert("请输入有效的小红书作品链接");
       return;
     }
 
-    setIsAdding(true);
-    
-    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
-    setTaskQueue(newTasks);
+    setIsAddingContent(true);
+
+    const newTasks = validContentUrls.map((url) => ({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      type: "content" as const,
+      status: "waiting" as const,
+      addedAt: new Date().toLocaleString("zh-CN"),
+    }));
+
+    setTaskQueue((prev) => [...prev, ...newTasks]);
 
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      if (task.type === 'content') {
-        const newContentItem = {
-          id: Date.now() + i,
-          title: `批量添加的笔记监控 ${i + 1}`,
-          author: "博主名称",
-          url: task.url,
-          thumbnail: "/api/placeholder/120/120",
-          addedAt: task.addedAt,
-          status: "active",
-          type: "图文",
-          currentStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-          initialStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-        };
-        setContentData(prev => [newContentItem, ...prev]);
-      } else {
-        const newInfluencer = {
-          id: Date.now() + i + 1000,
-          username: `批量添加的博主 ${i + 1}`,
-          avatar: "/api/placeholder/60/60",
-          url: task.url,
-          addedAt: task.addedAt,
-          status: "active",
-          verified: false,
-          userType: "普通用户",
-          currentStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          initialStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          recentActivity: {
-            postsThisWeek: 0,
-            avgLikes: "0",
-            avgComments: "0",
-            engagementRate: "0%",
-          },
-        };
-        setInfluencerData(prev => [newInfluencer, ...prev]);
-      }
+      const newContentItem = {
+        id: Date.now() + i,
+        title: `批量添加的作品监控 ${i + 1}`,
+        author: "作者名称",
+        url: task.url,
+        thumbnail: "/api/placeholder/120/120",
+        addedAt: task.addedAt,
+        status: "active",
+        type: "图文",
+        currentStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+          favorites: "0",
+        },
+        initialStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+          favorites: "0",
+        },
+      };
+      setContentData((prev) => [newContentItem, ...prev]);
     });
 
-    setBatchUrls("");
-    setValidUrls([]);
-    setInvalidUrls([]);
-    setUploadedFile(null);
-    setIsAdding(false);
+    setContentUrls("");
+    setValidContentUrls([]);
+    setInvalidContentUrls([]);
+    setContentUploadedFile(null);
+    setIsAddingContent(false);
+  };
+
+  const handleAddInfluencerBatch = async () => {
+    if (validInfluencerUrls.length === 0) {
+      alert("���输入有效的小红书达人链接");
+      return;
+    }
+
+    setIsAddingInfluencer(true);
+
+    const newTasks = validInfluencerUrls.map((url) => ({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      type: "influencer" as const,
+      status: "waiting" as const,
+      addedAt: new Date().toLocaleString("zh-CN"),
+    }));
+
+    setTaskQueue((prev) => [...prev, ...newTasks]);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newInfluencer = {
+        id: Date.now() + i + 1000,
+        username: `批量添加的达人 ${i + 1}`,
+        avatar: "/api/placeholder/60/60",
+        url: task.url,
+        addedAt: task.addedAt,
+        status: "active",
+        verified: false,
+        userType: "普通用户",
+        currentStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        initialStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        recentActivity: {
+          postsThisWeek: 0,
+          avgLikes: "0",
+          avgComments: "0",
+          engagementRate: "0%",
+        },
+      };
+      setInfluencerData((prev) => [newInfluencer, ...prev]);
+    });
+
+    setInfluencerUrls("");
+    setValidInfluencerUrls([]);
+    setInvalidInfluencerUrls([]);
+    setInfluencerUploadedFile(null);
+    setIsAddingInfluencer(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -1057,7 +1160,7 @@ export default function XiaohongshuMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>博主监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {influencer.username} - 小红书
+                                        {influencer.username} - 小��书
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
