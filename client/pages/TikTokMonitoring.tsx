@@ -23,6 +23,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -180,6 +187,10 @@ export default function TikTokMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] =
+    useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
+    useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("tiktok.com");
@@ -219,7 +230,9 @@ export default function TikTokMonitoring() {
     setInvalidInfluencerUrls(invalid);
   };
 
-  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setContentUploadedFile(file);
@@ -233,7 +246,9 @@ export default function TikTokMonitoring() {
     }
   };
 
-  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInfluencerFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setInfluencerUploadedFile(file);
@@ -267,7 +282,9 @@ export default function TikTokMonitoring() {
 
       // Update task status to processing
       setTaskQueue((prev) =>
-        prev.map((t) => (t.id === task.id ? { ...t, status: "processing" } : t)),
+        prev.map((t) =>
+          t.id === task.id ? { ...t, status: "processing" } : t,
+        ),
       );
 
       // Simulate processing time
@@ -348,7 +365,7 @@ export default function TikTokMonitoring() {
       const newContentItem = {
         id: Date.now() + i,
         title: `批量添加的作品监控 ${i + 1}`,
-        author: "作者名称",
+        author: "���者名称",
         url: task.url,
         thumbnail: "/api/placeholder/120/120",
         addedAt: task.addedAt,
@@ -615,16 +632,38 @@ export default function TikTokMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      手动输入
-                    </label>
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={contentMonitoringInterval}
+                      onValueChange={setContentMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数���采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
                       <Textarea
                         placeholder="请输入TikTok作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.tiktok.com/@username/video/123456&#10;https://www.tiktok.com/@username/video/789012"
                         value={contentUrls}
-                        onChange={(e) => handleContentUrlsChange(e.target.value)}
+                        onChange={(e) =>
+                          handleContentUrlsChange(e.target.value)
+                        }
                         className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
@@ -635,9 +674,7 @@ export default function TikTokMonitoring() {
 
                   {/* 上传文件在下方 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      上传文件
-                    </label>
+                    <label className="text-sm font-medium">上传文件</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
@@ -659,7 +696,8 @@ export default function TikTokMonitoring() {
                   </div>
 
                   {/* URL Validation Summary */}
-                  {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
+                  {(validContentUrls.length > 0 ||
+                    invalidContentUrls.length > 0) && (
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       {validContentUrls.length > 0 && (
                         <div className="flex items-start space-x-2">
@@ -692,7 +730,9 @@ export default function TikTokMonitoring() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleAddContentBatch}
-                      disabled={isAddingContent || validContentUrls.length === 0}
+                      disabled={
+                        isAddingContent || validContentUrls.length === 0
+                      }
                       className="px-8"
                     >
                       {isAddingContent ? (
@@ -717,16 +757,38 @@ export default function TikTokMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      手动输入
-                    </label>
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={influencerMonitoringInterval}
+                      onValueChange={setInfluencerMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
                       <Textarea
                         placeholder="请输入TikTok达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.tiktok.com/@username&#10;https://www.tiktok.com/@username2"
                         value={influencerUrls}
-                        onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                        onChange={(e) =>
+                          handleInfluencerUrlsChange(e.target.value)
+                        }
                         className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
@@ -737,9 +799,7 @@ export default function TikTokMonitoring() {
 
                   {/* 上传文件在下方 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      上传文件
-                    </label>
+                    <label className="text-sm font-medium">上传文件</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
@@ -761,7 +821,8 @@ export default function TikTokMonitoring() {
                   </div>
 
                   {/* URL Validation Summary */}
-                  {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                  {(validInfluencerUrls.length > 0 ||
+                    invalidInfluencerUrls.length > 0) && (
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       {validInfluencerUrls.length > 0 && (
                         <div className="flex items-start space-x-2">
@@ -794,7 +855,9 @@ export default function TikTokMonitoring() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleAddInfluencerBatch}
-                      disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                      disabled={
+                        isAddingInfluencer || validInfluencerUrls.length === 0
+                      }
                       className="px-8"
                     >
                       {isAddingInfluencer ? (

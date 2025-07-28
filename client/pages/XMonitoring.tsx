@@ -21,6 +21,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock } from "lucide-react";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -222,6 +230,10 @@ export default function XMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] =
+    useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
+    useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("x.com") || url.includes("twitter.com");
@@ -555,6 +567,28 @@ export default function XMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={contentMonitoringInterval}
+                      onValueChange={setContentMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -574,7 +608,7 @@ export default function XMonitoring() {
                     <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含推文链接的文本文件
+                        选择包含推文���接的文本文件
                       </p>
                       <Input
                         type="file"
@@ -637,10 +671,32 @@ export default function XMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={influencerMonitoringInterval}
+                      onValueChange={setInfluencerMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      手动输入用户主页链接
+                      手动输��用户主页链接
                     </label>
                     <Textarea
                       placeholder="请输入X用户主页链接，每行一个链接&#10;示例：&#10;https://x.com/username&#10;https://twitter.com/username"

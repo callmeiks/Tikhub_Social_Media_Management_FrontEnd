@@ -29,6 +29,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock } from "lucide-react";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -173,6 +181,10 @@ export default function KuaishouMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] =
+    useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
+    useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
@@ -495,6 +507,28 @@ export default function KuaishouMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={contentMonitoringInterval}
+                      onValueChange={setContentMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -577,6 +611,28 @@ export default function KuaishouMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select
+                      value={influencerMonitoringInterval}
+                      onValueChange={setInfluencerMonitoringInterval}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -795,7 +851,7 @@ export default function KuaishouMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 趋势图��开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示播放量、点赞数、评论数的时间趋势变化
