@@ -577,8 +577,8 @@ export default function InstagramMonitoring() {
                   <div className="space-y-3">
                     <Textarea
                       placeholder="请输入Instagram链接，每���一个链接&#10;帖���链接示例：&#10;https://www.instagram.com/p/ABC123DEF456/&#10;https://www.instagram.com/reel/DEF456GHI789/&#10;&#10;用户主页链接示例：&#10;https://www.instagram.com/username/"
-                      value={batchUrls}
-                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
+                      value={contentUrls}
+                      onChange={(e) => handleContentUrlsChange(e.target.value)}
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
@@ -802,7 +802,7 @@ export default function InstagramMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 趋��图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示浏览量、点赞数、评论数的时间趋势变化
