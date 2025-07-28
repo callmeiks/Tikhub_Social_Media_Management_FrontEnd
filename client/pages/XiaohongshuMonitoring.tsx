@@ -115,7 +115,7 @@ const mockContentData = [
     status: "active",
     type: "图文",
     currentStats: {
-      views: "31.2���",
+      views: "31.2万",
       likes: "8.7万",
       comments: "2.1万",
       shares: "4.5千",
@@ -502,7 +502,7 @@ export default function XiaohongshuMonitoring() {
   };
 
   const handleRemoveInfluencer = (id: number) => {
-    if (confirm("确定要���止监控这个博主吗？")) {
+    if (confirm("��定要���止监控这个博主吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
   };
@@ -643,11 +643,30 @@ export default function XiaohongshuMonitoring() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
                     <Video className="mr-2 h-4 w-4" />
-                    批量添���作品监控
+                    批量添加作品监控
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控��隔</label>
+                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
@@ -735,7 +754,7 @@ export default function XiaohongshuMonitoring() {
                       )}
                       {isAddingContent
                         ? "批量添加中..."
-                        : `批量添加作品 (${validContentUrls.length})`}
+                        : `批量添加作�� (${validContentUrls.length})`}
                     </Button>
                   </div>
                 </CardContent>
