@@ -231,19 +231,34 @@ export default function XMonitoring() {
     return url.includes("/status/");
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url));
+    const valid = urlList.filter((url) => validateUrl(url) && isContentUrl(url));
     const invalid = urlList.filter(
-      (url) => !validateUrl(url) && url.length > 0,
-    );
+      (url) => !validateUrl(url) || !isContentUrl(url),
+    ).filter((url) => url.length > 0);
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
+  };
+
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter((url) => validateUrl(url) && !isContentUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) || isContentUrl(url),
+    ).filter((url) => url.length > 0);
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -521,7 +536,7 @@ export default function XMonitoring() {
                 {/* Manual Input Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式二：手动输入
+                    方式��：手动输入
                   </label>
                   <div className="space-y-3">
                     <Textarea
@@ -532,7 +547,7 @@ export default function XMonitoring() {
                     />
                     <div className="text-xs text-gray-500">
                       💡
-                      ��持同时添加推文链接和用户主页链接，同时支持x.com和twitter.com域名
+                      支持同时添加推文链接和用户主页链接，同时支持x.com和twitter.com域名
                     </div>
                   </div>
                 </div>
