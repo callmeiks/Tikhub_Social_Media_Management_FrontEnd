@@ -261,15 +261,29 @@ export default function XMonitoring() {
     setInvalidInfluencerUrls(invalid);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setContentUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setBatchUrls(content);
-        processBatchUrls(content);
+        setContentUrls(content);
+        processContentUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setInfluencerUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setInfluencerUrls(content);
+        processInfluencerUrls(content);
       };
       reader.readAsText(file);
     }
@@ -536,7 +550,7 @@ export default function XMonitoring() {
                 {/* Manual Input Option */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    方式��：手动输入
+                    方式二：手动输入
                   </label>
                   <div className="space-y-3">
                     <Textarea
