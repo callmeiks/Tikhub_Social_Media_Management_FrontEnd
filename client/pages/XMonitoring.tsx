@@ -632,18 +632,18 @@ export default function XMonitoring() {
                 {/* Action Button */}
                 <div className="flex justify-end">
                   <Button
-                    onClick={handleAddBatchContent}
-                    disabled={isAdding || validUrls.length === 0}
+                    onClick={handleAddContentBatch}
+                    disabled={isAddingContent || validContentUrls.length === 0}
                     className="px-8"
                   >
-                    {isAdding ? (
+                    {isAddingContent ? (
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Plus className="mr-2 h-4 w-4" />
                     )}
-                    {isAdding
+                    {isAddingContent
                       ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                      : `批量添加 (${validContentUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
@@ -666,7 +666,7 @@ export default function XMonitoring() {
                     推文监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃��控:{" "}
+                    ��跃��控:{" "}
                     {
                       contentData.filter((item) => item.status === "active")
                         .length
