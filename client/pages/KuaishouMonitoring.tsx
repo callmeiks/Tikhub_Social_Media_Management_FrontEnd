@@ -182,19 +182,34 @@ export default function KuaishouMonitoring() {
     return url.includes("/short-video/") || url.includes("/video/");
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url));
+    const valid = urlList.filter((url) => validateUrl(url) && isContentUrl(url));
     const invalid = urlList.filter(
-      (url) => !validateUrl(url) && url.length > 0,
-    );
+      (url) => !validateUrl(url) || !isContentUrl(url),
+    ).filter((url) => url.length > 0);
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
+  };
+
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter((url) => validateUrl(url) && !isContentUrl(url));
+    const invalid = urlList.filter(
+      (url) => !validateUrl(url) || isContentUrl(url),
+    ).filter((url) => url.length > 0);
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
