@@ -345,7 +345,7 @@ export default function XiaohongshuMonitoring() {
   };
 
   const handleClearAllTasks = () => {
-    if (confirm("确定要清空所有任务吗？")) {
+    if (confirm("��定要清空所有任务吗？")) {
       setTaskQueue([]);
     }
   };
@@ -468,116 +468,211 @@ export default function XiaohongshuMonitoring() {
           </TabsList>
 
           <TabsContent value="add" className="mt-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Plus className="mr-2 h-4 w-4" />
-                  批量添加小红书监控
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* File Upload Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式一：上传文件
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      选择包含小红书链接的文本文件（每行一个链接）
-                    </p>
-                    <Input
-                      type="file"
-                      accept=".txt,.csv"
-                      onChange={handleFileUpload}
-                      className="max-w-xs mx-auto"
-                    />
-                    {uploadedFile && (
-                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
-                        <FileText className="h-4 w-4 mr-1" />
-                        已上传：{uploadedFile.name}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 左侧：批量添加作品监控 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <Video className="mr-2 h-4 w-4" />
+                    批量添加作品监控
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* 手动输入在上方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入
+                    </label>
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="请输入小红书作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.xiaohongshu.com/explore/64a5b2c8000000001e03456f&#10;https://www.xiaohongshu.com/explore/64a5b3d9000000001e034890"
+                        value={contentUrls}
+                        onChange={(e) => handleContentUrlsChange(e.target.value)}
+                        className="min-h-[180px]"
+                      />
+                      <div className="text-xs text-gray-500">
+                        💡 仅支持小红书作品链接
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Manual Input Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式二：手动输入
-                  </label>
-                  <div className="space-y-3">
-                    <Textarea
-                      placeholder="请输入小红书链接，每行一个链接&#10;笔记链接示例：&#10;https://www.xiaohongshu.com/explore/63f1234567890abc&#10;&#10;博主主页链接示例：&#10;https://www.xiaohongshu.com/user/profile/5f1234567890abcd"
-                      value={batchUrls}
-                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
-                      className="min-h-[120px]"
-                    />
-                    <div className="text-xs text-gray-500">
-                      💡 支持同时添加笔记链接和博主主页链接，系统会自动识别类型
                     </div>
                   </div>
-                </div>
 
-                {/* URL Validation Summary */}
-                {(validUrls.length > 0 || invalidUrls.length > 0) && (
-                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-green-800">
-                            有效链接 ({validUrls.length} 个)
-                          </div>
-                          <div className="text-xs text-green-600 mt-1">
-                            笔记链接: {validUrls.filter(isContentUrl).length} 个
-                            <br />
-                            博主链接:{" "}
-                            {
-                              validUrls.filter((url) => !isContentUrl(url))
-                                .length
-                            }{" "}
-                            个
-                          </div>
+                  {/* 上传文件在下方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      上传文件
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-600 mb-2">
+                        选择包含小红书链接的文本文件（每行一个链接）
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleContentFileUpload}
+                        className="max-w-xs mx-auto"
+                      />
+                      {contentUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                          <FileText className="h-4 w-4 mr-1" />
+                          已上传：{contentUploadedFile.name}
                         </div>
-                      </div>
-                    )}
-
-                    {invalidUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidUrls.length} 个)
-                          </div>
-                          <div className="text-xs text-red-600 mt-1">
-                            请确保链接包含 "xiaohongshu.com"
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                )}
 
-                {/* Action Button */}
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleAddBatchContent}
-                    disabled={isAdding || validUrls.length === 0}
-                    className="px-8"
-                  >
-                    {isAdding ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="mr-2 h-4 w-4" />
-                    )}
-                    {isAdding
-                      ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  {/* URL Validation Summary */}
+                  {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      {validContentUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-green-800">
+                              有效作品链接 ({validContentUrls.length} 个)
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {invalidContentUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-red-800">
+                              无效链接 ({invalidContentUrls.length} 个)
+                            </div>
+                            <div className="text-xs text-red-600 mt-1">
+                              请确保链接包含 "xiaohongshu.com"
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleAddContentBatch}
+                      disabled={isAddingContent || validContentUrls.length === 0}
+                      className="px-8"
+                    >
+                      {isAddingContent ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                      )}
+                      {isAddingContent
+                        ? "批量添加中..."
+                        : `批量添加作品 (${validContentUrls.length})`}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 右侧：批量添加达人监控 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    批量添加达人监控
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* 手动输入在上方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入
+                    </label>
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="请输入小红书达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.xiaohongshu.com/user/profile/5e8a7b5c0000000001000123&#10;https://www.xiaohongshu.com/user/profile/5e8a7c8d0000000001000456"
+                        value={influencerUrls}
+                        onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                        className="min-h-[180px]"
+                      />
+                      <div className="text-xs text-gray-500">
+                        💡 仅支持小红书达人主页链接
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 上传文件在下方 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      上传文件
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-600 mb-2">
+                        选择包含小红书达人链接的文本文件（每行一个链接）
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleInfluencerFileUpload}
+                        className="max-w-xs mx-auto"
+                      />
+                      {influencerUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                          <FileText className="h-4 w-4 mr-1" />
+                          已上传：{influencerUploadedFile.name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* URL Validation Summary */}
+                  {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      {validInfluencerUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-green-800">
+                              有效达人链接 ({validInfluencerUrls.length} 个)
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {invalidInfluencerUrls.length > 0 && (
+                        <div className="flex items-start space-x-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-red-800">
+                              无效链接 ({invalidInfluencerUrls.length} 个)
+                            </div>
+                            <div className="text-xs text-red-600 mt-1">
+                              请确保链接包含 "xiaohongshu.com"
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleAddInfluencerBatch}
+                      disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                      className="px-8"
+                    >
+                      {isAddingInfluencer ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                      )}
+                      {isAddingInfluencer
+                        ? "批量添加中..."
+                        : `批量添加达人 (${validInfluencerUrls.length})`}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             <TaskQueueSection
               taskQueue={taskQueue}
@@ -796,7 +891,7 @@ export default function XiaohongshuMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控博主，请先添加博主链接
+                      暂无��控博主，请先添加博主链接
                     </p>
                   </div>
                 ) : (
