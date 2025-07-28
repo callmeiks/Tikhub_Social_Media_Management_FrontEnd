@@ -259,15 +259,29 @@ export default function InstagramMonitoring() {
     setInvalidInfluencerUrls(invalid);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setContentUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setBatchUrls(content);
-        processBatchUrls(content);
+        setContentUrls(content);
+        processContentUrls(content);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setInfluencerUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setInfluencerUrls(content);
+        processInfluencerUrls(content);
       };
       reader.readAsText(file);
     }
@@ -546,7 +560,7 @@ export default function InstagramMonitoring() {
                     />
                     <div className="text-xs text-gray-500">
                       💡
-                      支持同时添加帖子/Reel链接和用户主页链接，系统会自动识别类型
+                      支持同时添加帖子/Reel链接和用户主页���接，系统会自动识别类型
                     </div>
                   </div>
                 </div>
@@ -985,7 +999,7 @@ export default function InstagramMonitoring() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                                title="删除监控"
+                                title="删���监控"
                                 onClick={() =>
                                   handleRemoveInfluencer(influencer.id)
                                 }
