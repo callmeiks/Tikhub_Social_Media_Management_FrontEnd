@@ -250,79 +250,97 @@ export default function KuaishouMonitoring() {
     processInfluencerUrls(urls);
   };
 
-  const handleAddBatchContent = async () => {
-    if (validUrls.length === 0) {
-      alert("请输入有效的快手链接");
+  const handleAddContentBatch = async () => {
+    if (validContentUrls.length === 0) {
+      alert("请输入有效的快手作品链接");
       return;
     }
 
-    setIsAdding(true);
+    setIsAddingContent(true);
 
-    const newTasks = createTaskQueueItems(validUrls, isContentUrl);
-    setTaskQueue(newTasks);
+    const newTasks = createTaskQueueItems(validContentUrls, () => true);
+    setTaskQueue((prev) => [...prev, ...newTasks]);
 
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      if (task.type === "content") {
-        const newContentItem = {
-          id: Date.now() + i,
-          title: `批量添加的作品监控 ${i + 1}`,
-          author: "创作者名称",
-          url: task.url,
-          thumbnail: "/api/placeholder/120/120",
-          addedAt: task.addedAt,
-          status: "active",
-          currentStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-          initialStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-        };
-        setContentData((prev) => [newContentItem, ...prev]);
-      } else {
-        const newInfluencer = {
-          id: Date.now() + i + 1000,
-          username: `批量添加的达人 ${i + 1}`,
-          avatar: "/api/placeholder/60/60",
-          url: task.url,
-          addedAt: task.addedAt,
-          status: "active",
-          verified: false,
-          userType: "普通用户",
-          currentStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          initialStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          recentActivity: {
-            postsThisWeek: 0,
-            avgLikes: "0",
-            avgComments: "0",
-            engagementRate: "0%",
-          },
-        };
-        setInfluencerData((prev) => [newInfluencer, ...prev]);
-      }
+      const newContentItem = {
+        id: Date.now() + i,
+        title: `批量添加的作品监控 ${i + 1}`,
+        author: "创作者名称",
+        url: task.url,
+        thumbnail: "/api/placeholder/120/120",
+        addedAt: task.addedAt,
+        status: "active",
+        currentStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+        initialStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+      };
+      setContentData((prev) => [newContentItem, ...prev]);
     });
 
-    setBatchUrls("");
-    setValidUrls([]);
-    setInvalidUrls([]);
-    setUploadedFile(null);
-    setIsAdding(false);
+    setContentUrls("");
+    setValidContentUrls([]);
+    setInvalidContentUrls([]);
+    setContentUploadedFile(null);
+    setIsAddingContent(false);
+  };
+
+  const handleAddInfluencerBatch = async () => {
+    if (validInfluencerUrls.length === 0) {
+      alert("请输入有效的快手达人主页链接");
+      return;
+    }
+
+    setIsAddingInfluencer(true);
+
+    const newTasks = createTaskQueueItems(validInfluencerUrls, () => false);
+    setTaskQueue((prev) => [...prev, ...newTasks]);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newInfluencer = {
+        id: Date.now() + i + 1000,
+        username: `批量添加��达人 ${i + 1}`,
+        avatar: "/api/placeholder/60/60",
+        url: task.url,
+        addedAt: task.addedAt,
+        status: "active",
+        verified: false,
+        userType: "普通用户",
+        currentStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        initialStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        recentActivity: {
+          postsThisWeek: 0,
+          avgLikes: "0",
+          avgComments: "0",
+          engagementRate: "0%",
+        },
+      };
+      setInfluencerData((prev) => [newInfluencer, ...prev]);
+    });
+
+    setInfluencerUrls("");
+    setValidInfluencerUrls([]);
+    setInvalidInfluencerUrls([]);
+    setInfluencerUploadedFile(null);
+    setIsAddingInfluencer(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -475,7 +493,7 @@ export default function KuaishouMonitoring() {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 mb-2">
-                      选择包含快手��接的文本文件（每行一个链接）
+                      选择包含快手链接的文本文件（每行一个链接）
                     </p>
                     <Input
                       type="file"
