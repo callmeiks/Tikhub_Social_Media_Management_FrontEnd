@@ -85,7 +85,7 @@ const mockContentData = [
   },
   {
     id: 2,
-    title: "护肤心得分享 | 敏感肌的冬日护理",
+    title: "护肤心���分享 | 敏感肌的冬日护理",
     author: "美容达人Lisa",
     url: "https://www.xiaohongshu.com/explore/63f0987654321def",
     thumbnail: "/api/placeholder/120/120",
@@ -459,7 +459,7 @@ export default function XiaohongshuMonitoring() {
     await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
       const newInfluencer = {
         id: Date.now() + i + 1000,
-        username: `批量添加的达人 ${i + 1}`,
+        username: `批量���加的达人 ${i + 1}`,
         avatar: "/api/placeholder/60/60",
         url: task.url,
         addedAt: task.addedAt,
@@ -502,7 +502,7 @@ export default function XiaohongshuMonitoring() {
   };
 
   const handleRemoveInfluencer = (id: number) => {
-    if (confirm("��定要���止监控这个博主吗？")) {
+    if (confirm("确定要���止监控这个博主吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
   };
@@ -649,7 +649,7 @@ export default function XiaohongshuMonitoring() {
                 <CardContent className="space-y-6">
                   {/* 监控间隔设置 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">监控��隔</label>
+                    <label className="text-sm font-medium">监控间隔</label>
                     <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
                       <SelectTrigger className="w-full">
                         <SelectValue />
@@ -754,7 +754,7 @@ export default function XiaohongshuMonitoring() {
                       )}
                       {isAddingContent
                         ? "批量添加中..."
-                        : `批量添加作�� (${validContentUrls.length})`}
+                        : `批量添加作品 (${validContentUrls.length})`}
                     </Button>
                   </div>
                 </CardContent>
@@ -769,7 +769,26 @@ export default function XiaohongshuMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
+                  {/* 手动输入 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
@@ -1004,7 +1023,7 @@ export default function XiaohongshuMonitoring() {
                                       variant="ghost"
                                       size="sm"
                                       className="h-8 w-8 p-0"
-                                      title="查看趋势"
+                                      title="查看��势"
                                     >
                                       <BarChart3 className="h-3 w-3" />
                                     </Button>
