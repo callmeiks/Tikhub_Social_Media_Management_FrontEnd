@@ -192,8 +192,10 @@ export default function DouyinMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
-  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
-  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
+  const [contentMonitoringInterval, setContentMonitoringInterval] =
+    useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
+    useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("douyin.com");
@@ -233,7 +235,9 @@ export default function DouyinMonitoring() {
     setInvalidInfluencerUrls(invalid);
   };
 
-  const handleContentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setContentUploadedFile(file);
@@ -247,7 +251,9 @@ export default function DouyinMonitoring() {
     }
   };
 
-  const handleInfluencerFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInfluencerFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setInfluencerUploadedFile(file);
@@ -281,7 +287,9 @@ export default function DouyinMonitoring() {
 
       // Update task status to processing
       setTaskQueue((prev) =>
-        prev.map((t) => (t.id === task.id ? { ...t, status: "processing" } : t)),
+        prev.map((t) =>
+          t.id === task.id ? { ...t, status: "processing" } : t,
+        ),
       );
 
       // Simulate processing time
@@ -634,7 +642,10 @@ export default function DouyinMonitoring() {
                   {/* 监控间隔设置 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">监控间隔</label>
-                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                    <Select
+                      value={contentMonitoringInterval}
+                      onValueChange={setContentMonitoringInterval}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -652,14 +663,14 @@ export default function DouyinMonitoring() {
 
                   {/* 手动输入 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      手动输入
-                    </label>
+                    <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
                       <Textarea
                         placeholder="请输入抖音作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;https://www.douyin.com/note/789012"
                         value={contentUrls}
-                        onChange={(e) => handleContentUrlsChange(e.target.value)}
+                        onChange={(e) =>
+                          handleContentUrlsChange(e.target.value)
+                        }
                         className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
@@ -670,9 +681,7 @@ export default function DouyinMonitoring() {
 
                   {/* 上传文件在下方 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      上传文件
-                    </label>
+                    <label className="text-sm font-medium">上传文件</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
@@ -694,7 +703,8 @@ export default function DouyinMonitoring() {
                   </div>
 
                   {/* URL Validation Summary */}
-                  {(validContentUrls.length > 0 || invalidContentUrls.length > 0) && (
+                  {(validContentUrls.length > 0 ||
+                    invalidContentUrls.length > 0) && (
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       {validContentUrls.length > 0 && (
                         <div className="flex items-start space-x-2">
@@ -727,7 +737,9 @@ export default function DouyinMonitoring() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleAddContentBatch}
-                      disabled={isAddingContent || validContentUrls.length === 0}
+                      disabled={
+                        isAddingContent || validContentUrls.length === 0
+                      }
                       className="px-8"
                     >
                       {isAddingContent ? (
@@ -755,7 +767,10 @@ export default function DouyinMonitoring() {
                   {/* 监控间隔设置 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">监控间隔</label>
-                    <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
+                    <Select
+                      value={influencerMonitoringInterval}
+                      onValueChange={setInfluencerMonitoringInterval}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -773,14 +788,14 @@ export default function DouyinMonitoring() {
 
                   {/* 手动输入 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      手动输入
-                    </label>
+                    <label className="text-sm font-medium">手动输入</label>
                     <div className="space-y-3">
                       <Textarea
                         placeholder="请输入抖音达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456&#10;https://www.douyin.com/user/789012"
                         value={influencerUrls}
-                        onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
+                        onChange={(e) =>
+                          handleInfluencerUrlsChange(e.target.value)
+                        }
                         className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
@@ -791,9 +806,7 @@ export default function DouyinMonitoring() {
 
                   {/* 上传文件在下方 */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      上传文件
-                    </label>
+                    <label className="text-sm font-medium">上传文件</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
@@ -815,7 +828,8 @@ export default function DouyinMonitoring() {
                   </div>
 
                   {/* URL Validation Summary */}
-                  {(validInfluencerUrls.length > 0 || invalidInfluencerUrls.length > 0) && (
+                  {(validInfluencerUrls.length > 0 ||
+                    invalidInfluencerUrls.length > 0) && (
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       {validInfluencerUrls.length > 0 && (
                         <div className="flex items-start space-x-2">
@@ -848,7 +862,9 @@ export default function DouyinMonitoring() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleAddInfluencerBatch}
-                      disabled={isAddingInfluencer || validInfluencerUrls.length === 0}
+                      disabled={
+                        isAddingInfluencer || validInfluencerUrls.length === 0
+                      }
                       className="px-8"
                     >
                       {isAddingInfluencer ? (
@@ -1059,9 +1075,7 @@ export default function DouyinMonitoring() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[250px]">作品信息</TableHead>
-                          <TableHead className="w-[90px]">
-                            当前播放量
-                          </TableHead>
+                          <TableHead className="w-[90px]">当前播放量</TableHead>
                           <TableHead className="w-[75px]">当前点赞</TableHead>
                           <TableHead className="w-[75px]">当前评论</TableHead>
                           <TableHead className="w-[75px]">分享量</TableHead>

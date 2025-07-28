@@ -181,8 +181,10 @@ export default function KuaishouMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
-  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
-  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
+  const [contentMonitoringInterval, setContentMonitoringInterval] =
+    useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
+    useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
@@ -508,7 +510,10 @@ export default function KuaishouMonitoring() {
                   {/* 监控间隔设置 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">监控间隔</label>
-                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                    <Select
+                      value={contentMonitoringInterval}
+                      onValueChange={setContentMonitoringInterval}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -609,7 +614,10 @@ export default function KuaishouMonitoring() {
                   {/* 监控间隔设置 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">监控间隔</label>
-                    <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
+                    <Select
+                      value={influencerMonitoringInterval}
+                      onValueChange={setInfluencerMonitoringInterval}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
