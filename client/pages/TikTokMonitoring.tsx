@@ -187,6 +187,8 @@ export default function TikTokMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("tiktok.com");
@@ -457,7 +459,7 @@ export default function TikTokMonitoring() {
   };
 
   const handleClearAllTasks = () => {
-    if (confirm("确定要清空所有任务吗？")) {
+    if (confirm("确定要清空所有任务吗���")) {
       setTaskQueue([]);
     }
   };
@@ -1305,7 +1307,7 @@ export default function TikTokMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝���、作品数、获赞总数的时间趋势变化
+                                          将显示粉丝数、作品数、获赞总数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
