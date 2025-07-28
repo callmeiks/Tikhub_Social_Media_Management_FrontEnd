@@ -23,6 +23,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -557,7 +564,7 @@ export default function DouyinMonitoring() {
   return (
     <DashboardLayout
       title="抖音监控"
-      subtitle="实时监控抖音平台的达人和作品数据变化"
+      subtitle="实时监控抖音平台���达人和作品数据变化"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
