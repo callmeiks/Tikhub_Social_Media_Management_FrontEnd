@@ -631,18 +631,18 @@ export default function InstagramMonitoring() {
                 {/* Action Button */}
                 <div className="flex justify-end">
                   <Button
-                    onClick={handleAddBatchContent}
-                    disabled={isAdding || validUrls.length === 0}
+                    onClick={handleAddContentBatch}
+                    disabled={isAddingContent || validContentUrls.length === 0}
                     className="px-8"
                   >
-                    {isAdding ? (
+                    {isAddingContent ? (
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Plus className="mr-2 h-4 w-4" />
                     )}
-                    {isAdding
+                    {isAddingContent
                       ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                      : `批量添加 (${validContentUrls.length})`}
                   </Button>
                 </div>
               </CardContent>
