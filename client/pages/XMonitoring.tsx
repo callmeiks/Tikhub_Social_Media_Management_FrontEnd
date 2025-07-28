@@ -522,7 +522,7 @@ export default function XMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">��文监控: {contentData.length}</span>
+                <span className="text-sm">���文监控: {contentData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
@@ -565,6 +565,25 @@ export default function XMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -757,7 +776,7 @@ export default function XMonitoring() {
                   <div className="text-center py-8">
                     <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控推文，请先添加推文链接
+                      ��无监控推文，请先添加推文链接
                     </p>
                   </div>
                 ) : (
@@ -1079,7 +1098,7 @@ export default function XMonitoring() {
                                         📊 ���势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、推文数、获赞总数的时间��势变化
+                                          将显示粉丝数、推文数、获赞总数的时间趋势变化
                                         </span>
                                       </div>
                                     </div>
