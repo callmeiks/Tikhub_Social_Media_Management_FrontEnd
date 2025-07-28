@@ -21,6 +21,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock } from "lucide-react";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -218,6 +226,8 @@ export default function InstagramMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("instagram.com");
