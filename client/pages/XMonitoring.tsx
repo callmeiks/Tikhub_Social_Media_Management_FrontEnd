@@ -600,14 +600,14 @@ export default function XMonitoring() {
                             有效链接 ({validContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            推文链���: {validUrls.filter(isContentUrl).length} 个
+                            推文链接: {validContentUrls.filter(isContentUrl).length} 个
                             <br />
                             用户链接:{" "}
                             {
-                              validUrls.filter((url) => !isContentUrl(url))
+                              validContentUrls.filter((url) => !isContentUrl(url))
                                 .length
                             }{" "}
-                            ���
+                            个
                           </div>
                         </div>
                       </div>
