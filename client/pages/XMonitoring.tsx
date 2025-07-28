@@ -558,7 +558,7 @@ export default function XMonitoring() {
                     <Input
                       type="file"
                       accept=".txt,.csv"
-                      onChange={handleFileUpload}
+                      onChange={handleContentFileUpload}
                       className="max-w-xs mx-auto"
                     />
                     {uploadedFile && (
@@ -866,7 +866,7 @@ export default function XMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监控用户，请先添加用户链接
+                      暂无监���用户，请先添加用户链接
                     </p>
                   </div>
                 ) : (
