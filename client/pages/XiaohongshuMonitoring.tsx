@@ -39,7 +39,6 @@ import {
   Image,
   Bookmark,
 } from "lucide-react";
-import { TaskItem, createTaskQueueItems, processTaskQueue } from "@/lib/taskQueue";
 import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 
 // Sample monitoring data for Xiaohongshu content
