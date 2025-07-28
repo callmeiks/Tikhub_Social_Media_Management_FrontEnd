@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
+import {
+  TaskItem,
+  createTaskQueueItems,
+  processTaskQueue,
+} from "@/lib/taskQueue";
+import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -205,11 +211,17 @@ const mockInfluencerData = [
 export default function XMonitoring() {
   const [contentData, setContentData] = useState(mockContentData);
   const [influencerData, setInfluencerData] = useState(mockInfluencerData);
-  const [batchUrls, setBatchUrls] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [validUrls, setValidUrls] = useState([]);
-  const [invalidUrls, setInvalidUrls] = useState([]);
+  const [contentUrls, setContentUrls] = useState("");
+  const [influencerUrls, setInfluencerUrls] = useState("");
+  const [isAddingContent, setIsAddingContent] = useState(false);
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [contentUploadedFile, setContentUploadedFile] = useState(null);
+  const [influencerUploadedFile, setInfluencerUploadedFile] = useState(null);
+  const [validContentUrls, setValidContentUrls] = useState([]);
+  const [invalidContentUrls, setInvalidContentUrls] = useState([]);
+  const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
+  const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
+  const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
 
   const validateUrl = (url: string) => {
     return url.includes("x.com") || url.includes("twitter.com");
@@ -219,120 +231,174 @@ export default function XMonitoring() {
     return url.includes("/status/");
   };
 
-  const processBatchUrls = (urls: string) => {
+  const processContentUrls = (urls: string) => {
     const urlList = urls
       .split("\n")
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter((url) => validateUrl(url));
-    const invalid = urlList.filter(
-      (url) => !validateUrl(url) && url.length > 0,
+    const valid = urlList.filter(
+      (url) => validateUrl(url) && isContentUrl(url),
     );
+    const invalid = urlList
+      .filter((url) => !validateUrl(url) || !isContentUrl(url))
+      .filter((url) => url.length > 0);
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
+    setValidContentUrls(valid);
+    setInvalidContentUrls(invalid);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const processInfluencerUrls = (urls: string) => {
+    const urlList = urls
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
+    const valid = urlList.filter(
+      (url) => validateUrl(url) && !isContentUrl(url),
+    );
+    const invalid = urlList
+      .filter((url) => !validateUrl(url) || isContentUrl(url))
+      .filter((url) => url.length > 0);
+
+    setValidInfluencerUrls(valid);
+    setInvalidInfluencerUrls(invalid);
+  };
+
+  const handleContentFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setContentUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setBatchUrls(content);
-        processBatchUrls(content);
+        setContentUrls(content);
+        processContentUrls(content);
       };
       reader.readAsText(file);
     }
   };
 
-  const handleBatchUrlsChange = (urls: string) => {
-    setBatchUrls(urls);
-    processBatchUrls(urls);
+  const handleInfluencerFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setInfluencerUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setInfluencerUrls(content);
+        processInfluencerUrls(content);
+      };
+      reader.readAsText(file);
+    }
   };
 
-  const handleAddBatchContent = async () => {
-    if (validUrls.length === 0) {
-      alert("请输入有效的X链接");
+  const handleContentUrlsChange = (urls: string) => {
+    setContentUrls(urls);
+    processContentUrls(urls);
+  };
+
+  const handleInfluencerUrlsChange = (urls: string) => {
+    setInfluencerUrls(urls);
+    processInfluencerUrls(urls);
+  };
+
+  const handleAddContentBatch = async () => {
+    if (validContentUrls.length === 0) {
+      alert("请输入有效的X推文链接");
       return;
     }
 
-    setIsAdding(true);
-    setTimeout(() => {
-      const contentUrls = validUrls.filter(isContentUrl);
-      const influencerUrls = validUrls.filter((url) => !isContentUrl(url));
+    setIsAddingContent(true);
 
-      // Add content monitoring
-      if (contentUrls.length > 0) {
-        const newContentItems = contentUrls.map((url, index) => ({
-          id: Date.now() + index,
-          title: `批量添加的推文监控 ${index + 1}`,
-          author: "username",
-          url: url,
-          thumbnail: "/api/placeholder/120/120",
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          type: "Tweet",
-          currentStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-          initialStats: {
-            views: "0",
-            likes: "0",
-            comments: "0",
-            shares: "0",
-          },
-        }));
-        setContentData((prev) => [...newContentItems, ...prev]);
-      }
+    const newTasks = createTaskQueueItems(validContentUrls, () => true);
+    setTaskQueue((prev) => [...prev, ...newTasks]);
 
-      // Add influencer monitoring
-      if (influencerUrls.length > 0) {
-        const newInfluencers = influencerUrls.map((url, index) => ({
-          id: Date.now() + index + 1000,
-          username: `批量添加的用户 ${index + 1}`,
-          avatar: "/api/placeholder/60/60",
-          url: url,
-          addedAt: new Date().toLocaleString("zh-CN"),
-          status: "active",
-          verified: false,
-          userType: "Personal",
-          currentStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          initialStats: {
-            followers: "0",
-            following: "0",
-            works: "0",
-            totalLikes: "0",
-          },
-          recentActivity: {
-            postsThisWeek: 0,
-            avgLikes: "0",
-            avgComments: "0",
-            engagementRate: "0%",
-          },
-        }));
-        setInfluencerData((prev) => [...newInfluencers, ...prev]);
-      }
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newContentItem = {
+        id: Date.now() + i,
+        title: `批量添加的推文监控 ${i + 1}`,
+        author: "用户名",
+        url: task.url,
+        thumbnail: "/api/placeholder/120/120",
+        addedAt: task.addedAt,
+        status: "active",
+        type: "Tweet",
+        currentStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+        initialStats: {
+          views: "0",
+          likes: "0",
+          comments: "0",
+          shares: "0",
+        },
+      };
+      setContentData((prev) => [newContentItem, ...prev]);
+    });
 
-      setBatchUrls("");
-      setValidUrls([]);
-      setInvalidUrls([]);
-      setUploadedFile(null);
-      setIsAdding(false);
-      alert(
-        `成功添加 ${contentUrls.length} 个推文监控和 ${influencerUrls.length} 个用户监控！`,
-      );
-    }, 2000);
+    setContentUrls("");
+    setValidContentUrls([]);
+    setInvalidContentUrls([]);
+    setContentUploadedFile(null);
+    setIsAddingContent(false);
+  };
+
+  const handleAddInfluencerBatch = async () => {
+    if (validInfluencerUrls.length === 0) {
+      alert("请输入有效的X用户主页链接");
+      return;
+    }
+
+    setIsAddingInfluencer(true);
+
+    const newTasks = createTaskQueueItems(validInfluencerUrls, () => false);
+    setTaskQueue((prev) => [...prev, ...newTasks]);
+
+    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
+      const newInfluencer = {
+        id: Date.now() + i + 1000,
+        username: `批量添加的用户 ${i + 1}`,
+        avatar: "/api/placeholder/60/60",
+        url: task.url,
+        addedAt: task.addedAt,
+        status: "active",
+        verified: false,
+        userType: "Personal",
+        currentStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        initialStats: {
+          followers: "0",
+          following: "0",
+          works: "0",
+          totalLikes: "0",
+        },
+        recentActivity: {
+          postsThisWeek: 0,
+          avgLikes: "0",
+          avgComments: "0",
+          engagementRate: "0%",
+        },
+      };
+      setInfluencerData((prev) => [newInfluencer, ...prev]);
+    });
+
+    setInfluencerUrls("");
+    setValidInfluencerUrls([]);
+    setInvalidInfluencerUrls([]);
+    setInfluencerUploadedFile(null);
+    setIsAddingInfluencer(false);
   };
 
   const handleRemoveContent = (id: number) => {
@@ -345,6 +411,26 @@ export default function XMonitoring() {
     if (confirm("确定要停止监控这个用户吗？")) {
       setInfluencerData((prev) => prev.filter((item) => item.id !== id));
     }
+  };
+
+  const handleClearCompletedTasks = () => {
+    setTaskQueue((prev) => prev.filter((task) => task.status !== "completed"));
+  };
+
+  const handleClearAllTasks = () => {
+    if (confirm("确定要清空所有任务吗？")) {
+      setTaskQueue([]);
+    }
+  };
+
+  const handleRetryFailedTask = (taskId: string) => {
+    setTaskQueue((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "waiting", error: undefined }
+          : task,
+      ),
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -426,7 +512,7 @@ export default function XMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">推文监控: {contentData.length}</span>
+                <span className="text-sm">��文监控: {contentData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
@@ -446,7 +532,7 @@ export default function XMonitoring() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加监控
+              添加监��
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
@@ -459,117 +545,184 @@ export default function XMonitoring() {
           </TabsList>
 
           <TabsContent value="add" className="mt-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center">
-                  <Plus className="mr-2 h-4 w-4" />
-                  批量添加X监控
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* File Upload Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式一：上传文件
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      选择包含X链接的文本文件（每行一个链接）
-                    </p>
-                    <Input
-                      type="file"
-                      accept=".txt,.csv"
-                      onChange={handleFileUpload}
-                      className="max-w-xs mx-auto"
-                    />
-                    {uploadedFile && (
-                      <div className="mt-2 flex items-center justify-center text-sm text-green-600">
-                        <FileText className="h-4 w-4 mr-1" />
-                        已上传：{uploadedFile.name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Manual Input Option */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    方式二：手动输入
-                  </label>
-                  <div className="space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Content Monitoring */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <Monitor className="mr-2 h-4 w-4" />
+                    作品监控添加
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Manual Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入推文链接
+                    </label>
                     <Textarea
-                      placeholder="请输入X链接，每行一个链接&#10;推文链接示例：&#10;https://x.com/username/status/1234567890123456789&#10;https://twitter.com/username/status/1234567890123456789&#10;&#10;用户主页链接示例：&#10;https://x.com/username&#10;https://twitter.com/username"
-                      value={batchUrls}
-                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
-                      className="min-h-[120px]"
+                      placeholder="请输入X推文链接，每行一个链接&#10;示例：&#10;https://x.com/username/status/1234567890123456789&#10;https://twitter.com/username/status/1234567890123456789"
+                      value={contentUrls}
+                      onChange={(e) => handleContentUrlsChange(e.target.value)}
+                      className="min-h-[180px]"
                     />
-                    <div className="text-xs text-gray-500">
-                      💡
-                      支持同时添加推文链接和用户主页链接，同时支持x.com和twitter.com域名
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">上传文件</label>
+                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
+                      <p className="text-xs text-gray-600 mb-2">
+                        选择包含推文链接的文本文件
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleContentFileUpload}
+                        className="max-w-full"
+                      />
+                      {contentUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-xs text-green-600">
+                          <FileText className="h-3 w-3 mr-1" />
+                          {contentUploadedFile.name}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* URL Validation Summary */}
-                {(validUrls.length > 0 || invalidUrls.length > 0) && (
-                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    {validUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-green-800">
-                            有效链接 ({validUrls.length} 个)
-                          </div>
-                          <div className="text-xs text-green-600 mt-1">
-                            推文链接: {validUrls.filter(isContentUrl).length} 个
-                            <br />
-                            用户链接:{" "}
-                            {
-                              validUrls.filter((url) => !isContentUrl(url))
-                                .length
-                            }{" "}
-                            ���
-                          </div>
+                  {/* URL Validation */}
+                  {(validContentUrls.length > 0 ||
+                    invalidContentUrls.length > 0) && (
+                    <div className="space-y-2 p-3 bg-gray-50 rounded-lg text-xs">
+                      {validContentUrls.length > 0 && (
+                        <div className="flex items-center space-x-2 text-green-600">
+                          <CheckCircle className="h-3 w-3" />
+                          <span>有效链接: {validContentUrls.length} 个</span>
                         </div>
-                      </div>
-                    )}
-
-                    {invalidUrls.length > 0 && (
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidUrls.length} 个)
-                          </div>
-                          <div className="text-xs text-red-600 mt-1">
-                            请确保链接包含 "x.com" 或 "twitter.com"
-                          </div>
+                      )}
+                      {invalidContentUrls.length > 0 && (
+                        <div className="flex items-center space-x-2 text-red-600">
+                          <AlertTriangle className="h-3 w-3" />
+                          <span>无效链接: {invalidContentUrls.length} 个</span>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
 
-                {/* Action Button */}
-                <div className="flex justify-end">
+                  {/* Action Button */}
                   <Button
-                    onClick={handleAddBatchContent}
-                    disabled={isAdding || validUrls.length === 0}
-                    className="px-8"
+                    onClick={handleAddContentBatch}
+                    disabled={isAddingContent || validContentUrls.length === 0}
+                    className="w-full"
                   >
-                    {isAdding ? (
+                    {isAddingContent ? (
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Plus className="mr-2 h-4 w-4" />
                     )}
-                    {isAdding
-                      ? "批量添加中..."
-                      : `批量添加 (${validUrls.length})`}
+                    {isAddingContent
+                      ? "添加中..."
+                      : `添加作品监控 (${validContentUrls.length})`}
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              {/* Right: Influencer Monitoring */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    达人监控添加
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Manual Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      手动输入用户主页链接
+                    </label>
+                    <Textarea
+                      placeholder="请输入X用户主页链接，每行一个链接&#10;示例：&#10;https://x.com/username&#10;https://twitter.com/username"
+                      value={influencerUrls}
+                      onChange={(e) =>
+                        handleInfluencerUrlsChange(e.target.value)
+                      }
+                      className="min-h-[180px]"
+                    />
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">上传文件</label>
+                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
+                      <p className="text-xs text-gray-600 mb-2">
+                        选择包含用户主页链接的文本文件
+                      </p>
+                      <Input
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleInfluencerFileUpload}
+                        className="max-w-full"
+                      />
+                      {influencerUploadedFile && (
+                        <div className="mt-2 flex items-center justify-center text-xs text-green-600">
+                          <FileText className="h-3 w-3 mr-1" />
+                          {influencerUploadedFile.name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* URL Validation */}
+                  {(validInfluencerUrls.length > 0 ||
+                    invalidInfluencerUrls.length > 0) && (
+                    <div className="space-y-2 p-3 bg-gray-50 rounded-lg text-xs">
+                      {validInfluencerUrls.length > 0 && (
+                        <div className="flex items-center space-x-2 text-green-600">
+                          <CheckCircle className="h-3 w-3" />
+                          <span>有效链接: {validInfluencerUrls.length} 个</span>
+                        </div>
+                      )}
+                      {invalidInfluencerUrls.length > 0 && (
+                        <div className="flex items-center space-x-2 text-red-600">
+                          <AlertTriangle className="h-3 w-3" />
+                          <span>
+                            无效链接: {invalidInfluencerUrls.length} 个
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <Button
+                    onClick={handleAddInfluencerBatch}
+                    disabled={
+                      isAddingInfluencer || validInfluencerUrls.length === 0
+                    }
+                    className="w-full"
+                  >
+                    {isAddingInfluencer ? (
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Plus className="mr-2 h-4 w-4" />
+                    )}
+                    {isAddingInfluencer
+                      ? "添加中..."
+                      : `添加达人监控 (${validInfluencerUrls.length})`}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            <TaskQueueSection
+              taskQueue={taskQueue}
+              onClearCompleted={handleClearCompletedTasks}
+              onClearAll={handleClearAllTasks}
+              onRetryFailed={handleRetryFailedTask}
+            />
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
@@ -581,7 +734,7 @@ export default function XMonitoring() {
                     推文监控列表 ({contentData.length})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
+                    活跃��控:{" "}
                     {
                       contentData.filter((item) => item.status === "active")
                         .length
@@ -913,7 +1066,7 @@ export default function XMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 ���势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、推文数、获赞总数的时间趋势变化
