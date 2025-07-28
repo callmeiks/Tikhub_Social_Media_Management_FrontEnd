@@ -561,10 +561,10 @@ export default function XMonitoring() {
                       onChange={handleContentFileUpload}
                       className="max-w-xs mx-auto"
                     />
-                    {uploadedFile && (
+                    {contentUploadedFile && (
                       <div className="mt-2 flex items-center justify-center text-sm text-green-600">
                         <FileText className="h-4 w-4 mr-1" />
-                        已上传：{uploadedFile.name}
+                        已上传：{contentUploadedFile.name}
                       </div>
                     )}
                   </div>
@@ -866,7 +866,7 @@ export default function XMonitoring() {
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      暂无监���用户，请先添加用户链接
+                      暂无监控用户，请先添加用户链接
                     </p>
                   </div>
                 ) : (
