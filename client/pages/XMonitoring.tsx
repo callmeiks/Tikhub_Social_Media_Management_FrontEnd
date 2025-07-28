@@ -504,7 +504,7 @@ export default function XMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">推文监控: {contentData.length}</span>
+                <span className="text-sm">��文监控: {contentData.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
@@ -613,12 +613,12 @@ export default function XMonitoring() {
                       </div>
                     )}
 
-                    {invalidUrls.length > 0 && (
+                    {invalidContentUrls.length > 0 && (
                       <div className="flex items-start space-x-2">
                         <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm font-medium text-red-800">
-                            无效链接 ({invalidUrls.length} 个)
+                            无效链接 ({invalidContentUrls.length} 个)
                           </div>
                           <div className="text-xs text-red-600 mt-1">
                             请确保链接包含 "x.com" 或 "twitter.com"
@@ -998,7 +998,7 @@ export default function XMonitoring() {
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
+                                        📊 ���势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、推文数、获赞总数的时间趋势变化
