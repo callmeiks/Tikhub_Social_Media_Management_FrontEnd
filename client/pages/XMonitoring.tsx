@@ -578,8 +578,8 @@ export default function XMonitoring() {
                   <div className="space-y-3">
                     <Textarea
                       placeholder="请输入X链接，每行一个链接&#10;推文链接示例：&#10;https://x.com/username/status/1234567890123456789&#10;https://twitter.com/username/status/1234567890123456789&#10;&#10;用户主页链接示例：&#10;https://x.com/username&#10;https://twitter.com/username"
-                      value={batchUrls}
-                      onChange={(e) => handleBatchUrlsChange(e.target.value)}
+                      value={contentUrls}
+                      onChange={(e) => handleContentUrlsChange(e.target.value)}
                       className="min-h-[120px]"
                     />
                     <div className="text-xs text-gray-500">
