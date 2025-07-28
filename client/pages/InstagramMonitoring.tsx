@@ -557,13 +557,13 @@ export default function InstagramMonitoring() {
                     <Input
                       type="file"
                       accept=".txt,.csv"
-                      onChange={handleFileUpload}
+                      onChange={handleContentFileUpload}
                       className="max-w-xs mx-auto"
                     />
-                    {uploadedFile && (
+                    {contentUploadedFile && (
                       <div className="mt-2 flex items-center justify-center text-sm text-green-600">
                         <FileText className="h-4 w-4 mr-1" />
-                        已上传：{uploadedFile.name}
+                        已上传：{contentUploadedFile.name}
                       </div>
                     )}
                   </div>
