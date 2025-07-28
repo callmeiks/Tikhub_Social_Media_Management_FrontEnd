@@ -192,6 +192,8 @@ export default function DouyinMonitoring() {
   const [validInfluencerUrls, setValidInfluencerUrls] = useState([]);
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
+  const [contentMonitoringInterval, setContentMonitoringInterval] = useState("1h");
+  const [influencerMonitoringInterval, setInfluencerMonitoringInterval] = useState("1h");
 
   const validateUrl = (url: string) => {
     return url.includes("douyin.com");
@@ -564,7 +566,7 @@ export default function DouyinMonitoring() {
   return (
     <DashboardLayout
       title="抖音监控"
-      subtitle="实时监控抖音平台���达人和作品数据变化"
+      subtitle="实时监控抖音平台的达人和作品数据变化"
       actions={
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="h-8">
@@ -731,7 +733,7 @@ export default function DouyinMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* 手动输入在上方 */}
+                  {/* 手动���入在上方 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       手动输入
