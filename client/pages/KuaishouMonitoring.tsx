@@ -119,7 +119,7 @@ const mockInfluencerData = [
     verified: true,
     userType: "三农创作者",
     currentStats: {
-      followers: "187.5���",
+      followers: "187.5万",
       following: "156",
       works: "342",
       totalLikes: "3890万",
@@ -505,6 +505,25 @@ export default function KuaishouMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -583,7 +602,7 @@ export default function KuaishouMonitoring() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监控��加
+                    达人监控添加
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -608,7 +627,7 @@ export default function KuaishouMonitoring() {
                     <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含达人主页链接的文本文件
+                        选择包含达人主页链接��文本文件
                       </p>
                       <Input
                         type="file"
