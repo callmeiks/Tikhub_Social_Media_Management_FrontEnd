@@ -581,7 +581,7 @@ export default function DouyinMonitoring() {
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              🎤 抖音平台监控
+              🎤 抖音平台���控
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -657,7 +657,7 @@ export default function DouyinMonitoring() {
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含抖音链接的文本文件（每行一个链��）
+                        选择包含抖音链接的文本文件（每行一个链接）
                       </p>
                       <Input
                         type="file"
@@ -891,7 +891,7 @@ export default function DouyinMonitoring() {
                             ).length
                           }
                         </div>
-                        <div className="text-xs text-gray-600">已完成</div>
+                        <div className="text-xs text-gray-600">���完成</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold text-red-600">
@@ -1195,30 +1195,13 @@ export default function DouyinMonitoring() {
                     <UserCheck className="mr-2 h-4 w-4" />
                     达人监控列表 ({influencerData.length})
                   </span>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">监控间隔:</span>
-                      <Select value={influencerMonitoringInterval} onValueChange={setInfluencerMonitoringInterval}>
-                        <SelectTrigger className="w-[120px] h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1m">1 分钟</SelectItem>
-                          <SelectItem value="1h">1 小时</SelectItem>
-                          <SelectItem value="4h">4 小时</SelectItem>
-                          <SelectItem value="24h">24 小时</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      活跃监控:{" "}
-                      {
-                        influencerData.filter((item) => item.status === "active")
-                          .length
-                      }
-                    </Badge>
-                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    活跃监控:{" "}
+                    {
+                      influencerData.filter((item) => item.status === "active")
+                        .length
+                    }
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1336,7 +1319,7 @@ export default function DouyinMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>达人监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {influencer.username} - ���音
+                                        {influencer.username} - 抖音
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
