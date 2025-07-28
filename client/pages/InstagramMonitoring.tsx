@@ -564,6 +564,25 @@ export default function InstagramMonitoring() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* 监控间隔设置 */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">监控间隔</label>
+                    <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">1 分钟</SelectItem>
+                        <SelectItem value="1h">1 小时</SelectItem>
+                        <SelectItem value="4h">4 小时</SelectItem>
+                        <SelectItem value="24h">24 小时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500">
+                      ⏰ 设置数据采集的时间间隔
+                    </div>
+                  </div>
+
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
@@ -720,7 +739,7 @@ export default function InstagramMonitoring() {
                     )}
                     {isAddingInfluencer
                       ? "添加中..."
-                      : `添加达人监控 (${validInfluencerUrls.length})`}
+                      : `添��达人监控 (${validInfluencerUrls.length})`}
                   </Button>
                 </CardContent>
               </Card>
@@ -1100,7 +1119,7 @@ export default function InstagramMonitoring() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                                title="删除监控"
+                                title="删���监控"
                                 onClick={() =>
                                   handleRemoveInfluencer(influencer.id)
                                 }
