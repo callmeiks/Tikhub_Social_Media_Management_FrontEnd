@@ -41,6 +41,17 @@ import {
 } from "lucide-react";
 import { TaskQueueSection } from "@/components/shared/TaskQueueSection";
 
+// Task queue interfaces
+interface TaskItem {
+  id: string;
+  url: string;
+  type: "content" | "influencer";
+  status: "waiting" | "processing" | "completed" | "failed";
+  addedAt: string;
+  completedAt?: string;
+  error?: string;
+}
+
 // Sample monitoring data for Xiaohongshu content
 const mockContentData = [
   {
@@ -185,7 +196,7 @@ const mockInfluencerData = [
       totalLikes: "1650万",
     },
     initialStats: {
-      followers: "85.7万",
+      followers: "85.7��",
       following: "152",
       works: "718",
       totalLikes: "1580万",
@@ -637,7 +648,7 @@ export default function XiaohongshuMonitoring() {
                     </div>
                   </div>
 
-                  {/* 上传文件在下方 */}
+                  {/* 上传文件在��方 */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       上传文件
