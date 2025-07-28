@@ -88,7 +88,7 @@ const mockContentData = [
   },
   {
     id: 2,
-    title: "今日穿搭分��� | 冬日温暖系搭配",
+    title: "今日穿搭分享 | 冬日温暖系搭配",
     author: "时尚博主Amy",
     url: "https://www.douyin.com/video/789012",
     thumbnail: "/api/placeholder/120/120",
@@ -632,7 +632,7 @@ export default function DouyinMonitoring() {
                         placeholder="请输入抖音作品链接，每行一个链接&#10;作品链接示例：&#10;https://www.douyin.com/video/123456&#10;https://www.douyin.com/note/789012"
                         value={contentUrls}
                         onChange={(e) => handleContentUrlsChange(e.target.value)}
-                        className="min-h-[120px]"
+                        className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
                         💡 仅支持抖音作品/视频链接
@@ -645,9 +645,9 @@ export default function DouyinMonitoring() {
                     <label className="text-sm font-medium">
                       上传文件
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600 mb-2">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-600 mb-2">
                         选择包含抖音链接的文本文件（每行一个链接）
                       </p>
                       <Input
@@ -734,7 +734,7 @@ export default function DouyinMonitoring() {
                         placeholder="请输入抖音达人链接，每行一个链接&#10;达人主页链接示例：&#10;https://www.douyin.com/user/123456&#10;https://www.douyin.com/user/789012"
                         value={influencerUrls}
                         onChange={(e) => handleInfluencerUrlsChange(e.target.value)}
-                        className="min-h-[120px]"
+                        className="min-h-[180px]"
                       />
                       <div className="text-xs text-gray-500">
                         💡 仅支持抖音达人主页链接
@@ -747,9 +747,9 @@ export default function DouyinMonitoring() {
                     <label className="text-sm font-medium">
                       上传文件
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600 mb-2">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-600 mb-2">
                         选择包含抖音达人链接的文本文件（每行一个链接）
                       </p>
                       <Input
@@ -1318,7 +1318,7 @@ export default function DouyinMonitoring() {
                                         📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
-                                          将显示粉丝数、作品数、获赞总数的时间趋势变化
+                                          将显示粉丝数、作品数、获赞总数的时间趋势���化
                                         </span>
                                       </div>
                                     </div>
