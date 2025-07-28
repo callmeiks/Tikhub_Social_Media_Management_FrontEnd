@@ -73,7 +73,7 @@ const mockContentData = [
   {
     id: 1,
     title: "超火的韩式化妆教程！新手必看",
-    author: "美���达人小丽",
+    author: "美妆达人小丽",
     url: "https://www.douyin.com/video/123456",
     thumbnail: "/api/placeholder/120/120",
     addedAt: "2024-01-15 10:30",
@@ -657,7 +657,7 @@ export default function DouyinMonitoring() {
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含抖音链接的文本文件（每行一个链接）
+                        选择包含抖音链接的文本文件（每行一个链��）
                       </p>
                       <Input
                         type="file"
@@ -916,7 +916,7 @@ export default function DouyinMonitoring() {
                               添加时间
                             </TableHead>
                             <TableHead className="w-[150px]">
-                              完成���间
+                              完成时间
                             </TableHead>
                             <TableHead className="w-[100px]">操作</TableHead>
                           </TableRow>
@@ -998,30 +998,13 @@ export default function DouyinMonitoring() {
                     <Monitor className="mr-2 h-4 w-4" />
                     作品监控列表 ({contentData.length})
                   </span>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">监控间隔:</span>
-                      <Select value={contentMonitoringInterval} onValueChange={setContentMonitoringInterval}>
-                        <SelectTrigger className="w-[120px] h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1m">1 分钟</SelectItem>
-                          <SelectItem value="1h">1 小时</SelectItem>
-                          <SelectItem value="4h">4 小时</SelectItem>
-                          <SelectItem value="24h">24 小时</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      活跃监控:{" "}
-                      {
-                        contentData.filter((item) => item.status === "active")
-                          .length
-                      }
-                    </Badge>
-                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    活跃监控:{" "}
+                    {
+                      contentData.filter((item) => item.status === "active")
+                        .length
+                    }
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1045,7 +1028,7 @@ export default function DouyinMonitoring() {
                           <TableHead className="w-[75px]">当前评论</TableHead>
                           <TableHead className="w-[75px]">分享量</TableHead>
                           <TableHead className="w-[75px]">收藏量</TableHead>
-                          <TableHead className="w-[75px]">增长���</TableHead>
+                          <TableHead className="w-[75px]">增长率</TableHead>
                           <TableHead className="w-[75px]">状态</TableHead>
                           <TableHead className="w-[100px]">操作</TableHead>
                         </TableRow>
@@ -1353,7 +1336,7 @@ export default function DouyinMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>达人监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {influencer.username} - 抖音
+                                        {influencer.username} - ���音
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
