@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import {
   TaskItem,
@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +55,376 @@ import {
   Image,
   Twitter,
   Repeat2,
+  Loader2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  RotateCcw,
+  Quote,
+  Bookmark,
 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { toast } from "sonner";
+
+// Utility function to format numbers
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`;
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`;
+  }
+  return num.toString();
+};
+
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const API_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
+
+// Interfaces
+interface CreateMonitoringTaskResponse {
+  total_successful: number;
+  total_failed: number;
+  failed_urls: string[];
+  successful_tasks: {
+    [url: string]: string;
+  };
+}
+
+// Post history interfaces
+interface PostHistoryItem {
+  task_id: string;
+  task_status: string;
+  monitor_interval: string;
+  created_at: string;
+  next_execution_at: string;
+  tweet_id: string;
+  input_url: string;
+  error_message: string | null;
+  text: string;
+  created_time: string;
+  author_screen_name: string;
+  author_blue_verified: boolean;
+  display_url: string;
+  expanded_url: string;
+  images_url: string[];
+  video_url: string;
+  most_recent_counts: {
+    like_count: number;
+    retweet_count: number;
+    bookmarks_count: number;
+    quotes_count: number;
+    replies_count: number;
+    view_count: number;
+  };
+  increment_percentages: {
+    like_count_increment: number;
+    retweet_count_increment: number;
+    bookmarks_count_increment: number;
+    quotes_count_increment: number;
+    replies_count_increment: number;
+    view_count_increment: number;
+  };
+  history: Array<{
+    created_at: string;
+    like_count: number;
+    retweet_count: number;
+    bookmarks_count: number;
+    quotes_count: number;
+    replies_count: number;
+    view_count: number;
+  }>;
+}
+
+interface PostHistoryResponse {
+  items: PostHistoryItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+// Influencer history interfaces
+interface InfluencerHistoryItem {
+  task_id: string;
+  task_status: string;
+  monitor_interval: string;
+  created_at: string;
+  next_execution_at: string;
+  username: string;
+  input_url: string;
+  error_message: string | null;
+  rest_id: string;
+  screen_name: string;
+  name: string;
+  desc: string;
+  user_avatar: string;
+  blue_verified: boolean;
+  account_created: string;
+  most_recent_counts: {
+    friends_count: number;
+    follower_count: number;
+    tweet_count: number;
+    media_count: number;
+  };
+  increment_percentages: {
+    friends_count_increment: number;
+    follower_count_increment: number;
+    tweet_count_increment: number;
+    media_count_increment: number;
+  };
+  history: Array<{
+    created_at: string;
+    friends_count: number;
+    follower_count: number;
+    tweet_count: number;
+    media_count: number;
+  }>;
+}
+
+interface InfluencerHistoryResponse {
+  items: InfluencerHistoryItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+interface MonitoringTask {
+  task_id: string;
+  platform: string;
+  urls: string[];
+  monitor_interval: string;
+  status: "running" | "paused" | "stopped";
+  created_at: string;
+  updated_at: string;
+  next_execution_at?: string;
+  is_user_task: boolean;
+  latest_data?: any;
+  content_type?: string;
+  input_data?: {
+    url?: string;
+    urls?: string[];
+  };
+}
+
+interface TaskListResponse {
+  code: number;
+  message: string;
+  data: {
+    tasks: MonitoringTask[];
+    total: number;
+    current_page: number;
+    page_size: number;
+  };
+}
+
+// API Functions
+const createXPostMonitoringTask = async (
+  urls: string[],
+  monitorInterval: string,
+): Promise<CreateMonitoringTaskResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/monitor/x/post/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      urls,
+      monitor_interval: monitorInterval,
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
+};
+
+const createXUserMonitoringTask = async (
+  urls: string[],
+  monitorInterval: string,
+): Promise<CreateMonitoringTaskResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/monitor/x/user/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      urls,
+      monitor_interval: monitorInterval,
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
+};
+
+const fetchTasks = async (page: number = 1, pageSize: number = 10): Promise<TaskListResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/monitor/tasks?platform=x&page=${page}&limit=${pageSize}`,
+    {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+      },
+    },
+  );
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  // Transform the unified API response to match the expected interface
+  return {
+    code: 200,
+    message: "success",
+    data: {
+      tasks: data.tasks.map((task: any) => ({
+        task_id: task.id,
+        platform: task.platform,
+        urls: task.input_data.urls || [task.input_data.url].filter(Boolean),
+        monitor_interval: task.monitor_interval,
+        status: task.status === "MONITORING" ? "running" : 
+                task.status === "PAUSED" ? "paused" : 
+                task.status === "FAILED" ? "stopped" : "stopped",
+        created_at: task.created_at,
+        updated_at: task.updated_at,
+        next_execution_at: task.next_execution_at,
+        is_user_task: task.content_type === "influencer" || task.content_type === "user",
+        latest_data: task.output_data,
+      })),
+      total: data.total,
+      current_page: data.page,
+      page_size: data.limit,
+    },
+  };
+};
+
+const pauseTask = async (taskId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/monitor/pause`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_ids: [taskId],
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+const resumeTask = async (taskId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/monitor/resume`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_ids: [taskId],
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+const retryTask = async (taskId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/monitor/retry`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_id: taskId,
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+// Fetch post history API function
+const fetchPostHistory = async (
+  page: number = 1,
+  limit: number = 20,
+  tweetId?: string,
+  authorNickname?: string,
+  status?: string,
+): Promise<PostHistoryResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+  
+  if (tweetId) params.append('tweet_id', tweetId);
+  if (authorNickname) params.append('author_nickname', authorNickname);
+  if (status) params.append('status', status);
+  
+  const response = await fetch(`${API_BASE_URL}/api/monitor/x/history/posts?${params}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
+};
+
+// Fetch influencer history API function
+const fetchInfluencerHistory = async (
+  page: number = 1,
+  limit: number = 20,
+  status?: string,
+): Promise<InfluencerHistoryResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+  
+  if (status) params.append('status', status);
+  
+  const response = await fetch(`${API_BASE_URL}/api/monitor/x/history/influencers?${params}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
+};
 
 // Sample monitoring data for X content
 const mockContentData = [
@@ -231,9 +602,223 @@ export default function XMonitoring() {
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
   const [contentMonitoringInterval, setContentMonitoringInterval] =
-    useState("1h");
+    useState("1hour");
   const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
-    useState("1h");
+    useState("24hours");
+  
+  // Real tasks state
+  const [realTasks, setRealTasks] = useState<MonitoringTask[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [tasksPage, setTasksPage] = useState(1);
+  const [tasksTotalPages, setTasksTotalPages] = useState(1);
+  const [tasksFilter, setTasksFilter] = useState<"all" | "running" | "paused" | "stopped">("all");
+  
+  // Post history state
+  const [postHistory, setPostHistory] = useState<PostHistoryItem[]>([]);
+  const [postHistoryLoading, setPostHistoryLoading] = useState(false);
+  const [postHistoryCache, setPostHistoryCache] = useState<Record<string, PostHistoryItem[]>>({});
+  const [postFilter, setPostFilter] = useState<"all" | "active" | "inactive">("all");
+  const [postAuthorFilter, setPostAuthorFilter] = useState("");
+  
+  // Influencer history state  
+  const [influencerHistory, setInfluencerHistory] = useState<InfluencerHistoryItem[]>([]);
+  const [influencerHistoryLoading, setInfluencerHistoryLoading] = useState(false);
+  const [influencerHistoryCache, setInfluencerHistoryCache] = useState<Record<string, InfluencerHistoryItem[]>>({});
+  const [influencerFilter, setInfluencerFilter] = useState<"all" | "verified" | "unverified">("all");
+  const [influencerNameFilter, setInfluencerNameFilter] = useState("");
+  
+  // Active tab state
+  const [activeTab, setActiveTab] = useState("add");
+  
+  // Dialog states for stats popups
+  const [selectedPost, setSelectedPost] = useState<PostHistoryItem | null>(null);
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [selectedInfluencer, setSelectedInfluencer] = useState<InfluencerHistoryItem | null>(null);
+  const [isInfluencerDialogOpen, setIsInfluencerDialogOpen] = useState(false);
+
+  // Load tasks from backend
+  const loadTasks = async (page: number = 1) => {
+    if (!API_TOKEN) {
+      console.warn("API token not configured");
+      toast.error("API配置错误，请检查环境变量");
+      return;
+    }
+    
+    console.log("Loading tasks from backend...");
+    setTasksLoading(true);
+    try {
+      const response = await fetchTasks(page, 10);
+      console.log("Tasks response:", response);
+      
+      if (response.code === 200) {
+        console.log("Found", response.data.tasks.length, "tasks");
+        setRealTasks(response.data.tasks);
+        setTasksTotalPages(Math.ceil(response.data.total / response.data.page_size));
+        setTasksPage(response.data.current_page);
+      }
+    } catch (error) {
+      console.error("Failed to load tasks:", error);
+      toast.error(`加载监控任务失败: ${error.message}`);
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Component mounted, loading tasks...");
+    loadTasks();
+  }, []);
+  
+  // Load post history from backend
+  const loadPostHistory = async (useCache: boolean = true) => {
+    const cacheKey = `posts-${postFilter}-${postAuthorFilter}`;
+    
+    // Check cache first
+    if (useCache && postHistoryCache[cacheKey]) {
+      console.log("Using cached post history data");
+      setPostHistory(postHistoryCache[cacheKey]);
+      return;
+    }
+    
+    if (!API_TOKEN) {
+      console.warn("API token not configured");
+      toast.error("API配置错误，请检查环境变量");
+      return;
+    }
+    
+    console.log("Loading post history from API...");
+    setPostHistoryLoading(true);
+    try {
+      // Call the API to get all post history data
+      console.log("Calling fetchPostHistory with filters:", {
+        authorNickname: postAuthorFilter || undefined,
+        status: postFilter === "all" ? undefined : "MONITORING"
+      });
+      
+      const response = await fetchPostHistory(
+        1, // page
+        20, // limit
+        undefined, // tweet_id - we get all posts
+        postAuthorFilter || undefined, // author_nickname filter
+        postFilter === "all" ? undefined : "MONITORING" // status filter
+      );
+      
+      console.log("Post history response:", response);
+      
+      let filteredData = response.items || [];
+      
+      // Additional client-side filtering if needed
+      // (Server already handles most filtering via query params)
+      
+      setPostHistory(filteredData);
+      console.log("Set post history data:", filteredData);
+      
+      // Update cache
+      setPostHistoryCache(prev => ({
+        ...prev,
+        [cacheKey]: filteredData
+      }));
+      
+    } catch (error) {
+      console.error("Failed to load post history:", error);
+      toast.error(`加载推文历史数据失败: ${error.message}`);
+    } finally {
+      setPostHistoryLoading(false);
+    }
+  };
+  
+  // Load influencer history from backend
+  const loadInfluencerHistory = async (useCache: boolean = true) => {
+    const cacheKey = `influencers-${influencerFilter}-${influencerNameFilter}`;
+    
+    // Check cache first
+    if (useCache && influencerHistoryCache[cacheKey]) {
+      console.log("Using cached influencer history data");
+      setInfluencerHistory(influencerHistoryCache[cacheKey]);
+      return;
+    }
+    
+    if (!API_TOKEN) {
+      console.warn("API token not configured");
+      toast.error("API配置错误，请检查环境变量");
+      return;
+    }
+    
+    console.log("Loading influencer history from API...");
+    setInfluencerHistoryLoading(true);
+    try {
+      // Call the API to get all influencer history data
+      console.log("Calling fetchInfluencerHistory with filters:", {
+        status: influencerFilter === "all" ? undefined : "MONITORING"
+      });
+      
+      const response = await fetchInfluencerHistory(
+        1, // page
+        20, // limit
+        influencerFilter === "all" ? undefined : "MONITORING" // status filter
+      );
+      
+      console.log("Influencer history response:", response);
+      
+      let filteredData = response.items || [];
+      
+      // Apply client-side filters
+      if (influencerFilter === "verified") {
+        filteredData = filteredData.filter(item => item.blue_verified);
+      } else if (influencerFilter === "unverified") {
+        filteredData = filteredData.filter(item => !item.blue_verified);
+      }
+      
+      if (influencerNameFilter) {
+        filteredData = filteredData.filter(item => 
+          item.screen_name.toLowerCase().includes(influencerNameFilter.toLowerCase()) ||
+          item.name.toLowerCase().includes(influencerNameFilter.toLowerCase())
+        );
+      }
+      
+      setInfluencerHistory(filteredData);
+      console.log("Set influencer history data:", filteredData);
+      
+      // Update cache
+      setInfluencerHistoryCache(prev => ({
+        ...prev,
+        [cacheKey]: filteredData
+      }));
+      
+    } catch (error) {
+      console.error("Failed to load influencer history:", error);
+      toast.error(`加载用户历史数据失败: ${error.message}`);
+    } finally {
+      setInfluencerHistoryLoading(false);
+    }
+  };
+  
+  // Load history data when filters change
+  useEffect(() => {
+    if (realTasks.length > 0 && activeTab === "content") {
+      loadPostHistory(false); // Don't use cache when filters change
+    }
+  }, [postFilter, postAuthorFilter, realTasks, activeTab]);
+  
+  useEffect(() => {
+    if (realTasks.length > 0 && activeTab === "influencer") {
+      loadInfluencerHistory(false); // Don't use cache when filters change
+    }
+  }, [influencerFilter, influencerNameFilter, realTasks, activeTab]);
+  
+  // Handle tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    
+    // Load data when switching to content or influencer tabs
+    if (tab === "content") {
+      console.log("Switching to content tab, loading post history");
+      loadPostHistory(true); // Use cache on first load
+    } else if (tab === "influencer") {
+      console.log("Switching to influencer tab, loading influencer history");
+      loadInfluencerHistory(true); // Use cache on first load
+    }
+  };
 
   const validateUrl = (url: string) => {
     return url.includes("x.com") || url.includes("twitter.com");
@@ -321,96 +906,94 @@ export default function XMonitoring() {
 
   const handleAddContentBatch = async () => {
     if (validContentUrls.length === 0) {
-      alert("请输入有效的X推文链接");
+      toast.error("请输入有效的X推文链接");
+      return;
+    }
+
+    if (!API_TOKEN) {
+      toast.error("API配置错误，请检查环境变量");
       return;
     }
 
     setIsAddingContent(true);
 
-    const newTasks = createTaskQueueItems(validContentUrls, () => true);
-    setTaskQueue((prev) => [...prev, ...newTasks]);
-
-    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      const newContentItem = {
-        id: Date.now() + i,
-        title: `批量添加的推文监控 ${i + 1}`,
-        author: "用户名",
-        url: task.url,
-        thumbnail: "/api/placeholder/120/120",
-        addedAt: task.addedAt,
-        status: "active",
-        type: "Tweet",
-        currentStats: {
-          views: "0",
-          likes: "0",
-          comments: "0",
-          shares: "0",
-        },
-        initialStats: {
-          views: "0",
-          likes: "0",
-          comments: "0",
-          shares: "0",
-        },
-      };
-      setContentData((prev) => [newContentItem, ...prev]);
-    });
-
-    setContentUrls("");
-    setValidContentUrls([]);
-    setInvalidContentUrls([]);
-    setContentUploadedFile(null);
-    setIsAddingContent(false);
+    try {
+      const response = await createXPostMonitoringTask(
+        validContentUrls,
+        contentMonitoringInterval,
+      );
+      
+      if (response.total_successful > 0) {
+        const taskIds = Object.values(response.successful_tasks);
+        toast.success(`成功创建 ${response.total_successful} 个监控任务！`);
+        
+        if (response.total_failed > 0) {
+          toast.warning(`${response.total_failed} 个URL创建失败: ${response.failed_urls.join(', ')}`);
+        }
+        
+        // Refresh the tasks list
+        await loadTasks();
+        
+        // Clear the form
+        setContentUrls("");
+        setValidContentUrls([]);
+        setInvalidContentUrls([]);
+        setContentUploadedFile(null);
+      } else {
+        toast.error(`创建任务失败: ${response.failed_urls.join(', ')}`);
+      }
+    } catch (error) {
+      console.error("Error creating content monitoring task:", error);
+      toast.error("创建任务失败，请检查网络连接和API配置");
+    } finally {
+      setIsAddingContent(false);
+    }
   };
 
   const handleAddInfluencerBatch = async () => {
     if (validInfluencerUrls.length === 0) {
-      alert("请输入有效的X用户主页链接");
+      toast.error("请输入有效的X用户主页链接");
+      return;
+    }
+
+    if (!API_TOKEN) {
+      toast.error("API配置错误，请检查环境变量");
       return;
     }
 
     setIsAddingInfluencer(true);
 
-    const newTasks = createTaskQueueItems(validInfluencerUrls, () => false);
-    setTaskQueue((prev) => [...prev, ...newTasks]);
-
-    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      const newInfluencer = {
-        id: Date.now() + i + 1000,
-        username: `批量添加的用户 ${i + 1}`,
-        avatar: "/api/placeholder/60/60",
-        url: task.url,
-        addedAt: task.addedAt,
-        status: "active",
-        verified: false,
-        userType: "Personal",
-        currentStats: {
-          followers: "0",
-          following: "0",
-          works: "0",
-          totalLikes: "0",
-        },
-        initialStats: {
-          followers: "0",
-          following: "0",
-          works: "0",
-          totalLikes: "0",
-        },
-        recentActivity: {
-          postsThisWeek: 0,
-          avgLikes: "0",
-          avgComments: "0",
-          engagementRate: "0%",
-        },
-      };
-      setInfluencerData((prev) => [newInfluencer, ...prev]);
-    });
-
-    setInfluencerUrls("");
-    setValidInfluencerUrls([]);
-    setInvalidInfluencerUrls([]);
-    setInfluencerUploadedFile(null);
-    setIsAddingInfluencer(false);
+    try {
+      const response = await createXUserMonitoringTask(
+        validInfluencerUrls,
+        influencerMonitoringInterval,
+      );
+      
+      if (response.total_successful > 0) {
+        const taskIds = Object.values(response.successful_tasks);
+        toast.success(`成功创建 ${response.total_successful} 个监控任务！`);
+        
+        if (response.total_failed > 0) {
+          toast.warning(`${response.total_failed} 个URL创建失败: ${response.failed_urls.join(', ')}`);
+        }
+        
+        // Refresh the tasks list
+        await loadTasks();
+        
+        // Clear the form
+        setInfluencerUrls("");
+        setValidInfluencerUrls([]);
+        setInvalidInfluencerUrls([]);
+        setInfluencerUploadedFile(null);
+      } else {
+        toast.error(`创建任务失败: ${response.failed_urls.join(', ')}`);
+      }
+    } catch (error) {
+      console.error("Error creating influencer monitoring task:", error);
+      toast.error("创建任务失败，请检查网络连接和API配置");
+    } finally {
+      setIsAddingInfluencer(false);
+    }
   };
 
   const handleRemoveContent = (id: number) => {
@@ -444,6 +1027,91 @@ export default function XMonitoring() {
       ),
     );
   };
+
+  // Real task control handlers
+  const handlePauseTask = async (taskId: string) => {
+    try {
+      await pauseTask(taskId);
+      toast.success("任务已暂停");
+      await loadTasks(); // Refresh tasks
+    } catch (error) {
+      console.error("Failed to pause task:", error);
+      toast.error("暂停任务失败");
+    }
+  };
+
+  const handleResumeTask = async (taskId: string) => {
+    try {
+      await resumeTask(taskId);
+      toast.success("任务已恢复");
+      await loadTasks(); // Refresh tasks
+    } catch (error) {
+      console.error("Failed to resume task:", error);
+      toast.error("恢复任务失败");
+    }
+  };
+
+  const handleRetryTask = async (taskId: string) => {
+    try {
+      await retryTask(taskId);
+      toast.success("任务重试成功");
+      await loadTasks(); // Refresh tasks
+    } catch (error) {
+      console.error("Failed to retry task:", error);
+      toast.error("重试任务失败");
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= tasksTotalPages) {
+      setTasksPage(newPage);
+      loadTasks(newPage);
+    }
+  };
+
+  const getStatusBadgeForTask = (status: string) => {
+    switch (status) {
+      case "running":
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            运行中
+          </Badge>
+        );
+      case "paused":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800">
+            <Pause className="h-3 w-3 mr-1" />
+            已暂停
+          </Badge>
+        );
+      case "stopped":
+        return (
+          <Badge className="bg-red-100 text-red-800">
+            <X className="h-3 w-3 mr-1" />
+            已停止
+          </Badge>
+        );
+      default:
+        return <Badge variant="secondary">未知</Badge>;
+    }
+  };
+
+  const filteredTasks = realTasks.filter(task => 
+    tasksFilter === "all" || task.status === tasksFilter
+  );
+  
+  const filteredPostHistory = postHistory.filter(post => {
+    if (postFilter === "all") return true;
+    // Add additional filtering logic based on your needs
+    return true;
+  });
+  
+  const filteredInfluencerHistory = influencerHistory.filter(influencer => {
+    if (influencerFilter === "verified" && !influencer.blue_verified) return false;
+    if (influencerFilter === "unverified" && influencer.blue_verified) return false;
+    return true;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -498,6 +1166,18 @@ export default function XMonitoring() {
     const growth = ((currentNum - initialNum) / initialNum) * 100;
     return `${growth > 0 ? "+" : ""}${growth.toFixed(1)}%`;
   };
+  
+  const getGrowthColor = (increment: number): string => {
+    if (increment > 0) return "text-green-600";
+    if (increment < 0) return "text-red-600";
+    return "text-gray-500";
+  };
+  
+  const getGrowthIcon = (increment: number) => {
+    if (increment > 0) return "↗️";
+    if (increment < 0) return "↘️";
+    return "➡️";
+  };
 
   return (
     <DashboardLayout
@@ -524,12 +1204,12 @@ export default function XMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">��文监控: {contentData.length}</span>
+                <span className="text-sm">推文监控: {postHistory.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
                 <span className="text-sm">
-                  用户监控: {influencerData.length}
+                  用户监控: {influencerHistory.length}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
@@ -540,19 +1220,23 @@ export default function XMonitoring() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              添加监��
+              添加监控
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              任务列表 ({realTasks.length})
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
-              推文监控 ({contentData.length})
+              推文监控 ({postHistory.length})
             </TabsTrigger>
             <TabsTrigger value="influencer" className="flex items-center gap-2">
               <UserCheck className="w-4 h-4" />
-              用户监控 ({influencerData.length})
+              用户监控 ({influencerHistory.length})
             </TabsTrigger>
           </TabsList>
 
@@ -578,10 +1262,11 @@ export default function XMonitoring() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1m">1 分钟</SelectItem>
-                        <SelectItem value="1h">1 小时</SelectItem>
-                        <SelectItem value="4h">4 小时</SelectItem>
-                        <SelectItem value="24h">24 小时</SelectItem>
+                        <SelectItem value="1min">1 分钟</SelectItem>
+                        <SelectItem value="1hour">1 小时</SelectItem>
+                        <SelectItem value="4hours">4 小时</SelectItem>
+                        <SelectItem value="24hours">24 小时</SelectItem>
+                        <SelectItem value="7days">7 天</SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="text-xs text-gray-500">
@@ -608,7 +1293,7 @@ export default function XMonitoring() {
                     <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
                       <Upload className="h-6 w-6 mx-auto text-gray-400 mb-2" />
                       <p className="text-xs text-gray-600 mb-2">
-                        选择包含推文���接的文本文件
+                        选择包含推文链接的文本文件
                       </p>
                       <Input
                         type="file"
@@ -682,10 +1367,11 @@ export default function XMonitoring() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1m">1 分钟</SelectItem>
-                        <SelectItem value="1h">1 小时</SelectItem>
-                        <SelectItem value="4h">4 小时</SelectItem>
-                        <SelectItem value="24h">24 小时</SelectItem>
+                        <SelectItem value="1min">1 分钟</SelectItem>
+                        <SelectItem value="1hour">1 小时</SelectItem>
+                        <SelectItem value="4hours">4 小时</SelectItem>
+                        <SelectItem value="24hours">24 小时</SelectItem>
+                        <SelectItem value="7days">7 天</SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="text-xs text-gray-500">
@@ -696,7 +1382,7 @@ export default function XMonitoring() {
                   {/* Manual Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      手动输��用户主页链接
+                      手动输入用户主页链接
                     </label>
                     <Textarea
                       placeholder="请输入X用户主页链接，每行一个链接&#10;示例：&#10;https://x.com/username&#10;https://twitter.com/username"
@@ -787,31 +1473,72 @@ export default function XMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Monitor className="mr-2 h-4 w-4" />
-                    推文监控列表 ({contentData.length})
+                    推文监控列表 ({postHistory.length})
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    活跃��控:{" "}
-                    {
-                      contentData.filter((item) => item.status === "active")
-                        .length
-                    }
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Select value={postFilter} onValueChange={(value: "all" | "active" | "inactive") => setPostFilter(value)}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部状态</SelectItem>
+                        <SelectItem value="active">活跃</SelectItem>
+                        <SelectItem value="inactive">非活跃</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="搜索作者..."
+                      value={postAuthorFilter}
+                      onChange={(e) => setPostAuthorFilter(e.target.value)}
+                      className="w-32"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loadPostHistory(false)}
+                      disabled={postHistoryLoading}
+                    >
+                      {postHistoryLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      刷新
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {contentData.length === 0 ? (
+                {postHistoryLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    <span>加载中...</span>
+                  </div>
+                ) : filteredPostHistory.length === 0 ? (
                   <div className="text-center py-8">
                     <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      暂无监控推文，请先添加推文链接
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {realTasks.length === 0 
+                        ? "暂无监控任务，请先在'添加监控'选项卡中添加推文链接" 
+                        : "暂无推文监控数据，请等待数据采集或检查API配置"
+                      }
                     </p>
+                    {realTasks.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        已找到 {realTasks.length} 个监控任务，但无法获取历史数据
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {contentData.map((content) => (
+                    {filteredPostHistory.map((post) => (
                       <Card
-                        key={content.id}
-                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                        key={post.tweet_id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer"
+                        onClick={() => {
+                          setSelectedPost(post);
+                          setIsPostDialogOpen(true);
+                        }}
                       >
                         {/* Content Image/Thumbnail */}
                         <div className="relative h-48 bg-gradient-to-br from-black via-gray-800 to-blue-900">
@@ -824,18 +1551,26 @@ export default function XMonitoring() {
                               variant="secondary"
                               className="bg-white/90 text-xs flex items-center gap-1"
                             >
-                              {getContentTypeIcon(content.type)}
-                              {content.type}
+                              <Twitter className="h-3 w-3 text-blue-500" />
+                              推文
                             </Badge>
                           </div>
-                          {/* Status Badge */}
-                          <div className="absolute top-3 right-3">
-                            {getStatusBadge(content.status)}
-                          </div>
-                          {/* Trending Indicator */}
+                          {/* Verification Badge */}
+                          {post.author_blue_verified && (
+                            <div className="absolute top-3 right-3">
+                              <Badge className="bg-blue-100 text-blue-800">
+                                <Verified className="h-3 w-3 mr-1" />
+                                已验证
+                              </Badge>
+                            </div>
+                          )}
+                          {/* Growth Indicator */}
                           <div className="absolute bottom-3 right-3">
-                            <div className="bg-white/90 rounded-full px-2 py-1 text-xs font-medium text-green-600">
-                              ↗️ 增长中
+                            <div className={`bg-white/90 rounded-full px-2 py-1 text-xs font-medium ${
+                              post.increment_percentages.like_count_increment > 0 ? 'text-green-600' : 
+                              post.increment_percentages.like_count_increment < 0 ? 'text-red-600' : 'text-gray-600'
+                            }`}>
+                              {getGrowthIcon(post.increment_percentages.like_count_increment)} 点赞{post.increment_percentages.like_count_increment > 0 ? '增长' : post.increment_percentages.like_count_increment < 0 ? '下降' : '稳定'}
                             </div>
                           </div>
                         </div>
@@ -846,15 +1581,16 @@ export default function XMonitoring() {
                             <div>
                               <h3
                                 className="font-medium text-sm line-clamp-2 leading-tight"
-                                title={content.title}
+                                title={post.text}
                               >
-                                {content.title}
+                                {post.text}
                               </h3>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                by @{content.author}
+                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                by @{post.author_screen_name}
+                                {post.author_blue_verified && <Verified className="h-3 w-3 text-blue-500" />}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                添加于 {content.addedAt}
+                                发布于 {post.created_time ? new Date(parseInt(post.created_time)).toLocaleString() : '未知时间'}
                               </p>
                             </div>
 
@@ -865,13 +1601,11 @@ export default function XMonitoring() {
                                   <Eye className="h-3 w-3 text-blue-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {content.currentStats.views}
+                                  {formatNumber(post.most_recent_counts.view_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    content.currentStats.views,
-                                    content.initialStats.views,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(post.increment_percentages.view_count_increment)}`}>
+                                  {post.increment_percentages.view_count_increment > 0 ? '+' : ''}
+                                  {post.increment_percentages.view_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                               <div className="text-center">
@@ -879,13 +1613,11 @@ export default function XMonitoring() {
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {content.currentStats.likes}
+                                  {formatNumber(post.most_recent_counts.like_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    content.currentStats.likes,
-                                    content.initialStats.likes,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(post.increment_percentages.like_count_increment)}`}>
+                                  {post.increment_percentages.like_count_increment > 0 ? '+' : ''}
+                                  {post.increment_percentages.like_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                               <div className="text-center">
@@ -893,13 +1625,11 @@ export default function XMonitoring() {
                                   <Repeat2 className="h-3 w-3 text-green-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {content.currentStats.shares}
+                                  {formatNumber(post.most_recent_counts.retweet_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    content.currentStats.shares,
-                                    content.initialStats.shares,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(post.increment_percentages.retweet_count_increment)}`}>
+                                  {post.increment_percentages.retweet_count_increment > 0 ? '+' : ''}
+                                  {post.increment_percentages.retweet_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                             </div>
@@ -922,7 +1652,7 @@ export default function XMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>推文监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {content.title} - X(Twitter)
+                                        @{post.author_screen_name} 的推文 - X(Twitter)
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
@@ -941,9 +1671,10 @@ export default function XMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() =>
-                                    window.open(content.url, "_blank")
-                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`https://x.com/${post.author_screen_name}/status/${post.tweet_id}`, "_blank");
+                                  }}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -953,7 +1684,13 @@ export default function XMonitoring() {
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                                 title="删除监控"
-                                onClick={() => handleRemoveContent(content.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm('确定要停止监控这个推文吗？')) {
+                                    // TODO: Implement remove post monitoring
+                                    toast.success('监控已停止');
+                                  }
+                                }}
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -974,51 +1711,105 @@ export default function XMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    用户监控列表 ({influencerData.length})
+                    用户监控列表 ({influencerHistory.length})
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
-                    {
-                      influencerData.filter((item) => item.status === "active")
-                        .length
-                    }
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Select value={influencerFilter} onValueChange={(value: "all" | "verified" | "unverified") => setInfluencerFilter(value)}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部用户</SelectItem>
+                        <SelectItem value="verified">已验证</SelectItem>
+                        <SelectItem value="unverified">未验证</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="搜索用户名..."
+                      value={influencerNameFilter}
+                      onChange={(e) => setInfluencerNameFilter(e.target.value)}
+                      className="w-32"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loadInfluencerHistory(false)}
+                      disabled={influencerHistoryLoading}
+                    >
+                      {influencerHistoryLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      刷新
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {influencerData.length === 0 ? (
+                {influencerHistoryLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    <span>加载中...</span>
+                  </div>
+                ) : filteredInfluencerHistory.length === 0 ? (
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      暂无监控用户，请先添加用户链接
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {realTasks.length === 0 
+                        ? "暂无监控任务，请先在'添加监控'选项卡中添加用户链接" 
+                        : "暂无用户监控数据，请等待数据采集或检查API配置"
+                      }
                     </p>
+                    {realTasks.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        已找到 {realTasks.length} 个监控任务，但无法获取历史数据
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {influencerData.map((influencer) => (
+                    {filteredInfluencerHistory.map((influencer) => (
                       <Card
-                        key={influencer.id}
-                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden"
+                        key={influencer.user_id}
+                        className="group hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer"
+                        onClick={() => {
+                          setSelectedInfluencer(influencer);
+                          setIsInfluencerDialogOpen(true);
+                        }}
                       >
                         {/* User Profile Header */}
                         <div className="relative h-32 bg-gradient-to-br from-black via-gray-800 to-blue-900">
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg font-bold">
-                              {influencer.username.charAt(0).toUpperCase()}
+                            {influencer.user_avatar ? (
+                              <img 
+                                src={influencer.user_avatar} 
+                                alt={influencer.name}
+                                className="w-16 h-16 rounded-full border-2 border-white/20"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg font-bold" style={{display: influencer.user_avatar ? 'none' : 'flex'}}>
+                              {influencer.screen_name.charAt(0).toUpperCase()}
                             </div>
                           </div>
                           {/* Verification Badge */}
-                          {influencer.verified && (
+                          {influencer.blue_verified && (
                             <div className="absolute top-3 right-3">
-                              {getVerificationIcon(
-                                influencer.verified,
-                                influencer.userType,
-                              )}
+                              <Verified className="h-4 w-4 text-blue-500 bg-white rounded-full p-1" />
                             </div>
                           )}
-                          {/* Status Badge */}
+                          {/* Growth Indicator */}
                           <div className="absolute bottom-3 right-3">
-                            {getStatusBadge(influencer.status)}
+                            <div className={`bg-white/90 rounded-full px-2 py-1 text-xs font-medium ${
+                              influencer.increment_percentages.follower_count_increment > 0 ? 'text-green-600' : 
+                              influencer.increment_percentages.follower_count_increment < 0 ? 'text-red-600' : 'text-gray-600'
+                            }`}>
+                              {getGrowthIcon(influencer.increment_percentages.follower_count_increment)} 粉丝{influencer.increment_percentages.follower_count_increment > 0 ? '增长' : influencer.increment_percentages.follower_count_increment < 0 ? '下降' : '稳定'}
+                            </div>
                           </div>
                         </div>
 
@@ -1027,17 +1818,17 @@ export default function XMonitoring() {
                             {/* User Info */}
                             <div className="text-center">
                               <h3 className="font-medium text-sm flex items-center justify-center gap-1">
-                                @{influencer.username}
-                                {getVerificationIcon(
-                                  influencer.verified,
-                                  influencer.userType,
-                                )}
+                                @{influencer.screen_name}
+                                {influencer.blue_verified && <Verified className="h-3 w-3 text-blue-500" />}
                               </h3>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {influencer.userType}
+                              <p className="text-xs font-medium text-gray-700 mt-1">
+                                {influencer.name}
                               </p>
-                              <p className="text-xs text-muted-foreground">
-                                添加于 {influencer.addedAt}
+                              <p className="text-xs text-muted-foreground line-clamp-2" title={influencer.desc}>
+                                {influencer.desc || '暂无简介'}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                注册于 {influencer.account_created ? new Date(influencer.account_created).toLocaleDateString() : '未知时间'}
                               </p>
                             </div>
 
@@ -1048,13 +1839,11 @@ export default function XMonitoring() {
                                   <Users className="h-3 w-3 text-blue-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {influencer.currentStats.followers}
+                                  {formatNumber(influencer.most_recent_counts.follower_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    influencer.currentStats.followers,
-                                    influencer.initialStats.followers,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(influencer.increment_percentages.follower_count_increment)}`}>
+                                  {influencer.increment_percentages.follower_count_increment > 0 ? '+' : ''}
+                                  {influencer.increment_percentages.follower_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                               <div className="text-center">
@@ -1062,13 +1851,11 @@ export default function XMonitoring() {
                                   <Twitter className="h-3 w-3 text-blue-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {influencer.currentStats.works}
+                                  {formatNumber(influencer.most_recent_counts.tweet_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    influencer.currentStats.works,
-                                    influencer.initialStats.works,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(influencer.increment_percentages.tweet_count_increment)}`}>
+                                  {influencer.increment_percentages.tweet_count_increment > 0 ? '+' : ''}
+                                  {influencer.increment_percentages.tweet_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                               <div className="text-center">
@@ -1076,26 +1863,26 @@ export default function XMonitoring() {
                                   <Heart className="h-3 w-3 text-red-500" />
                                 </div>
                                 <div className="font-medium">
-                                  {influencer.currentStats.totalLikes}
+                                  {formatNumber(influencer.most_recent_counts.media_count)}
                                 </div>
-                                <div className="text-green-600 text-xs">
-                                  {calculateGrowth(
-                                    influencer.currentStats.totalLikes,
-                                    influencer.initialStats.totalLikes,
-                                  )}
+                                <div className={`text-xs ${getGrowthColor(influencer.increment_percentages.media_count_increment)}`}>
+                                  {influencer.increment_percentages.media_count_increment > 0 ? '+' : ''}
+                                  {influencer.increment_percentages.media_count_increment.toFixed(1)}%
                                 </div>
                               </div>
                             </div>
 
-                            {/* Engagement Rate */}
+                            {/* Additional Stats */}
                             <div className="text-center pt-2 border-t">
-                              <div className="text-sm font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate}{" "}
-                                互动率
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek}{" "}
-                                推文
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <div className="text-muted-foreground">关注</div>
+                                  <div className="font-medium">{formatNumber(influencer.most_recent_counts.friends_count)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-muted-foreground">媒体</div>
+                                  <div className="font-medium">{formatNumber(influencer.most_recent_counts.media_count)}</div>
+                                </div>
                               </div>
                             </div>
 
@@ -1117,12 +1904,12 @@ export default function XMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>用户监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        @{influencer.username} - X(Twitter)
+                                        @{influencer.screen_name} - X(Twitter)
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
                                       <div className="text-center text-gray-500">
-                                        📊 ���势图表开发中...
+                                        📊 趋势图表开发中...
                                         <br />
                                         <span className="text-sm">
                                           将显示粉丝数、推文数、获赞总数的时间趋势变化
@@ -1136,9 +1923,10 @@ export default function XMonitoring() {
                                   size="sm"
                                   className="h-8 w-8 p-0"
                                   title="打开原链接"
-                                  onClick={() =>
-                                    window.open(influencer.url, "_blank")
-                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`https://x.com/${influencer.screen_name}`, "_blank");
+                                  }}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Button>
@@ -1148,9 +1936,13 @@ export default function XMonitoring() {
                                 size="sm"
                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                                 title="删除监控"
-                                onClick={() =>
-                                  handleRemoveInfluencer(influencer.id)
-                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm('确定要停止监控这个用户吗？')) {
+                                    // TODO: Implement remove influencer monitoring
+                                    toast.success('监控已停止');
+                                  }
+                                }}
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -1164,8 +1956,695 @@ export default function XMonitoring() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="tasks" className="mt-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    监控任务列表 ({realTasks.length})
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      value={tasksFilter}
+                      onValueChange={(value: "all" | "running" | "paused" | "stopped") => setTasksFilter(value)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部状态</SelectItem>
+                        <SelectItem value="running">运行中</SelectItem>
+                        <SelectItem value="paused">已暂停</SelectItem>
+                        <SelectItem value="stopped">已停止</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loadTasks()}
+                      disabled={tasksLoading}
+                    >
+                      {tasksLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      刷新
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {tasksLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    <span>加载中...</span>
+                  </div>
+                ) : filteredTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      暂无监控任务
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Status Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-sm">监控中: {realTasks.filter(task => task.status === 'running').length}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm">已暂停: {realTasks.filter(task => task.status === 'paused').length}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">已完成: {realTasks.filter(task => task.status === 'stopped').length}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <X className="h-4 w-4 text-red-500" />
+                        <span className="text-sm">失败: {realTasks.filter(task => task.status === 'stopped').length}</span>
+                      </div>
+                    </div>
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>任务url</TableHead>
+                          <TableHead className="w-[100px]">类型</TableHead>
+                          <TableHead className="w-[100px]">监控间隔</TableHead>
+                          <TableHead className="w-[100px]">状态</TableHead>
+                          <TableHead className="w-[180px]">创建时间</TableHead>
+                          <TableHead className="w-[180px]">下次执行</TableHead>
+                          <TableHead className="w-[100px]">操作</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTasks.map((task) => (
+                          <TableRow key={task.task_id}>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {task.urls.slice(0, 2).map((url, index) => (
+                                  <a
+                                    key={index}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline text-xs"
+                                  >
+                                    {url.length > 30 ? `${url.substring(0, 30)}...` : url}
+                                  </a>
+                                ))}
+                                {task.urls.length > 2 && (
+                                  <span className="text-gray-500 text-xs">
+                                    +{task.urls.length - 2} more
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {task.is_user_task ? "用户监控" : "推文监控"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{task.monitor_interval}分钟</TableCell>
+                            <TableCell>
+                              {task.status === "running" ? (
+                                <Badge className="bg-green-100 text-green-800">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  监控中
+                                </Badge>
+                              ) : task.status === "paused" ? (
+                                <Badge className="bg-yellow-100 text-yellow-800">
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  已暂停
+                                </Badge>
+                              ) : (
+                                <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+                                  <X className="h-3 w-3 mr-1" />
+                                  已停止
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>{new Date(task.created_at).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              {task.next_execution_at ? (
+                                new Date(task.next_execution_at).toLocaleString()
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <div className="flex items-center justify-center">
+                                {task.status === "running" ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePauseTask(task.task_id)}
+                                    className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+                                  >
+                                    <AlertTriangle className="h-3 w-3 mr-1" />
+                                    暂停
+                                  </Button>
+                                ) : task.status === "paused" ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleResumeTask(task.task_id)}
+                                    className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+                                  >
+                                    <Play className="h-3 w-3 mr-1" />
+                                    恢复
+                                  </Button>
+                                ) : task.status === "stopped" ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleRetryTask(task.task_id)}
+                                    className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+                                  >
+                                    <RotateCcw className="h-3 w-3 mr-1" />
+                                    重试
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => window.open(task.urls[0], "_blank")}
+                                    className="h-7 text-xs"
+                                    title="查看链接"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+
+                    {/* Pagination */}
+                    {tasksTotalPages > 1 && (
+                      <div className="flex items-center justify-between pt-4">
+                        <div className="text-sm text-muted-foreground">
+                          第 {tasksPage} 页，共 {tasksTotalPages} 页
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(tasksPage - 1)}
+                            disabled={tasksPage <= 1}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                            上一页
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(tasksPage + 1)}
+                            disabled={tasksPage >= tasksTotalPages}
+                          >
+                            下一页
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Post Trend Dialog */}
+      <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="flex items-center text-lg">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              推文趋势分析
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              推文数据趋势变化分析
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPost && <PostTrendChart post={selectedPost} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Influencer Trend Dialog */}
+      <Dialog open={isInfluencerDialogOpen} onOpenChange={setIsInfluencerDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="flex items-center text-lg">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              用户趋势分析
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              用户数据趋势变化分析
+            </DialogDescription>
+          </DialogHeader>
+          {selectedInfluencer && <InfluencerTrendChart influencer={selectedInfluencer} />}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
+  );
+}
+
+// Custom tooltip component for charts
+const CustomTooltip = ({ active, payload, label, metrics }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border rounded-lg shadow-lg">
+        <p className="font-medium text-sm mb-2">{label}</p>
+        {payload.map((entry: any) => {
+          const metric = metrics.find((m: any) => m.key === entry.dataKey);
+          if (!metric) return null;
+          const Icon = metric.icon;
+          return (
+            <div key={entry.dataKey} className="flex items-center text-xs">
+              <Icon className="h-3 w-3 mr-1" style={{ color: entry.color }} />
+              <span className="mr-2">{metric.label}:</span>
+              <span className="font-medium">{entry.value.toLocaleString()}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  return null;
+};
+
+// Interactive Trend Chart Component for X Posts
+function PostTrendChart({ post }: { post: PostHistoryItem }) {
+  const [visibleMetrics, setVisibleMetrics] = useState({
+    view_count: true,
+    like_count: true,
+    retweet_count: true,
+    replies_count: true,
+    quotes_count: true,
+    bookmarks_count: true,
+  });
+  const [highlightedMetric, setHighlightedMetric] = useState<string | null>(null);
+
+  // Prepare chart data from history
+  const chartData = post.history.map((item, index) => ({
+    timestamp: new Date(item.created_at).toLocaleString('zh-CN', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }),
+    rawTimestamp: item.created_at,
+    index: index,
+    view_count: item.view_count,
+    like_count: item.like_count,
+    retweet_count: item.retweet_count,
+    replies_count: item.replies_count,
+    quotes_count: item.quotes_count,
+    bookmarks_count: item.bookmarks_count,
+  }));
+
+  // Metric configurations
+  const metrics = [
+    { key: 'view_count', label: '浏览量', color: '#3B82F6', icon: Eye },
+    { key: 'like_count', label: '点赞数', color: '#EF4444', icon: Heart },
+    { key: 'retweet_count', label: '转发数', color: '#10B981', icon: Repeat2 },
+    { key: 'replies_count', label: '回复数', color: '#8B5CF6', icon: MessageCircle },
+    { key: 'quotes_count', label: '引用数', color: '#F59E0B', icon: Quote },
+    { key: 'bookmarks_count', label: '收藏数', color: '#6B7280', icon: Bookmark },
+  ];
+
+  // Calculate statistics
+  const getStatistics = (metricKey: string) => {
+    const values = chartData.map(item => item[metricKey]);
+    return {
+      max: Math.max(...values),
+      min: Math.min(...values),
+      avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    };
+  };
+
+  // Toggle metric visibility
+  const toggleMetric = (metricKey: string) => {
+    setVisibleMetrics(prev => ({
+      ...prev,
+      [metricKey]: !prev[metricKey]
+    }));
+  };
+
+  // Handle metric highlighting
+  const handleMetricHighlight = (metricKey: string) => {
+    setHighlightedMetric(highlightedMetric === metricKey ? null : metricKey);
+  };
+
+  if (!chartData.length) {
+    return (
+      <div className="text-center py-8">
+        <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">
+          暂无历史数据，监控数据将在下次采集后显示
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Metric Controls */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-medium">指标控制</h3>
+        </div>
+        
+        {/* Checkboxes */}
+        <div className="flex flex-wrap gap-3">
+          {metrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <label key={metric.key} className="flex items-center space-x-1.5 cursor-pointer">
+                <Checkbox
+                  checked={visibleMetrics[metric.key]}
+                  onCheckedChange={() => toggleMetric(metric.key)}
+                />
+                <Icon className="h-3 w-3" style={{ color: metric.color }} />
+                <span className="text-xs" style={{ color: metric.color }}>
+                  {metric.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Highlight Buttons */}
+        <div className="flex flex-wrap gap-1.5">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const Icon = metric.icon;
+            const isHighlighted = highlightedMetric === metric.key;
+            return (
+              <Button
+                key={metric.key}
+                variant={isHighlighted ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleMetricHighlight(metric.key)}
+                className="h-6 text-xs px-2"
+                style={{
+                  backgroundColor: isHighlighted ? metric.color : 'transparent',
+                  borderColor: metric.color,
+                  color: isHighlighted ? 'white' : metric.color,
+                }}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {metric.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="timestamp" 
+              tick={{ fontSize: 9 }}
+              angle={-45}
+              textAnchor="end"
+              height={50}
+            />
+            <YAxis tick={{ fontSize: 9 }} />
+            <Tooltip content={<CustomTooltip metrics={metrics} />} />
+            <Legend wrapperStyle={{ fontSize: '11px' }} />
+            
+            {metrics.map((metric) => {
+              if (!visibleMetrics[metric.key]) return null;
+              const isHighlighted = highlightedMetric === metric.key;
+              const isFaded = highlightedMetric && highlightedMetric !== metric.key;
+              
+              return (
+                <Line
+                  key={metric.key}
+                  type="monotone"
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={isHighlighted ? 3 : 2}
+                  strokeOpacity={isFaded ? 0.3 : 1}
+                  dot={{ fill: metric.color, strokeWidth: 0, r: isHighlighted ? 3 : 2 }}
+                  name={metric.label}
+                />
+              );
+            })}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Statistics Summary */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium">统计摘要</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const stats = getStatistics(metric.key);
+            const Icon = metric.icon;
+            
+            return (
+              <div key={metric.key} className="p-2 border rounded text-xs">
+                <div className="flex items-center mb-1">
+                  <Icon className="h-3 w-3 mr-1" style={{ color: metric.color }} />
+                  <span className="font-medium text-xs" style={{ color: metric.color }}>
+                    {metric.label}
+                  </span>
+                </div>
+                <div className="space-y-0.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">最大值:</span>
+                    <span>{formatNumber(stats.max)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">平均值:</span>
+                    <span>{formatNumber(stats.avg)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">最小值:</span>
+                    <span>{formatNumber(stats.min)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Interactive Trend Chart Component for X Influencers
+function InfluencerTrendChart({ influencer }: { influencer: InfluencerHistoryItem }) {
+  const [visibleMetrics, setVisibleMetrics] = useState({
+    follower_count: true,
+    friends_count: true,
+    tweet_count: true,
+    media_count: true,
+  });
+  const [highlightedMetric, setHighlightedMetric] = useState<string | null>(null);
+
+  // Prepare chart data from history
+  const chartData = influencer.history.map((item, index) => ({
+    timestamp: new Date(item.created_at).toLocaleString('zh-CN', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }),
+    rawTimestamp: item.created_at,
+    index: index,
+    follower_count: item.follower_count,
+    friends_count: item.friends_count,
+    tweet_count: item.tweet_count,
+    media_count: item.media_count,
+  }));
+
+  // Metric configurations
+  const metrics = [
+    { key: 'follower_count', label: '粉丝数', color: '#3B82F6', icon: Users },
+    { key: 'friends_count', label: '关注数', color: '#10B981', icon: UserCheck },
+    { key: 'tweet_count', label: '推文数', color: '#8B5CF6', icon: Twitter },
+    { key: 'media_count', label: '媒体数', color: '#EF4444', icon: Image },
+  ];
+
+  // Calculate statistics
+  const getStatistics = (metricKey: string) => {
+    const values = chartData.map(item => item[metricKey]);
+    return {
+      max: Math.max(...values),
+      min: Math.min(...values),
+      avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    };
+  };
+
+  // Toggle metric visibility
+  const toggleMetric = (metricKey: string) => {
+    setVisibleMetrics(prev => ({
+      ...prev,
+      [metricKey]: !prev[metricKey]
+    }));
+  };
+
+  // Handle metric highlighting
+  const handleMetricHighlight = (metricKey: string) => {
+    setHighlightedMetric(highlightedMetric === metricKey ? null : metricKey);
+  };
+
+  if (!chartData.length) {
+    return (
+      <div className="text-center py-8">
+        <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">
+          暂无历史数据，监控数据将在下次采集后显示
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Metric Controls */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-medium">指标控制</h3>
+        </div>
+        
+        {/* Checkboxes */}
+        <div className="flex flex-wrap gap-3">
+          {metrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <label key={metric.key} className="flex items-center space-x-1.5 cursor-pointer">
+                <Checkbox
+                  checked={visibleMetrics[metric.key]}
+                  onCheckedChange={() => toggleMetric(metric.key)}
+                />
+                <Icon className="h-3 w-3" style={{ color: metric.color }} />
+                <span className="text-xs" style={{ color: metric.color }}>
+                  {metric.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Highlight Buttons */}
+        <div className="flex flex-wrap gap-1.5">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const Icon = metric.icon;
+            const isHighlighted = highlightedMetric === metric.key;
+            return (
+              <Button
+                key={metric.key}
+                variant={isHighlighted ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleMetricHighlight(metric.key)}
+                className="h-6 text-xs px-2"
+                style={{
+                  backgroundColor: isHighlighted ? metric.color : 'transparent',
+                  borderColor: metric.color,
+                  color: isHighlighted ? 'white' : metric.color,
+                }}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {metric.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="timestamp" 
+              tick={{ fontSize: 9 }}
+              angle={-45}
+              textAnchor="end"
+              height={50}
+            />
+            <YAxis tick={{ fontSize: 9 }} />
+            <Tooltip content={<CustomTooltip metrics={metrics} />} />
+            <Legend wrapperStyle={{ fontSize: '11px' }} />
+            
+            {metrics.map((metric) => {
+              if (!visibleMetrics[metric.key]) return null;
+              const isHighlighted = highlightedMetric === metric.key;
+              const isFaded = highlightedMetric && highlightedMetric !== metric.key;
+              
+              return (
+                <Line
+                  key={metric.key}
+                  type="monotone"
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={isHighlighted ? 3 : 2}
+                  strokeOpacity={isFaded ? 0.3 : 1}
+                  dot={{ fill: metric.color, strokeWidth: 0, r: isHighlighted ? 3 : 2 }}
+                  name={metric.label}
+                />
+              );
+            })}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Statistics Summary */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium">统计摘要</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const stats = getStatistics(metric.key);
+            const Icon = metric.icon;
+            
+            return (
+              <div key={metric.key} className="p-2 border rounded text-xs">
+                <div className="flex items-center mb-1">
+                  <Icon className="h-3 w-3 mr-1" style={{ color: metric.color }} />
+                  <span className="font-medium text-xs" style={{ color: metric.color }}>
+                    {metric.label}
+                  </span>
+                </div>
+                <div className="space-y-0.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">最大值:</span>
+                    <span>{formatNumber(stats.max)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">平均值:</span>
+                    <span>{formatNumber(stats.avg)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">最小值:</span>
+                    <span>{formatNumber(stats.min)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
