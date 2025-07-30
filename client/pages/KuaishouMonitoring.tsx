@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import {
   TaskItem,
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
@@ -37,6 +38,18 @@ import {
 } from "@/components/ui/select";
 import { Clock } from "lucide-react";
 import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import {
   Monitor,
   UserCheck,
   Plus,
@@ -59,7 +72,173 @@ import {
   Crown,
   Verified,
   Zap,
+  Loader2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Download,
+  Bookmark,
 } from "lucide-react";
+
+// API configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : "http://127.0.0.1:8000/api";
+
+const API_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
+
+// API interfaces
+interface CreateMonitoringTaskResponse {
+  total_successful: number;
+  total_failed: number;
+  failed_urls: string[];
+  successful_tasks: Record<string, string>;
+}
+
+interface ApiError {
+  detail: string;
+}
+
+// Task action API interfaces
+interface TaskActionRequest {
+  task_ids: string[];
+}
+
+interface TaskActionResponse {
+  message: string;
+  task_ids: string[];
+  status: string;
+}
+
+// Monitoring task interface (matches backend response)
+interface MonitoringTask {
+  id: string;
+  task_type: string;
+  platform: string;
+  content_type: string;
+  status: "MONITORING" | "PAUSED" | "FAILED" | "COMPLETED" | "PENDING" | "QUEUED" | "PROCESSING";
+  progress: number;
+  monitor_interval: string;
+  input_data: {
+    url: string;
+    monitor_interval: string;
+  };
+  output_data: any;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  next_execution_at: string;
+}
+
+interface TasksResponse {
+  tasks: MonitoringTask[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  platforms_included: Record<string, boolean>;
+}
+
+// Post history interfaces
+interface PostHistoryItem {
+  created_at: string;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  share_count: number;
+  reward_count: number;
+  collect_count: number;
+}
+
+interface PostHistoryData {
+  task_id: string;
+  task_status: "MONITORING" | "PAUSED" | "FAILED" | "COMPLETED" | "PENDING" | "QUEUED" | "PROCESSING";
+  monitor_interval: string;
+  created_at: string;
+  next_execution_at: string;
+  photo_id: string;
+  input_url: string;
+  error_message: string | null;
+  video_caption: string;
+  create_time: string;
+  share_url: string;
+  video_play_url: string;
+  author_name: string;
+  author_avatar: string;
+  most_recent_counts: {
+    view_count: number;
+    like_count: number;
+    comment_count: number;
+    share_count: number;
+    reward_count: number;
+    collect_count: number;
+  };
+  increment_percentages: {
+    view_count_increment: number;
+    like_count_increment: number;
+    comment_count_increment: number;
+    share_count_increment: number;
+    reward_count_increment: number;
+    collect_count_increment: number;
+  };
+  history: PostHistoryItem[];
+}
+
+interface PostHistoryResponse {
+  items: PostHistoryData[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+// Influencer history interfaces
+interface InfluencerHistoryItem {
+  created_at: string;
+  follower_count: number;
+  following_count: number;
+  post_count: number;
+  moment_count: number;
+}
+
+interface InfluencerHistoryData {
+  task_id: string;
+  task_status: "MONITORING" | "PAUSED" | "FAILED" | "COMPLETED" | "PENDING" | "QUEUED" | "PROCESSING";
+  monitor_interval: string;
+  created_at: string;
+  next_execution_at: string;
+  user_id: string;
+  user_name: string;
+  user_text: string;
+  user_avatar: string;
+  city_name: string;
+  user_sex: string;
+  input_url: string;
+  error_message: string | null;
+  most_recent_counts: {
+    follower_count: number;
+    following_count: number;
+    post_count: number;
+    moment_count: number;
+  };
+  increment_percentages: {
+    follower_count_increment: number;
+    following_count_increment: number;
+    post_count_increment: number;
+    moment_count_increment: number;
+  };
+  history: InfluencerHistoryItem[];
+}
+
+interface InfluencerHistoryResponse {
+  items: InfluencerHistoryData[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
 
 // Sample monitoring data for Kuaishou content
 const mockContentData = [
@@ -167,9 +346,764 @@ const mockInfluencerData = [
   },
 ];
 
+// API functions
+const fetchTasks = async (
+  platform: string = "kuaishou",
+  taskType?: string,
+  status?: string,
+  page: number = 1,
+  limit: number = 50,
+): Promise<TasksResponse> => {
+  const params = new URLSearchParams({
+    platform,
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (taskType) params.append("task_type", taskType);
+  if (status) params.append("status", status);
+
+  const response = await fetch(`${API_BASE_URL}/monitor/tasks?${params}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to fetch tasks";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Create Post Monitoring Task
+const createPostMonitoringTask = async (
+  urls: string[],
+  monitorInterval: string,
+): Promise<CreateMonitoringTaskResponse> => {
+  const response = await fetch(`${API_BASE_URL}/monitor/kuaishou/post/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      urls,
+      monitor_interval: monitorInterval,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to create post monitoring task";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Create User Monitoring Task
+const createUserMonitoringTask = async (
+  urls: string[],
+  monitorInterval: string,
+): Promise<CreateMonitoringTaskResponse> => {
+  const response = await fetch(`${API_BASE_URL}/monitor/kuaishou/user/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      urls,
+      monitor_interval: monitorInterval,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to create user monitoring task";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Fetch Post History  
+const fetchPostHistory = async (
+  page: number = 1,
+  limit: number = 20,
+  photoId?: string,
+  authorNickname?: string,
+  status?: string,
+): Promise<PostHistoryResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (photoId) params.append("photo_id", photoId);
+  if (authorNickname) params.append("author_nickname", authorNickname);
+  if (status) params.append("status", status);
+
+  const response = await fetch(`${API_BASE_URL}/monitor/kuaishou/history/posts?${params}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to fetch post history";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Fetch Influencer History
+const fetchInfluencerHistory = async (
+  page: number = 1,
+  limit: number = 20,
+  status?: string,
+  userName?: string,
+): Promise<InfluencerHistoryResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (status) params.append("status", status);
+  if (userName) params.append("user_name", userName);
+
+  const response = await fetch(`${API_BASE_URL}/monitor/kuaishou/history/influencers?${params}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to fetch influencer history";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Task control API functions
+const pauseTask = async (taskId: string): Promise<TaskActionResponse> => {
+  const response = await fetch(`${API_BASE_URL}/monitor/pause`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_ids: [taskId],
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to pause task";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+const resumeTask = async (taskId: string): Promise<TaskActionResponse> => {
+  const response = await fetch(`${API_BASE_URL}/monitor/resume`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_ids: [taskId],
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to resume task";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+const retryTask = async (taskId: string): Promise<TaskActionResponse> => {
+  const response = await fetch(`${API_BASE_URL}/monitor/retry`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      task_id: taskId,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to retry task";
+    try {
+      const error: ApiError = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// PostTrendChart Component for Kuaishou
+function PostTrendChart({ post }: { post: PostHistoryData }) {
+  const [visibleMetrics, setVisibleMetrics] = useState({
+    view_count: true,
+    like_count: true, 
+    comment_count: true,
+    share_count: true,
+    reward_count: true,
+    collect_count: true,
+  });
+  const [highlightedMetric, setHighlightedMetric] = useState<string | null>(null);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+
+  // Prepare chart data from history
+  const chartData = post.history.map((item, index) => ({
+    timestamp: new Date(item.created_at).toLocaleString('zh-CN', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }),
+    rawTimestamp: item.created_at,
+    index: index,
+    view_count: item.view_count,
+    like_count: item.like_count,
+    comment_count: item.comment_count,
+    share_count: item.share_count,
+    reward_count: item.reward_count,
+    collect_count: item.collect_count,
+  }));
+
+  // Metric configurations
+  const metrics = [
+    { key: 'view_count', label: '播放量', color: '#3B82F6', icon: Eye },
+    { key: 'like_count', label: '点赞数', color: '#EF4444', icon: Heart },
+    { key: 'comment_count', label: '评论数', color: '#10B981', icon: MessageCircle },
+    { key: 'share_count', label: '分享数', color: '#8B5CF6', icon: Share2 },
+    { key: 'reward_count', label: '打赏数', color: '#F59E0B', icon: Zap },
+    { key: 'collect_count', label: '收藏数', color: '#6B7280', icon: Bookmark },
+  ];
+
+  // Calculate statistics
+  const getStatistics = (metricKey: string) => {
+    const values = chartData.map(item => item[metricKey]);
+    return {
+      max: Math.max(...values),
+      min: Math.min(...values),
+      avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    };
+  };
+
+  // Toggle metric visibility
+  const toggleMetric = (metricKey: string) => {
+    setVisibleMetrics(prev => ({
+      ...prev,
+      [metricKey]: !prev[metricKey]
+    }));
+  };
+
+  // Highlight specific metric
+  const handleMetricHighlight = (metricKey: string) => {
+    if (highlightedMetric === metricKey) {
+      setHighlightedMetric(null);
+    } else {
+      setHighlightedMetric(metricKey);
+    }
+  };
+
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border rounded-lg shadow-lg">
+          <p className="font-medium text-sm mb-2">{label}</p>
+          {payload.map((entry: any) => {
+            const metric = metrics.find(m => m.key === entry.dataKey);
+            if (!metric || !visibleMetrics[entry.dataKey]) return null;
+            const Icon = metric.icon;
+            return (
+              <div key={entry.dataKey} className="flex items-center text-xs">
+                <Icon className="h-3 w-3 mr-1" style={{ color: entry.color }} />
+                <span className="mr-2">{metric.label}:</span>
+                <span className="font-medium">{entry.value.toLocaleString()}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Handle notification toggle
+  const handleNotificationToggle = (checked: boolean) => {
+    setNotificationEnabled(checked);
+    if (checked) {
+      alert("📢 大幅增长通知功能即将上线，敬请期待！");
+    }
+  };
+
+  if (!chartData.length) {
+    return (
+      <div className="text-center py-8">
+        <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">
+          暂无历史数据，监控数据将在下次采集后显示
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Metric Controls */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-medium">指标控制</h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground">大幅增长通知</span>
+            <Switch
+              checked={notificationEnabled}
+              onCheckedChange={handleNotificationToggle}
+              className="scale-75"
+            />
+          </div>
+        </div>
+        
+        {/* Checkboxes */}
+        <div className="flex flex-wrap gap-3">
+          {metrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <label key={metric.key} className="flex items-center space-x-1.5 cursor-pointer">
+                <Checkbox
+                  checked={visibleMetrics[metric.key]}
+                  onCheckedChange={() => toggleMetric(metric.key)}
+                />
+                <Icon className="h-3 w-3" style={{ color: metric.color }} />
+                <span className="text-xs" style={{ color: metric.color }}>
+                  {metric.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Highlight Buttons */}
+        <div className="flex flex-wrap gap-1.5">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const Icon = metric.icon;
+            const isHighlighted = highlightedMetric === metric.key;
+            return (
+              <Button
+                key={metric.key}
+                variant={isHighlighted ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleMetricHighlight(metric.key)}
+                className="h-6 text-xs px-2"
+                style={{
+                  backgroundColor: isHighlighted ? metric.color : 'transparent',
+                  borderColor: metric.color,
+                  color: isHighlighted ? 'white' : metric.color,
+                }}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {metric.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="timestamp" 
+              tick={{ fontSize: 9 }}
+              angle={-45}
+              textAnchor="end"
+              height={50}
+            />
+            <YAxis tick={{ fontSize: 9 }} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ fontSize: '11px' }} />
+            
+            {metrics.map((metric) => {
+              if (!visibleMetrics[metric.key]) return null;
+              const isHighlighted = highlightedMetric === metric.key;
+              const isFaded = highlightedMetric && highlightedMetric !== metric.key;
+              
+              return (
+                <Line
+                  key={metric.key}
+                  type="monotone"
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={isHighlighted ? 3 : 2}
+                  strokeOpacity={isFaded ? 0.3 : 1}
+                  dot={{ fill: metric.color, strokeWidth: 0, r: isHighlighted ? 3 : 2 }}
+                  name={metric.label}
+                />
+              );
+            })}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Statistics Summary */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium">统计摘要</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const stats = getStatistics(metric.key);
+            const Icon = metric.icon;
+            
+            return (
+              <div key={metric.key} className="p-2 border rounded text-xs">
+                <div className="flex items-center mb-1">
+                  <Icon className="h-3 w-3 mr-1" style={{ color: metric.color }} />
+                  <span className="font-medium text-xs" style={{ color: metric.color }}>
+                    {metric.label}
+                  </span>
+                </div>
+                <div className="space-y-0.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">最大:</span>
+                    <span className="font-medium">{stats.max.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">最小:</span>
+                    <span className="font-medium">{stats.min.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">平均:</span>
+                    <span className="font-medium">{stats.avg.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// InfluencerTrendChart Component for Kuaishou
+function InfluencerTrendChart({ influencer }: { influencer: InfluencerHistoryData }) {
+  const [visibleMetrics, setVisibleMetrics] = useState({
+    follower_count: true,
+    following_count: true, 
+    post_count: true,
+    moment_count: true,
+  });
+  const [highlightedMetric, setHighlightedMetric] = useState<string | null>(null);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+
+  // Prepare chart data from history
+  const chartData = influencer.history.map((item, index) => ({
+    timestamp: new Date(item.created_at).toLocaleString('zh-CN', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }),
+    rawTimestamp: item.created_at,
+    index: index,
+    follower_count: item.follower_count,
+    following_count: item.following_count,
+    post_count: item.post_count,
+    moment_count: item.moment_count,
+  }));
+
+  // Metric configurations
+  const metrics = [
+    { key: 'follower_count', label: '粉丝数', color: '#3B82F6', icon: Users },
+    { key: 'following_count', label: '关注数', color: '#10B981', icon: UserCheck },
+    { key: 'post_count', label: '作品数', color: '#8B5CF6', icon: Video },
+    { key: 'moment_count', label: '瞬间数', color: '#EF4444', icon: Heart },
+  ];
+
+  // Calculate statistics
+  const getStatistics = (metricKey: string) => {
+    const values = chartData.map(item => item[metricKey]);
+    return {
+      max: Math.max(...values),
+      min: Math.min(...values),
+      avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    };
+  };
+
+  // Toggle metric visibility
+  const toggleMetric = (metricKey: string) => {
+    setVisibleMetrics(prev => ({
+      ...prev,
+      [metricKey]: !prev[metricKey]
+    }));
+  };
+
+  // Highlight specific metric
+  const handleMetricHighlight = (metricKey: string) => {
+    if (highlightedMetric === metricKey) {
+      setHighlightedMetric(null);
+    } else {
+      setHighlightedMetric(metricKey);
+    }
+  };
+
+  // Handle notification toggle
+  const handleNotificationToggle = (checked: boolean) => {
+    setNotificationEnabled(checked);
+    if (checked) {
+      alert("📢 大幅增长通知功能即将上线，敬请期待！");
+    }
+  };
+
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border rounded-lg shadow-lg">
+          <p className="font-medium text-sm mb-2">{label}</p>
+          {payload.map((entry: any) => {
+            const metric = metrics.find(m => m.key === entry.dataKey);
+            if (!metric || !visibleMetrics[entry.dataKey]) return null;
+            const Icon = metric.icon;
+            return (
+              <div key={entry.dataKey} className="flex items-center text-xs">
+                <Icon className="h-3 w-3 mr-1" style={{ color: entry.color }} />
+                <span className="mr-2">{metric.label}:</span>
+                <span className="font-medium">{entry.value.toLocaleString()}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  if (!chartData.length) {
+    return (
+      <div className="text-center py-8">
+        <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">
+          暂无历史数据，监控数据将在下次采集后显示
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Metric Controls */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-medium">指标控制</h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground">大幅增长通知</span>
+            <Switch
+              checked={notificationEnabled}
+              onCheckedChange={handleNotificationToggle}
+              className="scale-75"
+            />
+          </div>
+        </div>
+        
+        {/* Checkboxes */}
+        <div className="flex flex-wrap gap-3">
+          {metrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <label key={metric.key} className="flex items-center space-x-1.5 cursor-pointer">
+                <Checkbox
+                  checked={visibleMetrics[metric.key]}
+                  onCheckedChange={() => toggleMetric(metric.key)}
+                />
+                <Icon className="h-3 w-3" style={{ color: metric.color }} />
+                <span className="text-xs" style={{ color: metric.color }}>
+                  {metric.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Highlight Buttons */}
+        <div className="flex flex-wrap gap-1.5">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const Icon = metric.icon;
+            const isHighlighted = highlightedMetric === metric.key;
+            return (
+              <Button
+                key={metric.key}
+                variant={isHighlighted ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleMetricHighlight(metric.key)}
+                className="h-6 text-xs px-2"
+                style={{
+                  backgroundColor: isHighlighted ? metric.color : 'transparent',
+                  borderColor: metric.color,
+                  color: isHighlighted ? 'white' : metric.color,
+                }}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {metric.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="timestamp" 
+              tick={{ fontSize: 9 }}
+              angle={-45}
+              textAnchor="end"
+              height={50}
+            />
+            <YAxis tick={{ fontSize: 9 }} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ fontSize: '11px' }} />
+            
+            {metrics.map((metric) => {
+              if (!visibleMetrics[metric.key]) return null;
+              const isHighlighted = highlightedMetric === metric.key;
+              const isFaded = highlightedMetric && highlightedMetric !== metric.key;
+              
+              return (
+                <Line
+                  key={metric.key}
+                  type="monotone"
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={isHighlighted ? 3 : 2}
+                  strokeOpacity={isFaded ? 0.3 : 1}
+                  dot={{ fill: metric.color, strokeWidth: 0, r: isHighlighted ? 3 : 2 }}
+                  name={metric.label}
+                />
+              );
+            })}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Statistics Summary */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium">统计摘要</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-3">
+          {metrics.map((metric) => {
+            if (!visibleMetrics[metric.key]) return null;
+            const stats = getStatistics(metric.key);
+            const Icon = metric.icon;
+            
+            return (
+              <div key={metric.key} className="p-2 border rounded text-xs">
+                <div className="flex items-center mb-1">
+                  <Icon className="h-3 w-3 mr-1" style={{ color: metric.color }} />
+                  <span className="font-medium text-xs" style={{ color: metric.color }}>
+                    {metric.label}
+                  </span>
+                </div>
+                <div className="space-y-0.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">最大:</span>
+                    <span className="font-medium">{stats.max.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">最小:</span>
+                    <span className="font-medium">{stats.min.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">平均:</span>
+                    <span className="font-medium">{stats.avg.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function KuaishouMonitoring() {
-  const [contentData, setContentData] = useState(mockContentData);
-  const [influencerData, setInfluencerData] = useState(mockInfluencerData);
+  const [contentData, setContentData] = useState<PostHistoryData[]>([]);
+  const [influencerData, setInfluencerData] = useState<InfluencerHistoryData[]>([]);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [influencerLoading, setInfluencerLoading] = useState(false);
+  const [contentPage, setContentPage] = useState(1);
+  const [influencerPage, setInfluencerPage] = useState(1);
+  const [contentTotal, setContentTotal] = useState(0);
+  const [influencerTotal, setInfluencerTotal] = useState(0);
   const [contentUrls, setContentUrls] = useState("");
   const [influencerUrls, setInfluencerUrls] = useState("");
   const [isAddingContent, setIsAddingContent] = useState(false);
@@ -182,13 +1116,120 @@ export default function KuaishouMonitoring() {
   const [invalidInfluencerUrls, setInvalidInfluencerUrls] = useState([]);
   const [taskQueue, setTaskQueue] = useState<TaskItem[]>([]);
   const [contentMonitoringInterval, setContentMonitoringInterval] =
-    useState("1h");
+    useState("1hour");
   const [influencerMonitoringInterval, setInfluencerMonitoringInterval] =
-    useState("1h");
+    useState("24hours");
+  
+  // Real tasks state
+  const [realTasks, setRealTasks] = useState<MonitoringTask[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [taskTypeFilter, setTaskTypeFilter] = useState<string>("all");
+  const [taskStatusFilter, setTaskStatusFilter] = useState<string>("all");
+  const [taskPage, setTaskPage] = useState(1);
+  const [taskTotal, setTaskTotal] = useState(0);
+  
+  // Dialog states for stats popups
+  const [selectedPost, setSelectedPost] = useState<PostHistoryData | null>(null);
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [selectedInfluencer, setSelectedInfluencer] = useState<InfluencerHistoryData | null>(null);
+  const [isInfluencerDialogOpen, setIsInfluencerDialogOpen] = useState(false);
+  
+  // Filter states
+  const [postPhotoIdFilter, setPostPhotoIdFilter] = useState("");
+  const [postAuthorFilter, setPostAuthorFilter] = useState("");
+  const [postStatusFilter, setPostStatusFilter] = useState("all");
+  const [influencerUserNameFilter, setInfluencerUserNameFilter] = useState("");
+  const [influencerStatusFilter, setInfluencerStatusFilter] = useState("all");
 
   const validateUrl = (url: string) => {
     return url.includes("kuaishou.com");
   };
+
+  // Load tasks from backend
+  const loadTasks = async () => {
+    setTasksLoading(true);
+    try {
+      const response = await fetchTasks(
+        "kuaishou",
+        taskTypeFilter === "all" ? undefined : taskTypeFilter,
+        taskStatusFilter === "all" ? undefined : taskStatusFilter,
+        taskPage,
+        15,
+      );
+      setRealTasks(response.tasks);
+      setTaskTotal(response.total);
+    } catch (error) {
+      console.error("Failed to load tasks:", error);
+      toast({
+        title: "加载失败",
+        description: `加载任务失败: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
+  // Load content history from backend
+  const loadContentHistory = async () => {
+    setContentLoading(true);
+    try {
+      const response = await fetchPostHistory(
+        contentPage, 
+        20,
+        postPhotoIdFilter || undefined,
+        postAuthorFilter || undefined,
+        postStatusFilter === "all" ? undefined : postStatusFilter
+      );
+      setContentData(response.items);
+      setContentTotal(response.total);
+    } catch (error) {
+      console.error("Failed to load content history:", error);
+      toast({
+        title: "加载失败",
+        description: `加载作品监控数据失败: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setContentLoading(false);
+    }
+  };
+
+  // Load influencer history from backend
+  const loadInfluencerHistory = async () => {
+    setInfluencerLoading(true);
+    try {
+      const response = await fetchInfluencerHistory(
+        influencerPage, 
+        20,
+        influencerStatusFilter === "all" ? undefined : influencerStatusFilter,
+        influencerUserNameFilter || undefined
+      );
+      setInfluencerData(response.items);
+      setInfluencerTotal(response.total);
+    } catch (error) {
+      console.error("Failed to load influencer history:", error);
+      toast({
+        title: "加载失败",
+        description: `加载达人监控数据失败: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setInfluencerLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, [taskTypeFilter, taskStatusFilter, taskPage]);
+
+  useEffect(() => {
+    loadContentHistory();
+  }, [contentPage, postPhotoIdFilter, postAuthorFilter, postStatusFilter]);
+
+  useEffect(() => {
+    loadInfluencerHistory();
+  }, [influencerPage, influencerUserNameFilter, influencerStatusFilter]);
 
   const isContentUrl = (url: string) => {
     return url.includes("/short-video/") || url.includes("/video/");
@@ -200,11 +1241,9 @@ export default function KuaishouMonitoring() {
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter(
-      (url) => validateUrl(url) && isContentUrl(url),
-    );
+    const valid = urlList.filter((url) => validateUrl(url));
     const invalid = urlList
-      .filter((url) => !validateUrl(url) || !isContentUrl(url))
+      .filter((url) => !validateUrl(url))
       .filter((url) => url.length > 0);
 
     setValidContentUrls(valid);
@@ -217,11 +1256,9 @@ export default function KuaishouMonitoring() {
       .map((url) => url.trim())
       .filter((url) => url.length > 0);
 
-    const valid = urlList.filter(
-      (url) => validateUrl(url) && !isContentUrl(url),
-    );
+    const valid = urlList.filter((url) => validateUrl(url));
     const invalid = urlList
-      .filter((url) => !validateUrl(url) || isContentUrl(url))
+      .filter((url) => !validateUrl(url))
       .filter((url) => url.length > 0);
 
     setValidInfluencerUrls(valid);
@@ -278,39 +1315,43 @@ export default function KuaishouMonitoring() {
 
     setIsAddingContent(true);
 
-    const newTasks = createTaskQueueItems(validContentUrls, () => true);
-    setTaskQueue((prev) => [...prev, ...newTasks]);
+    try {
+      const response = await createPostMonitoringTask(
+        validContentUrls,
+        contentMonitoringInterval,
+      );
 
-    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      const newContentItem = {
-        id: Date.now() + i,
-        title: `批量添加的作品监控 ${i + 1}`,
-        author: "创作者名称",
-        url: task.url,
-        thumbnail: "/api/placeholder/120/120",
-        addedAt: task.addedAt,
-        status: "active",
-        currentStats: {
-          views: "0",
-          likes: "0",
-          comments: "0",
-          shares: "0",
-        },
-        initialStats: {
-          views: "0",
-          likes: "0",
-          comments: "0",
-          shares: "0",
-        },
-      };
-      setContentData((prev) => [newContentItem, ...prev]);
-    });
+      toast({
+        title: "作品监控任务创建成功",
+        description: `成功创建 ${response.total_successful} 个监控任务${response.total_failed > 0 ? `，失败 ${response.total_failed} 个` : ""}`,
+        className: "bg-white border-black text-black",
+      });
 
-    setContentUrls("");
-    setValidContentUrls([]);
-    setInvalidContentUrls([]);
-    setContentUploadedFile(null);
-    setIsAddingContent(false);
+      if (response.failed_urls.length > 0) {
+        console.warn("Failed URLs:", response.failed_urls);
+      }
+
+      // Refresh the tasks list to show new tasks
+      loadTasks();
+      // Refresh content history to show new monitoring data
+      loadContentHistory();
+
+      // Clear the form
+      setContentUrls("");
+      setValidContentUrls([]);
+      setInvalidContentUrls([]);
+      setContentUploadedFile(null);
+    } catch (error) {
+      console.error("Failed to create post monitoring tasks:", error);
+      toast({
+        title: "创建失败",
+        description: `创建作品监控任务失败: ${error.message}`,
+        variant: "destructive",
+        className: "bg-white border-black text-black",
+      });
+    } finally {
+      setIsAddingContent(false);
+    }
   };
 
   const handleAddInfluencerBatch = async () => {
@@ -321,46 +1362,43 @@ export default function KuaishouMonitoring() {
 
     setIsAddingInfluencer(true);
 
-    const newTasks = createTaskQueueItems(validInfluencerUrls, () => false);
-    setTaskQueue((prev) => [...prev, ...newTasks]);
+    try {
+      const response = await createUserMonitoringTask(
+        validInfluencerUrls,
+        influencerMonitoringInterval,
+      );
 
-    await processTaskQueue(newTasks, setTaskQueue, (task, i) => {
-      const newInfluencer = {
-        id: Date.now() + i + 1000,
-        username: `批量添加的达人 ${i + 1}`,
-        avatar: "/api/placeholder/60/60",
-        url: task.url,
-        addedAt: task.addedAt,
-        status: "active",
-        verified: false,
-        userType: "普通用户",
-        currentStats: {
-          followers: "0",
-          following: "0",
-          works: "0",
-          totalLikes: "0",
-        },
-        initialStats: {
-          followers: "0",
-          following: "0",
-          works: "0",
-          totalLikes: "0",
-        },
-        recentActivity: {
-          postsThisWeek: 0,
-          avgLikes: "0",
-          avgComments: "0",
-          engagementRate: "0%",
-        },
-      };
-      setInfluencerData((prev) => [newInfluencer, ...prev]);
-    });
+      toast({
+        title: "达人监控任务创建成功",
+        description: `成功创建 ${response.total_successful} 个监控任务${response.total_failed > 0 ? `，失败 ${response.total_failed} 个` : ""}`,
+        className: "bg-white border-black text-black",
+      });
 
-    setInfluencerUrls("");
-    setValidInfluencerUrls([]);
-    setInvalidInfluencerUrls([]);
-    setInfluencerUploadedFile(null);
-    setIsAddingInfluencer(false);
+      if (response.failed_urls.length > 0) {
+        console.warn("Failed URLs:", response.failed_urls);
+      }
+
+      // Refresh the tasks list to show new tasks
+      loadTasks();
+      // Refresh influencer history to show new monitoring data
+      loadInfluencerHistory();
+
+      // Clear the form
+      setInfluencerUrls("");
+      setValidInfluencerUrls([]);
+      setInvalidInfluencerUrls([]);
+      setInfluencerUploadedFile(null);
+    } catch (error) {
+      console.error("Failed to create user monitoring tasks:", error);
+      toast({
+        title: "创建失败",
+        description: `创建达人监控任务失败: ${error.message}`,
+        variant: "destructive",
+        className: "bg-white border-black text-black",
+      });
+    } finally {
+      setIsAddingInfluencer(false);
+    }
   };
 
   const handleRemoveContent = (id: number) => {
@@ -426,17 +1464,286 @@ export default function KuaishouMonitoring() {
     );
   };
 
-  const calculateGrowth = (current: string, initial: string) => {
-    const currentNum = parseInt(
-      current.replace(/[万千]/g, "").replace(/\D/g, ""),
-    );
-    const initialNum = parseInt(
-      initial.replace(/[万千]/g, "").replace(/\D/g, ""),
-    );
+  // Task action handlers
+  const handlePauseTask = async (taskId: string) => {
+    try {
+      const response = await pauseTask(taskId);
+      toast({
+        title: "任务已暂停",
+        description: `任务${taskId}已成功暂停`,
+        className: "bg-white border-black text-black",
+      });
+      // Refresh the task list to show updated status
+      loadTasks();
+    } catch (error) {
+      console.error("Failed to pause task:", error);
+      toast({
+        title: "暂停失败",
+        description: `暂停任务失败: ${error.message}`,
+        variant: "destructive",
+        className: "bg-white border-black text-black",
+      });
+    }
+  };
 
-    if (initialNum === 0) return "0%";
-    const growth = ((currentNum - initialNum) / initialNum) * 100;
-    return `${growth > 0 ? "+" : ""}${growth.toFixed(1)}%`;
+  const handleResumeTask = async (taskId: string) => {
+    try {
+      const response = await resumeTask(taskId);
+      toast({
+        title: "任务已恢复",
+        description: `任务${taskId}已重新开启`,
+        className: "bg-white border-black text-black",
+      });
+      // Refresh the task list to show updated status
+      loadTasks();
+    } catch (error) {
+      console.error("Failed to resume task:", error);
+      toast({
+        title: "恢复失败",
+        description: `恢复任务失败: ${error.message}`,
+        variant: "destructive",
+        className: "bg-white border-black text-black",
+      });
+    }
+  };
+
+  const handleRetryTask = async (taskId: string) => {
+    try {
+      const response = await retryTask(taskId);
+      toast({
+        title: "任务已重试",
+        description: `任务${taskId}已重新开启`,
+        className: "bg-white border-black text-black",
+      });
+      // Refresh the task list to show updated status
+      loadTasks();
+    } catch (error) {
+      console.error("Failed to retry task:", error);
+      toast({
+        title: "重试失败",
+        description: `重试任务失败: ${error.message}`,
+        variant: "destructive",
+        className: "bg-white border-black text-black",
+      });
+    }
+  };
+
+  // Helper functions for real tasks display
+  const getRealTaskStatusBadge = (status: MonitoringTask['status']) => {
+    switch (status) {
+      case "MONITORING":
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200 text-xs h-6 px-2 whitespace-nowrap">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            监控中
+          </Badge>
+        );
+      case "PAUSED":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs h-6 px-2 whitespace-nowrap">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            已暂停
+          </Badge>
+        );
+      case "FAILED":
+        return (
+          <Badge className="bg-red-100 text-red-800 border-red-200 text-xs h-6 px-2 whitespace-nowrap">
+            <X className="h-3 w-3 mr-1" />
+            失败
+          </Badge>
+        );
+      case "COMPLETED":
+        return (
+          <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs h-6 px-2 whitespace-nowrap">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            已完成
+          </Badge>
+        );
+      case "PENDING":
+      case "QUEUED":
+        return (
+          <Badge className="bg-gray-100 text-gray-800 border-gray-200 text-xs h-6 px-2 whitespace-nowrap">
+            <Clock className="h-3 w-3 mr-1" />
+            等待中
+          </Badge>
+        );
+      case "PROCESSING":
+        return (
+          <Badge className="bg-orange-100 text-orange-800 border-orange-200 text-xs h-6 px-2 whitespace-nowrap">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            处理中
+          </Badge>
+        );
+      default:
+        return <Badge variant="secondary" className="text-xs h-6 px-2 whitespace-nowrap">{status}</Badge>;
+    }
+  };
+
+  const getRealTaskTypeLabel = (taskType: string) => {
+    switch (taskType) {
+      case "KUAISHOU_POST_MONITOR":
+        return "作品";
+      case "KUAISHOU_INFLUENCER_MONITOR":
+        return "达人";
+      default:
+        return taskType;
+    }
+  };
+
+  const formatDateTime = (dateString: string | undefined | null) => {
+    if (!dateString) {
+      return '未知时间';
+    }
+    try {
+      return new Date(dateString).toLocaleString("zh-CN", {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return '无效时间';
+    }
+  };
+
+  const getActionButton = (task: MonitoringTask) => {
+    switch (task.status) {
+      case "MONITORING":
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePauseTask(task.id)}
+            className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+          >
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            暂停
+          </Button>
+        );
+      case "FAILED":
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleRetryTask(task.id)}
+            className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+          >
+            <RefreshCw className="h-3 w-3 mr-1" />
+            重试
+          </Button>
+        );
+      case "PENDING":
+      case "QUEUED":
+      case "PROCESSING":
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePauseTask(task.id)}
+            className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+          >
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            暂停
+          </Button>
+        );
+      case "PAUSED":
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleResumeTask(task.id)}
+            className="h-7 text-xs px-3 bg-white border-black text-black hover:bg-black hover:text-white"
+          >
+            <Play className="h-3 w-3 mr-1" />
+            恢复
+          </Button>
+        );
+      default:
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.open(task.input_data.url, "_blank")}
+            className="h-7 text-xs"
+            title="查看链接"
+          >
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        );
+    }
+  };
+
+  // Pagination helpers
+  const totalPages = Math.ceil(taskTotal / 15);
+  const canGoPrev = taskPage > 1;
+  const canGoNext = taskPage < totalPages;
+
+  const handlePrevPage = () => {
+    if (canGoPrev) {
+      setTaskPage(taskPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (canGoNext) {
+      setTaskPage(taskPage + 1);
+    }
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + "万";
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "千";
+    }
+    return num.toString();
+  };
+
+  const formatGrowthPercentage = (percentage: number) => {
+    if (percentage === 0) return "0%";
+    return `${percentage > 0 ? "+" : ""}${percentage.toFixed(1)}%`;
+  };
+
+  const getStatusBadgeFromTaskStatus = (status: PostHistoryData['task_status'] | InfluencerHistoryData['task_status']) => {
+    switch (status) {
+      case "MONITORING":
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            监控中
+          </Badge>
+        );
+      case "PAUSED":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            已暂停
+          </Badge>
+        );
+      case "FAILED":
+        return (
+          <Badge className="bg-red-100 text-red-800">
+            <X className="h-3 w-3 mr-1" />
+            失败
+          </Badge>
+        );
+      case "COMPLETED":
+        return (
+          <Badge className="bg-blue-100 text-blue-800">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            已完成
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-gray-100 text-gray-800">
+            <Clock className="h-3 w-3 mr-1" />
+            等待中
+          </Badge>
+        );
+    }
   };
 
   return (
@@ -464,12 +1771,12 @@ export default function KuaishouMonitoring() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Monitor className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">作品监控: {contentData.length}</span>
+                <span className="text-sm">作品监控: {contentTotal}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <UserCheck className="h-4 w-4 text-green-500" />
                 <span className="text-sm">
-                  达人监控: {influencerData.length}
+                  达人监控: {influencerTotal}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
@@ -481,18 +1788,22 @@ export default function KuaishouMonitoring() {
         </Card>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               添加监控
             </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              任务队列 ({taskTotal})
+            </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
-              作品监控 ({contentData.length})
+              作品监控 ({contentTotal})
             </TabsTrigger>
             <TabsTrigger value="influencer" className="flex items-center gap-2">
               <UserCheck className="w-4 h-4" />
-              达人监控 ({influencerData.length})
+              达人监控 ({influencerTotal})
             </TabsTrigger>
           </TabsList>
 
@@ -518,10 +1829,10 @@ export default function KuaishouMonitoring() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1m">1 分钟</SelectItem>
-                        <SelectItem value="1h">1 小时</SelectItem>
-                        <SelectItem value="4h">4 小时</SelectItem>
-                        <SelectItem value="24h">24 小时</SelectItem>
+                        <SelectItem value="1minute">1 分钟</SelectItem>
+                        <SelectItem value="1hour">1 小时</SelectItem>
+                        <SelectItem value="4hours">4 小时</SelectItem>
+                        <SelectItem value="24hours">24 小时</SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="text-xs text-gray-500">
@@ -622,10 +1933,10 @@ export default function KuaishouMonitoring() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1m">1 分钟</SelectItem>
-                        <SelectItem value="1h">1 小时</SelectItem>
-                        <SelectItem value="4h">4 小时</SelectItem>
-                        <SelectItem value="24h">24 小时</SelectItem>
+                        <SelectItem value="1minute">1 分钟</SelectItem>
+                        <SelectItem value="1hour">1 小时</SelectItem>
+                        <SelectItem value="4hours">4 小时</SelectItem>
+                        <SelectItem value="24hours">24 小时</SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="text-xs text-gray-500">
@@ -721,25 +2032,281 @@ export default function KuaishouMonitoring() {
             />
           </TabsContent>
 
+          <TabsContent value="tasks" className="mt-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    任务队列 ({taskTotal})
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadTasks}
+                      className="h-8"
+                    >
+                      <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                      刷新
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Status Summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm">监控中: {realTasks.filter(task => task.status === 'MONITORING').length}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                      <span className="text-sm">已暂停: {realTasks.filter(task => task.status === 'PAUSED').length}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm">已完成: {realTasks.filter(task => task.status === 'COMPLETED').length}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <X className="h-4 w-4 text-red-500" />
+                      <span className="text-sm">失败: {realTasks.filter(task => task.status === 'FAILED').length}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Filters */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <Select
+                      value={taskTypeFilter}
+                      onValueChange={(value) => {
+                        setTaskTypeFilter(value);
+                        setTaskPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="h-8">
+                        <SelectValue placeholder="选择类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部类型</SelectItem>
+                        <SelectItem value="KUAISHOU_POST_MONITOR">作品监控</SelectItem>
+                        <SelectItem value="KUAISHOU_INFLUENCER_MONITOR">达人监控</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select
+                      value={taskStatusFilter}
+                      onValueChange={(value) => {
+                        setTaskStatusFilter(value);
+                        setTaskPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="h-8">
+                        <SelectValue placeholder="选择状态" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部状态</SelectItem>
+                        <SelectItem value="MONITORING">监控中</SelectItem>
+                        <SelectItem value="PAUSED">已暂停</SelectItem>
+                        <SelectItem value="FAILED">失败</SelectItem>
+                        <SelectItem value="COMPLETED">已完成</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div></div>
+                  </div>
+
+                  {/* Real Tasks Table */}
+                  {tasksLoading ? (
+                    <div className="text-center py-8">
+                      <Loader2 className="h-6 w-6 mx-auto animate-spin" />
+                      <p className="text-sm text-muted-foreground mt-2">加载任务中...</p>
+                    </div>
+                  ) : realTasks.length === 0 ? (
+                    <div className="text-center py-8">
+                      <BarChart3 className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        暂无监控任务
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="border rounded-lg">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>监控链接</TableHead>
+                            <TableHead className="w-[100px]">类型</TableHead>
+                            <TableHead className="w-[100px]">监控间隔</TableHead>
+                            <TableHead className="w-[100px]">状态</TableHead>
+                            <TableHead className="w-[180px]">创建时间</TableHead>
+                            <TableHead className="w-[180px]">下次执行</TableHead>
+                            <TableHead className="w-[100px]">操作</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {realTasks.map((task) => (
+                            <TableRow key={task.id}>
+                              <TableCell className="text-sm">
+                                <a
+                                  href={task.input_data.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline truncate block max-w-[300px]"
+                                  title={task.input_data.url}
+                                >
+                                  {task.input_data.url}
+                                </a>
+                                {task.error_message && (
+                                  <div className="text-xs text-red-600 mt-1">
+                                    错误: {task.error_message}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {getRealTaskTypeLabel(task.task_type)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {task.monitor_interval}
+                              </TableCell>
+                              <TableCell>
+                                {getRealTaskStatusBadge(task.status)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {formatDateTime(task.created_at)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {task.next_execution_at ? formatDateTime(task.next_execution_at) : '-'}
+                              </TableCell>
+                              <TableCell>
+                                {getActionButton(task)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+
+                  {/* Pagination */}
+                  {taskTotal > 0 && (
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-sm text-gray-600">
+                        显示第 {((taskPage - 1) * 15) + 1} - {Math.min(taskPage * 15, taskTotal)} 条，共 {taskTotal} 条
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePrevPage}
+                          disabled={!canGoPrev}
+                          className="h-8"
+                        >
+                          上一页
+                        </Button>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm text-gray-600">
+                            第 {taskPage} / {totalPages} 页
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleNextPage}
+                          disabled={!canGoNext}
+                          className="h-8"
+                        >
+                          下一页
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="content" className="mt-6">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Monitor className="mr-2 h-4 w-4" />
-                    作品监控列表 ({contentData.length})
+                    作品监控列表 ({contentTotal})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
+                    监控中:{" "}
                     {
-                      contentData.filter((item) => item.status === "active")
+                      contentData.filter((item) => item.task_status === "MONITORING")
                         .length
                     }
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {contentData.length === 0 ? (
+                <div className="space-y-4">
+                  {/* Filters */}
+                  <div className="flex space-x-4 mb-4">
+                    <div className="flex-1">
+                      <Input
+                        placeholder="搜索作品ID (photo_id)"
+                        value={postPhotoIdFilter}
+                        onChange={(e) => {
+                          setPostPhotoIdFilter(e.target.value);
+                          setContentPage(1);
+                        }}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        placeholder="搜索作者名称"
+                        value={postAuthorFilter}
+                        onChange={(e) => {
+                          setPostAuthorFilter(e.target.value);
+                          setContentPage(1);
+                        }}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Select
+                        value={postStatusFilter}
+                        onValueChange={(value) => {
+                          setPostStatusFilter(value);
+                          setContentPage(1);
+                        }}
+                      >
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="选择状态" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">全部状态</SelectItem>
+                          <SelectItem value="MONITORING">监控中</SelectItem>
+                          <SelectItem value="PAUSED">已暂停</SelectItem>
+                          <SelectItem value="FAILED">失败</SelectItem>
+                          <SelectItem value="COMPLETED">已完成</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadContentHistory}
+                      className="h-8 px-3"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                      刷新
+                    </Button>
+                  </div>
+                  
+                  {contentLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-6 w-6 mx-auto animate-spin" />
+                    <p className="text-sm text-muted-foreground mt-2">加载作品监控数据中...</p>
+                  </div>
+                ) : contentData.length === 0 ? (
                   <div className="text-center py-8">
                     <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
@@ -764,24 +2331,42 @@ export default function KuaishouMonitoring() {
                       </TableHeader>
                       <TableBody>
                         {contentData.map((content) => (
-                          <TableRow key={content.id}>
+                          <TableRow 
+                            key={content.task_id}
+                            className="cursor-pointer hover:bg-gray-50"
+                            onClick={() => {
+                              setSelectedPost(content);
+                              setIsPostDialogOpen(true);
+                            }}
+                          >
                             <TableCell className="font-medium">
                               <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                                  <Zap className="h-5 w-5 text-orange-500" />
+                                <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center overflow-hidden">
+                                  {content.author_avatar ? (
+                                    <img 
+                                      src={content.author_avatar} 
+                                      alt={content.author_name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling.style.display = 'block';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <Zap className="h-5 w-5 text-orange-500" style={{display: content.author_avatar ? 'none' : 'block'}} />
                                 </div>
                                 <div>
                                   <div
                                     className="max-w-[200px] truncate font-medium"
-                                    title={content.title}
+                                    title={content.video_caption || '快手作品'}
                                   >
-                                    {content.title}
+                                    {content.video_caption || '快手作品'}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    by {content.author}
+                                    by {content.author_name || '未知作者'}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    添加于 {content.addedAt}
+                                    {content.created_at ? new Date(content.created_at).toLocaleString('zh-CN') : '未知时间'}
                                   </div>
                                 </div>
                               </div>
@@ -789,46 +2374,46 @@ export default function KuaishouMonitoring() {
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                {content.currentStats.views}
+                                {formatNumber(content.most_recent_counts.view_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.views,
-                                  content.initialStats.views,
-                                )}
+                                {formatGrowthPercentage(content.increment_percentages.view_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {content.currentStats.likes}
+                                {formatNumber(content.most_recent_counts.like_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.likes,
-                                  content.initialStats.likes,
-                                )}
+                                {formatGrowthPercentage(content.increment_percentages.like_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <MessageCircle className="h-3 w-3 mr-1 text-green-500" />
-                                {content.currentStats.comments}
+                                {formatNumber(content.most_recent_counts.comment_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  content.currentStats.comments,
-                                  content.initialStats.comments,
-                                )}
+                                {formatGrowthPercentage(content.increment_percentages.comment_count_increment)}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              <div className="flex items-center">
+                                <Share2 className="h-3 w-3 mr-1 text-purple-500" />
+                                {formatNumber(content.most_recent_counts.share_count)}
+                              </div>
+                              <div className="text-xs text-green-600">
+                                {formatGrowthPercentage(content.increment_percentages.share_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div className="text-sm font-medium text-green-600">
-                                ↗️ 增长中
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(content.status)}
+                              {getStatusBadgeFromTaskStatus(content.task_status)}
+                              {content.error_message && (
+                                <div className="text-xs text-red-600 mt-1" title={content.error_message}>
+                                  错误: {content.error_message.length > 20 ? content.error_message.substring(0, 20) + '...' : content.error_message}
+                                </div>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-1">
@@ -846,17 +2431,47 @@ export default function KuaishouMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>作品监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {content.title} - 快手
+                                        {content.video_caption || '快手作品'} - {content.author_name}
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
-                                      <div className="text-center text-gray-500">
-                                        📊 趋势图��开发中...
-                                        <br />
-                                        <span className="text-sm">
-                                          将显示播放量、点赞数、评论数的时间趋势变化
-                                        </span>
-                                      </div>
+                                      {content.history.length > 0 ? (
+                                        <div className="space-y-4">
+                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-blue-600">
+                                                {formatNumber(content.most_recent_counts.view_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">播放量</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-red-600">
+                                                {formatNumber(content.most_recent_counts.like_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">点赞数</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-green-600">
+                                                {formatNumber(content.most_recent_counts.comment_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">评论数</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-purple-600">
+                                                {formatNumber(content.most_recent_counts.share_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">分享数</div>
+                                            </div>
+                                          </div>
+                                          <div className="text-center text-gray-500">
+                                            📊 历史数据记录: {content.history.length} 条
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="text-center text-gray-500">
+                                          📊 暂无历史数据
+                                        </div>
+                                      )}
                                     </div>
                                   </DialogContent>
                                 </Dialog>
@@ -865,20 +2480,10 @@ export default function KuaishouMonitoring() {
                                   size="sm"
                                   className="h-6 w-6 p-0"
                                   onClick={() =>
-                                    window.open(content.url, "_blank")
+                                    window.open(content.input_url, "_blank")
                                   }
                                 >
                                   <ExternalLink className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveContent(content.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
                             </TableCell>
@@ -888,6 +2493,7 @@ export default function KuaishouMonitoring() {
                     </Table>
                   </div>
                 )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -898,19 +2504,69 @@ export default function KuaishouMonitoring() {
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <UserCheck className="mr-2 h-4 w-4" />
-                    达人监控列表 ({influencerData.length})
+                    达人监控列表 ({influencerTotal})
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    活跃监控:{" "}
+                    监控中:{" "}
                     {
-                      influencerData.filter((item) => item.status === "active")
+                      influencerData.filter((item) => item.task_status === "MONITORING")
                         .length
                     }
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {influencerData.length === 0 ? (
+                <div className="space-y-4">
+                  {/* Filters */}
+                  <div className="flex space-x-4 mb-4">
+                    <div className="flex-1">
+                      <Input
+                        placeholder="搜索用户名称"
+                        value={influencerUserNameFilter}
+                        onChange={(e) => {
+                          setInfluencerUserNameFilter(e.target.value);
+                          setInfluencerPage(1);
+                        }}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Select
+                        value={influencerStatusFilter}
+                        onValueChange={(value) => {
+                          setInfluencerStatusFilter(value);
+                          setInfluencerPage(1);
+                        }}
+                      >
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="选择状态" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">全部状态</SelectItem>
+                          <SelectItem value="MONITORING">监控中</SelectItem>
+                          <SelectItem value="PAUSED">已暂停</SelectItem>
+                          <SelectItem value="FAILED">失败</SelectItem>
+                          <SelectItem value="COMPLETED">已完成</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadInfluencerHistory}
+                      className="h-8 px-3"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                      刷新
+                    </Button>
+                  </div>
+                  
+                  {influencerLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-6 w-6 mx-auto animate-spin" />
+                    <p className="text-sm text-muted-foreground mt-2">加载达人监控数据中...</p>
+                  </div>
+                ) : influencerData.length === 0 ? (
                   <div className="text-center py-8">
                     <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
@@ -927,35 +2583,52 @@ export default function KuaishouMonitoring() {
                             当前粉丝数
                           </TableHead>
                           <TableHead className="w-[100px]">作品数</TableHead>
-                          <TableHead className="w-[120px]">获赞总数</TableHead>
-                          <TableHead className="w-[100px]">互动率</TableHead>
+                          <TableHead className="w-[120px]">瞬间数</TableHead>
+                          <TableHead className="w-[100px]">关注数</TableHead>
                           <TableHead className="w-[100px]">状态</TableHead>
                           <TableHead className="w-[120px]">操作</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {influencerData.map((influencer) => (
-                          <TableRow key={influencer.id}>
+                          <TableRow 
+                            key={influencer.task_id}
+                            className="cursor-pointer hover:bg-gray-50"
+                            onClick={() => {
+                              setSelectedInfluencer(influencer);
+                              setIsInfluencerDialogOpen(true);
+                            }}
+                          >
                             <TableCell className="font-medium">
                               <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 flex items-center justify-center text-white text-sm font-bold">
-                                  {influencer.username.charAt(0)}
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 flex items-center justify-center text-white text-sm font-bold overflow-hidden">
+                                  {influencer.user_avatar ? (
+                                    <img 
+                                      src={influencer.user_avatar} 
+                                      alt={influencer.user_name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <span style={{display: influencer.user_avatar ? 'none' : 'block'}}>
+                                    {influencer.user_name?.charAt(0) || 'U'}
+                                  </span>
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1">
                                     <span className="font-medium">
-                                      {influencer.username}
+                                      {influencer.user_name || '未知用户'}
                                     </span>
-                                    {getVerificationIcon(
-                                      influencer.verified,
-                                      influencer.userType,
-                                    )}
+                                    <Verified className="h-3 w-3 text-orange-500" />
+                                  </div>
+                                  <div className="text-xs text-muted-foreground max-w-[180px] truncate" title={influencer.user_text}>
+                                    {influencer.user_text || '快手用户'}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    {influencer.userType}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    添加于 {influencer.addedAt}
+                                    {influencer.created_at ? new Date(influencer.created_at).toLocaleString('zh-CN') : '未知时间'}
                                   </div>
                                 </div>
                               </div>
@@ -963,50 +2636,46 @@ export default function KuaishouMonitoring() {
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <Users className="h-3 w-3 mr-1 text-blue-500" />
-                                {influencer.currentStats.followers}
+                                {formatNumber(influencer.most_recent_counts.follower_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.followers,
-                                  influencer.initialStats.followers,
-                                )}
+                                {formatGrowthPercentage(influencer.increment_percentages.follower_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <Video className="h-3 w-3 mr-1 text-purple-500" />
-                                {influencer.currentStats.works}
+                                {formatNumber(influencer.most_recent_counts.post_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.works,
-                                  influencer.initialStats.works,
-                                )}
+                                {formatGrowthPercentage(influencer.increment_percentages.post_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
                               <div className="flex items-center">
                                 <Heart className="h-3 w-3 mr-1 text-red-500" />
-                                {influencer.currentStats.totalLikes}
+                                {formatNumber(influencer.most_recent_counts.moment_count)}
                               </div>
                               <div className="text-xs text-green-600">
-                                {calculateGrowth(
-                                  influencer.currentStats.totalLikes,
-                                  influencer.initialStats.totalLikes,
-                                )}
+                                {formatGrowthPercentage(influencer.increment_percentages.moment_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
-                              <div className="font-medium text-green-600">
-                                {influencer.recentActivity.engagementRate}
+                              <div className="flex items-center">
+                                <UserCheck className="h-3 w-3 mr-1 text-green-500" />
+                                {formatNumber(influencer.most_recent_counts.following_count)}
                               </div>
-                              <div className="text-xs text-muted-foreground">
-                                本周 {influencer.recentActivity.postsThisWeek}{" "}
-                                作品
+                              <div className="text-xs text-green-600">
+                                {formatGrowthPercentage(influencer.increment_percentages.following_count_increment)}
                               </div>
                             </TableCell>
                             <TableCell>
-                              {getStatusBadge(influencer.status)}
+                              {getStatusBadgeFromTaskStatus(influencer.task_status)}
+                              {influencer.error_message && (
+                                <div className="text-xs text-red-600 mt-1" title={influencer.error_message}>
+                                  错误: {influencer.error_message.length > 20 ? influencer.error_message.substring(0, 20) + '...' : influencer.error_message}
+                                </div>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-1">
@@ -1024,17 +2693,47 @@ export default function KuaishouMonitoring() {
                                     <DialogHeader>
                                       <DialogTitle>达人监控趋势</DialogTitle>
                                       <DialogDescription>
-                                        {influencer.username} - 快手
+                                        {influencer.user_name || '快手用户'}
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
-                                      <div className="text-center text-gray-500">
-                                        📊 趋势图表开发中...
-                                        <br />
-                                        <span className="text-sm">
-                                          将显示粉丝数、作品数、获赞总数的时间趋��变化
-                                        </span>
-                                      </div>
+                                      {influencer.history.length > 0 ? (
+                                        <div className="space-y-4">
+                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-blue-600">
+                                                {formatNumber(influencer.most_recent_counts.follower_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">粉丝数</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-purple-600">
+                                                {formatNumber(influencer.most_recent_counts.post_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">作品数</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-red-600">
+                                                {formatNumber(influencer.most_recent_counts.moment_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">瞬间数</div>
+                                            </div>
+                                            <div className="text-center">
+                                              <div className="text-2xl font-bold text-green-600">
+                                                {formatNumber(influencer.most_recent_counts.following_count)}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">关注数</div>
+                                            </div>
+                                          </div>
+                                          <div className="text-center text-gray-500">
+                                            📊 历史数据记录: {influencer.history.length} 条
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="text-center text-gray-500">
+                                          📊 暂无历史数据
+                                        </div>
+                                      )}
                                     </div>
                                   </DialogContent>
                                 </Dialog>
@@ -1043,20 +2742,10 @@ export default function KuaishouMonitoring() {
                                   size="sm"
                                   className="h-6 w-6 p-0"
                                   onClick={() =>
-                                    window.open(influencer.url, "_blank")
+                                    window.open(influencer.input_url, "_blank")
                                   }
                                 >
                                   <ExternalLink className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                  onClick={() =>
-                                    handleRemoveInfluencer(influencer.id)
-                                  }
-                                >
-                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
                             </TableCell>
@@ -1066,11 +2755,44 @@ export default function KuaishouMonitoring() {
                     </Table>
                   </div>
                 )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Post Trend Dialog */}
+      <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Play className="h-5 w-5 text-orange-500" />
+              作品数据趋势分析
+            </DialogTitle>
+            <DialogDescription>
+              {selectedPost?.video_caption || '快手作品'} - {selectedPost?.author_name || '未知作者'}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPost && <PostTrendChart post={selectedPost} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Influencer Trend Dialog */}
+      <Dialog open={isInfluencerDialogOpen} onOpenChange={setIsInfluencerDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-orange-500" />
+              达人数据趋势分析
+            </DialogTitle>
+            <DialogDescription>
+              @{selectedInfluencer?.user_name || '快手用户'} - {selectedInfluencer?.user_text || ''}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedInfluencer && <InfluencerTrendChart influencer={selectedInfluencer} />}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
