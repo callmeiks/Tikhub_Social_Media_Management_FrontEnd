@@ -260,6 +260,15 @@ export default function XiaohongshuRankings() {
                     最新
                   </Badge>
                 )}
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleRefresh(false)}
+                  disabled={isLoading}
+                >
+                  <RefreshCw className={`w-3 h-3 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
+                  {isLoading ? '刷新中...' : '刷新'}
+                </Button>
                 <Button size="sm" variant="outline" onClick={handleExport}>
                   <Download className="w-3 h-3 mr-1" />
                   导出

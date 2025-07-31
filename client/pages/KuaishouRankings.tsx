@@ -49,6 +49,8 @@ import {
   AlertTriangle,
   Settings,
   Trash2,
+  Database,
+  Construction,
 } from "lucide-react";
 
 // 直播榜单类型
@@ -71,16 +73,16 @@ const shoppingRankingTypes = ["热门主播榜单", "热销商品榜单"];
 
 // 品牌榜单类型
 const brandRankingTypes = [
-  "美妆",
-  "服饰",
-  "汽车",
-  "游戏",
-  "医疗健康",
-  "3c数码",
-  "手机",
-  "家电",
-  "母婴",
-  "食品饮料",
+  { name: "美妆", sub_tab_id: 0, sub_tab_name: "" },
+  { name: "服饰", sub_tab_id: 131, sub_tab_name: "服饰" },
+  { name: "汽车", sub_tab_id: 1, sub_tab_name: "汽车" },
+  { name: "游戏", sub_tab_id: 25, sub_tab_name: "游戏" },
+  { name: "医疗健康", sub_tab_id: 24, sub_tab_name: "医疗健康" },
+  { name: "3c数码", sub_tab_id: 130, sub_tab_name: "3C数码" },
+  { name: "手机", sub_tab_id: 128, sub_tab_name: "手机" },
+  { name: "家电", sub_tab_id: 11, sub_tab_name: "家电" },
+  { name: "母婴", sub_tab_id: 4, sub_tab_name: "母婴" },
+  { name: "食品饮料", sub_tab_id: 2, sub_tab_name: "食品饮料" },
 ];
 
 // 快手榜单标签配置
@@ -157,8 +159,10 @@ export default function KuaishouRankings() {
           response = await apiClient.getKuaishouHotUsefulBoard();
           break;
         case "challenge":
-          response = await apiClient.getKuaishouHotChallengeBoard();
-          break;
+        case "shopping":
+          // Show under development message instead of API call
+          setIsLoading(false);
+          return;
         case "person":
           response = await apiClient.getKuaishouHotSearchUsersRank();
           break;
@@ -169,19 +173,16 @@ export default function KuaishouRankings() {
           };
           response = await apiClient.getKuaishouHotLiveRank(liveParams);
           break;
-        case "shopping":
-          if (filterType === "热销商品榜单" || !filterType) {
-            response = await apiClient.getKuaishouHotShoppingRank();
-          } else {
-            // 热门主播榜单暂时使用空数据
-            response = [];
-          }
-          break;
         case "brand":
-          if (filterType) {
+          // Default to "美妆" if no filterType is provided
+          const selectedBrand = filterType ? 
+            brandRankingTypes.find(brand => brand.name === filterType) : 
+            brandRankingTypes[0]; // Default to first option (美妆)
+          
+          if (selectedBrand) {
             const brandParams: KuaishouHotBrandParams = {
-              sub_tab_id: brandRankingTypes.indexOf(filterType) + 1,
-              sub_tab_name: filterType,
+              sub_tab_id: selectedBrand.sub_tab_id,
+              sub_tab_name: selectedBrand.sub_tab_name,
             };
             response = await apiClient.getKuaishouHotBrandRank(brandParams);
           } else {
@@ -208,7 +209,14 @@ export default function KuaishouRankings() {
 
   // 当标签切换时获取数据
   useEffect(() => {
-    fetchDataForTab(activeTab, filters.type);
+    // Set default filter for brand tab to "美妆"
+    if (activeTab === "brand" && !filters.type) {
+      const defaultBrand = brandRankingTypes[0].name; // "美妆"
+      setFilters(prev => ({ ...prev, type: defaultBrand }));
+      fetchDataForTab(activeTab, defaultBrand);
+    } else {
+      fetchDataForTab(activeTab, filters.type);
+    }
   }, [activeTab]);
 
   // 获取当前标签的过滤器配置
@@ -352,6 +360,19 @@ export default function KuaishouRankings() {
         };
       }
 
+      // 处理品牌榜数据 (brand)
+      if ('viewType' in item && item.viewType === 2 && 'hot_score' in item && 'avatar_url' in item) {
+        const brandItem = item as any;
+        return {
+          ...baseData,
+          name: brandItem.title,
+          handle: `ID: ${brandItem.authorid || brandItem.log_id}`,
+          category: "品牌",
+          score: brandItem.hot_score,
+          avatar: brandItem.avatar_url,
+        };
+      }
+
       return baseData;
     });
   };
@@ -373,11 +394,22 @@ export default function KuaishouRankings() {
               </SelectTrigger>
               <SelectContent>
                 {(Array.isArray(filter.options) ? filter.options : []).map(
-                  (option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ),
+                  (option) => {
+                    // Handle brand ranking types (object structure)
+                    if (typeof option === 'object' && option.name) {
+                      return (
+                        <SelectItem key={option.name} value={option.name}>
+                          {option.name}
+                        </SelectItem>
+                      );
+                    }
+                    // Handle other types (string structure)
+                    return (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    );
+                  },
                 )}
               </SelectContent>
             </Select>
@@ -529,141 +561,168 @@ export default function KuaishouRankings() {
                 </Card>
               )}
 
-              {/* 数据表格区域 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="flex items-center text-base">
-                      <tab.icon className="mr-2 h-4 w-4" />
-                      {tab.name}数据
-                    </CardTitle>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="secondary">共 {getTableData().length} 条数据</Badge>
-                      {cacheStatus.isFromCache && (
-                        <Badge variant="outline" className="text-green-600 border-green-600">
-                          <Zap className="w-3 h-3 mr-1" />
-                          缓存
-                        </Badge>
-                      )}
-                      {!cacheStatus.isFromCache && !isLoading && getTableData().length > 0 && (
-                        <Badge variant="outline" className="text-blue-600 border-blue-600">
-                          <RefreshCw className="w-3 h-3 mr-1" />
-                          最新
-                        </Badge>
-                      )}
-                      <Button size="sm" variant="outline" onClick={handleExport}>
-                        <Download className="w-3 h-3 mr-1" />
-                        导出
-                      </Button>
+              {/* 数据表格区域或开发中提示 */}
+              {(tab.id === "challenge" || tab.id === "shopping") ? (
+                // Show under development message for challenge and shopping tabs
+                <Card className="border-0 shadow-md">
+                  <CardContent className="p-8 text-center">
+                    <Database className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">数据采集功能开发中</h3>
+                    <p className="text-muted-foreground mb-4">
+                      我们正在开发强大的数据采集工具，敬请期待！
+                    </p>
+                    <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                      <Construction className="h-4 w-4" />
+                      <span>即将上线</span>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b text-sm text-muted-foreground">
-                          <th className="text-left p-2">#</th>
-                          <th className="text-left p-2">名称/内容</th>
-                          <th className="text-left p-2">类型</th>
-                          <th className="text-left p-2">详情</th>
-                          <th className="text-left p-2">热度值</th>
-                          <th className="text-left p-2">附加信息</th>
-                          <th className="text-left p-2">操作</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {error && (
-                          <tr>
-                            <td colSpan={7} className="p-8 text-center">
-                              <div className="text-red-500 flex items-center justify-center space-x-2">
-                                <AlertTriangle className="h-5 w-5" />
-                                <span>{error}</span>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSearch(true)}
-                                className="mt-2"
-                              >
-                                重试
-                              </Button>
-                            </td>
-                          </tr>
+                  </CardContent>
+                </Card>
+              ) : (
+                // Show normal data table for other tabs
+                <Card>
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="flex items-center text-base">
+                        <tab.icon className="mr-2 h-4 w-4" />
+                        {tab.name}数据
+                      </CardTitle>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="secondary">共 {getTableData().length} 条数据</Badge>
+                        {cacheStatus.isFromCache && (
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            <Zap className="w-3 h-3 mr-1" />
+                            缓存
+                          </Badge>
                         )}
-                        {!error && !isLoading && getTableData().length === 0 && (
-                          <tr>
-                            <td colSpan={7} className="p-8 text-center text-muted-foreground">
-                              暂无数据
-                            </td>
-                          </tr>
+                        {!cacheStatus.isFromCache && !isLoading && getTableData().length > 0 && (
+                          <Badge variant="outline" className="text-blue-600 border-blue-600">
+                            <RefreshCw className="w-3 h-3 mr-1" />
+                            最新
+                          </Badge>
                         )}
-                        {!error && getTableData().map((item, index) => (
-                          <tr
-                            key={index}
-                            className="border-b hover:bg-muted/50 transition-colors"
-                          >
-                            <td className="p-2">
-                              <div className="flex items-center space-x-1">
-                                <span
-                                  className={`font-medium ${index < 3 ? "text-yellow-600" : ""}`}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleSearch(false)}
+                          disabled={isLoading}
+                        >
+                          <RefreshCw className={`w-3 h-3 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
+                          {isLoading ? '刷新中...' : '刷新'}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleExport}>
+                          <Download className="w-3 h-3 mr-1" />
+                          导出
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b text-sm text-muted-foreground">
+                            <th className="text-left p-2">#</th>
+                            <th className="text-left p-2">名称/内容</th>
+                            <th className="text-left p-2">类型</th>
+                            <th className="text-left p-2">详情</th>
+                            <th className="text-left p-2">热度值</th>
+                            <th className="text-left p-2">附加信息</th>
+                            <th className="text-left p-2">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {error && (
+                            <tr>
+                              <td colSpan={7} className="p-8 text-center">
+                                <div className="text-red-500 flex items-center justify-center space-x-2">
+                                  <AlertTriangle className="h-5 w-5" />
+                                  <span>{error}</span>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleSearch(true)}
+                                  className="mt-2"
                                 >
-                                  {item.rank}
-                                </span>
-                                {getTrendIcon(item.change)}
-                              </div>
-                            </td>
-                            <td className="p-2">
-                              <div className="flex items-center space-x-2">
-                                {item.avatar && item.avatar.startsWith('http') ? (
-                                  <Avatar className="w-8 h-8">
-                                    <AvatarImage src={item.avatar} />
-                                    <AvatarFallback>
-                                      {item.name[0]}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                ) : (
-                                  <div className="w-8 h-8 flex items-center justify-center text-lg">
-                                    {item.avatar || "📊"}
-                                  </div>
-                                )}
-                                <div>
-                                  <div className="font-medium text-sm">
-                                    {item.name}
+                                  重试
+                                </Button>
+                              </td>
+                            </tr>
+                          )}
+                          {!error && !isLoading && getTableData().length === 0 && (
+                            <tr>
+                              <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                暂无数据
+                              </td>
+                            </tr>
+                          )}
+                          {!error && getTableData().map((item, index) => (
+                            <tr
+                              key={index}
+                              className="border-b hover:bg-muted/50 transition-colors"
+                            >
+                              <td className="p-2">
+                                <div className="flex items-center space-x-1">
+                                  <span
+                                    className={`font-medium ${index < 3 ? "text-yellow-600" : ""}`}
+                                  >
+                                    {item.rank}
+                                  </span>
+                                  {getTrendIcon(item.change)}
+                                </div>
+                              </td>
+                              <td className="p-2">
+                                <div className="flex items-center space-x-2">
+                                  {item.avatar && item.avatar.startsWith('http') ? (
+                                    <Avatar className="w-8 h-8">
+                                      <AvatarImage src={item.avatar} />
+                                      <AvatarFallback>
+                                        {item.name[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  ) : (
+                                    <div className="w-8 h-8 flex items-center justify-center text-lg">
+                                      {item.avatar || "📊"}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="font-medium text-sm">
+                                      {item.name}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="p-2">
-                              <Badge variant="outline" className="text-xs">
-                                {item.category}
-                              </Badge>
-                            </td>
-                            <td className="p-2 text-sm text-muted-foreground">
-                              {item.handle}
-                            </td>
-                            <td className="p-2 text-sm font-medium text-orange-600">
-                              {item.score}
-                            </td>
-                            <td className="p-2 text-sm">
-                              {item.engagement || "-"}
-                            </td>
-                            <td className="p-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-xs"
-                              >
-                                查看详情
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+                              </td>
+                              <td className="p-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {item.category}
+                                </Badge>
+                              </td>
+                              <td className="p-2 text-sm text-muted-foreground">
+                                {item.handle}
+                              </td>
+                              <td className="p-2 text-sm font-medium text-orange-600">
+                                {item.score}
+                              </td>
+                              <td className="p-2 text-sm">
+                                {item.engagement || "-"}
+                              </td>
+                              <td className="p-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-xs"
+                                >
+                                  查看详情
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           ))}
         </Tabs>
