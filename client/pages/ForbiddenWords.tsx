@@ -23,36 +23,33 @@ import {
 
 const platformStyles = [
   { id: "douyin", name: "抖音", emoji: "🎤", active: true },
-  { id: "wechat", name: "公众号", emoji: "💬", active: false },
   { id: "xiaohongshu", name: "小红书", emoji: "📖", active: false },
-  { id: "kuaishou", name: "快手", emoji: "⚡", active: false },
 ];
 
-const forbiddenWords = [
-  { word: "穿", type: "sensitive", risk: "high", reason: "可能涉及不当内容" },
-  { word: "青春", type: "advertising", risk: "medium", reason: "医美广告限制" },
-  { word: "与", type: "misleading", risk: "low", reason: "可能误导用户" },
-  { word: "等/这/与", type: "sensitive", risk: "high", reason: "敏感词组合" },
-  {
-    word: "与品/与",
-    type: "advertising",
-    risk: "medium",
-    reason: "品牌宣传限制",
-  },
-  { word: "配", type: "normal", risk: "low", reason: "常规限制词" },
-  { word: "与收购", type: "business", risk: "high", reason: "金融商业限制" },
-];
+interface ForbiddenWord {
+  word: string;
+  type: string;
+  risk: string;
+  reason: string;
+}
 
-const detectionResults = {
-  totalWords: 156,
-  forbiddenCount: 7,
-  riskLevel: "medium",
-  suggestions: [
-    '建议将"穿"替换为"服装搭配"',
-    '删除或替换"收购"相关表述',
-    '调整"青春"相关描述，避免医美宣传',
-  ],
-};
+interface DetectionResult {
+  totalWords: number;
+  forbiddenCount: number;
+  riskLevel: string;
+  forbiddenWords: ForbiddenWord[];
+  suggestions: string[];
+  cleanedText?: string;
+}
+
+interface MediaTaskResult {
+  taskId: string;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  transcript?: string;
+  forbiddenCheckResult?: DetectionResult;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function ForbiddenWords() {
   const [inputText, setInputText] = useState("");
@@ -66,17 +63,20 @@ export default function ForbiddenWords() {
   const [isAudioChecking, setIsAudioChecking] = useState(false);
   const [documentText, setDocumentText] = useState("");
   const [audioText, setAudioText] = useState("");
+  const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
+  const [mediaTaskId, setMediaTaskId] = useState<string | null>(null);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleCheck = async () => {
     if (!inputText.trim()) return;
 
     setIsChecking(true);
     try {
-      // 调用文本检测API
       const response = await fetch(
-        "http://127.0.0.1:8000/api/prohibited-words/detect-text",
+        `${API_BASE_URL}/api/forbidden-words/check-text`,
         {
           method: "POST",
           headers: {
@@ -84,24 +84,18 @@ export default function ForbiddenWords() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            text: inputText,
-            detection_types: [
-              "political",
-              "violence",
-              "adult",
-              "gambling",
-              "drugs",
-            ],
-            strictness: "medium",
-            language: "mandarin",
+            inputText: inputText,
+            platform: activePlatform,
           }),
         },
       );
 
       if (response.ok) {
-        const result = await response.json();
-        // 处理检测结果
+        const result: DetectionResult = await response.json();
+        setDetectionResult(result);
         setShowResults(true);
+      } else {
+        console.error("检测失败:", await response.text());
       }
     } catch (error) {
       console.error("检测失败:", error);
@@ -115,17 +109,90 @@ export default function ForbiddenWords() {
 
     setIsDocumentChecking(true);
     try {
-      // 这里应该先解析文档内容，然后调用文本检测API
-      // 模拟文档解析
-      setTimeout(() => {
-        setDocumentText("从文档中解析出的文本内容...");
-        setInputText("从文档中解析出的文本内容...");
-        setIsDocumentChecking(false);
-        // 然后可以调用handleCheck()进行检测
-      }, 2000);
+      const formData = new FormData();
+      formData.append("input_file", selectedFile);
+      formData.append("platform", activePlatform);
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/forbidden-words/check-doc`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+          body: formData,
+        },
+      );
+
+      if (response.ok) {
+        const result: DetectionResult = await response.json();
+        
+        // Extract and set the cleaned text as the document content
+        if (result.cleanedText) {
+          setDocumentText(result.cleanedText);
+          setInputText(result.cleanedText);
+        }
+        
+        // Set the detection result and show results
+        setDetectionResult(result);
+        setShowResults(true);
+      } else {
+        console.error("文档检测失败:", await response.text());
+      }
     } catch (error) {
       console.error("文档检测失败:", error);
+    } finally {
       setIsDocumentChecking(false);
+    }
+  };
+
+  const checkMediaResult = async (taskId: string) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/forbidden-words/media-result/${taskId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        const result: MediaTaskResult = await response.json();
+        
+        if (result.status === 'COMPLETED') {
+          // Clear polling interval
+          if (pollingInterval) {
+            clearInterval(pollingInterval);
+            setPollingInterval(null);
+          }
+          
+          // Set results
+          if (result.transcript) {
+            setAudioText(result.transcript);
+            setInputText(result.transcript);
+          }
+          
+          if (result.forbiddenCheckResult) {
+            setDetectionResult(result.forbiddenCheckResult);
+            setShowResults(true);
+          }
+          
+          setIsAudioChecking(false);
+        } else if (result.status === 'FAILED') {
+          // Clear polling interval
+          if (pollingInterval) {
+            clearInterval(pollingInterval);
+            setPollingInterval(null);
+          }
+          console.error("音频处理失败");
+          setIsAudioChecking(false);
+        }
+        // Continue polling if status is PENDING or PROCESSING
+      }
+    } catch (error) {
+      console.error("获取音频检测结果失败:", error);
     }
   };
 
@@ -135,17 +202,11 @@ export default function ForbiddenWords() {
     setIsAudioChecking(true);
     try {
       const formData = new FormData();
-      formData.append("type", "file");
-      formData.append("file", audioFile);
-      formData.append("detection_types", "political");
-      formData.append("detection_types", "violence");
-      formData.append("detection_types", "adult");
-      formData.append("strictness", "medium");
-      formData.append("language", "mandarin");
-      formData.append("include_transcript", "true");
+      formData.append("input_file", audioFile);
+      formData.append("platform", activePlatform);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/prohibited-words/detect-audio",
+        `${API_BASE_URL}/api/forbidden-words/check-media`,
         {
           method: "POST",
           headers: {
@@ -157,13 +218,22 @@ export default function ForbiddenWords() {
 
       if (response.ok) {
         const result = await response.json();
-        setAudioText(result.transcript || "");
-        setInputText(result.transcript || "");
-        setShowResults(true);
+        if (result.success && result.taskId) {
+          setMediaTaskId(result.taskId);
+          
+          // Start polling for results
+          const interval = setInterval(() => {
+            checkMediaResult(result.taskId);
+          }, 10000); // Poll every 10 seconds
+          
+          setPollingInterval(interval);
+        }
+      } else {
+        console.error("音频上传失败:", await response.text());
+        setIsAudioChecking(false);
       }
     } catch (error) {
       console.error("音频检测失败:", error);
-    } finally {
       setIsAudioChecking(false);
     }
   };
@@ -213,9 +283,12 @@ export default function ForbiddenWords() {
   };
 
   const highlightForbiddenWords = (text: string) => {
+    if (!detectionResult?.forbiddenWords) return text;
+    
     let highlightedText = text;
-    forbiddenWords.forEach((item) => {
-      const regex = new RegExp(`(${item.word})`, "g");
+    detectionResult.forbiddenWords.forEach((item) => {
+      const escapedWord = item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedWord})`, "g");
       highlightedText = highlightedText.replace(
         regex,
         `<mark class="bg-red-200 text-red-800 px-1 rounded">${item.word}</mark>`,
@@ -223,6 +296,15 @@ export default function ForbiddenWords() {
     });
     return highlightedText;
   };
+
+  // Cleanup effect for polling interval
+  React.useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [pollingInterval]);
 
   return (
     <DashboardLayout
@@ -399,25 +481,26 @@ export default function ForbiddenWords() {
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                         <Mic className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          {audioFile ? audioFile.name : "上传音频文件进行检测"}
+                          {audioFile ? audioFile.name : "上传音频/视频文件进行检测"}
                         </p>
                         <p className="text-xs text-muted-foreground mb-4">
-                          支持 .mp3, .wav, .flac, .aac, .opus, .ogg, .m4a
-                          格式，最大50MB
+                          音频：.mp3, .wav, .flac, .aac, .opus, .ogg, .m4a<br/>
+                          视频：.mp4, .mpeg, .mov, .webm<br/>
+                          最大100MB
                         </p>
                         <div className="flex space-x-2 justify-center">
                           <input
                             type="file"
                             id="audio-upload"
                             className="hidden"
-                            accept=".mp3,.wav,.flac,.aac,.opus,.ogg,.m4a"
+                            accept=".mp3,.wav,.flac,.aac,.opus,.ogg,.m4a,.mp4,.mpeg,.mov,.webm"
                             onChange={handleAudioSelect}
                           />
                           <label htmlFor="audio-upload">
                             <Button variant="outline" size="sm" asChild>
                               <span>
                                 <Mic className="mr-2 h-3 w-3" />
-                                选择音频
+                                选择文件
                               </span>
                             </Button>
                           </label>
@@ -440,10 +523,10 @@ export default function ForbiddenWords() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">
-                          音频转文字结果
+                          音视频转文字结果
                         </label>
                         <Textarea
-                          placeholder="上传音频后，语音识别的文字内容将显示在这里..."
+                          placeholder="上传音视频后，语音识别的文字内容将显示在这里..."
                           value={audioText || inputText}
                           onChange={(e) => {
                             setAudioText(e.target.value);
@@ -454,7 +537,7 @@ export default function ForbiddenWords() {
                         />
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                           <Eye className="h-3 w-3" />
-                          <span>AI语音识别 + 违禁词检测一体化</span>
+                          <span>AI音视频识别 + 违禁词检测一体化</span>
                         </div>
                       </div>
                     </div>
@@ -508,16 +591,16 @@ export default function ForbiddenWords() {
                       <AlertTriangle className="mr-2 h-4 w-4" />
                       检测结果
                     </span>
-                    {showResults && (
+                    {showResults && detectionResult && (
                       <Badge
                         variant="secondary"
                         className={getRiskBadgeColor(
-                          detectionResults.riskLevel,
+                          detectionResult.riskLevel,
                         )}
                       >
-                        {detectionResults.riskLevel === "high"
+                        {detectionResult.riskLevel === "high"
                           ? "高风险"
-                          : detectionResults.riskLevel === "medium"
+                          : detectionResult.riskLevel === "medium"
                             ? "中风险"
                             : "低风险"}
                       </Badge>
@@ -537,32 +620,37 @@ export default function ForbiddenWords() {
                   ) : (
                     <div className="space-y-4">
                       {/* Summary */}
-                      <div className="grid grid-cols-3 gap-4 p-3 bg-muted/30 rounded-lg">
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">
-                            总字数
-                          </p>
-                          <p className="text-lg font-semibold">
-                            {detectionResults.totalWords}
-                          </p>
+                      {detectionResult && (
+                        <div className="grid grid-cols-3 gap-4 p-3 bg-muted/30 rounded-lg">
+                          <div className="text-center">
+                            <p className="text-sm text-muted-foreground">
+                              总字数
+                            </p>
+                            <p className="text-lg font-semibold">
+                              {detectionResult.totalWords}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-muted-foreground">
+                              违禁词
+                            </p>
+                            <p className="text-lg font-semibold text-red-600">
+                              {detectionResult.forbiddenCount}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-muted-foreground">
+                              合规率
+                            </p>
+                            <p className="text-lg font-semibold text-green-600">
+                              {detectionResult.totalWords > 0 
+                                ? ((detectionResult.totalWords - detectionResult.forbiddenCount) / detectionResult.totalWords * 100).toFixed(1) + '%'
+                                : '100%'
+                              }
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">
-                            违禁词
-                          </p>
-                          <p className="text-lg font-semibold text-red-600">
-                            {detectionResults.forbiddenCount}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">
-                            合规率
-                          </p>
-                          <p className="text-lg font-semibold text-green-600">
-                            95.5%
-                          </p>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Highlighted Text */}
                       <div className="space-y-2">
@@ -576,38 +664,50 @@ export default function ForbiddenWords() {
                       </div>
 
                       {/* Forbidden Words List */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium">检测到的违禁词</h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto">
-                          {forbiddenWords.map((item, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 border border-border rounded"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(item.risk)}`}
-                                >
-                                  {item.word}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {item.reason}
-                                </span>
-                              </div>
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${getRiskBadgeColor(item.risk)}`}
+                      {detectionResult && detectionResult.forbiddenWords.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">检测到的违禁词</h4>
+                          <div className="space-y-2 max-h-40 overflow-y-auto">
+                            {detectionResult.forbiddenWords.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 border border-border rounded"
                               >
-                                {item.risk === "high"
-                                  ? "高"
-                                  : item.risk === "medium"
-                                    ? "中"
-                                    : "低"}
-                              </Badge>
-                            </div>
-                          ))}
+                                <div className="flex items-center space-x-2">
+                                  <span
+                                    className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(item.risk)}`}
+                                  >
+                                    {item.word}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {item.reason}
+                                  </span>
+                                </div>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${getRiskBadgeColor(item.risk)}`}
+                                >
+                                  {item.risk === "high"
+                                    ? "高"
+                                    : item.risk === "medium"
+                                      ? "中"
+                                      : "低"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Cleaned Text */}
+                      {detectionResult && detectionResult.cleanedText && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">AI优化建议</h4>
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm leading-relaxed">
+                            {detectionResult.cleanedText}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -651,7 +751,7 @@ export default function ForbiddenWords() {
             </Card>
 
             {/* Suggestions */}
-            {showResults && (
+            {showResults && detectionResult && detectionResult.suggestions.length > 0 && (
               <Card className="border border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
@@ -661,7 +761,7 @@ export default function ForbiddenWords() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {detectionResults.suggestions.map((suggestion, index) => (
+                    {detectionResult.suggestions.map((suggestion, index) => (
                       <div
                         key={index}
                         className="flex items-start space-x-2 text-xs"

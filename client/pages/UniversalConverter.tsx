@@ -248,7 +248,7 @@ export default function UniversalConverter() {
         setIsConverting(false);
         setPollingProgress(0);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 10000); // Poll every 10 seconds
     
     pollingIntervalRef.current = pollInterval;
   };
