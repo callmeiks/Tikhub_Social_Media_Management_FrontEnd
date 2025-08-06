@@ -59,7 +59,10 @@ interface Task {
       description?: string;
       video_url?: string;
       author?: string;
-      hashtags?: string[];
+      hashtags?: Array<{
+        id: string;
+        name: string;
+      } | string>;
       image_desc?: string;
     };
   };
@@ -336,7 +339,7 @@ export default function UniversalConverter() {
   const fetchUserTasks = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/universal-converter/tasks/list?limit=10`,
+        `${API_BASE_URL}/universal-converter/tasks/list?limit=20&page=1&status=COMPLETED`,
         {
           headers: {
             Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -346,12 +349,36 @@ export default function UniversalConverter() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.tasks) {
-          setUserTasks(data.tasks);
+        console.log("Fetched tasks data:", data);
+        
+        // API returns direct array of tasks
+        if (Array.isArray(data)) {
+          setUserTasks(data);
+          console.log("Set user tasks:", data.length, "tasks");
+          
+          toast({
+            title: "历史记录加载成功",
+            description: `加载了 ${data.length} 个已完成任务`,
+          });
+        } else {
+          console.error("Expected array, got:", typeof data);
+          setUserTasks([]);
         }
+      } else {
+        console.error("Failed to fetch tasks:", response.status, response.statusText);
+        toast({
+          title: "获取历史记录失败",
+          description: `HTTP ${response.status}: ${response.statusText}`,
+          variant: "destructive",
+        });
       }
     } catch (err) {
       console.error("Failed to fetch user tasks:", err);
+      toast({
+        title: "获取历史记录失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      });
     }
   };
 
@@ -575,6 +602,81 @@ ${sourceContent}
     toast({
       title: "复制成功",
       description: "内容已复制到剪贴板",
+    });
+  };
+
+  const handleCopyTask = (task: Task) => {
+    let taskContent = `任务ID: ${task.task_id}\n`;
+    taskContent += `创建时间: ${new Date(task.created_at).toLocaleString('zh-CN')}\n`;
+    taskContent += `源平台: ${platforms.find(p => p.value === task.input.source_platform)?.label}\n`;
+    taskContent += `目标平台: ${platforms.find(p => p.value === task.input.target_platform)?.label}\n`;
+    taskContent += `链接: ${task.input.input_url}\n\n`;
+    
+    if (task.output?.content_data) {
+      const data = task.output.content_data;
+      if (data.title) taskContent += `标题: ${data.title}\n`;
+      if (data.author) taskContent += `作者: ${data.author}\n`;
+      if (data.description) taskContent += `描述: ${data.description}\n`;
+      if (data.hashtags?.length) {
+        const hashtagNames = data.hashtags.map((tag: any) => 
+          typeof tag === 'string' ? tag : tag.name || ''
+        ).filter(Boolean);
+        if (hashtagNames.length > 0) {
+          taskContent += `标签: ${hashtagNames.map((name: string) => `#${name}`).join(" ")}\n`;
+        }
+      }
+    }
+    
+    if (task.output?.final_result) {
+      taskContent += `\n转换结果:\n${task.output.final_result}`;
+    }
+    
+    navigator.clipboard.writeText(taskContent);
+    toast({
+      title: "复制成功",
+      description: "任务内容已复制到剪贴板",
+    });
+  };
+
+  const handleDownloadTask = (task: Task) => {
+    let taskContent = `任务ID: ${task.task_id}\n`;
+    taskContent += `创建时间: ${new Date(task.created_at).toLocaleString('zh-CN')}\n`;
+    taskContent += `源平台: ${platforms.find(p => p.value === task.input.source_platform)?.label}\n`;
+    taskContent += `目标平台: ${platforms.find(p => p.value === task.input.target_platform)?.label}\n`;
+    taskContent += `链接: ${task.input.input_url}\n\n`;
+    
+    if (task.output?.content_data) {
+      const data = task.output.content_data;
+      if (data.title) taskContent += `标题: ${data.title}\n`;
+      if (data.author) taskContent += `作者: ${data.author}\n`;
+      if (data.description) taskContent += `描述: ${data.description}\n`;
+      if (data.hashtags?.length) {
+        const hashtagNames = data.hashtags.map((tag: any) => 
+          typeof tag === 'string' ? tag : tag.name || ''
+        ).filter(Boolean);
+        if (hashtagNames.length > 0) {
+          taskContent += `标签: ${hashtagNames.map((name: string) => `#${name}`).join(" ")}\n`;
+        }
+      }
+    }
+    
+    if (task.output?.final_result) {
+      taskContent += `\n转换结果:\n${task.output.final_result}`;
+    }
+    
+    const blob = new Blob([taskContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `universal-converter-task-${task.task_id.substring(0, 8)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "下载成功",
+      description: "任务内容已保存到本地文件",
     });
   };
 
@@ -864,6 +966,7 @@ ${linkInput}
                   variant="outline"
                   size="sm"
                   onClick={() => {
+                    console.log("History button clicked, current showTaskHistory:", showTaskHistory);
                     fetchUserTasks();
                     setShowTaskHistory(!showTaskHistory);
                   }}
@@ -1317,23 +1420,49 @@ ${linkInput}
                   {userTasks.map((task) => (
                     <div
                       key={task.task_id}
-                      className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => loadHistoryTask(task)}
+                      className="p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           {getTaskStatusIcon(task.status)}
                           <span className="font-medium">
-                            {platforms.find(p => p.value === task.input.source_platform)?.label} 
+                            {platforms.find(p => p.value === task.input.source_platform)?.label || task.input.source_platform} 
                             → 
-                            {platforms.find(p => p.value === task.input.target_platform)?.label}
+                            {platforms.find(p => p.value === task.input.target_platform)?.label || task.input.target_platform}
                           </span>
                         </div>
-                        <Badge variant="outline">
-                          {new Date(task.created_at).toLocaleString('zh-CN')}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyTask(task);
+                            }}
+                            className="h-7 px-2"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadTask(task);
+                            }}
+                            className="h-7 px-2"
+                          >
+                            <Download className="w-3 h-3" />
+                          </Button>
+                          <Badge variant="outline" className="text-xs">
+                            {new Date(task.created_at).toLocaleString('zh-CN')}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground truncate">
+                      <div 
+                        className="text-sm text-muted-foreground truncate cursor-pointer hover:text-blue-600"
+                        onClick={() => loadHistoryTask(task)}
+                      >
                         {task.input.input_url}
                       </div>
                       <div className="flex gap-2 mt-2">
@@ -1343,6 +1472,14 @@ ${linkInput}
                         <Badge variant="secondary" className="text-xs">
                           {getTaskStatusText(task.status)}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => loadHistoryTask(task)}
+                          className="h-6 px-2 text-xs ml-auto"
+                        >
+                          加载到编辑器
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1350,6 +1487,9 @@ ${linkInput}
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   暂无历史任务记录
+                  <div className="text-xs mt-2">
+                    当前任务数量: {userTasks.length}
+                  </div>
                 </div>
               )}
             </CardContent>
