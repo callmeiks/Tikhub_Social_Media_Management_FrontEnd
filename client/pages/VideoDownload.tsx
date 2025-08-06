@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ interface VideoTask {
 
 const downloadSettings = {
   format: "mp4",
-  downloadPath: "~/Downloads/TikHub",
+  downloadPath: "/Downloads/TikHub",
 };
 
 export default function VideoDownload() {
@@ -83,27 +83,45 @@ export default function VideoDownload() {
     string[]
   >([]);
   const [isDeletingHistoryTasks, setIsDeletingHistoryTasks] = useState(false);
+  const tasksCache = useRef<{ data: VideoTask[] | null; timestamp: number }>({ data: null, timestamp: 0 });
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
-  const fetchDownloadTasks = async () => {
+  const fetchDownloadTasks = async (status?: string, forceRefresh = false) => {
+    // Check cache for download list tab
+    if (activeTab === "queue" && !forceRefresh && tasksCache.current.data && 
+        Date.now() - tasksCache.current.timestamp < CACHE_DURATION) {
+      setDownloadList(tasksCache.current.data);
+      return;
+    }
+
     setIsLoadingTasks(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/video-download/my-tasks?limit=100&offset=0",
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      let url = "http://127.0.0.1:8004/api/video-download/tasks?page=1&limit=20";
+      if (status) {
+        url += `&status=${status}`;
+      }
+      
+      const response = await fetch(url, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch tasks");
       }
 
       const data = await response.json();
-      setDownloadList(data.tasks || []);
+      const tasks = data.tasks || [];
+      
+      // Update cache for download list tab
+      if (activeTab === "queue" && !status) {
+        tasksCache.current = { data: tasks, timestamp: Date.now() };
+      }
+      
+      setDownloadList(tasks);
     } catch (error) {
       toast.error("获取下载任务失败");
       console.error("Error fetching tasks:", error);
@@ -113,8 +131,12 @@ export default function VideoDownload() {
   };
 
   useEffect(() => {
-    if (activeTab === "queue" || activeTab === "history") {
+    if (activeTab === "queue") {
+      // For queue tab, fetch all tasks without status filter
       fetchDownloadTasks();
+    } else if (activeTab === "history") {
+      // For history tab, only fetch completed tasks
+      fetchDownloadTasks("completed");
     }
     // Clear selections when changing tabs
     setSelectedTaskIds([]);
@@ -131,7 +153,7 @@ export default function VideoDownload() {
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8000/api/video-download/batch-delete",
+        "http://127.0.0.1:8004/api/video-download/batch-delete",
         {
           method: "POST",
           headers: {
@@ -151,7 +173,7 @@ export default function VideoDownload() {
           `成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`,
         );
         setSelectedTaskIds([]);
-        fetchDownloadTasks();
+        fetchDownloadTasks(undefined, true);
       } else {
         toast.error("删除任务失败");
       }
@@ -189,7 +211,7 @@ export default function VideoDownload() {
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8000/api/video-download/batch-delete",
+        "http://127.0.0.1:8004/api/video-download/batch-delete",
         {
           method: "POST",
           headers: {
@@ -209,7 +231,7 @@ export default function VideoDownload() {
           `成功删除 ${data.successfully_deleted} 个任务，失败 ${data.failed_deletions} 个`,
         );
         setSelectedHistoryTaskIds([]);
-        fetchDownloadTasks();
+        fetchDownloadTasks("completed", true);
       } else {
         toast.error("删除任务失败");
       }
@@ -257,7 +279,7 @@ export default function VideoDownload() {
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8000/api/video-download/process",
+        "http://127.0.0.1:8004/api/video-download/create-tasks",
         {
           method: "POST",
           headers: {
@@ -266,34 +288,37 @@ export default function VideoDownload() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            metadata: {
-              batchName: "My Video Collection",
-              userId: "e9829a6d-abc6-46d2-94ea-89171d0f3df7",
-            },
-            settings: {
-              downloadPath: settings.downloadPath,
-              format: settings.format,
-            },
             urls: urls,
+            settings: {
+              format: settings.format,
+              downloadPath: settings.downloadPath,
+            },
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to process download");
+        throw new Error("Failed to create download tasks");
       }
 
       const data = await response.json();
-      if (data.success) {
-        toast.success(data.message);
+      if (data.total_successful > 0) {
+        toast.success(`成功创建 ${data.total_successful} 个下载任务`);
+        if (data.total_failed > 0) {
+          toast.warning(`${data.total_failed} 个链接处理失败`);
+        }
         setBatchUrls("");
-        fetchDownloadTasks();
+        // Invalidate cache and refresh
+        tasksCache.current = { data: null, timestamp: 0 };
+        if (activeTab === "queue") {
+          fetchDownloadTasks(undefined, true);
+        }
       } else {
-        toast.error(data.message || "处理失败");
+        toast.error("所有链接处理失败");
       }
     } catch (error) {
       toast.error("提交下载任务失败");
-      console.error("Error processing download:", error);
+      console.error("Error creating download tasks:", error);
     } finally {
       setIsProcessing(false);
     }
@@ -380,12 +405,8 @@ export default function VideoDownload() {
     (item) => item.status === "queued" || item.status === "pending",
   ).length;
 
-  const queueTasks = downloadList.filter(
-    (item) =>
-      item.status === "queued" ||
-      item.status === "processing" ||
-      item.status === "pending",
-  );
+  // For queue tab, show all tasks
+  const queueTasks = downloadList;
 
   const allHistoryTasks = downloadList.filter(
     (item) =>
@@ -667,7 +688,7 @@ https://www.bilibili.com/video/BV1234567890
                           variant="ghost"
                           size="sm"
                           className="h-7"
-                          onClick={() => fetchDownloadTasks()}
+                          onClick={() => fetchDownloadTasks(undefined, true)}
                         >
                           <RefreshCw className="mr-1 h-3 w-3" />
                           刷新
@@ -679,7 +700,7 @@ https://www.bilibili.com/video/BV1234567890
                         variant="ghost"
                         size="sm"
                         className="h-7"
-                        onClick={() => fetchDownloadTasks()}
+                        onClick={() => fetchDownloadTasks(undefined, true)}
                       >
                         <RefreshCw className="mr-1 h-3 w-3" />
                         刷新
@@ -835,7 +856,7 @@ https://www.bilibili.com/video/BV1234567890
                       variant="ghost"
                       size="sm"
                       className="h-7"
-                      onClick={() => fetchDownloadTasks()}
+                      onClick={() => fetchDownloadTasks("completed", true)}
                     >
                       <RefreshCw className="mr-1 h-3 w-3" />
                       刷新
@@ -964,7 +985,7 @@ https://www.bilibili.com/video/BV1234567890
                                     const token = import.meta.env
                                       .VITE_BACKEND_API_TOKEN;
                                     const response = await fetch(
-                                      "http://127.0.0.1:8000/api/video-download/open-folder",
+                                      "http://127.0.0.1:8004/api/video-download/open-folder",
                                       {
                                         method: "POST",
                                         headers: {

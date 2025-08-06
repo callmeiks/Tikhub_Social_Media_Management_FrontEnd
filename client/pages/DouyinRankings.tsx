@@ -154,12 +154,15 @@ export default function DouyinRankings() {
             ],
           },
           {
-            type: "number",
+            type: "select",
             key: "max_topics",
             label: "最大话题数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
@@ -177,12 +180,15 @@ export default function DouyinRankings() {
             ],
           },
           {
-            type: "number",
+            type: "select",
             key: "max_topics",
             label: "最大话题数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
@@ -190,27 +196,33 @@ export default function DouyinRankings() {
         return [
           { type: "input", key: "keyword", label: "关键词" },
           {
-            type: "number",
+            type: "select",
             key: "max_topics",
             label: "最大话题数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
       case "search":
+      case "risingsearch":
         return [
           {
             type: "select",
-            key: "board_type",
+            key: "board_category",
             label: "板块类型",
             options: [
-              { value: "0", label: "热点话题" },
-              { value: "2", label: "其他板块" },
+              { value: "hotspot", label: "热点榜" },
+              { value: "seeding", label: "种草榜" },
+              { value: "entertainment", label: "娱乐榜" },
+              { value: "social", label: "社会榜" },
+              { value: "challenge", label: "挑战榜" },
             ],
           },
-          { type: "input", key: "board_sub_type", label: "子板块类型" },
         ];
 
       case "accounts":
@@ -225,12 +237,15 @@ export default function DouyinRankings() {
             ],
           },
           {
-            type: "number",
+            type: "select",
             key: "max_users",
             label: "最大用户数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
@@ -251,12 +266,15 @@ export default function DouyinRankings() {
             ],
           },
           {
-            type: "number",
+            type: "select",
             key: "max_videos",
             label: "最大视频数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
@@ -273,12 +291,15 @@ export default function DouyinRankings() {
             ],
           },
           {
-            type: "number",
+            type: "select",
             key: "max_words",
             label: "最大词汇数",
-            min: 1,
-            max: 1000,
-            defaultValue: 50,
+            options: [
+              { value: "50", label: "50" },
+              { value: "100", label: "100" },
+              { value: "150", label: "150" },
+            ],
+            defaultValue: "50",
           },
         ];
 
@@ -330,58 +351,102 @@ export default function DouyinRankings() {
     try {
       let result;
       
+      // Convert string values to numbers for max_* parameters
+      const processedFilters = { ...filters };
+      if (processedFilters.max_topics) {
+        processedFilters.max_topics = parseInt(processedFilters.max_topics as string);
+      }
+      if (processedFilters.max_users) {
+        processedFilters.max_users = parseInt(processedFilters.max_users as string);
+      }
+      if (processedFilters.max_videos) {
+        processedFilters.max_videos = parseInt(processedFilters.max_videos as string);
+      }
+      if (processedFilters.max_words) {
+        processedFilters.max_words = parseInt(processedFilters.max_words as string);
+      }
+      
+      // Process board_category for search and risingsearch tabs
+      if ((activeTab === 'search' || activeTab === 'risingsearch') && processedFilters.board_category) {
+        const category = processedFilters.board_category;
+        delete processedFilters.board_category;
+        
+        switch (category) {
+          case 'hotspot':
+            processedFilters.board_type = 0;
+            processedFilters.board_sub_type = "";
+            break;
+          case 'seeding':
+            processedFilters.board_type = 2;
+            processedFilters.board_sub_type = "seeding";
+            break;
+          case 'entertainment':
+            processedFilters.board_type = 2;
+            processedFilters.board_sub_type = "2";
+            break;
+          case 'social':
+            processedFilters.board_type = 2;
+            processedFilters.board_sub_type = "4";
+            break;
+          case 'challenge':
+            processedFilters.board_type = 2;
+            processedFilters.board_sub_type = "hotspot_challenge";
+            break;
+        }
+      }
+      
       switch (activeTab) {
         case 'rising':
-          result = await apiClient.getDouyinHotRise(filters);
+          result = await apiClient.getDouyinHotRise(processedFilters);
           break;
         case 'local':
-          result = await apiClient.getDouyinHotCity(filters);
+          result = await apiClient.getDouyinHotCity(processedFilters);
           break;
         case 'challenge':
-          result = await apiClient.getDouyinHotChallenge(filters);
+          result = await apiClient.getDouyinHotChallenge(processedFilters);
           break;
         case 'search':
         case 'risingsearch':
-          result = await apiClient.getDouyinHotSearch(filters);
+          result = await apiClient.getDouyinHotSearch(processedFilters);
           break;
         case 'accounts':
-          result = await apiClient.getDouyinHotAccount(filters);
+          result = await apiClient.getDouyinHotAccount(processedFilters);
           break;
         case 'video':
-          result = await apiClient.getDouyinHotVideo(filters);
+          result = await apiClient.getDouyinHotVideo(processedFilters);
           break;
         case 'lowfan':
-          result = await apiClient.getDouyinHotLowFan(filters);
+          result = await apiClient.getDouyinHotLowFan(processedFilters);
           break;
         case 'completion':
-          result = await apiClient.getDouyinHotHighCompletionRate(filters);
+          result = await apiClient.getDouyinHotHighCompletionRate(processedFilters);
           break;
         case 'follower':
-          result = await apiClient.getDouyinHotHighFanRate(filters);
+          result = await apiClient.getDouyinHotHighFanRate(processedFilters);
           break;
         case 'like':
-          result = await apiClient.getDouyinHotHighLikeRate(filters);
+          result = await apiClient.getDouyinHotHighLikeRate(processedFilters);
           break;
         case 'risingtopic':
-          result = await apiClient.getDouyinHotTopics(filters);
+          result = await apiClient.getDouyinHotTopics(processedFilters);
           break;
         case 'hotwords':
-          result = await apiClient.getDouyinHotWords(filters);
+          result = await apiClient.getDouyinHotWords(processedFilters);
           break;
         case 'music':
           result = await apiClient.getDouyinHotMusic();
           break;
         case 'brand':
-          if (!filters.category_id) {
+          if (!processedFilters.category_id) {
             throw new Error('品牌热度榜需要选择品牌分类');
           }
-          result = await apiClient.getDouyinHotBrand(filters as DouyinHotBrandParams);
+          result = await apiClient.getDouyinHotBrand(processedFilters as DouyinHotBrandParams);
           break;
         case 'livestream':
           result = await apiClient.getDouyinHotLive();
           break;
         case 'calendar':
-          result = await apiClient.getDouyinHotActivityCalendar(filters);
+          result = await apiClient.getDouyinHotActivityCalendar(processedFilters);
           break;
         default:
           throw new Error('未支持的榜单类型');
@@ -2309,6 +2374,86 @@ export default function DouyinRankings() {
           <td className="p-2 text-sm">{word.trend}</td>
         </tr>
       );
+    } else if ('heat' in item && 'rank' in item && 'name' in item && 'logo_url' in item) {
+      // 品牌热度榜数据
+      const brand = item as any;
+      const rowId = `brand-${brand.id}-${index}`;
+      const isExpanded = expandedRows.has(rowId);
+      
+      return (
+        <React.Fragment key={index}>
+          <tr className="border-b hover:bg-muted/50 transition-colors">
+            <td className="p-2">
+              <div className="flex items-center space-x-1">
+                <span className={`font-medium ${brand.rank <= 3 ? "text-yellow-600" : ""}`}>
+                  {brand.rank}
+                </span>
+                {brand.rank_diff !== undefined && brand.rank_diff !== 0 && (
+                  <div className="flex items-center">
+                    {brand.rank_diff > 0 ? (
+                      <ArrowUpIcon className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <ArrowDownIcon className="w-3 h-3 text-red-500" />
+                    )}
+                    <span className={`text-xs ${
+                      brand.rank_diff > 0 ? "text-green-500" : "text-red-500"
+                    }`}>
+                      {Math.abs(brand.rank_diff)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </td>
+            <td className="p-2">
+              <div className="flex items-center space-x-2">
+                {brand.logo_url && (
+                  <img
+                    src={brand.logo_url.url_list?.[0] || brand.logo_url.uri || "/api/placeholder/32/32"}
+                    alt={brand.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                )}
+                <div className="font-medium text-sm">{brand.name}</div>
+              </div>
+            </td>
+            <td className="p-2">
+              <Badge variant="outline" className="text-xs">
+                {brand.explain_tag_desc || 
+                 (activeTab === 'brand' && filters.category_id ? 
+                   brandCategories.find(cat => cat.value === filters.category_id)?.label || "未知分类" : 
+                   "未知分类")}
+              </Badge>
+            </td>
+            <td className="p-2 text-sm">{formatNumber(brand.heat)}</td>
+            <td className="p-2 text-sm">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  {brand.heat_diff !== undefined && (
+                    <div className="flex items-center">
+                      {brand.heat_diff > 0 ? (
+                        <>
+                          <ArrowUpIcon className="w-3 h-3 text-green-500" />
+                          <span className="text-xs text-green-500">+{formatNumber(brand.heat_diff)}</span>
+                        </>
+                      ) : brand.heat_diff < 0 ? (
+                        <>
+                          <ArrowDownIcon className="w-3 h-3 text-red-500" />
+                          <span className="text-xs text-red-500">{formatNumber(brand.heat_diff)}</span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400">持平</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {brand.is_in_webcasting && (
+                  <Badge variant="secondary" className="text-xs">直播中</Badge>
+                )}
+              </div>
+            </td>
+          </tr>
+        </React.Fragment>
+      );
     } else {
       // 其他类型数据的通用显示
       console.log('Unmatched data type:', item); // 调试日志
@@ -2457,6 +2602,15 @@ export default function DouyinRankings() {
           </tr>
         );
       case 'brand':
+        return (
+          <tr className="border-b text-sm text-muted-foreground">
+            <th className="text-left p-2">排名</th>
+            <th className="text-left p-2">品牌</th>
+            <th className="text-left p-2">分类</th>
+            <th className="text-left p-2">热度值</th>
+            <th className="text-left p-2">热度变化</th>
+          </tr>
+        );
       case 'livestream':
         return (
           <tr className="border-b text-sm text-muted-foreground">

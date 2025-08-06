@@ -1522,10 +1522,14 @@ export default function DouyinMonitoring() {
         </Card>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               添加监控
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              任务队列 ({taskTotal})
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
@@ -1792,8 +1796,10 @@ export default function DouyinMonitoring() {
               </Card>
             </div>
 
-            {/* Real Tasks Section - Always Display */}
-            <Card className="mt-6">
+          </TabsContent>
+
+          <TabsContent value="tasks" className="mt-6">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">

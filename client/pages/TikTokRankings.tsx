@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  Database,
+  Construction,
+} from "lucide-react";
+
+// ORIGINAL CODE PRESERVED FOR FUTURE DEVELOPMENT - COMMENTED OUT
+/*
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -48,160 +55,92 @@ const contentTypes = [
   "文化",
   "舞蹈",
   "教育校园",
-  "公益",
-  "艺术",
   "时尚",
   "体育",
-  "动物",
-  "电视剧",
-  "三农",
-  "二次元",
-  "汽车",
-  "音乐",
-  "电影",
-  "医疗健康",
-  "明星",
-  "摄影摄像",
-  "生活家居",
-  "随拍",
-  "颜值",
-  "情感",
-  "人文社科",
-  "科普",
-  "财经",
-  "科技",
-  "职场",
-  "生活记录",
-  "母婴",
-  "综艺",
-  "亲子",
-  "法律",
-  "剧情",
   "游戏",
+  "科技",
+  "生活",
+  "音乐",
+  "动物",
+  "汽车",
+  "搞笑",
+  "美妆",
+  "家居",
+  "母婴",
+  "健身",
+  "商业",
 ];
 
 // 国家列表
 const countries = [
-  { value: "US", label: "美国 (US)" },
-  { value: "UK", label: "英国 (UK)" },
-  { value: "JP", label: "日本 (JP)" },
-  { value: "KR", label: "韩国 (KR)" },
-  { value: "DE", label: "德国 (DE)" },
-  { value: "FR", label: "法国 (FR)" },
-  { value: "CA", label: "加拿大 (CA)" },
-  { value: "AU", label: "澳大利亚 (AU)" },
-  { value: "IN", label: "印度 (IN)" },
-  { value: "BR", label: "巴西 (BR)" },
-  { value: "MX", label: "墨西哥 (MX)" },
-  { value: "IT", label: "意大利 (IT)" },
-  { value: "ES", label: "西班牙 (ES)" },
-  { value: "NL", label: "荷兰 (NL)" },
-  { value: "SG", label: "新加坡 (SG)" },
+  { value: "all", label: "全球" },
+  { value: "US", label: "美国" },
+  { value: "UK", label: "英国" },
+  { value: "CA", label: "加拿大" },
+  { value: "AU", label: "澳大利亚" },
+  { value: "DE", label: "德国" },
+  { value: "FR", label: "法国" },
+  { value: "IT", label: "意大利" },
+  { value: "ES", label: "西班牙" },
+  { value: "BR", label: "巴西" },
+  { value: "MX", label: "墨西哥" },
+  { value: "IN", label: "印度" },
+  { value: "JP", label: "日本" },
+  { value: "KR", label: "韩国" },
+  { value: "ID", label: "印度尼西亚" },
+  { value: "TH", label: "泰国" },
+  { value: "VN", label: "越南" },
+  { value: "PH", label: "菲律宾" },
+  { value: "SG", label: "新加坡" },
+  { value: "MY", label: "马来西亚" },
 ];
 
-// 直播排行榜类型
-const liveRankingTypes = [
-  "每小时排行榜",
-  "每周排行榜",
-  "新星排行榜",
-  "销售排行榜",
-  "每日排行榜",
-  "游戏排行榜",
-  "每日游戏排行榜",
-  "名人堂排行榜",
-  "冠军赛排行榜",
-  "每日新秀排行榜",
-  "人气直播榜",
-  "D5段位榜",
-  "绝地求生排行榜",
-  "王者荣耀排行榜",
-  "Free Fire排行榜",
-  "联盟竞赛排行榜",
-];
+// 模拟数据
+const mockData = Array.from({ length: 50 }, (_, index) => ({
+  id: index + 1,
+  name: `Creator ${index + 1}`,
+  handle: `@creator${index + 1}`,
+  avatar: `/api/placeholder/40/40`,
+  category: contentTypes[index % contentTypes.length],
+  followers: `${(Math.random() * 10 + 1).toFixed(1)}M`,
+  likes: `${(Math.random() * 100 + 10).toFixed(1)}M`,
+  comments: `${(Math.random() * 10 + 1).toFixed(1)}M`,
+  shares: `${(Math.random() * 5 + 0.5).toFixed(1)}M`,
+  views: `${(Math.random() * 500 + 50).toFixed(1)}M`,
+  engagement: `${(Math.random() * 10 + 2).toFixed(1)}%`,
+  growth: `${(Math.random() * 50 + 5).toFixed(1)}%`,
+  country: countries[Math.floor(Math.random() * countries.length)].label,
+  trend: Math.random() > 0.5 ? "up" : Math.random() > 0.3 ? "down" : "stable",
+}));
 
-// TikTok榜单标签配置
-const rankingTabs = [
-  { id: "dailyworks", name: "每日热门作品", icon: Play },
-  { id: "dailylive", name: "每日直播排行榜", icon: Video },
-  { id: "products", name: "热门产品", icon: Award },
-  { id: "tags", name: "热门标签", icon: Hash },
-  { id: "music", name: "热门音乐", icon: Music },
-  { id: "ads", name: "热门广告聚光灯", icon: Zap },
-  { id: "creative", name: "创意模式排行榜", icon: Lightbulb },
-  { id: "keywords", name: "热门关键词", icon: MessageCircle },
-  { id: "videos", name: "热门视频", icon: Play },
-];
-
-// 模拟排行榜数据
-const mockRankingData = [
-  {
-    rank: 1,
-    change: "new",
-    avatar: "/api/placeholder/40/40",
-    name: "@trending_creator",
-    handle: "TikTok Creator",
-    category: "Entertainment",
-    followers: "2.1M",
-    likes: "156K",
-    comments: "23K",
-    shares: "8.9K",
-    views: "890K",
-    engagement: "18.5%",
-    growth: "+12%",
-    country: "US",
-    trendIcon: ArrowUpIcon,
-    trendColor: "text-red-500",
-  },
-  {
-    rank: 2,
-    change: "up",
-    avatar: "/api/placeholder/40/40",
-    name: "@music_viral",
-    handle: "Music Viral",
-    category: "Music",
-    followers: "1.8M",
-    likes: "134K",
-    comments: "19K",
-    shares: "7.2K",
-    views: "723K",
-    engagement: "16.8%",
-    growth: "+9%",
-    country: "UK",
-    trendIcon: ArrowUpIcon,
-    trendColor: "text-red-500",
-  },
-  {
-    rank: 3,
-    change: "up",
-    avatar: "/api/placeholder/40/40",
-    name: "@dance_moves",
-    handle: "Dance Moves",
-    category: "Dance",
-    followers: "1.5M",
-    likes: "128K",
-    comments: "15K",
-    shares: "6.8K",
-    views: "656K",
-    engagement: "15.2%",
-    growth: "+7%",
-    country: "JP",
-    trendIcon: ArrowUpIcon,
-    trendColor: "text-red-500",
-  },
-];
-
+// 筛选状态类型
 interface FilterState {
   type: string;
   period: string;
   country: string;
-  sortOrder: string;
   sortMethod: string;
-  keyword: string;
-  onlyNew: boolean;
-  onlyCommercial: boolean;
-  specificDate: string;
   sortBy: string;
+  sortOrder: string;
+  keyword: string;
+  specificDate: string;
+  verified: boolean;
+  minFollowers: string;
+  maxFollowers: string;
+  [key: string]: string | boolean;
 }
+
+// 榜单标签配置
+const rankingTabs = [
+  { id: "dailyworks", name: "每日爆款", icon: TrendingUp },
+  { id: "weeklyworks", name: "每周爆款", icon: Calendar },
+  { id: "creators", name: "创作者榜", icon: Users },
+  { id: "trending", name: "趋势榜", icon: Zap },
+  { id: "music", name: "音乐榜", icon: Music },
+  { id: "hashtag", name: "话题榜", icon: Hash },
+  { id: "creative", name: "创意榜", icon: Lightbulb },
+  { id: "keywords", name: "关键词榜", icon: Target },
+  { id: "rising", name: "飙升榜", icon: ArrowUpIcon },
+];
 
 export default function TikTokRankings() {
   const [activeTab, setActiveTab] = useState("dailyworks");
@@ -209,34 +148,61 @@ export default function TikTokRankings() {
     type: "",
     period: "",
     country: "",
-    sortOrder: "",
     sortMethod: "",
-    keyword: "",
-    onlyNew: false,
-    onlyCommercial: false,
-    specificDate: "",
     sortBy: "",
+    sortOrder: "",
+    keyword: "",
+    specificDate: "",
+    verified: false,
+    minFollowers: "",
+    maxFollowers: "",
   });
-  const [data, setData] = useState(mockRankingData);
+  const [data, setData] = useState(mockData);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 获取当前标签的过滤器配置
+  const handleFilterChange = (key: string, value: string | boolean) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearch = () => {
+    setIsLoading(true);
+    setError(null);
+    // 模拟API调用
+    setTimeout(() => {
+      setData(mockData.slice(0, Math.floor(Math.random() * 30) + 20));
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      type: "",
+      period: "",
+      country: "",
+      sortMethod: "",
+      sortBy: "",
+      sortOrder: "",
+      keyword: "",
+      specificDate: "",
+      verified: false,
+      minFollowers: "",
+      maxFollowers: "",
+    });
+  };
+
+  const handleExport = () => {
+    console.log("导出数据", { tab: activeTab, filters, data });
+  };
+
+  // 获取标签页对应的筛选器
   const getFiltersForTab = (tabId: string) => {
     switch (tabId) {
       case "dailyworks":
+      case "weeklyworks":
         return []; // 无filter
 
-      case "dailylive":
-        return [
-          {
-            type: "select",
-            key: "type",
-            label: "类型",
-            options: liveRankingTypes,
-          },
-        ];
-
-      case "products":
+      case "creators":
         return [
           { type: "select", key: "type", label: "类型", options: contentTypes },
           {
@@ -244,77 +210,7 @@ export default function TikTokRankings() {
             key: "period",
             label: "周期",
             options: [
-              { value: "1day", label: "过去1天" },
-              { value: "7days", label: "过去7天" },
-              { value: "30days", label: "过去30天" },
-            ],
-          },
-          {
-            type: "select",
-            key: "country",
-            label: "国家",
-            options: countries,
-          },
-          {
-            type: "select",
-            key: "sortOrder",
-            label: "排序顺序",
-            options: [
-              { value: "publish", label: "发布量" },
-              { value: "click", label: "点击率" },
-              { value: "conversion", label: "转换率" },
-            ],
-          },
-          {
-            type: "select",
-            key: "sortMethod",
-            label: "排序方式",
-            options: [
-              { value: "desc", label: "降序" },
-              { value: "asc", label: "升序" },
-            ],
-          },
-        ];
-
-      case "tags":
-        return [
-          { type: "select", key: "type", label: "类型", options: contentTypes },
-          {
-            type: "select",
-            key: "period",
-            label: "周期",
-            options: [
-              { value: "1day", label: "过去1天" },
-              { value: "7days", label: "过去7天" },
-              { value: "30days", label: "过去30天" },
-            ],
-          },
-          {
-            type: "select",
-            key: "country",
-            label: "国家",
-            options: countries,
-          },
-          {
-            type: "select",
-            key: "sortMethod",
-            label: "排序方式",
-            options: [
-              { value: "hot", label: "热门" },
-              { value: "latest", label: "最新" },
-            ],
-          },
-        ];
-
-      case "music":
-        return [
-          { type: "select", key: "type", label: "类型", options: contentTypes },
-          {
-            type: "select",
-            key: "period",
-            label: "周期",
-            options: [
-              { value: "1day", label: "过去1天" },
+              { value: "24h", label: "过去24小时" },
               { value: "7days", label: "过去7天" },
               { value: "30days", label: "过去30天" },
             ],
@@ -334,17 +230,131 @@ export default function TikTokRankings() {
               { value: "rising", label: "上升最快" },
             ],
           },
-          { type: "checkbox", key: "onlyNew", label: "是否只看新上榜" },
           {
-            type: "checkbox",
-            key: "onlyCommercial",
-            label: "是否只看商业音乐",
+            type: "select",
+            key: "sortBy",
+            label: "排序",
+            options: [
+              { value: "followers", label: "粉丝数" },
+              { value: "likes", label: "点赞数" },
+              { value: "comments", label: "评论数" },
+              { value: "shares", label: "转发数" },
+              { value: "engagement", label: "互动率" },
+            ],
+          },
+          {
+            type: "select",
+            key: "sortOrder",
+            label: "排序方式",
+            options: [
+              { value: "desc", label: "降序" },
+              { value: "asc", label: "升序" },
+            ],
+          },
+          { type: "checkbox", key: "verified", label: "仅认证账号" },
+          { type: "input", key: "minFollowers", label: "最少粉丝数" },
+          { type: "input", key: "maxFollowers", label: "最多粉丝数" },
+        ];
+
+      case "trending":
+      case "rising":
+        return [
+          { type: "select", key: "type", label: "类型", options: contentTypes },
+          {
+            type: "select",
+            key: "period",
+            label: "周期",
+            options: [
+              { value: "1h", label: "过去1小时" },
+              { value: "6h", label: "过去6小时" },
+              { value: "24h", label: "过去24小时" },
+            ],
+          },
+          {
+            type: "select",
+            key: "country",
+            label: "国家",
+            options: countries,
+          },
+          {
+            type: "select",
+            key: "sortMethod",
+            label: "排序方式",
+            options: [
+              { value: "hot", label: "热门" },
+              { value: "rising", label: "上升最快" },
+            ],
+          },
+          {
+            type: "select",
+            key: "sortBy",
+            label: "排序",
+            options: [
+              { value: "views", label: "观看量" },
+              { value: "likes", label: "点赞数" },
+              { value: "comments", label: "评论数" },
+              { value: "shares", label: "转发数" },
+            ],
+          },
+          {
+            type: "select",
+            key: "sortOrder",
+            label: "排序方式",
+            options: [
+              { value: "desc", label: "降序" },
+              { value: "asc", label: "升序" },
+            ],
           },
         ];
 
-      case "ads":
+      case "music":
+      case "hashtag":
         return [
           { type: "select", key: "type", label: "类型", options: contentTypes },
+          {
+            type: "select",
+            key: "period",
+            label: "周期",
+            options: [
+              { value: "24h", label: "过去24小时" },
+              { value: "7days", label: "过去7天" },
+              { value: "30days", label: "过去30天" },
+            ],
+          },
+          {
+            type: "select",
+            key: "country",
+            label: "国家",
+            options: countries,
+          },
+          {
+            type: "select",
+            key: "sortMethod",
+            label: "排序方式",
+            options: [
+              { value: "hot", label: "热门" },
+              { value: "rising", label: "上升最快" },
+            ],
+          },
+          {
+            type: "select",
+            key: "sortBy",
+            label: "排序",
+            options: [
+              { value: "usage", label: "使用量" },
+              { value: "growth", label: "增长率" },
+              { value: "trend", label: "趋势" },
+            ],
+          },
+          {
+            type: "select",
+            key: "sortOrder",
+            label: "排序方式",
+            options: [
+              { value: "desc", label: "降序" },
+              { value: "asc", label: "升序" },
+            ],
+          },
         ];
 
       case "creative":
@@ -446,55 +456,9 @@ export default function TikTokRankings() {
           },
         ];
 
-      case "videos":
-        return [
-          {
-            type: "select",
-            key: "period",
-            label: "周期",
-            options: [
-              { value: "1day", label: "过去1天" },
-              { value: "7days", label: "过去7天" },
-              { value: "30days", label: "过去30天" },
-            ],
-          },
-          {
-            type: "select",
-            key: "sortBy",
-            label: "排序",
-            options: [
-              { value: "views", label: "观看量" },
-              { value: "likes", label: "点赞数" },
-              { value: "comments", label: "评论数" },
-              { value: "shares", label: "转发数" },
-            ],
-          },
-          {
-            type: "select",
-            key: "country",
-            label: "国家",
-            options: countries,
-          },
-        ];
-
       default:
         return [];
     }
-  };
-
-  const handleFilterChange = (key: string, value: string | boolean) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSearch = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleExport = () => {
-    console.log("导出数据", { tab: activeTab, filters, data });
   };
 
   const renderFilterComponent = (filter: any) => {
@@ -513,16 +477,14 @@ export default function TikTokRankings() {
                 <SelectValue placeholder={`选择${filter.label}`} />
               </SelectTrigger>
               <SelectContent>
-                {(Array.isArray(filter.options) ? filter.options : []).map(
-                  (option) => (
-                    <SelectItem
-                      key={typeof option === "string" ? option : option.value}
-                      value={typeof option === "string" ? option : option.value}
-                    >
-                      {typeof option === "string" ? option : option.label}
-                    </SelectItem>
-                  ),
-                )}
+                {filter.options?.map((option: any) => (
+                  <SelectItem
+                    key={typeof option === "string" ? option : option.value}
+                    value={typeof option === "string" ? option : option.value}
+                  >
+                    {typeof option === "string" ? option : option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -571,19 +533,13 @@ export default function TikTokRankings() {
     }
   };
 
-  const getTrendIcon = (change: string) => {
-    switch (change) {
-      case "up":
-        return <ArrowUpIcon className="w-3 h-3 text-red-500" />;
-      case "down":
-        return <ArrowDownIcon className="w-3 h-3 text-green-500" />;
-      case "new":
-        return <Badge className="text-xs bg-red-500">新</Badge>;
-      default:
-        return <span className="w-3 h-3 text-gray-400">-</span>;
-    }
-  };
+  // 自动加载数据
+  useEffect(() => {
+    handleSearch();
+  }, [activeTab]);
 
+  // ORIGINAL RETURN STATEMENT - COMMENTED OUT FOR FUTURE USE
+  /*
   return (
     <DashboardLayout
       title="TikTok热度榜单"
@@ -623,7 +579,6 @@ export default function TikTokRankings() {
 
           {rankingTabs.map((tab) => (
             <TabsContent key={tab.id} value={tab.id} className="space-y-6">
-              {/* 过滤器区域 */}
               {getFiltersForTab(tab.id).length > 0 && (
                 <Card>
                   <CardHeader>
@@ -634,12 +589,14 @@ export default function TikTokRankings() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                      {getFiltersForTab(tab.id).map((filter) =>
+                      {getFiltersForTab(tab.id).map((filter, index) =>
                         renderFilterComponent(filter),
                       )}
                     </div>
                     <div className="flex justify-end mt-4 space-x-2">
-                      <Button variant="outline">重置</Button>
+                      <Button variant="outline" onClick={resetFilters}>
+                        重置
+                      </Button>
                       <Button onClick={handleSearch} disabled={isLoading}>
                         {isLoading ? (
                           <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -653,36 +610,42 @@ export default function TikTokRankings() {
                 </Card>
               )}
 
-              {/* 数据表格区域 */}
+              {error && (
+                <Card className="border-red-200">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center space-x-2 text-red-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{error}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="flex items-center text-base">
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
                       <tab.icon className="mr-2 h-4 w-4" />
                       {tab.name}数据
-                    </CardTitle>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="secondary">共 {data.length} 条数据</Badge>
-                      <Button size="sm" variant="outline">
-                        <Download className="w-3 h-3 mr-1" />
-                        导出
-                      </Button>
-                    </div>
-                  </div>
+                    </span>
+                    <Badge variant="secondary" className="text-xs">
+                      共 {data.length} 条记录
+                    </Badge>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b text-sm text-muted-foreground">
-                          <th className="text-left p-2">#</th>
+                          <th className="text-left p-2">排名</th>
                           <th className="text-left p-2">创作者</th>
                           <th className="text-left p-2">分类</th>
                           <th className="text-left p-2">粉丝数</th>
                           <th className="text-left p-2">点赞数</th>
                           <th className="text-left p-2">评论数</th>
                           <th className="text-left p-2">分享数</th>
-                          <th className="text-left p-2">观看量</th>
+                          <th className="text-left p-2">观看数</th>
                           <th className="text-left p-2">互动率</th>
                           <th className="text-left p-2">增长率</th>
                           <th className="text-left p-2">国家</th>
@@ -698,17 +661,26 @@ export default function TikTokRankings() {
                             <td className="p-2">
                               <div className="flex items-center space-x-1">
                                 <span
-                                  className={`font-medium ${index < 3 ? "text-yellow-600" : ""}`}
+                                  className={`font-medium ${
+                                    index < 3 ? "text-yellow-600" : ""
+                                  }`}
                                 >
-                                  {item.rank}
+                                  {index + 1}
                                 </span>
-                                {getTrendIcon(item.change)}
+                                {item.trend === "up" ? (
+                                  <ArrowUpIcon className="w-3 h-3 text-green-500" />
+                                ) : item.trend === "down" ? (
+                                  <ArrowDownIcon className="w-3 h-3 text-red-500" />
+                                ) : null}
                               </div>
                             </td>
                             <td className="p-2">
                               <div className="flex items-center space-x-2">
-                                <Avatar className="w-8 h-8">
-                                  <AvatarImage src={item.avatar} />
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage
+                                    src={item.avatar}
+                                    alt={item.name}
+                                  />
                                   <AvatarFallback>
                                     {item.name[0]}
                                   </AvatarFallback>
@@ -755,6 +727,33 @@ export default function TikTokRankings() {
             </TabsContent>
           ))}
         </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+  END OF ORIGINAL CODE */
+
+export default function TikTokRankings() {
+  // Under development message (same as DataCollection page)
+  return (
+    <DashboardLayout
+      title="TikTok热度榜单"
+      subtitle="实时追踪TikTok平台热门内容和趋势数据"
+      actions={<Button className="brand-gradient">新建采集任务</Button>}
+    >
+      <div className="flex items-center justify-center h-96">
+        <Card className="border-0 shadow-md max-w-md">
+          <CardContent className="p-8 text-center">
+            <Database className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">数据采集功能开发中</h3>
+            <p className="text-muted-foreground mb-4">
+              我们正在开发强大的数据采集工具，敬请期待！
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+              <Construction className="h-4 w-4" />
+              <span>即将上线</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

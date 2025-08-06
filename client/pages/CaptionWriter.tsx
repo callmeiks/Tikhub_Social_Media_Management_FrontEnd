@@ -30,6 +30,8 @@ const contentStyles = [
   { id: "kuaishou", name: "快手", active: false },
   { id: "tiktok", name: "TikTok", active: false },
   { id: "instagram", name: "Instagram", active: false },
+  { id: "x", name: "X", active: false },
+  { id: "youtube", name: "YouTube", active: false },
 ];
 
 const rewriteOptions = [
@@ -119,8 +121,7 @@ export default function CaptionWriter() {
     setIsRewriting(true);
 
     try {
-      const apiBaseUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
       const response = await fetch(`${apiBaseUrl}/api/caption/generate`, {
         method: "POST",
         headers: {

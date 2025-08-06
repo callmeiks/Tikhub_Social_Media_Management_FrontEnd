@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   Zap,
   Link as LinkIcon,
+  Eye,
 } from "lucide-react";
 
 const supportedFormats = [
@@ -47,7 +48,7 @@ const supportedFormats = [
 ];
 
 const supportedLanguages = [
-  { code: "mandarin", name: "中文", flag: "🇨🇳" },
+  { code: "chinese", name: "中文", flag: "🇨🇳" },
   { code: "english", name: "English", flag: "🇺🇸" },
   { code: "japanese", name: "日本語", flag: "🇯🇵" },
   { code: "korean", name: "한국어", flag: "🇰🇷" },
@@ -63,6 +64,7 @@ const supportedLanguages = [
   { code: "swedish", name: "Svenska", flag: "🇸🇪" },
   { code: "polish", name: "Polski", flag: "🇵🇱" },
   { code: "catalan", name: "Català", flag: "🇪🇸" },
+  { code: "indonesian", name: "Bahasa Indonesia", flag: "🇮🇩" },
 ];
 
 const extractedResult = {
@@ -110,11 +112,82 @@ export default function AudioExtract() {
   );
   const [responseFormat, setResponseFormat] = useState<string>("json");
   const [speakerLabels, setSpeakerLabels] = useState(false);
-  const [language, setLanguage] = useState<string>("mandarin");
+  const [language, setLanguage] = useState<string>("chinese");
   const [error, setError] = useState<string | null>(null);
   const [actualResult, setActualResult] = useState<any>(null);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [taskStatus, setTaskStatus] = useState<string>("");
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [historyTasks, setHistoryTasks] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<string>("completed");
+  const [historyOffset, setHistoryOffset] = useState(0);
+  const [historyTotal, setHistoryTotal] = useState(0);
+  const [historyLimit] = useState(10);
 
   const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
+  // Use useRef to store the interval ID to ensure we can clear it properly
+  const pollingIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Poll for task results
+  const pollTaskStatus = async (taskId: string) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/audio-transcript/result/${taskId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to get task status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setTaskStatus(result.status);
+      setProgress(result.progress || 0);
+
+      if (result.status === "COMPLETED") {
+        // Clear polling interval
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setPollingInterval(null);
+        }
+
+        // Set results
+        setActualResult(result);
+        setExtractedText(result.output_data || "");
+        setShowResults(true);
+        setIsExtracting(false);
+        setProgress(100);
+        return; // Stop polling
+      } else if (result.status === "FAILED") {
+        // Clear polling interval
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setPollingInterval(null);
+        }
+
+        throw new Error(result.error_message || "转录任务失败");
+      }
+      // Continue polling for PENDING/PROCESSING status
+    } catch (err) {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        setPollingInterval(null);
+      }
+      setError(err instanceof Error ? err.message : "获取任务状态失败");
+      setIsExtracting(false);
+      console.error("获取任务状态失败:", err);
+    }
+  };
 
   const handleExtractText = async (
     source: "link" | "file" | "recording",
@@ -124,6 +197,15 @@ export default function AudioExtract() {
     setProgress(0);
     setError(null);
     setShowResults(false);
+    setTaskId(null);
+    setTaskStatus("");
+
+    // Clear any existing polling interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+      setPollingInterval(null);
+    }
 
     try {
       const formData = new FormData();
@@ -148,13 +230,9 @@ export default function AudioExtract() {
       formData.append("language", language);
       formData.append("speaker_labels", speakerLabels.toString());
 
-      // 模拟进度（实际上传时可以使用 XMLHttpRequest 监听上传进度）
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 20, 90));
-      }, 500);
-
+      // Submit transcription task
       const response = await fetch(
-        "http://127.0.0.1:8000/api/audio-transcript/extract",
+        `${API_BASE_URL}/api/audio-transcript/extract`,
         {
           method: "POST",
           headers: {
@@ -164,9 +242,6 @@ export default function AudioExtract() {
         },
       );
 
-      clearInterval(progressInterval);
-      setProgress(100);
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
@@ -175,23 +250,96 @@ export default function AudioExtract() {
       }
 
       const result = await response.json();
-      setActualResult(result);
-
-      // 根据返回格式处理结果
-      if (responseFormat === "json" || responseFormat === "verbose_json") {
-        setExtractedText(result.transcript || "");
-      } else {
-        setExtractedText(result.transcript || "");
+      
+      if (!result.success || !result.task_id) {
+        throw new Error(result.message || "任务提交失败");
       }
 
-      setShowResults(true);
+      setTaskId(result.task_id);
+      setTaskStatus("PENDING");
+      
+      // Start polling for results every 8 seconds
+      const interval = setInterval(() => {
+        pollTaskStatus(result.task_id);
+      }, 8000);
+      
+      pollingIntervalRef.current = interval;
+      setPollingInterval(interval);
+      
+      // Initial poll after 2 seconds
+      setTimeout(() => {
+        pollTaskStatus(result.task_id);
+      }, 2000);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "提取失败，请重试");
-      console.error("提取文字失败:", err);
-    } finally {
       setIsExtracting(false);
-      setProgress(0);
+      console.error("提取文字失败:", err);
     }
+  };
+
+  const cancelTask = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+      setPollingInterval(null);
+    }
+    setIsExtracting(false);
+    setTaskId(null);
+    setTaskStatus("");
+    setProgress(0);
+  };
+
+  const fetchHistory = async (offset = 0, resetTasks = true) => {
+    setIsLoadingHistory(true);
+    try {
+      const params = new URLSearchParams({
+        limit: historyLimit.toString(),
+        offset: offset.toString(),
+      });
+      
+      // Always filter for completed tasks only
+      params.append("status", "COMPLETED");
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/audio-transcript/tasks?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch history: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (resetTasks) {
+        setHistoryTasks(data.tasks || []);
+      } else {
+        setHistoryTasks(prev => [...prev, ...(data.tasks || [])]);
+      }
+      
+      setHistoryTotal(data.total || 0);
+      setHistoryOffset(offset);
+      
+    } catch (err) {
+      console.error("获取历史记录失败:", err);
+      setError(err instanceof Error ? err.message : "获取历史记录失败");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const loadMoreHistory = () => {
+    const newOffset = historyOffset + historyLimit;
+    fetchHistory(newOffset, false);
+  };
+
+  const refreshHistory = () => {
+    fetchHistory(0, true);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,14 +451,36 @@ export default function AudioExtract() {
     setRecordingDuration(0);
   };
 
-  // 清理音频URL，防止内存泄漏
+  // 清理音频URL和轮询定时器，防止内存泄漏
   React.useEffect(() => {
     return () => {
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
       }
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
     };
   }, [audioUrl]);
+
+  // Fetch history when component mounts
+  React.useEffect(() => {
+    if (activeTab === "history") {
+      fetchHistory(0, true);
+    }
+  }, [activeTab]);
+
+  // Clear results when switching between input tabs (not history)
+  React.useEffect(() => {
+    if (activeTab !== "history") {
+      // Clear results when switching between input tabs
+      setShowResults(false);
+      setActualResult(null);
+      setExtractedText("");
+      setError(null);
+    }
+  }, [activeTab]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -409,7 +579,7 @@ export default function AudioExtract() {
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsList className="grid w-full grid-cols-4 mb-4">
                     <TabsTrigger
                       value="link"
                       className="flex items-center space-x-1"
@@ -430,6 +600,13 @@ export default function AudioExtract() {
                     >
                       <Mic className="h-3 w-3" />
                       <span>实时录音</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="history"
+                      className="flex items-center space-x-1"
+                    >
+                      <Clock className="h-3 w-3" />
+                      <span>提取历史</span>
                     </TabsTrigger>
                   </TabsList>
 
@@ -454,19 +631,40 @@ export default function AudioExtract() {
                           </Button>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          支持抖音、YouTube、B站等主流平��视频链接
+                          支持抖音、TikTok、小红书、快手、B站、Instagram、X等平台视频链接
                         </div>
                       </div>
 
                       {isExtracting && (
                         <div className="space-y-3">
                           <div className="flex items-center justify-between text-sm">
-                            <span>正在提取音频并转换文字...</span>
-                            <span>{progress}%</span>
+                            <span>
+                              {taskStatus === "PENDING" && "任务已提交，等待处理..."}
+                              {taskStatus === "PROCESSING" && "正在提取音频并转换文字..."}
+                              {!taskStatus && "正在提交任务..."}
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              <span>{progress}%</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={cancelTask}
+                                className="h-6 px-2"
+                              >
+                                取消
+                              </Button>
+                            </div>
                           </div>
                           <Progress value={progress} className="h-2" />
                           <div className="text-xs text-muted-foreground text-center">
-                            AI正在从视频中提取音频并分析内容...
+                            {taskStatus === "PENDING" && "任务排队中，请稍候..."}
+                            {taskStatus === "PROCESSING" && "AI正在从视频中提取音频并分析内容..."}
+                            {!taskStatus && "正在连接服务器..."}
+                            {taskId && (
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                任务ID: {taskId}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -525,12 +723,6 @@ export default function AudioExtract() {
                               提取文字
                             </Button>
                           )}
-                          <Button
-                            variant="ghost"
-                            className="text-orange-700 hover:bg-orange-50"
-                          >
-                            从云盘导入
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -538,12 +730,33 @@ export default function AudioExtract() {
                     {isExtracting && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
-                          <span>正在提取文字...</span>
-                          <span>{progress}%</span>
+                          <span>
+                            {taskStatus === "PENDING" && "任务已提交，等待处理..."}
+                            {taskStatus === "PROCESSING" && "正在提取文字..."}
+                            {!taskStatus && "正在上传文件..."}
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span>{progress}%</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={cancelTask}
+                              className="h-6 px-2"
+                            >
+                              取消
+                            </Button>
+                          </div>
                         </div>
                         <Progress value={progress} className="h-2" />
                         <div className="text-xs text-muted-foreground text-center">
-                          AI正在分析音频内容，请稍候...
+                          {taskStatus === "PENDING" && "任务排队中，请稍候..."}
+                          {taskStatus === "PROCESSING" && "AI正在分析音频内容，请稍候..."}
+                          {!taskStatus && "正在上传文件到服务器..."}
+                          {taskId && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              任务ID: {taskId}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -659,6 +872,149 @@ export default function AudioExtract() {
                       </div>
                     </div>
                   </TabsContent>
+
+                  <TabsContent value="history" className="space-y-4">
+                    <div className="space-y-4">
+                      {/* Header with refresh button */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium">已完成的提取记录</h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={refreshHistory}
+                          disabled={isLoadingHistory}
+                          className="h-8"
+                        >
+                          <RefreshCw className={`mr-2 h-3 w-3 ${isLoadingHistory ? 'animate-spin' : ''}`} />
+                          刷新
+                        </Button>
+                      </div>
+
+                      {/* History List */}
+                      {isLoadingHistory && historyTasks.length === 0 ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="text-center">
+                            <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
+                            <p className="text-sm text-muted-foreground">加载历史记录中...</p>
+                          </div>
+                        </div>
+                      ) : historyTasks.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Clock className="h-8 w-8 mx-auto mb-4 opacity-50" />
+                          <p>暂无已完成的提取记录</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {historyTasks.map((task) => (
+                            <div
+                              key={task.task_id}
+                              className="p-4 border rounded-lg hover:bg-muted/30 transition-colors"
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <span className="text-sm font-mono text-muted-foreground">
+                                      {task.task_id.slice(0, 8)}...
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(task.created_at).toLocaleString()}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="text-sm text-muted-foreground mb-2">
+                                    {task.input_data?.type === "url" ? (
+                                      <span>视频链接: {task.input_data.url?.slice(0, 50)}...</span>
+                                    ) : (
+                                      <span>文件上传</span>
+                                    )}
+                                    {task.input_data?.language && (
+                                      <span className="ml-2">• {task.input_data.language}</span>
+                                    )}
+                                  </div>
+
+                                  {task.output_data && (
+                                    <div className="text-sm bg-muted/30 p-2 rounded mt-2 max-h-20 overflow-hidden">
+                                      <p className="line-clamp-2">
+                                        {(() => {
+                                          const outputText = typeof task.output_data === 'string' 
+                                            ? task.output_data 
+                                            : task.output_data.text || JSON.stringify(task.output_data);
+                                          return outputText.slice(0, 150) + (outputText.length > 150 ? "..." : "");
+                                        })()}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center space-x-1 ml-2">
+                                  {task.output_data && (
+                                    <>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          const outputText = typeof task.output_data === 'string' 
+                                            ? task.output_data 
+                                            : task.output_data.text || JSON.stringify(task.output_data);
+                                          handleCopy(outputText);
+                                        }}
+                                        className="h-6 w-6 p-0"
+                                        title="复制文本"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          const outputText = typeof task.output_data === 'string' 
+                                            ? task.output_data 
+                                            : task.output_data.text || JSON.stringify(task.output_data);
+                                          const element = document.createElement("a");
+                                          const file = new Blob([outputText], { type: "text/plain" });
+                                          element.href = URL.createObjectURL(file);
+                                          element.download = `提取文字_${task.task_id.slice(0, 8)}.txt`;
+                                          document.body.appendChild(element);
+                                          element.click();
+                                          document.body.removeChild(element);
+                                          URL.revokeObjectURL(element.href);
+                                        }}
+                                        className="h-6 w-6 p-0"
+                                        title="下载文本"
+                                      >
+                                        <Download className="h-3 w-3" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Load More Button */}
+                          {historyTasks.length < historyTotal && (
+                            <div className="text-center pt-4">
+                              <Button
+                                variant="outline"
+                                onClick={loadMoreHistory}
+                                disabled={isLoadingHistory}
+                                className="h-8"
+                              >
+                                {isLoadingHistory ? (
+                                  <RefreshCw className="mr-2 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <span>加载更多</span>
+                                )}
+                              </Button>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                已显示 {historyTasks.length} / {historyTotal} 条记录
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
@@ -671,8 +1027,8 @@ export default function AudioExtract() {
               </Alert>
             )}
 
-            {/* Results Section */}
-            {showResults && actualResult && (
+            {/* Results Section - Only show when not on history tab */}
+            {showResults && actualResult && activeTab !== "history" && (
               <Card className="border border-border mt-4">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center justify-between">
@@ -704,57 +1060,83 @@ export default function AudioExtract() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {/* File Info */}
-                    {actualResult.file_info && (
-                      <div className="p-3 bg-muted/30 rounded-lg">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">
-                              文件名：
-                            </span>
-                            <span className="font-medium">
-                              {actualResult.file_info.filename || "未知"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">
-                              时长：
-                            </span>
-                            <span className="font-medium">
-                              {actualResult.file_info.duration
-                                ? `${Math.floor(actualResult.file_info.duration / 60)}:${(actualResult.file_info.duration % 60).toString().padStart(2, "0")}`
-                                : "未知"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">
-                              格式：
-                            </span>
-                            <span className="font-medium">
-                              {actualResult.file_info.format?.toUpperCase() ||
-                                "未知"}
-                            </span>
-                          </div>
+                    {/* Task Info */}
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">
+                            任务ID：
+                          </span>
+                          <span className="font-medium font-mono text-xs">
+                            {actualResult.task_id || "未知"}
+                          </span>
                         </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            状态：
+                          </span>
+                          <span className="font-medium">
+                            {actualResult.status === "COMPLETED" && "已完成"}
+                            {actualResult.status === "PROCESSING" && "处理中"}
+                            {actualResult.status === "PENDING" && "等待中"}
+                            {actualResult.status === "FAILED" && "失败"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            输入类型：
+                          </span>
+                          <span className="font-medium">
+                            {actualResult.input_data?.type === "url" ? "视频链接" : "文件上传"}
+                          </span>
+                        </div>
+                        {actualResult.input_data?.language && (
+                          <div>
+                            <span className="text-muted-foreground">
+                              语言：
+                            </span>
+                            <span className="font-medium">
+                              {actualResult.input_data.language}
+                            </span>
+                          </div>
+                        )}
+                        {actualResult.created_at && (
+                          <div>
+                            <span className="text-muted-foreground">
+                              创建时间：
+                            </span>
+                            <span className="font-medium">
+                              {new Date(actualResult.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {actualResult.completed_at && (
+                          <div>
+                            <span className="text-muted-foreground">
+                              完成时间：
+                            </span>
+                            <span className="font-medium">
+                              {new Date(actualResult.completed_at).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
 
                     {/* Extracted Text */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-medium">提取的文字内容</h3>
-                        {actualResult.language && (
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <CheckCircle className="h-3 w-3 text-green-600" />
-                            <span>语言：{actualResult.language}</span>
-                            {actualResult.speakers && (
-                              <>
-                                <span>•</span>
-                                <span>说话人：{actualResult.speakers}人</span>
-                              </>
-                            )}
-                          </div>
-                        )}
+                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          <CheckCircle className="h-3 w-3 text-green-600" />
+                          <span>
+                            语言：{actualResult.input_data?.language || "自动检测"}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            格式：{actualResult.input_data?.response_format || "json"}
+                          </span>
+                        </div>
                       </div>
                       <Textarea
                         value={extractedText}
@@ -764,27 +1146,15 @@ export default function AudioExtract() {
                       />
                     </div>
 
-                    {/* Keywords - 如果API返回关键词 */}
-                    {actualResult.keywords &&
-                      actualResult.keywords.length > 0 && (
-                        <div className="space-y-2">
-                          <h3 className="text-sm font-medium">关键词</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {actualResult.keywords.map(
-                              (keyword: string, index: number) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="text-xs cursor-pointer"
-                                  onClick={() => handleCopy(keyword)}
-                                >
-                                  {keyword}
-                                </Badge>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      )}
+                    {/* Error Message if task failed */}
+                    {actualResult.error_message && (
+                      <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          {actualResult.error_message}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </div>
                 </CardContent>
               </Card>

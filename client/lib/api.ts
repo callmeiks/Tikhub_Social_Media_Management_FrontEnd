@@ -1311,34 +1311,6 @@ interface KuaishouHotLiveParams {
   sub_tab_name?: string | null;
 }
 
-// Pipixia Hot Rankings types
-interface PipixiaHotSearchWord {
-  word: string;
-  schema: string;
-  write_history: boolean;
-  hot_type: number;
-}
-
-interface PipixiaHotContent {
-  item_id: string;
-  item_type: number;
-  content: string;
-  author_id: string;
-  author_name: string;
-  author_avatar_url: string;
-  author_follower_count: number;
-  author_following_count: number;
-  author_like_count: number;
-  author_gender: number;
-  author_description: string;
-  author_region: string;
-  item_create_time: number;
-  duration: number;
-  video_id: string;
-  video_text: string;
-  video_url: string;
-  today_show_num: number;
-}
 
 // Xiaohongshu Hot Rankings types
 interface XiaohongshuHotRankingItem {
@@ -2106,24 +2078,6 @@ class ApiClient {
     });
   }
 
-  // Pipixia Hot Rankings API methods
-  async getPipixiaHotSearchWords(): Promise<PipixiaHotSearchWord[]> {
-    return this.request<PipixiaHotSearchWord[]>(
-      "/hot-rankings/pipixia/hot-search-words",
-      {
-        method: "GET",
-      },
-    );
-  }
-
-  async getPipixiaHotSearchList(): Promise<PipixiaHotContent[]> {
-    return this.request<PipixiaHotContent[]>(
-      "/hot-rankings/pipixia/hot-search-list",
-      {
-        method: "GET",
-      },
-    );
-  }
 
   // Xiaohongshu Hot Rankings API methods
   async getXiaohongshuHotList(): Promise<XiaohongshuHotRankingItem[]> {
@@ -2172,7 +2126,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2184,7 +2138,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2203,7 +2157,7 @@ class ApiClient {
       {
         method: "GET",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2216,7 +2170,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2228,7 +2182,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2240,7 +2194,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2252,7 +2206,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2264,7 +2218,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2276,7 +2230,7 @@ class ApiClient {
         method: "POST",
         body: JSON.stringify(params),
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2287,7 +2241,7 @@ class ApiClient {
       {
         method: "GET",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2298,7 +2252,7 @@ class ApiClient {
       {
         method: "GET",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2309,7 +2263,7 @@ class ApiClient {
       {
         method: "POST",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2320,7 +2274,7 @@ class ApiClient {
       {
         method: "POST",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2331,7 +2285,7 @@ class ApiClient {
       {
         method: "GET",
       },
-      "http://127.0.0.1:8002/api"
+      API_BASE_URL
     );
   }
 
@@ -2438,8 +2392,6 @@ export type {
   KuaishouHotProduct,
   KuaishouHotBrandParams,
   KuaishouHotLiveParams,
-  PipixiaHotSearchWord,
-  PipixiaHotContent,
   XiaohongshuHotRankingItem,
   XHotTrendingItem,
   XHotTrendingParams,

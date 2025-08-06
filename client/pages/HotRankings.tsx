@@ -49,11 +49,6 @@ const platformRankings = {
     { title: "小红书博主排行", icon: Users, count: "30+" },
     { title: "小红书种草榜", icon: Heart, count: "40+" },
   ],
-  pipixia: [
-    { title: "皮皮虾热门视频", icon: Play, count: "30+" },
-    { title: "皮皮虾热门话题", icon: Hash, count: "20+" },
-    { title: "皮皮虾搞笑榜", icon: MessageCircle, count: "25+" },
-  ],
   x: [
     { title: "X热门话题", icon: Hash, count: "200+" },
     { title: "X趋势内容", icon: TrendingUp, count: "150+" },
@@ -143,8 +138,6 @@ export default function HotRankings() {
       navigate("/hot-rankings/x");
     } else if (platform === "youtube") {
       navigate("/hot-rankings/youtube");
-    } else if (platform === "pipixia") {
-      navigate("/hot-rankings/pipixia");
     } else {
       setSelectedRanking(ranking);
     }
@@ -163,7 +156,7 @@ export default function HotRankings() {
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="douyin" className="text-sm">
               抖音热度榜单
             </TabsTrigger>
@@ -175,9 +168,6 @@ export default function HotRankings() {
             </TabsTrigger>
             <TabsTrigger value="xiaohongshu" className="text-sm">
               小红书热门榜单
-            </TabsTrigger>
-            <TabsTrigger value="pipixia" className="text-sm">
-              皮皮虾热门榜单
             </TabsTrigger>
             <TabsTrigger value="x" className="text-sm">
               X趋势内容

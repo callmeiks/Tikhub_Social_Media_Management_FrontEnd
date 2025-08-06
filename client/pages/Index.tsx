@@ -102,14 +102,6 @@ const creatorTools = [
     features: ["AI智能改写", "批量处理", "原创度检测", "多种风格"],
   },
   {
-    title: "标题生成",
-    description: "根据内容自动生成吸引人的标题，提高点击率",
-    icon: Type,
-    href: "/creator-tools/title-generator",
-    popular: true,
-    features: ["智能生成", "A/B测试", "热点融合", "平台优化"],
-  },
-  {
     title: "拍摄脚本生成",
     description: "智能生成视频拍摄脚本，提供完整的拍摄方案",
     icon: FileText,

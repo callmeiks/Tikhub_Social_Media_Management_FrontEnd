@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(npm install)",
@@ -11,7 +12,19 @@
       "Bash(git commit:*)",
       "Bash(grep:*)",
       "Bash(pkill:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(tasklist:*)",
+      "Bash(taskkill:*)",
+      "Bash(tail:*)",
+      "Bash(rm:*)",
+      "Bash(npm start)",
+      "Bash(cmd //c:*)",
+      "Bash(rg:*)",
+      "Bash(timeout 10 npm run typecheck)",
+      "Bash(timeout 15 npm run typecheck)",
+      "Bash(powershell:*)",
+      "Bash(mv:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }

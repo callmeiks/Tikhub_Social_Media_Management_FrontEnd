@@ -34,15 +34,6 @@ const creatorTools = [
     popular: false,
   },
   {
-    title: "标题生成",
-    description: "根据内容自动生成吸引人的标题",
-    icon: Type,
-    href: "/creator-tools/title-generator",
-    color: "bg-purple-500",
-    usage: "456次使用",
-    popular: true,
-  },
-  {
     title: "违禁词查询",
     description: "实时检测内容中的违禁词汇",
     icon: Shield,
@@ -118,12 +109,6 @@ const creatorTools = [
 ];
 
 const recentUsage = [
-  {
-    tool: "标题生成",
-    content: "美食探店新体验...",
-    time: "5分钟前",
-    status: "completed",
-  },
   {
     tool: "视频下载",
     content: "@foodblogger 的热门视频",

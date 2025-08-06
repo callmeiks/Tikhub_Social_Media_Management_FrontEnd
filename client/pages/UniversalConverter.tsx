@@ -64,38 +64,6 @@ export default function UniversalConverter() {
     { value: "youtube", label: "YouTube", emoji: "▶️" },
   ];
 
-  const conversionTemplates = [
-    {
-      title: "抖音 → 小红书",
-      description: "短视频脚本转换为图文种草笔记",
-      popular: true,
-    },
-    {
-      title: "小红书 → 抖音",
-      description: "种草笔记转换为���视频脚本",
-      popular: true,
-    },
-    {
-      title: "B站 → 抖音",
-      description: "长视频内容转换为短视频脚本",
-      popular: false,
-    },
-    {
-      title: "公众号 → 小红书",
-      description: "公众号文章转换为小红书笔记",
-      popular: false,
-    },
-    {
-      title: "微博 → 抖音",
-      description: "微博内容转换为短视频文案",
-      popular: false,
-    },
-    {
-      title: "TikTok → 抖音",
-      description: "国际版内容本土化转换",
-      popular: true,
-    },
-  ];
 
   const handleConvert = async () => {
     if (!extractedData || !sourcePlatform || !targetPlatform) {
@@ -565,18 +533,6 @@ ${linkInput}
     }
   };
 
-  const handleTemplateSelect = (template: string) => {
-    const [source, target] = template.split(" → ");
-    const sourcePlatformValue = platforms.find(
-      (p) => p.label === source,
-    )?.value;
-    const targetPlatformValue = platforms.find(
-      (p) => p.label === target,
-    )?.value;
-
-    if (sourcePlatformValue) setSourcePlatform(sourcePlatformValue);
-    if (targetPlatformValue) setTargetPlatform(targetPlatformValue);
-  };
 
   return (
     <DashboardLayout>
@@ -591,39 +547,6 @@ ${linkInput}
           </p>
         </div>
 
-        {/* Quick Templates */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wand2 className="w-5 h-5" />
-              热门转换模板
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {conversionTemplates.map((template, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="h-auto p-4 flex-col items-start text-left"
-                  onClick={() => handleTemplateSelect(template.title)}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{template.title}</span>
-                    {template.popular && (
-                      <Badge variant="secondary" className="text-xs">
-                        热门
-                      </Badge>
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {template.description}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Style Options */}
         <Card className="mb-6">
