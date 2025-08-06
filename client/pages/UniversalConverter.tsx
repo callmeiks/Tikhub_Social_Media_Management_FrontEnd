@@ -54,14 +54,14 @@ interface Task {
   output?: {
     original_transcript?: string;
     final_result?: string;
-  };
-  content_data?: {
-    title?: string;
-    description?: string;
-    video_url?: string;
-    author?: string;
-    hashtags?: string[];
-    image_desc?: string;
+    content_data?: {
+      title?: string;
+      description?: string;
+      video_url?: string;
+      author?: string;
+      hashtags?: string[];
+      image_desc?: string;
+    };
   };
   created_at: string;
   updated_at: string;
@@ -103,7 +103,6 @@ export default function UniversalConverter() {
     { value: "weibo", label: "微博", emoji: "🐦" },
     { value: "tiktok", label: "TikTok", emoji: "🎬" },
     { value: "instagram", label: "Instagram", emoji: "📸" },
-    { value: "youtube", label: "YouTube", emoji: "▶️" },
   ];
 
   const languages = [
@@ -166,30 +165,45 @@ export default function UniversalConverter() {
         const task: Task = await response.json();
         setTaskStatus(task.status);
         
-        // Update source content with content_data and original_transcript
-        let combinedContent = "";
-        if (task.content_data) {
-          if (task.content_data.title) combinedContent += `📌 标题: ${task.content_data.title}\n\n`;
-          if (task.content_data.description) combinedContent += `📝 描述: ${task.content_data.description}\n\n`;
-          if (task.content_data.author) combinedContent += `👤 作者: ${task.content_data.author}\n\n`;
-          if (task.content_data.hashtags?.length) combinedContent += `🏷️ 标签: ${task.content_data.hashtags.join(" ")}\n\n`;
-          if (task.content_data.video_url) combinedContent += `🎥 视频: ${task.content_data.video_url}\n\n`;
-          if (task.content_data.image_desc) combinedContent += `🖼️ 图片描述: ${task.content_data.image_desc}\n\n`;
+        // Update source content progressively - don't overwrite if we already have content
+        if (task.output?.content_data || task.output?.original_transcript) {
+          let combinedContent = "";
+          if (task.output?.content_data) {
+            const data = task.output.content_data;
+            if (data.title) combinedContent += `📌 标题: ${data.title}\n\n`;
+            if (data.description) combinedContent += `📝 描述: ${data.description}\n\n`;
+            if (data.author) combinedContent += `👤 作者: ${data.author}\n\n`;
+            if (data.hashtags?.length) {
+              const hashtagNames = data.hashtags.map((tag: any) => 
+                typeof tag === 'string' ? tag : tag.name || ''
+              ).filter(Boolean);
+              if (hashtagNames.length > 0) {
+                combinedContent += `🏷️ 标签: ${hashtagNames.map((name: string) => `#${name}`).join(" ")}\n\n`;
+              }
+            }
+            if (data.video_url) combinedContent += `🎥 视频: ${data.video_url}\n\n`;
+            if (data.image_desc) combinedContent += `🖼️ 图片描述: ${data.image_desc}\n\n`;
+          }
+          if (task.output?.original_transcript) {
+            combinedContent += `📄 转录文本:\n${task.output.original_transcript}`;
+          }
+          setSourceContent(combinedContent);
         }
-        if (task.output?.original_transcript) {
-          combinedContent += `📄 转录文本:\n${task.output.original_transcript}`;
-        }
-        if (combinedContent) setSourceContent(combinedContent);
 
         if (task.status === 'COMPLETED') {
           clearInterval(pollInterval);
           pollingIntervalRef.current = null;
           
           if (task.output?.final_result) {
-            // Format JSON if it's a valid JSON string
+            // Format as markdown if it's JSON
             try {
               const parsed = JSON.parse(task.output.final_result);
-              setConvertedContent(JSON.stringify(parsed, null, 2));
+              let markdown = "";
+              if (parsed.title) markdown += `## ${parsed.title}\n\n`;
+              if (parsed.content) markdown += `${parsed.content}\n\n`;
+              if (parsed.hashtags?.length) markdown += `**标签:** ${parsed.hashtags.join(" ")}\n\n`;
+              if (parsed.image_desc) markdown += `**图片描述:** ${parsed.image_desc}\n`;
+              setConvertedContent(markdown);
             } catch {
               setConvertedContent(task.output.final_result);
             }
@@ -360,13 +374,21 @@ export default function UniversalConverter() {
     
     // Load source content
     let combinedContent = "";
-    if (task.content_data) {
-      if (task.content_data.title) combinedContent += `📌 标题: ${task.content_data.title}\n\n`;
-      if (task.content_data.description) combinedContent += `📝 描述: ${task.content_data.description}\n\n`;
-      if (task.content_data.author) combinedContent += `👤 作者: ${task.content_data.author}\n\n`;
-      if (task.content_data.hashtags?.length) combinedContent += `🏷️ 标签: ${task.content_data.hashtags.join(" ")}\n\n`;
-      if (task.content_data.video_url) combinedContent += `🎥 视频: ${task.content_data.video_url}\n\n`;
-      if (task.content_data.image_desc) combinedContent += `🖼️ 图片描述: ${task.content_data.image_desc}\n\n`;
+    if (task.output?.content_data) {
+      const data = task.output.content_data;
+      if (data.title) combinedContent += `📌 标题: ${data.title}\n\n`;
+      if (data.description) combinedContent += `📝 描述: ${data.description}\n\n`;
+      if (data.author) combinedContent += `👤 作者: ${data.author}\n\n`;
+      if (data.hashtags?.length) {
+        const hashtagNames = data.hashtags.map((tag: any) => 
+          typeof tag === 'string' ? tag : tag.name || ''
+        ).filter(Boolean);
+        if (hashtagNames.length > 0) {
+          combinedContent += `🏷️ 标签: ${hashtagNames.map((name: string) => `#${name}`).join(" ")}\n\n`;
+        }
+      }
+      if (data.video_url) combinedContent += `🎥 视频: ${data.video_url}\n\n`;
+      if (data.image_desc) combinedContent += `🖼️ 图片描述: ${data.image_desc}\n\n`;
     }
     if (task.output?.original_transcript) {
       combinedContent += `📄 转录文本:\n${task.output.original_transcript}`;
@@ -377,7 +399,12 @@ export default function UniversalConverter() {
     if (task.output?.final_result) {
       try {
         const parsed = JSON.parse(task.output.final_result);
-        setConvertedContent(JSON.stringify(parsed, null, 2));
+        let markdown = "";
+        if (parsed.title) markdown += `## ${parsed.title}\n\n`;
+        if (parsed.content) markdown += `${parsed.content}\n\n`;
+        if (parsed.hashtags?.length) markdown += `**标签:** ${parsed.hashtags.join(" ")}\n\n`;
+        if (parsed.image_desc) markdown += `**图片描述:** ${parsed.image_desc}\n`;
+        setConvertedContent(markdown);
       } catch {
         setConvertedContent(task.output.final_result);
       }
@@ -561,8 +588,6 @@ ${sourceContent}
     if (url.includes("weixin.qq.com") || url.includes("mp.weixin.qq.com"))
       return "wechat";
     if (url.includes("weibo.com")) return "weibo";
-    if (url.includes("youtube.com") || url.includes("youtu.be"))
-      return "youtube";
     if (url.includes("instagram.com")) return "instagram";
     return "";
   };
