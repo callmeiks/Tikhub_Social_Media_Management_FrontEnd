@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,13 +24,48 @@ import {
   Image,
   Settings2,
   AlertCircle,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  History,
+  Globe,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 // API configuration
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : "http://127.0.0.1:8000/api";
 const AUTH_TOKEN = import.meta.env.VITE_BACKEND_API_TOKEN;
+
+interface Task {
+  task_id: string;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  input: {
+    input_url: string;
+    source_platform: string;
+    target_platform: string;
+    style_options: any;
+    language: string;
+  };
+  output?: {
+    original_transcript?: string;
+    final_result?: string;
+  };
+  content_data?: {
+    title?: string;
+    description?: string;
+    video_url?: string;
+    author?: string;
+    hashtags?: string[];
+    image_desc?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
 
 export default function UniversalConverter() {
   const { toast } = useToast();
@@ -44,6 +79,13 @@ export default function UniversalConverter() {
   const [extractedData, setExtractedData] = useState<any>(null);
   const [extractedMetadata, setExtractedMetadata] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+  const [taskStatus, setTaskStatus] = useState<string>("");
+  const [pollingProgress, setPollingProgress] = useState(0);
+  const [userTasks, setUserTasks] = useState<Task[]>([]);
+  const [showTaskHistory, setShowTaskHistory] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("chinese");
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [styleOptions, setStyleOptions] = useState({
     tone: "friendly",
     length: "medium",
@@ -64,12 +106,150 @@ export default function UniversalConverter() {
     { value: "youtube", label: "YouTube", emoji: "▶️" },
   ];
 
+  const languages = [
+    { value: "chinese", label: "中文", flag: "🇨🇳" },
+    { value: "english", label: "English", flag: "🇬🇧" },
+    { value: "japanese", label: "日本語", flag: "🇯🇵" },
+    { value: "korean", label: "한국어", flag: "🇰🇷" },
+    { value: "spanish", label: "Español", flag: "🇪🇸" },
+    { value: "french", label: "Français", flag: "🇫🇷" },
+    { value: "german", label: "Deutsch", flag: "🇩🇪" },
+    { value: "russian", label: "Русский", flag: "🇷🇺" },
+    { value: "portuguese", label: "Português", flag: "🇵🇹" },
+    { value: "italian", label: "Italiano", flag: "🇮🇹" },
+    { value: "dutch", label: "Nederlands", flag: "🇳🇱" },
+    { value: "arabic", label: "العربية", flag: "🇸🇦" },
+    { value: "hindi", label: "हिन्दी", flag: "🇮🇳" },
+    { value: "turkish", label: "Türkçe", flag: "🇹🇷" },
+    { value: "vietnamese", label: "Tiếng Việt", flag: "🇻🇳" },
+    { value: "thai", label: "ไทย", flag: "🇹🇭" },
+    { value: "indonesian", label: "Bahasa Indonesia", flag: "🇮🇩" },
+    { value: "polish", label: "Polski", flag: "🇵🇱" },
+    { value: "swedish", label: "Svenska", flag: "🇸🇪" },
+    { value: "finnish", label: "Suomi", flag: "🇫🇮" },
+    { value: "hebrew", label: "עברית", flag: "🇮🇱" },
+    { value: "catalan", label: "Català", flag: "🇪🇸" },
+  ];
+
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const pollTaskStatus = async (taskId: string) => {
+    let pollCount = 0;
+    const maxPolls = 60; // Max 5 minutes (60 * 5s)
+    
+    const pollInterval = setInterval(async () => {
+      pollCount++;
+      setPollingProgress((pollCount / maxPolls) * 100);
+      
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/universal-converter/task/${taskId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${AUTH_TOKEN}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`获取任务状态失败: ${response.statusText}`);
+        }
+
+        const task: Task = await response.json();
+        setTaskStatus(task.status);
+        
+        // Update source content with content_data and original_transcript
+        let combinedContent = "";
+        if (task.content_data) {
+          if (task.content_data.title) combinedContent += `📌 标题: ${task.content_data.title}\n\n`;
+          if (task.content_data.description) combinedContent += `📝 描述: ${task.content_data.description}\n\n`;
+          if (task.content_data.author) combinedContent += `👤 作者: ${task.content_data.author}\n\n`;
+          if (task.content_data.hashtags?.length) combinedContent += `🏷️ 标签: ${task.content_data.hashtags.join(" ")}\n\n`;
+          if (task.content_data.video_url) combinedContent += `🎥 视频: ${task.content_data.video_url}\n\n`;
+          if (task.content_data.image_desc) combinedContent += `🖼️ 图片描述: ${task.content_data.image_desc}\n\n`;
+        }
+        if (task.output?.original_transcript) {
+          combinedContent += `📄 转录文本:\n${task.output.original_transcript}`;
+        }
+        if (combinedContent) setSourceContent(combinedContent);
+
+        if (task.status === 'COMPLETED') {
+          clearInterval(pollInterval);
+          pollingIntervalRef.current = null;
+          
+          if (task.output?.final_result) {
+            // Format JSON if it's a valid JSON string
+            try {
+              const parsed = JSON.parse(task.output.final_result);
+              setConvertedContent(JSON.stringify(parsed, null, 2));
+            } catch {
+              setConvertedContent(task.output.final_result);
+            }
+          }
+          
+          toast({
+            title: "转换成功",
+            description: "内容已成功转换为目标平台风格",
+          });
+          setIsConverting(false);
+          setPollingProgress(100);
+        } else if (task.status === 'FAILED') {
+          clearInterval(pollInterval);
+          pollingIntervalRef.current = null;
+          setError("任务执行失败，请重试");
+          toast({
+            title: "转换失败",
+            description: "任务执行失败，请重试",
+            variant: "destructive",
+          });
+          setIsConverting(false);
+          setPollingProgress(0);
+        } else if (pollCount >= maxPolls) {
+          clearInterval(pollInterval);
+          pollingIntervalRef.current = null;
+          setError("任务超时，请重试");
+          toast({
+            title: "转换超时",
+            description: "任务执行超时，请重试",
+            variant: "destructive",
+          });
+          setIsConverting(false);
+          setPollingProgress(0);
+        }
+      } catch (err) {
+        clearInterval(pollInterval);
+        pollingIntervalRef.current = null;
+        setError(err instanceof Error ? err.message : "获取任务状态失败");
+        setIsConverting(false);
+        setPollingProgress(0);
+      }
+    }, 5000); // Poll every 5 seconds
+    
+    pollingIntervalRef.current = pollInterval;
+  };
 
   const handleConvert = async () => {
-    if (!extractedData || !sourcePlatform || !targetPlatform) {
+    if (!linkInput.trim() || !sourcePlatform || !targetPlatform) {
       toast({
         title: "错误",
-        description: "请先提取内容后再进行转换",
+        description: "请输入链接并选择源平台和目标平台",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (sourcePlatform === targetPlatform) {
+      toast({
+        title: "错误",
+        description: "源平台和目标平台不能相同",
         variant: "destructive",
       });
       return;
@@ -77,10 +257,15 @@ export default function UniversalConverter() {
 
     setIsConverting(true);
     setError(null);
+    setTaskStatus("PENDING");
+    setPollingProgress(0);
+    setConvertedContent("");
+    setSourceContent("");
 
     try {
+      // Create task
       const response = await fetch(
-        `${API_BASE_URL}/universal-converter/convert`,
+        `${API_BASE_URL}/universal-converter/create-task`,
         {
           method: "POST",
           headers: {
@@ -88,31 +273,41 @@ export default function UniversalConverter() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            sourceContent: extractedData,
-            sourcePlatform: sourcePlatform,
-            targetPlatform: targetPlatform,
-            styleOptions: {
+            input_url: linkInput,
+            source_platform: sourcePlatform,
+            target_platform: targetPlatform,
+            style_options: {
               tone: styleOptions.tone,
               length: styleOptions.length,
-              styleType: styleOptions.styleType,
-              targetAge: styleOptions.targetAge,
-              targetGender: styleOptions.targetGender,
+              style_type: styleOptions.styleType,
+              target_age: styleOptions.targetAge,
+              target_gender: styleOptions.targetGender,
             },
+            language: selectedLanguage,
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error(`转换失败: ${response.statusText}`);
+        throw new Error(`创建任务失败: ${response.statusText}`);
       }
 
       const data = await response.json();
-      setConvertedContent(data.convertedContent || "");
-
-      toast({
-        title: "转换成功",
-        description: "内容已成功转换为目标平台风格",
-      });
+      
+      if (data.task_id) {
+        setCurrentTaskId(data.task_id);
+        setTaskStatus("PROCESSING");
+        
+        toast({
+          title: "任务已创建",
+          description: "正在处理中，请稍候...",
+        });
+        
+        // Start polling for task status
+        pollTaskStatus(data.task_id);
+      } else {
+        throw new Error("未获取到任务ID");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "转换过程中出现错误");
       toast({
@@ -120,9 +315,79 @@ export default function UniversalConverter() {
         description: err instanceof Error ? err.message : "请稍后重试",
         variant: "destructive",
       });
-    } finally {
       setIsConverting(false);
     }
+  };
+
+  const fetchUserTasks = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/universal-converter/tasks/list?limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKEN}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.tasks) {
+          setUserTasks(data.tasks);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch user tasks:", err);
+    }
+  };
+
+  const loadHistoryTask = (task: Task) => {
+    if (task.input) {
+      setLinkInput(task.input.input_url);
+      setSourcePlatform(task.input.source_platform);
+      setTargetPlatform(task.input.target_platform);
+      if (task.input.style_options) {
+        setStyleOptions({
+          tone: task.input.style_options.tone || "friendly",
+          length: task.input.style_options.length || "medium",
+          styleType: task.input.style_options.style_type || "casual",
+          targetAge: task.input.style_options.target_age || "18-25",
+          targetGender: task.input.style_options.target_gender || "all",
+        });
+      }
+      setSelectedLanguage(task.input.language || "chinese");
+    }
+    
+    // Load source content
+    let combinedContent = "";
+    if (task.content_data) {
+      if (task.content_data.title) combinedContent += `📌 标题: ${task.content_data.title}\n\n`;
+      if (task.content_data.description) combinedContent += `📝 描述: ${task.content_data.description}\n\n`;
+      if (task.content_data.author) combinedContent += `👤 作者: ${task.content_data.author}\n\n`;
+      if (task.content_data.hashtags?.length) combinedContent += `🏷️ 标签: ${task.content_data.hashtags.join(" ")}\n\n`;
+      if (task.content_data.video_url) combinedContent += `🎥 视频: ${task.content_data.video_url}\n\n`;
+      if (task.content_data.image_desc) combinedContent += `🖼️ 图片描述: ${task.content_data.image_desc}\n\n`;
+    }
+    if (task.output?.original_transcript) {
+      combinedContent += `📄 转录文本:\n${task.output.original_transcript}`;
+    }
+    if (combinedContent) setSourceContent(combinedContent);
+    
+    // Load converted content
+    if (task.output?.final_result) {
+      try {
+        const parsed = JSON.parse(task.output.final_result);
+        setConvertedContent(JSON.stringify(parsed, null, 2));
+      } catch {
+        setConvertedContent(task.output.final_result);
+      }
+    }
+    
+    setShowTaskHistory(false);
+    toast({
+      title: "历史任务已加载",
+      description: "任务内容已恢复到编辑器",
+    });
   };
 
   const handleConvertOld = async () => {
@@ -450,86 +715,50 @@ ${linkInput}
   const handleExtractFromLink = async () => {
     if (!linkInput.trim()) return;
 
-    setIsExtracting(true);
-    setError(null);
-    setExtractedData(null);
-    setConvertedContent("");
-
     // Auto-detect platform from URL
     const detectedPlatform = detectPlatformFromUrl(linkInput);
     if (detectedPlatform) {
       setSourcePlatform(detectedPlatform);
+      toast({
+        title: "平台已识别",
+        description: `已自动识别为 ${platforms.find(p => p.value === detectedPlatform)?.label}`,
+      });
     } else {
       toast({
         title: "警告",
         description: "无法自动识别平台，请手动选择源平台",
         variant: "destructive",
       });
-      setIsExtracting(false);
-      return;
     }
+  };
 
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/universal-converter/extract`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${AUTH_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            input_url: linkInput,
-            source_platform: detectedPlatform,
-          }),
-        },
-      );
+  const getTaskStatusIcon = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'PROCESSING':
+        return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
+      case 'COMPLETED':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'FAILED':
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
 
-      if (!response.ok) {
-        throw new Error(`提取失败: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-
-      if (result.data) {
-        setExtractedData(result.data);
-        setSourceContent(formatExtractedData(result.data));
-
-        // Set metadata for display
-        const metadata: any = {
-          平台:
-            platforms.find((p) => p.value === detectedPlatform)?.label ||
-            detectedPlatform,
-          状态: "提取成功",
-        };
-
-        if (result.data.title)
-          metadata.标题 =
-            result.data.title.substring(0, 30) +
-            (result.data.title.length > 30 ? "..." : "");
-        if (result.data.hashtags)
-          metadata.标签数 = result.data.hashtags.length + "个";
-        if (result.data.transcript)
-          metadata.字数 = result.data.transcript.length + "字";
-
-        setExtractedMetadata(metadata);
-
-        toast({
-          title: "提取成功",
-          description: "内容已成功提取，可以进行转换了",
-        });
-      } else {
-        throw new Error("未能提取到有效内容");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "提取过程中出现错误");
-      toast({
-        title: "提取失败",
-        description: err instanceof Error ? err.message : "请检查链接是否有效",
-        variant: "destructive",
-      });
-    } finally {
-      setIsExtracting(false);
+  const getTaskStatusText = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return '等待处理';
+      case 'PROCESSING':
+        return '处理中';
+      case 'COMPLETED':
+        return '已完成';
+      case 'FAILED':
+        return '失败';
+      default:
+        return status;
     }
   };
 
@@ -548,13 +777,77 @@ ${linkInput}
         </div>
 
 
+        {/* Task Status Alert */}
+        {taskStatus && isConverting && (
+          <Alert className="mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {getTaskStatusIcon(taskStatus)}
+                <AlertDescription>
+                  <span className="font-medium">{getTaskStatusText(taskStatus)}</span>
+                  {taskStatus === 'PROCESSING' && (
+                    <span className="ml-2 text-muted-foreground">
+                      正在处理您的请求，请稍候...
+                    </span>
+                  )}
+                </AlertDescription>
+              </div>
+              {currentTaskId && (
+                <Badge variant="outline" className="ml-4">
+                  任务ID: {currentTaskId.substring(0, 8)}...
+                </Badge>
+              )}
+            </div>
+            {taskStatus === 'PROCESSING' && (
+              <Progress value={pollingProgress} className="mt-3" />
+            )}
+          </Alert>
+        )}
+
         {/* Style Options */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings2 className="w-5 h-5" />
-              风格选项
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Settings2 className="w-5 h-5" />
+                风格选项
+              </CardTitle>
+              <div className="flex items-center gap-4">
+                {/* Language Selection */}
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <Select
+                    value={selectedLanguage}
+                    onValueChange={setSelectedLanguage}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {languages.map((lang) => (
+                        <SelectItem key={lang.value} value={lang.value}>
+                          <span className="flex items-center gap-2">
+                            {lang.flag} {lang.label}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Task History Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    fetchUserTasks();
+                    setShowTaskHistory(!showTaskHistory);
+                  }}
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  历史记录
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -795,20 +1088,11 @@ ${linkInput}
                   />
                   <Button
                     onClick={handleExtractFromLink}
-                    disabled={!linkInput.trim() || isExtracting}
+                    disabled={!linkInput.trim()}
                     variant="outline"
                   >
-                    {isExtracting ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        提取中
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-4 h-4 mr-2" />
-                        提取内容
-                      </>
-                    )}
+                    <FileText className="w-4 h-4 mr-2" />
+                    识别平台
                   </Button>
                 </div>
 
@@ -862,10 +1146,10 @@ ${linkInput}
                   )}
                 </div>
                 <Textarea
-                  placeholder="请先使用上方链接提取功能获取内容..."
+                  placeholder="请先输入链接并点击识别平台..."
                   value={sourceContent}
                   readOnly
-                  className="min-h-[250px] resize-none bg-gray-50"
+                  className="min-h-[300px] resize-none bg-gray-50 font-mono text-sm"
                 />
               </div>
 
@@ -921,7 +1205,7 @@ ${linkInput}
                 placeholder="转换后的内容将显示在这里..."
                 value={convertedContent}
                 readOnly
-                className="min-h-[300px] resize-none bg-gray-50"
+                className="min-h-[400px] resize-none bg-gray-50 font-mono text-sm whitespace-pre-wrap"
               />
 
               <div className="flex items-center justify-between">
@@ -957,18 +1241,23 @@ ${linkInput}
           <Button
             onClick={handleConvert}
             disabled={
-              !extractedData ||
+              !linkInput.trim() ||
               !sourcePlatform ||
               !targetPlatform ||
-              isConverting
+              isConverting ||
+              sourcePlatform === targetPlatform
             }
             className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg h-auto"
             size="lg"
           >
             {isConverting ? (
               <>
-                <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-                AI 转换中...
+                {taskStatus === 'PROCESSING' ? (
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                )}
+                {taskStatus === 'PENDING' ? '创建任务中...' : 'AI 转换中...'}
               </>
             ) : (
               <>
@@ -978,6 +1267,69 @@ ${linkInput}
             )}
           </Button>
         </div>
+
+        {/* Task History Modal */}
+        {showTaskHistory && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  历史任务记录
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowTaskHistory(false)}
+                >
+                  <XCircle className="w-4 h-4" />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {userTasks.length > 0 ? (
+                <div className="space-y-3">
+                  {userTasks.map((task) => (
+                    <div
+                      key={task.task_id}
+                      className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => loadHistoryTask(task)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {getTaskStatusIcon(task.status)}
+                          <span className="font-medium">
+                            {platforms.find(p => p.value === task.input.source_platform)?.label} 
+                            → 
+                            {platforms.find(p => p.value === task.input.target_platform)?.label}
+                          </span>
+                        </div>
+                        <Badge variant="outline">
+                          {new Date(task.created_at).toLocaleString('zh-CN')}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground truncate">
+                        {task.input.input_url}
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {languages.find(l => l.value === task.input.language)?.label || '中文'}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {getTaskStatusText(task.status)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  暂无历史任务记录
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Features */}
         <Card className="mt-6">
