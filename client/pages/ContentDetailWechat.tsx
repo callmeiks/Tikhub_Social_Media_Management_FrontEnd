@@ -148,11 +148,11 @@ export default function ContentDetailWechat() {
         <div className="text-center py-12">
           <p className="text-muted-foreground">找不到指定的微信文章</p>
           <Button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/data-collection/content-interaction")}
             className="mt-4"
             variant="outline"
           >
-            返回
+            返回作品列表
           </Button>
         </div>
       </DashboardLayout>

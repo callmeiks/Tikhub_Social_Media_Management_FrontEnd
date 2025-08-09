@@ -1417,9 +1417,8 @@ class ApiClient {
 
     const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
 
-    // Use port 8001 for account-interaction API
-    const apiUrl = this.baseURL.replace(":8000", ":8001");
-    const url = `${apiUrl}/account-interaction/posts/${platform}/${platform_user_id}${query}`;
+    // Use updated endpoint for user collection posts
+    const url = `${this.baseURL}/user-collection/posts/${platform}/${platform_user_id}${query}`;
 
     const headers: Record<string, string> = {};
     if (this.token) {

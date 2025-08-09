@@ -47,6 +47,7 @@ import {
   Eye,
   ExternalLink,
   Filter,
+  RefreshCw,
 } from "lucide-react";
 import {
   apiClient,
@@ -87,7 +88,20 @@ export default function AccountInteraction() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [cachedData, setCachedData] = useState<{
+    data: Influencer[];
+    total: number;
+    timestamp: number;
+    filters: {
+      platforms: string[];
+      search: string;
+      sort: string;
+      page: number;
+    };
+  } | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const itemsPerPage = 20;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // 采集结果状态
   const [collectResult, setCollectResult] = useState<{
@@ -102,7 +116,37 @@ export default function AccountInteraction() {
     .map((url) => url.trim())
     .filter((url) => url.length > 0).length;
 
-  const fetchInfluencers = async () => {
+  // Cache helper functions
+  const isCacheValid = (cache: typeof cachedData) => {
+    if (!cache) return false;
+    const isExpired = Date.now() - cache.timestamp > CACHE_DURATION;
+    if (isExpired) return false;
+    
+    const currentFilters = {
+      platforms: selectedPlatforms,
+      search: searchQuery,
+      sort: sortBy,
+      page: currentPage,
+    };
+    
+    return JSON.stringify(cache.filters) === JSON.stringify(currentFilters);
+  };
+
+  const saveToCache = (data: Influencer[], total: number) => {
+    setCachedData({
+      data,
+      total,
+      timestamp: Date.now(),
+      filters: {
+        platforms: [...selectedPlatforms],
+        search: searchQuery,
+        sort: sortBy,
+        page: currentPage,
+      },
+    });
+  };
+
+  const fetchInfluencers = async (forceRefresh: boolean = false) => {
     if (
       selectedPlatforms.length === 0 ||
       (selectedPlatforms.length === 1 && !selectedPlatforms.includes("all"))
@@ -112,11 +156,18 @@ export default function AccountInteraction() {
       return;
     }
 
+    // Check cache first unless force refresh is requested
+    if (!forceRefresh && isCacheValid(cachedData)) {
+      setAccountData(cachedData!.data);
+      setTotalItems(cachedData!.total);
+      return;
+    }
+
     setLoading(true);
     try {
-      // Use port 8001 for account-interaction API
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
-      const url = `${apiUrl}/api/account-interaction/influencers`;
+      // Use updated endpoint for user collection influencers
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+      const url = `${apiUrl}/api/user-collection/influencers`;
       
       const searchParams = new URLSearchParams();
       searchParams.append("platform", selectedPlatforms.includes("all") ? "all" : selectedPlatforms.join(","));
@@ -168,11 +219,21 @@ export default function AccountInteraction() {
       
       setAccountData(data.items);
       setTotalItems(data.total);
+      
+      // Save to cache
+      saveToCache(data.items, data.total);
     } catch (error) {
       console.error("Failed to fetch influencers:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchInfluencers(true); // Force refresh
+    setIsRefreshing(false);
   };
 
   useEffect(() => {
@@ -223,7 +284,14 @@ export default function AccountInteraction() {
   };
 
   const getAvatarUrl = (account: Influencer): string => {
-    return (account as any).avatar_url || "";
+    const avatarUrl = (account as any).avatar_url || "";
+    
+    // Convert Douyin HEIC avatars to JPEG
+    if (account.platform === "douyin" && avatarUrl.includes("douyinpic.com") && avatarUrl.includes(".heic")) {
+      return avatarUrl.replace(".heic", ".jpeg");
+    }
+    
+    return avatarUrl;
   };
 
   const handleCollect = async () => {
@@ -254,30 +322,51 @@ export default function AccountInteraction() {
         最新200: 200,
       };
 
-      const collectParams: CollectAccountsParams = {
+      const collectParams = {
         urls: urls,
         collectPosts: collectWorks,
         collectCount: collectCountMap[collectionQuantity] || 50,
       };
 
-      const response: CollectAccountsResponse =
-        await apiClient.collectAccounts(collectParams);
+      // Use new endpoint for creating collection tasks
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+      const url = `${apiUrl}/api/user-collection/create-tasks`;
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const token = import.meta.env.VITE_BACKEND_API_TOKEN || localStorage.getItem("auth_token");
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(collectParams),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
 
       setIsCollecting(false);
 
       // 显示采集结果
       setCollectResult({
-        total_successful: response.total_successful,
-        total_failed: response.total_failed,
-        failed_urls: response.failed_urls,
+        total_successful: responseData.total_successful || responseData.success_count || 0,
+        total_failed: responseData.total_failed || responseData.failed_count || 0,
+        failed_urls: responseData.failed_urls || responseData.failed || [],
         show: true,
       });
 
       // 清空输入框
       setBatchUrls("");
 
-      // 刷新账户列表
-      fetchInfluencers();
+      // 刷新账户列表（强制刷新以获取新数据）
+      fetchInfluencers(true);
     } catch (error) {
       setIsCollecting(false);
       console.error("采集账号失败:", error);
@@ -1086,6 +1175,16 @@ https://weibo.com/u/123456789
                         <SelectItem value="点赞量-低到高">点赞量 ↑</SelectItem>
                       </SelectContent>
                     </Select>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8" 
+                      onClick={handleManualRefresh}
+                      disabled={loading || isRefreshing}
+                    >
+                      <RefreshCw className={`mr-2 h-3.5 w-3.5 ${(loading || isRefreshing) ? 'animate-spin' : ''}`} />
+                      {isRefreshing ? '刷新中...' : '刷新'}
+                    </Button>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8">

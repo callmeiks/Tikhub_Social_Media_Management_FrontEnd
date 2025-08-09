@@ -300,6 +300,21 @@ export default function ContentDetailTiktok() {
     }
   }, [location.state]);
 
+  // Auto-load all analytics data when content is available
+  useEffect(() => {
+    if (content && content.aweme_id) {
+      console.log("Auto-loading all analytics data for TikTok content:", content.aweme_id);
+      // Fetch all analytics data automatically
+      fetchAnalyticsData(content.aweme_id);
+      fetchWordCloudData(content.aweme_id);
+      
+      // Fetch author data if available
+      if (content.author_uid) {
+        fetchCreatorData(content.author_uid);
+      }
+    }
+  }, [content]);
+
   // Cleanup audio player on component unmount
   useEffect(() => {
     return () => {
@@ -392,7 +407,7 @@ export default function ContentDetailTiktok() {
         localStorage.getItem("auth_token");
 
       const response = await fetch(
-        `${API_BASE_URL}/api/content-interaction/tiktok/analytics/video-metrics/${awemeId}`,
+        `${API_BASE_URL}/api/content-collection/tiktok/analytics/video-metrics/${awemeId}`,
         {
           headers: {
             Accept: "application/json",
@@ -427,7 +442,7 @@ export default function ContentDetailTiktok() {
         localStorage.getItem("auth_token");
 
       const response = await fetch(
-        `${API_BASE_URL}/api/content-interaction/tiktok/analytics/creator-info/${userId}`,
+        `${API_BASE_URL}/api/content-collection/tiktok/analytics/creator-info/${userId}`,
         {
           headers: {
             Accept: "application/json",
@@ -462,7 +477,7 @@ export default function ContentDetailTiktok() {
         localStorage.getItem("auth_token");
 
       const response = await fetch(
-        `${API_BASE_URL}/api/content-interaction/tiktok/analytics/comment-keywords/${awemeId}`,
+        `${API_BASE_URL}/api/content-collection/tiktok/analytics/comment-keywords/${awemeId}`,
         {
           headers: {
             Accept: "application/json",
@@ -500,11 +515,11 @@ export default function ContentDetailTiktok() {
         <div className="text-center py-12">
           <p className="text-muted-foreground">找不到指定的TikTok作品</p>
           <Button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/data-collection/content-interaction")}
             className="mt-4"
             variant="outline"
           >
-            返回
+            返回作品列表
           </Button>
         </div>
       </DashboardLayout>
@@ -1216,7 +1231,7 @@ export default function ContentDetailTiktok() {
                     onClick={() => fetchAnalyticsData(content.aweme_id)}
                     disabled={analyticsLoading}
                   >
-                    {analyticsLoading ? "加载中..." : "刷新数据"}
+                    {analyticsLoading ? "加载中..." : "重新加载"}
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -1410,12 +1425,12 @@ export default function ContentDetailTiktok() {
                   <div className="text-center py-12">
                     <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">
-                      暂无数据趋势信息
+                      数据趋势信息加载中，请稍候...
                     </p>
                     <Button
                       onClick={() => fetchAnalyticsData(content.aweme_id)}
                     >
-                      加载数据趋势
+                      重新加载
                     </Button>
                   </div>
                 )}
@@ -1435,7 +1450,7 @@ export default function ContentDetailTiktok() {
                     onClick={() => fetchCreatorData(content.author_uid)}
                     disabled={creatorLoading}
                   >
-                    {creatorLoading ? "加载中..." : "刷新数据"}
+                    {creatorLoading ? "加载中..." : "重新加载"}
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -1629,12 +1644,12 @@ export default function ContentDetailTiktok() {
                   <div className="text-center py-12">
                     <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">
-                      暂无作者详细信息
+                      作者详细信息加载中，请稍候...
                     </p>
                     <Button
                       onClick={() => fetchCreatorData(content.author_uid)}
                     >
-                      加载作者信息
+                      重新加载
                     </Button>
                   </div>
                 )}
@@ -1768,12 +1783,12 @@ export default function ContentDetailTiktok() {
                   <div className="text-center py-12">
                     <PieChartIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">
-                      暂无词云分析数据
+                      词云分析数据加载中，请稍候...
                     </p>
                     <Button
                       onClick={() => fetchWordCloudData(content.aweme_id)}
                     >
-                      加载词云分析
+                      重新加载
                     </Button>
                   </div>
                 )}

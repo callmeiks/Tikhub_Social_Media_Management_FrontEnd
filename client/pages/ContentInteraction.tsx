@@ -481,6 +481,14 @@ export default function ContentInteraction() {
     "" | "ascending" | "descending"
   >("");
   const [activeTab, setActiveTab] = useState("add");
+  
+  // Cache for content data
+  const [contentCache, setContentCache] = useState<{
+    data: ContentItem[];
+    timestamp: number;
+    params: string;
+  } | null>(null);
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
   const urlCount = batchUrls
     .split("\n")
@@ -806,7 +814,7 @@ export default function ContentInteraction() {
     );
   }, [selectedPlatforms, contentData]);
 
-  // Fetch content data from API
+  // Fetch content data from API with caching
   const fetchContentData = async () => {
     setIsLoadingContent(true);
     try {
@@ -826,8 +834,25 @@ export default function ContentInteraction() {
         params.append("sort_by_likes", sortByLikes);
       }
 
+      const paramsString = params.toString();
+      const now = Date.now();
+
+      // Check if we have valid cached data
+      if (
+        contentCache &&
+        contentCache.params === paramsString &&
+        now - contentCache.timestamp < CACHE_DURATION
+      ) {
+        console.log("Using cached content data");
+        setApiContentData(contentCache.data);
+        setTotalItems(contentCache.data.length);
+        setIsLoadingContent(false);
+        return;
+      }
+
+      console.log("Fetching fresh content data from API");
       const response = await fetch(
-        `${API_BASE_URL}/api/content-interaction/content?${params}`,
+        `${API_BASE_URL}/api/content-collection/content?${params}`,
         {
           headers: {
             accept: "application/json",
@@ -843,6 +868,14 @@ export default function ContentInteraction() {
       }
 
       const data: ContentApiResponse = await response.json();
+      
+      // Update cache
+      setContentCache({
+        data: data.items,
+        timestamp: now,
+        params: paramsString,
+      });
+      
       setApiContentData(data.items);
       setTotalItems(data.total);
     } catch (error) {
@@ -851,6 +884,12 @@ export default function ContentInteraction() {
     } finally {
       setIsLoadingContent(false);
     }
+  };
+
+  // Clear cache function
+  const clearCache = () => {
+    setContentCache(null);
+    console.log("Content cache cleared");
   };
 
   // Trigger fetch when tab changes to "data" or when filters change
@@ -871,8 +910,8 @@ export default function ContentInteraction() {
       return;
     }
 
-    if (urls.length > 50) {
-      alert("最多支持50个作品链接，请减少数量");
+    if (urls.length > 100) {
+      alert("最多支持100个作品链接，请减少数量");
       return;
     }
 
@@ -893,7 +932,7 @@ export default function ContentInteraction() {
         localStorage.getItem("auth_token");
 
       const response = await fetch(
-        `${API_BASE_URL}/api/content-interaction/create-tasks`,
+        `${API_BASE_URL}/api/content-collection/create-tasks`,
         {
           method: "POST",
           headers: {
@@ -1201,17 +1240,17 @@ export default function ContentInteraction() {
                     批量添加作品链接
                   </span>
                   <Badge
-                    variant={urlCount > 50 ? "destructive" : "secondary"}
+                    variant={urlCount > 100 ? "destructive" : "secondary"}
                     className="text-xs"
                   >
-                    {urlCount}/50
+                    {urlCount}/100
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    作品链接（每行一个，最多50个链接）:
+                    作品链接（每行一个，最多100个链接）:
                   </label>
                   <Textarea
                     placeholder={`请粘贴作品链接，每行一个：
@@ -1251,7 +1290,7 @@ https://www.youtube.com/watch?v=example123
                   </div>
                 </div>
 
-                {urlCount > 50 && (
+                {urlCount > 100 && (
                   <div className="flex items-center space-x-2 text-red-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
                     <span>链接数量超过限制，请删除多余的链��</span>
@@ -1309,7 +1348,7 @@ https://www.youtube.com/watch?v=example123
                       onClick={handleAnalyze}
                       disabled={
                         urlCount === 0 ||
-                        urlCount > 50 ||
+                        urlCount > 100 ||
                         hasInvalidUrls ||
                         isAnalyzing
                       }
@@ -1464,6 +1503,7 @@ https://www.youtube.com/watch?v=example123
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          clearCache();
                           setCurrentPage(1);
                           fetchContentData();
                         }}

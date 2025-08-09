@@ -376,8 +376,8 @@ export default function ContentDetailBilibili() {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <p className="text-gray-500">未找到内容</p>
-            <Button onClick={() => navigate(-1)} className="mt-4">
-              返回
+            <Button onClick={() => navigate("/data-collection/content-interaction")} className="mt-4">
+              返回作品列表
             </Button>
           </div>
         </div>
@@ -499,13 +499,13 @@ export default function ContentDetailBilibili() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/data-collection/content-interaction")}
               variant="ghost"
               size="sm"
               className="h-8"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              返回
+              返回作品列表
             </Button>
             <div>
               <h1 className="text-2xl font-bold">B站视频详情</h1>

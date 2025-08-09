@@ -487,6 +487,42 @@ export default function ContentDetailDouyin() {
     }
   }, [location.state]);
 
+  // Auto-load all API data when content is available
+  useEffect(() => {
+    if (content && content.aweme_id) {
+      // Auto-fetch all available data
+      console.log("Auto-loading all analytics data for content:", content.aweme_id);
+      
+      // Fetch trends data
+      fetchTrendsData(content.aweme_id);
+      
+      // Fetch audience portrait data
+      fetchAudienceData(content.aweme_id);
+      
+      // Fetch comment words analysis
+      fetchCommentWordsData(content.aweme_id);
+      
+      // Fetch danmaku data (if applicable)
+      if (content.mid) {
+        fetchDanmakuData(content.aweme_id, content.mid);
+      }
+      
+      // Fetch music detail data
+      if (content.mid) {
+        fetchMusicDetailData(content.mid);
+      }
+      
+      // Fetch related videos
+      fetchRelatedVideosData(content.aweme_id);
+      
+      // Fetch author data if available
+      if (content.author_sec_user_id) {
+        fetchAuthorData(content.author_sec_user_id);
+        fetchAnalyticsData(content.author_sec_user_id);
+      }
+    }
+  }, [content]);
+
   // Cleanup audio player on component unmount
   useEffect(() => {
     return () => {
@@ -582,7 +618,7 @@ export default function ContentDetailDouyin() {
     setTrendsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/item-trends/${awemeId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/analytics/item-trends/${awemeId}`,
         {
           method: "GET",
           headers: {
@@ -610,7 +646,7 @@ export default function ContentDetailDouyin() {
     setAudienceLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/post-audience-portrait/${awemeId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/analytics/post-audience-portrait/${awemeId}`,
         {
           method: "GET",
           headers: {
@@ -668,7 +704,7 @@ export default function ContentDetailDouyin() {
     setAnalyticsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/account-analysis/${secUserId}?day=7`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/analytics/account-analysis/${secUserId}?day=7`,
         {
           method: "GET",
           headers: {
@@ -697,7 +733,7 @@ export default function ContentDetailDouyin() {
     setCommentWordsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/analytics/comment-words/${awemeId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/analytics/comment-words/${awemeId}`,
         {
           method: "GET",
           headers: {
@@ -732,7 +768,7 @@ export default function ContentDetailDouyin() {
     try {
       const endTimeParam = endTime || duration - 1;
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/video/${itemId}/danmaku?duration=${duration}&end_time=${endTimeParam}&start_time=${startTime}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/video/${itemId}/danmaku?duration=${duration}&end_time=${endTimeParam}&start_time=${startTime}`,
         {
           method: "GET",
           headers: {
@@ -761,7 +797,7 @@ export default function ContentDetailDouyin() {
     setMusicDetailLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/music/${musicId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/music/${musicId}`,
         {
           method: "GET",
           headers: {
@@ -790,7 +826,7 @@ export default function ContentDetailDouyin() {
     setRelatedVideosLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/content-interaction/douyin/video/${awemeId}/related-posts?max_posts=20`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/content-collection/douyin/video/${awemeId}/related-posts?max_posts=20`,
         {
           method: "GET",
           headers: {
@@ -830,11 +866,11 @@ export default function ContentDetailDouyin() {
         <div className="text-center py-12">
           <p className="text-muted-foreground">找不到指定的抖音作品</p>
           <Button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/data-collection/content-interaction")}
             className="mt-4"
             variant="outline"
           >
-            返回
+            返回作品列表
           </Button>
         </div>
       </DashboardLayout>
@@ -1352,7 +1388,7 @@ export default function ContentDetailDouyin() {
                       }
                       disabled={trendsLoading}
                     >
-                      {trendsLoading ? "加载中..." : "刷新数据"}
+                      {trendsLoading ? "加载中..." : "重新加载"}
                     </Button>
                   </CardTitle>
                 </CardHeader>
@@ -1470,7 +1506,7 @@ export default function ContentDetailDouyin() {
                       <div className="text-center">
                         <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <p className="text-muted-foreground">
-                          点击刷新数据按钮获取视频数据趋势
+                          数据正在自动加载中，或点击重新加载按钮刷新数据
                         </p>
                       </div>
                     </div>
@@ -1495,7 +1531,7 @@ export default function ContentDetailDouyin() {
                       }
                       disabled={audienceLoading}
                     >
-                      {audienceLoading ? "加载中..." : "刷新数据"}
+                      {audienceLoading ? "加载中..." : "重新加载"}
                     </Button>
                   </CardTitle>
                 </CardHeader>
@@ -1814,7 +1850,7 @@ export default function ContentDetailDouyin() {
                       <div className="text-center">
                         <PieChartIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <p className="text-muted-foreground">
-                          点击刷新数据按钮获取观众画像分析
+                          数据正在自动加载中，或点击重新加载按钮刷新数据
                         </p>
                       </div>
                     </div>
@@ -1840,7 +1876,7 @@ export default function ContentDetailDouyin() {
                       }
                       disabled={authorLoading}
                     >
-                      {authorLoading ? "加载中..." : "刷新数据"}
+                      {authorLoading ? "加载中..." : "重新加载"}
                     </Button>
                   </CardTitle>
                 </CardHeader>
@@ -1920,7 +1956,7 @@ export default function ContentDetailDouyin() {
                       }
                       disabled={analyticsLoading}
                     >
-                      {analyticsLoading ? "加载中..." : "刷新数据"}
+                      {analyticsLoading ? "加载中..." : "重新加载"}
                     </Button>
                   </CardTitle>
                 </CardHeader>

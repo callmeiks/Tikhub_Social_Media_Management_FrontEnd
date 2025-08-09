@@ -405,13 +405,13 @@ export default function ContentDetailInstagram() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/data-collection/content-interaction")}
               variant="ghost"
               size="sm"
               className="h-8"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              返回
+              返回作品列表
             </Button>
             <div>
               <h1 className="text-2xl font-bold">Instagram 帖子详情</h1>
