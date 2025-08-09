@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/ui/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   FileText,
   Video,
   Copy,
@@ -28,7 +35,15 @@ import {
   Clock,
   Target,
   MessageCircle,
+  FileDown,
+  ListChecks,
+  Database,
+  Loader2,
+  XCircle,
+  PauseCircle,
+  PlayCircle,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const supportedPlatforms = [
   { id: "tiktok", name: "TikTok", emoji: "🎵", active: true },
@@ -40,112 +55,72 @@ const supportedPlatforms = [
   { id: "x", name: "X (Twitter)", emoji: "🐦", active: true },
 ];
 
-const extractionHistory = [
-  {
-    id: 1,
-    title: "这样护肤3个月，皮肤真的变好了！",
-    platform: "抖音",
-    author: "护肤小仙女",
-    extractedAt: "2024-01-15 14:30",
-    wordCount: 156,
-    engagement: "37.8%",
-    status: "已完成",
-    url: "https://v.douyin.com/iABCDEF/",
-  },
-  {
-    id: 2,
-    title: "减肥成功分享！从130斤到100斤的完整攻略",
-    platform: "小红书",
-    author: "瘦身达人",
-    extractedAt: "2024-01-14 16:22",
-    wordCount: 234,
-    engagement: "42.1%",
-    status: "已完成",
-    url: "https://www.xiaohongshu.com/discovery/item/123456",
-  },
-  {
-    id: 3,
-    title: "新手化妆教程｜打造自然裸妆的5个步骤",
-    platform: "TikTok",
-    author: "美妆博主",
-    extractedAt: "2024-01-13 09:15",
-    wordCount: 189,
-    engagement: "28.9%",
-    status: "已完成",
-    url: "https://www.tiktok.com/@user/video/123456789",
-  },
-  {
-    id: 4,
-    title: "学生党必看！宿舍收纳神器推荐",
-    platform: "B站",
-    author: "生活小能手",
-    extractedAt: "2024-01-12 20:30",
-    wordCount: 167,
-    engagement: "31.5%",
-    status: "已完成",
-    url: "https://www.bilibili.com/video/BV1234567890",
-  },
-  {
-    id: 5,
-    title: "5分钟快手早餐，营养又美味",
-    platform: "快手",
-    author: "美食家",
-    extractedAt: "2024-01-11 08:45",
-    wordCount: 142,
-    engagement: "25.3%",
-    status: "已完成",
-    url: "https://www.kuaishou.com/video/123456",
-  },
-];
+interface Task {
+  task_id: string;
+  url: string;
+  platform: string;
+  status: 'queued' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'paused';
+  progress: number;
+  created_at: string;
+  completed_at?: string;
+  error_message?: string;
+  caption_info?: {
+    platform: string;
+    caption_text: string;
+    author: string;
+    url: string;
+  };
+}
 
-const extractedData = {
-  title: "这样护肤3个月，皮肤真的变好了！",
-  videoInfo: {
-    duration: "02:35",
-    views: "23.6万",
-    likes: "8.9万",
-    comments: "2.1万",
-    author: "护肤小仙女",
-    platform: "抖音",
-  },
-  extractedCopy: `姐妹们好！今天分享我这3个月的护肤心得～
+interface Caption {
+  platform: string;
+  caption_text: string;
+  author: string;
+  url: string;
+}
 
-💄 我的变化：
-- 毛孔明显变小了
-- 皮肤更有光泽
-- 痘印淡化了很多
-
-🌟 我用的方法：
-1️⃣ 早晚双重清洁
-2️⃣ 精华要按摩到吸收
-3️⃣ 面膜一周2-3次
-4️⃣ 防晒真的很重要！
-
-💡 产品推荐：
-✨ 洁面：氨基酸洁面泡沫
-✨ 精华：烟酰胺精华液
-✨ 面膜：玻尿酸补水面膜
-✨ 防晒：物理防晒霜SPF50
-
-坚持真的有用！姐妹们一起变美～
-
-#护肤心得 #变美 #护肤分享`,
-  hashtags: ["#护肤心得", "#变美", "#护肤分享", "#美容", "#护肤小技巧"],
-  keyPoints: [
-    "双重清洁很重要",
-    "精华要充分按摩",
-    "防晒是必需品",
-    "坚持才有效果",
-  ],
-  sentiment: "positive",
-  engagementRate: 37.8,
+const getStatusBadge = (status: string) => {
+  const statusConfig = {
+    queued: { color: "bg-blue-100 text-blue-800", icon: Clock, label: "排队中" },
+    processing: { color: "bg-yellow-100 text-yellow-800", icon: Loader2, label: "处理中" },
+    completed: { color: "bg-green-100 text-green-800", icon: CheckCircle, label: "已完成" },
+    failed: { color: "bg-red-100 text-red-800", icon: XCircle, label: "失败" },
+    cancelled: { color: "bg-gray-100 text-gray-800", icon: XCircle, label: "已取消" },
+    paused: { color: "bg-orange-100 text-orange-800", icon: PauseCircle, label: "已暂停" },
+  };
+  return statusConfig[status as keyof typeof statusConfig] || statusConfig.queued;
 };
 
+const getPlatformName = (platform: string) => {
+  const platformMap: { [key: string]: string } = {
+    douyin: "抖音",
+    tiktok: "TikTok",
+    xiaohongshu: "小红书",
+    kuaishou: "快手",
+    bilibili: "B站",
+    instagram: "Instagram",
+    x: "X",
+  };
+  return platformMap[platform] || platform;
+};
+
+
 export default function VideoNoteExtract() {
+  const { toast } = useToast();
   const [batchUrls, setBatchUrls] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("extract");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [captions, setCaptions] = useState<Caption[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [isLoadingCaptions, setIsLoadingCaptions] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    ? `${import.meta.env.VITE_API_BASE_URL}/api`
+    : "http://127.0.0.1:8000/api";
 
   const handleExtract = async () => {
     const urls = batchUrls
@@ -154,25 +129,193 @@ export default function VideoNoteExtract() {
       .filter((url) => url.length > 0);
 
     if (urls.length === 0) {
-      alert("请输入至少一个视频或笔记链接");
+      toast({
+        title: "错误",
+        description: "请输入至少一个视频或笔记链接",
+        variant: "destructive",
+      });
       return;
     }
 
     if (urls.length > 50) {
-      alert("最多支持50个链接，请减少链接数量");
+      toast({
+        title: "错误",
+        description: "最多支持50个链接，请减少链接数量",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsExtracting(true);
-    // 模拟API调用
-    setTimeout(() => {
-      setShowResults(true);
+    
+    try {
+      const token = localStorage.getItem("authToken") || import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(`${API_BASE_URL}/caption-collection/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ urls }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "成功",
+        description: `成功创建 ${data.total_successful} 个提取任务`,
+      });
+      
+      if (data.total_failed > 0) {
+        toast({
+          title: "部分失败",
+          description: `${data.total_failed} 个链接处理失败`,
+          variant: "destructive",
+        });
+      }
+      
+      // Clear input after successful submission
+      setBatchUrls("");
+      
+      // Switch to task list tab to show progress
+      setActiveTab("tasks");
+      
+      // Refresh task list
+      await fetchTasks();
+    } catch (error) {
+      console.error("Extraction error:", error);
+      toast({
+        title: "错误",
+        description: "提取请求失败，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
       setIsExtracting(false);
-    }, 3000);
+    }
+  };
+
+  const fetchTasks = async (page = 1, status = "all") => {
+    setIsLoadingTasks(true);
+    try {
+      const token = localStorage.getItem("authToken") || import.meta.env.VITE_BACKEND_API_TOKEN;
+      let url = `${API_BASE_URL}/caption-collection/tasks?page=${page}&limit=20`;
+      
+      if (status !== "all") {
+        url += `&status=${status}`;
+      }
+      
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setTasks(data.tasks || []);
+      // Assuming backend will add pagination info in future
+      setTotalPages(Math.ceil((data.total || data.tasks?.length || 0) / 20));
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+      toast({
+        title: "错误",
+        description: "获取任务列表失败",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
+
+  const fetchCaptions = async () => {
+    setIsLoadingCaptions(true);
+    try {
+      const token = localStorage.getItem("authToken") || import.meta.env.VITE_BACKEND_API_TOKEN;
+      const response = await fetch(`${API_BASE_URL}/caption-collection/captions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setCaptions(data.captions || []);
+    } catch (error) {
+      console.error("Failed to fetch captions:", error);
+      toast({
+        title: "错误",
+        description: "获取文案数据失败",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCaptions(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "tasks") {
+      fetchTasks(currentPage, statusFilter);
+    } else if (activeTab === "captions") {
+      fetchCaptions();
+    }
+  }, [activeTab, currentPage, statusFilter]);
+
+  const exportCaptions = (format: 'csv' | 'xlsx') => {
+    if (captions.length === 0) {
+      toast({
+        title: "错误",
+        description: "没有可导出的数据",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (format === 'csv') {
+      const csvContent = [
+        ['平台', '作者', '文案内容', '链接'],
+        ...captions.map(c => [
+          getPlatformName(c.platform),
+          c.author,
+          c.caption_text.replace(/"/g, '""'),
+          c.url
+        ])
+      ]
+        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `captions_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // For XLSX, we'd need a library like xlsx or sheetjs
+      // For now, show a message
+      toast({
+        title: "提示",
+        description: "Excel导出功能即将推出",
+      });
+    }
   };
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast({
+      title: "成功",
+      description: "已复制到剪贴板",
+    });
   };
 
   const validateUrl = (url: string) => {
@@ -246,9 +389,19 @@ export default function VideoNoteExtract() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="extract">文案提取</TabsTrigger>
-            <TabsTrigger value="history">提取历史</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="extract" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              文案提取
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex items-center gap-2">
+              <ListChecks className="h-4 w-4" />
+              任务列表
+            </TabsTrigger>
+            <TabsTrigger value="captions" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              文案数据
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="extract" className="space-y-6">
@@ -348,7 +501,6 @@ https://x.com/user/status/123456789
                           size="sm"
                           onClick={() => {
                             setBatchUrls("");
-                            setShowResults(false);
                           }}
                           className="h-8"
                         >
@@ -363,147 +515,6 @@ https://x.com/user/status/123456789
                   </CardContent>
                 </Card>
 
-                {/* Results Section */}
-                {(showResults || isExtracting) && (
-                  <Card className="border border-border mt-4">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center justify-between">
-                        <span className="flex items-center">
-                          <FileText className="mr-2 h-4 w-4" />
-                          提取结果
-                        </span>
-                        {showResults && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleCopy(extractedData.extractedCopy)
-                            }
-                            className="h-6"
-                          >
-                            <Copy className="mr-1 h-3 w-3" />
-                            复制全部
-                          </Button>
-                        )}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {isExtracting ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="text-center">
-                            <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
-                            <p className="text-sm text-muted-foreground mb-2">
-                              正在分析视频/笔记内容...
-                            </p>
-                            <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
-                              <span>解析链接</span>
-                              <span>•</span>
-                              <span>提取文案</span>
-                              <span>•</span>
-                              <span>分析内容</span>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                          {/* Video/Note Info */}
-                          <div className="p-4 bg-muted/30 rounded-lg">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <h3 className="text-sm font-medium mb-2">
-                                  {extractedData.title}
-                                </h3>
-                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                                  <span className="flex items-center">
-                                    <Target className="mr-1 h-3 w-3" />
-                                    {extractedData.videoInfo.platform}
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Clock className="mr-1 h-3 w-3" />
-                                    {extractedData.videoInfo.duration}
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Eye className="mr-1 h-3 w-3" />
-                                    {extractedData.videoInfo.views}
-                                  </span>
-                                  <span className="flex items-center">
-                                    ❤️ {extractedData.videoInfo.likes}
-                                  </span>
-                                </div>
-                              </div>
-                              <Badge
-                                variant="secondary"
-                                className="bg-green-100 text-green-800"
-                              >
-                                {extractedData.engagementRate}% 互动率
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              作者：{extractedData.videoInfo.author}
-                            </p>
-                          </div>
-
-                          {/* Extracted Content */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-sm font-medium">
-                                提取的文案内容
-                              </h3>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleCopy(extractedData.extractedCopy)
-                                }
-                                className="h-6"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <Textarea
-                              value={extractedData.extractedCopy}
-                              readOnly
-                              className="min-h-[200px] text-sm bg-muted/30"
-                            />
-                          </div>
-
-                          {/* Hashtags */}
-                          <div className="space-y-2">
-                            <h3 className="text-sm font-medium">话题标签</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {extractedData.hashtags.map((tag, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="text-xs cursor-pointer"
-                                  onClick={() => handleCopy(tag)}
-                                >
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Key Points */}
-                          <div className="space-y-2">
-                            <h3 className="text-sm font-medium">关键要点</h3>
-                            <div className="space-y-1">
-                              {extractedData.keyPoints.map((point, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center space-x-2 text-sm"
-                                >
-                                  <div className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
-                                  <span>{point}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
 
               {/* Settings Panel */}
@@ -565,95 +576,338 @@ https://x.com/user/status/123456789
             </div>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-6">
+          {/* Task List Tab */}
+          <TabsContent value="tasks" className="space-y-6">
             <Card className="border border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    提取历史
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    任务列表
                   </span>
-                  <Badge variant="secondary" className="text-xs">
-                    共 {extractionHistory.length} 条记录
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Select value={statusFilter} onValueChange={(value) => {
+                      setStatusFilter(value);
+                      setCurrentPage(1);
+                    }}>
+                      <SelectTrigger className="w-[140px] h-8">
+                        <SelectValue placeholder="筛选状态" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部状态</SelectItem>
+                        <SelectItem value="queued">排队中</SelectItem>
+                        <SelectItem value="processing">处理中</SelectItem>
+                        <SelectItem value="completed">已完成</SelectItem>
+                        <SelectItem value="failed">失败</SelectItem>
+                        <SelectItem value="cancelled">已取消</SelectItem>
+                        <SelectItem value="paused">已暂停</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fetchTasks(currentPage, statusFilter)}
+                      disabled={isLoadingTasks}
+                      className="h-8"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${isLoadingTasks ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[300px]">标题</TableHead>
-                        <TableHead className="w-[80px]">平台</TableHead>
-                        <TableHead className="w-[120px]">作者</TableHead>
-                        <TableHead className="w-[80px]">字数</TableHead>
-                        <TableHead className="w-[80px]">互动率</TableHead>
-                        <TableHead className="w-[140px]">提取时间</TableHead>
-                        <TableHead className="w-[80px]">状态</TableHead>
-                        <TableHead className="w-[100px]">操作</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {extractionHistory.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="font-medium">
-                            <div
-                              className="max-w-[280px] truncate"
-                              title={item.title}
-                            >
-                              {item.title}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
-                              {item.platform}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {item.author}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {item.wordCount}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {item.engagement}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {item.extractedAt}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="secondary"
-                              className="text-xs bg-green-100 text-green-800"
-                            >
-                              {item.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() => handleCopy(item.url)}
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() => window.open(item.url, "_blank")}
-                              >
-                                <Eye className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                {isLoadingTasks ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : tasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <ListChecks className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-sm text-muted-foreground">暂无任务记录</p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[350px]">链接</TableHead>
+                          <TableHead className="w-[100px]">平台</TableHead>
+                          <TableHead className="w-[100px]">状态</TableHead>
+                          <TableHead className="w-[100px]">进度</TableHead>
+                          <TableHead className="w-[180px]">创建时间</TableHead>
+                          <TableHead className="w-[180px]">完成时间</TableHead>
+                          <TableHead className="w-[100px]">操作</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {tasks.map((task) => {
+                          const statusConfig = getStatusBadge(task.status);
+                          const StatusIcon = statusConfig.icon;
+                          return (
+                            <TableRow key={task.task_id}>
+                              <TableCell className="font-medium">
+                                <div className="max-w-[330px] truncate" title={task.url}>
+                                  {task.url}
+                                </div>
+                                {task.error_message && (
+                                  <div className="text-xs text-red-600 mt-1">
+                                    错误: {task.error_message}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {getPlatformName(task.platform)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className={`text-xs ${statusConfig.color}`}>
+                                  <StatusIcon className="h-3 w-3 mr-1" />
+                                  {statusConfig.label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-16 bg-muted rounded-full h-2">
+                                    <div
+                                      className="bg-foreground h-2 rounded-full transition-all"
+                                      style={{ width: `${task.progress}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs">{task.progress}%</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {new Date(task.created_at).toLocaleString('zh-CN')}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {task.completed_at ? new Date(task.completed_at).toLocaleString('zh-CN') : '-'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex space-x-1">
+                                  {task.caption_info && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => handleCopy(task.caption_info!.caption_text)}
+                                      title="复制文案"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => window.open(task.url, "_blank")}
+                                    title="查看原链接"
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1 || isLoadingTasks}
+                    >
+                      上一页
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      第 {currentPage} 页，共 {totalPages} 页
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages || isLoadingTasks}
+                    >
+                      下一页
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Caption Data Tab */}
+          <TabsContent value="captions" className="space-y-6">
+            <Card className="border border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Database className="mr-2 h-4 w-4" />
+                    文案数据
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      共 {captions.length} 条文案
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fetchCaptions()}
+                      disabled={isLoadingCaptions}
+                      className="h-8"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${isLoadingCaptions ? 'animate-spin' : ''}`} />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => exportCaptions('csv')}
+                      disabled={captions.length === 0}
+                      className="h-8"
+                    >
+                      <FileDown className="mr-2 h-3.5 w-3.5" />
+                      导出CSV
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => exportCaptions('xlsx')}
+                      disabled={captions.length === 0}
+                      className="h-8"
+                    >
+                      <FileDown className="mr-2 h-3.5 w-3.5" />
+                      导出Excel
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingCaptions ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : captions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-sm text-muted-foreground">暂无文案数据</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      提取的文案将在任务完成后显示在这里
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Summary Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">{captions.length}</div>
+                        <div className="text-xs text-muted-foreground">总文案数</div>
+                      </div>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">
+                          {[...new Set(captions.map(c => c.platform))].length}
+                        </div>
+                        <div className="text-xs text-muted-foreground">平台数</div>
+                      </div>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">
+                          {[...new Set(captions.map(c => c.author))].length}
+                        </div>
+                        <div className="text-xs text-muted-foreground">作者数</div>
+                      </div>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">
+                          {Math.round(captions.reduce((acc, c) => acc + c.caption_text.length, 0) / captions.length)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">平均字数</div>
+                      </div>
+                    </div>
+
+                    {/* Caption List */}
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[100px]">平台</TableHead>
+                            <TableHead className="w-[150px]">作者</TableHead>
+                            <TableHead className="w-[500px]">文案内容</TableHead>
+                            <TableHead className="w-[250px]">链接</TableHead>
+                            <TableHead className="w-[100px]">操作</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {captions.map((caption, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {getPlatformName(caption.platform)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                <div className="max-w-[140px] truncate" title={caption.author}>
+                                  {caption.author}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div className="max-w-[480px]">
+                                  <div className="line-clamp-3">
+                                    {caption.caption_text}
+                                  </div>
+                                  {caption.caption_text.length > 150 && (
+                                    <Button
+                                      variant="link"
+                                      size="sm"
+                                      className="h-auto p-0 text-xs"
+                                      onClick={() => {
+                                        // Could open a modal to show full text
+                                        handleCopy(caption.caption_text);
+                                      }}
+                                    >
+                                      查看全文并复制
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="max-w-[230px] truncate text-xs text-muted-foreground" title={caption.url}>
+                                  {caption.url}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex space-x-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => handleCopy(caption.caption_text)}
+                                    title="复制文案"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => window.open(caption.url, "_blank")}
+                                    title="查看原链接"
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
