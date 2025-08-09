@@ -68,10 +68,9 @@ import type {
 
 const supportedPlatforms = [
   { id: "douyin", name: "抖音", emoji: "🎤" },
-  { id: "xhs", name: "小红书", emoji: "📖" },
-  { id: "kuaishou", name: "快手", emoji: "⚡" },
+  { id: "xhs", name: "小红书", emoji: "📖", status: "maintaining" },
+  { id: "kuaishou", name: "快手", emoji: "⚡", status: "maintaining" },
   { id: "tiktok", name: "TikTok", emoji: "🎵" },
-  { id: "youtube", name: "YouTube", emoji: "📺" },
   { id: "instagram", name: "Instagram", emoji: "📷" },
   { id: "x", name: "X", emoji: "🐦" },
 ];
@@ -172,10 +171,18 @@ export default function KeywordContentSearch() {
 
   const [kuaishouFilters, setKuaishouFilters] = useState<KuaishouFilters>({});
 
-  // Auto-fetch data when platform changes
+  // Auto-fetch results when platform changes
   useEffect(() => {
-    fetchSearchResults();
+    setSearchResults([]); // Clear results when switching platforms
     setCurrentPage(1); // Reset to first page when platform changes
+    setKeywordFilter(""); // Clear keyword filter
+    setError(null); // Clear any errors
+    
+    // Auto-fetch results for the new platform (except maintaining platforms)
+    const platform = supportedPlatforms.find(p => p.id === selectedPlatform);
+    if (platform && platform.status !== "maintaining") {
+      fetchSearchResults();
+    }
   }, [selectedPlatform]);
 
   // Reset to first page when keyword filter changes
@@ -205,9 +212,6 @@ export default function KeywordContentSearch() {
           break;
         case "xhs":
           filters = xiaohongshuFilters;
-          break;
-        case "youtube":
-          filters = youtubeFilters;
           break;
         case "instagram":
           filters = instagramFilters;
@@ -580,69 +584,6 @@ export default function KeywordContentSearch() {
           </div>
         );
 
-      case "youtube":
-        return (
-          <div className="space-y-4">
-            {getQuantityFilterComponent()}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <BarChart3 className="h-4 w-4 text-blue-500" />
-                  排序方式
-                </label>
-                <Select
-                  value={youtubeFilters.order_by}
-                  onValueChange={(value) =>
-                    setYoutubeFilters((prev) => ({
-                      ...prev,
-                      order_by: value as
-                        | "relevance"
-                        | "this_month"
-                        | "this_week"
-                        | "today",
-                    }))
-                  }
-                >
-                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition-colors">
-                    <SelectValue placeholder="选择排序方式" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="relevance">🎯 相关度</SelectItem>
-                    <SelectItem value="this_month">📅 本月</SelectItem>
-                    <SelectItem value="this_week">🗓️ 本周</SelectItem>
-                    <SelectItem value="today">⏰ 今天</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Users className="h-4 w-4 text-green-500" />
-                  国家/地区
-                </label>
-                <Select
-                  value={youtubeFilters.country_code}
-                  onValueChange={(value) =>
-                    setYoutubeFilters((prev) => ({
-                      ...prev,
-                      country_code: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger className="h-10 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-green-400 transition-colors">
-                    <SelectValue placeholder="选择国家/地区" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="us">🇺🇸 美国</SelectItem>
-                    <SelectItem value="cn">🇨🇳 中国</SelectItem>
-                    <SelectItem value="jp">🇯🇵 日本</SelectItem>
-                    <SelectItem value="uk">🇬🇧 英国</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        );
-
       case "kuaishou":
         return (
           <div className="space-y-4">
@@ -858,16 +799,37 @@ export default function KeywordContentSearch() {
         className="relative w-16 h-12 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity group"
         onClick={handleMediaClick}
       >
-        {hasImages && (
+        {/* Display image if available, otherwise show video thumbnail */}
+        {hasImages ? (
           <img
             src={result.images_url[0]}
             alt="作品预览"
             className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA2NCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yOCAyNEwyMCAzMkgzNkwyOCAyNFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
             }}
           />
-        )}
+        ) : hasVideos ? (
+          <video
+            src={result.videos_url[0]}
+            className="w-full h-full object-cover"
+            muted
+            preload="metadata"
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
+            onError={(e) => {
+              // If video fails to load, show a video placeholder
+              const videoElement = e.target as HTMLVideoElement;
+              videoElement.style.display = 'none';
+              const placeholder = document.createElement('div');
+              placeholder.className = 'w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center';
+              placeholder.innerHTML = '<div class="flex flex-col items-center gap-1"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs text-gray-400">视频</span></div>';
+              videoElement.parentElement?.appendChild(placeholder);
+            }}
+          />
+        ) : null}
         
         {/* Overlay indicators */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
@@ -911,35 +873,39 @@ export default function KeywordContentSearch() {
 
     return (
       <Dialog open={!!selectedMedia} onOpenChange={() => setSelectedMedia(null)}>
-        <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
-          <DialogHeader className="p-4 pb-2">
-            <DialogTitle className="text-lg font-semibold truncate">
-              {selectedMedia.title}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="flex-1 relative bg-black rounded-b-lg overflow-hidden">
+        <DialogContent className="max-w-5xl w-[95vw] h-[90vh] p-0 bg-black">
+          {/* Media display container - full size */}
+          <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg overflow-hidden">
             {/* Media display */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {isVideo ? (
-                <video
-                  src={currentItem}
-                  controls
-                  className="max-w-full max-h-full object-contain"
-                  autoPlay
-                >
-                  您的浏览器不支持视频播放
-                </video>
-              ) : (
-                <img
-                  src={currentItem}
-                  alt="预览"
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTUwTDE1MCAyMDBIMjUwTDIwMCAxNTBaIiBmaWxsPSIjOUNBM0FGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOUNBM0FGIiBmb250LXNpemU9IjE0Ij7lm77niYfliqDovb3lpLHotKU8L3RleHQ+Cjwvc3ZnPg==';
-                  }}
-                />
-              )}
+            {isVideo ? (
+              <video
+                src={currentItem}
+                controls
+                className="w-full h-full object-contain"
+                autoPlay
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+              >
+                您的浏览器不支持视频播放
+              </video>
+            ) : (
+              <img
+                src={currentItem}
+                alt="预览"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTUwTDE1MCAyMDBIMjUwTDIwMCAxNTBaIiBmaWxsPSIjOUNBM0FGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOUNBM0FGIiBmb250LXNpemU9IjE0Ij7lm77niYfliqDovb3lpLHotKU8L3RleHQ+Cjwvc3ZnPg==';
+                }}
+              />
+            )}
+
+            {/* Title overlay - top left */}
+            <div className="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg max-w-md">
+              <h3 className="text-sm font-medium truncate">
+                {selectedMedia.title}
+              </h3>
             </div>
 
             {/* Navigation buttons */}
@@ -947,31 +913,36 @@ export default function KeywordContentSearch() {
               <>
                 <button
                   onClick={prevMedia}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-3 rounded-full transition-all shadow-lg"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-6 w-6" />
                 </button>
                 <button
                   onClick={nextMedia}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-3 rounded-full transition-all shadow-lg"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-6 w-6" />
                 </button>
               </>
             )}
 
             {/* Media counter */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-4 py-2 rounded-full text-sm font-medium">
               {selectedMedia.currentIndex + 1} / {allMedia.length}
             </div>
 
             {/* Close button */}
             <button
               onClick={() => setSelectedMedia(null)}
-              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+              className="absolute top-4 right-4 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-3 rounded-full transition-all shadow-lg"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </button>
+
+            {/* Media type indicator */}
+            <div className="absolute top-4 right-16 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-xs font-medium">
+              {isVideo ? '🎥 视频' : '📷 图片'}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -1003,21 +974,42 @@ export default function KeywordContentSearch() {
           onValueChange={setSelectedPlatform}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-6">
             {supportedPlatforms.map((platform) => (
               <TabsTrigger
                 key={platform.id}
                 value={platform.id}
-                className="flex items-center gap-1 text-xs"
+                className="flex items-center gap-1 text-xs relative"
+                disabled={platform.status === "maintaining"}
               >
                 <span>{platform.emoji}</span>
                 <span className="hidden sm:inline">{platform.name}</span>
+                {platform.status === "maintaining" && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 rounded text-[10px]">
+                    维护中
+                  </span>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
 
           {supportedPlatforms.map((platform) => (
             <TabsContent key={platform.id} value={platform.id} className="mt-6">
+              {platform.status === "maintaining" ? (
+                <Card className="border-2 border-dashed border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <div className="text-6xl mb-4">🚧</div>
+                    <h3 className="text-xl font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                      {platform.name} 平台维护中
+                    </h3>
+                    <p className="text-orange-600 dark:text-orange-300 text-center">
+                      该平台正在进行系统维护和功能升级，暂时无法提供服务。
+                      <br />
+                      请稍后再试或选择其他平台进行内容搜索。
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
               <div className="space-y-4">
                 {/* Enhanced Search Section */}
                 <Card className="border-2 border-dashed border-muted bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -1205,9 +1197,10 @@ export default function KeywordContentSearch() {
                           <TableHeader>
                             <TableRow>
                               <TableHead className="w-[80px]">作品展示</TableHead>
-                              <TableHead className="w-[280px]">
+                              <TableHead className="w-[250px]">
                                 作品标题
                               </TableHead>
+                              <TableHead className="w-[100px]">关键词</TableHead>
                               <TableHead className="w-[120px]">作者</TableHead>
                               <TableHead className="w-[100px]">
                                 发布时间
@@ -1229,11 +1222,16 @@ export default function KeywordContentSearch() {
                                 </TableCell>
                                 <TableCell className="font-medium">
                                   <div
-                                    className="max-w-[260px] truncate"
+                                    className="max-w-[230px] truncate"
                                     title={result.title || result.description}
                                   >
                                     {result.title || result.description}
                                   </div>
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  <Badge variant="secondary" className="max-w-[90px] truncate" title={result.keyword}>
+                                    {result.keyword}
+                                  </Badge>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   {result.author_name}
@@ -1289,6 +1287,7 @@ export default function KeywordContentSearch() {
                   </CardContent>
                 </Card>
               </div>
+              )}
             </TabsContent>
           ))}
         </Tabs>
