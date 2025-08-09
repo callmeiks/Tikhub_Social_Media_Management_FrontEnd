@@ -76,6 +76,65 @@ interface ContentExtractTask {
   } | null;
 }
 
+interface NoteCollectionNote {
+  id: string;
+  note_id: string;
+  title: string;
+  desc: string;
+  type: string;
+  images_list: Array<{
+    url: string;
+    size: string;
+    is_live: boolean;
+  }>;
+  video_url: string;
+  duration: string;
+  author_user_id: string;
+  author_nickname: string;
+  author_avatar: string;
+  has_music: boolean;
+  is_good_note: boolean;
+  level: number;
+  collect_count: number;
+  comment_count: number;
+  likes_count: number;
+  nice_count: number;
+  share_count: number;
+  share_url: string;
+  tag_list: (string | { id: string; name: string })[];
+  create_time: string;
+  last_update_time: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface NoteCollectionResponse {
+  notes: NoteCollectionNote[];
+  total: number;
+  page: number;
+  limit: number;
+  has_more: boolean;
+}
+
+interface NoteCollectionTask {
+  task_id: string;
+  status: string;
+  url: string;
+  original_url: string;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+interface NoteCollectionTasksResponse {
+  items: NoteCollectionTask[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 const extractionHistory = [
   {
     id: 1,
@@ -312,16 +371,29 @@ export default function ContentExtract() {
   const [activeTab, setActiveTab] = useState("batch");
   const [extractionList, setExtractionList] = useState(extractionQueue);
   const [extractTasks, setExtractTasks] = useState<ContentExtractTask[]>([]);
+  const [noteCollectionTasks, setNoteCollectionTasks] = useState<NoteCollectionTask[]>([]);
+  const [noteCollectionTasksPagination, setNoteCollectionTasksPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 20
+  });
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isCancellingTasks, setIsCancellingTasks] = useState(false);
   const [historyTasks, setHistoryTasks] = useState<ContentExtractTask[]>([]);
+  const [noteCollectionData, setNoteCollectionData] = useState<NoteCollectionNote[]>([]);
+  const [noteCollectionPagination, setNoteCollectionPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 20,
+    has_more: false
+  });
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [selectedHistoryTaskIds, setSelectedHistoryTaskIds] = useState<
     string[]
   >([]);
   const [isRetryingTasks, setIsRetryingTasks] = useState(false);
-  const [expandedHistoryItems, setExpandedHistoryItems] = useState<number[]>(
+  const [expandedHistoryItems, setExpandedHistoryItems] = useState<string[]>(
     [],
   );
   const [historyFilter, setHistoryFilter] = useState<string>("all");
@@ -338,69 +410,72 @@ export default function ContentExtract() {
     tags: true,
   });
 
-  const fetchExtractTasks = async () => {
+  const fetchExtractTasks = async (page = 1, limit = 20) => {
     setIsLoadingTasks(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+      
       const response = await fetch(
-        "http://127.0.0.1:8000/api/content-extract/tasks",
+        `${baseUrl}/api/note-collection/tasks?page=${page}&limit=${limit}&status=queued,processing,paused`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            limit: 10,
-            offset: 0,
-            status: ["queued", "processing", "paused"],
-          }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch extract tasks");
+        throw new Error("Failed to fetch note collection tasks");
       }
 
-      const data = await response.json();
-      setExtractTasks(data.tasks || []);
+      const data: NoteCollectionTasksResponse = await response.json();
+      setNoteCollectionTasks(data.items || []);
+      setNoteCollectionTasksPagination({
+        total: data.total,
+        page: data.page,
+        limit: data.limit
+      });
     } catch (error) {
-      console.error("Error fetching extract tasks:", error);
+      console.error("Error fetching note collection tasks:", error);
     } finally {
       setIsLoadingTasks(false);
     }
   };
 
-  const fetchHistoryTasks = async () => {
+  const fetchHistoryTasks = async (page = 1, limit = 20) => {
     setIsLoadingHistory(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+      
       const response = await fetch(
-        "http://127.0.0.1:8000/api/content-extract/tasks",
+        `${baseUrl}/api/note-collection/notes?page=${page}&limit=${limit}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            limit: 10,
-            offset: 0,
-            status: ["completed", "failed", "cancelled"],
-          }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch history tasks");
+        throw new Error("Failed to fetch note collection data");
       }
 
-      const data = await response.json();
-      setHistoryTasks(data.tasks || []);
+      const data: NoteCollectionResponse = await response.json();
+      setNoteCollectionData(data.notes || []);
+      setNoteCollectionPagination({
+        total: data.total,
+        page: data.page,
+        limit: data.limit,
+        has_more: data.has_more
+      });
     } catch (error) {
-      console.error("Error fetching history tasks:", error);
+      console.error("Error fetching note collection data:", error);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -408,9 +483,9 @@ export default function ContentExtract() {
 
   useEffect(() => {
     if (activeTab === "queue") {
-      fetchExtractTasks();
+      fetchExtractTasks(1, 20);
     } else if (activeTab === "history") {
-      fetchHistoryTasks();
+      fetchHistoryTasks(1, 20);
     }
   }, [activeTab]);
 
@@ -470,7 +545,7 @@ export default function ContentExtract() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTaskIds(extractTasks.map((task) => task.id));
+      setSelectedTaskIds(noteCollectionTasks.map((task) => task.task_id));
     } else {
       setSelectedTaskIds([]);
     }
@@ -540,16 +615,9 @@ export default function ContentExtract() {
 
   const handleSelectAllHistory = (checked: boolean) => {
     if (checked) {
-      // 选择当前筛选结果中的所有可选任务
-      const selectableTaskIds = filteredHistoryTasks
-        .filter(
-          (task) =>
-            task.status === "completed" ||
-            task.status === "failed" ||
-            task.status === "cancelled",
-        )
-        .map((task) => task.id);
-      setSelectedHistoryTaskIds(selectableTaskIds);
+      // 选择当前筛选结果中的所有笔记
+      const selectableNoteIds = filteredNoteCollectionData.map((note) => note.id);
+      setSelectedHistoryTaskIds(selectableNoteIds);
     } else {
       setSelectedHistoryTaskIds([]);
     }
@@ -579,8 +647,8 @@ export default function ContentExtract() {
       return;
     }
 
-    if (urls.length > 20) {
-      alert("最多支持20个链接，请减少链接数量");
+    if (urls.length > 50) {
+      alert("最多支持50个链接，请减少链接数量");
       return;
     }
 
@@ -597,9 +665,10 @@ export default function ContentExtract() {
     setIsExtracting(true);
     try {
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/content-extract/batch",
+        `${baseUrl}/api/note-collection/create-tasks`,
         {
           method: "POST",
           headers: {
@@ -608,13 +677,6 @@ export default function ContentExtract() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            settings: {
-              downloadPath: downloadSettings.downloadPath,
-              extractImages: extractionSettings.images,
-              extractTags: extractionSettings.tags,
-              extractText: extractionSettings.text,
-              imageFormat: downloadSettings.format,
-            },
             urls: urls,
           }),
         },
@@ -661,7 +723,8 @@ export default function ContentExtract() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "processing":
@@ -680,7 +743,8 @@ export default function ContentExtract() {
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
       case "completed":
         return "已完成";
       case "processing":
@@ -699,7 +763,8 @@ export default function ContentExtract() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
       case "completed":
         return "bg-green-100 text-green-800";
       case "processing":
@@ -726,71 +791,53 @@ export default function ContentExtract() {
     (item) => item.status === "completed",
   ).length;
 
-  const toggleHistoryExpansion = (id: number) => {
+  const toggleHistoryExpansion = (id: string) => {
     setExpandedHistoryItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
-  // 筛选历史任务
-  const getFilteredHistoryTasks = () => {
-    let filtered = historyTasks;
+  // 筛选笔记数据
+  const getFilteredNoteCollectionData = () => {
+    let filtered = noteCollectionData;
 
-    // 按状态筛选
+    // 按平台筛选 (note collection只有小红书数据，所以这里简化)
+    if (platformFilter !== "all" && platformFilter !== "小红书") {
+      return [];
+    }
+
+    // Note collection数据都是已完成的，所以状态筛选主要用于兼容性
     switch (historyFilter) {
       case "completed":
-        filtered = filtered.filter((task) => task.status === "completed");
-        break;
-      case "failed":
-        filtered = filtered.filter((task) => task.status === "failed");
-        break;
-      case "cancelled":
-        filtered = filtered.filter((task) => task.status === "cancelled");
-        break;
-      case "failed-cancelled":
-        filtered = filtered.filter(
-          (task) => task.status === "failed" || task.status === "cancelled",
-        );
-        break;
       case "all":
       default:
         break;
-    }
-
-    // 按平台筛选
-    if (platformFilter !== "all") {
-      filtered = filtered.filter((task) => {
-        const platform = task.url.includes("xiaohongshu")
-          ? "小红书"
-          : task.url.includes("instagram")
-            ? "Instagram"
-            : "其他";
-        return platform === platformFilter;
-      });
+      case "failed":
+      case "cancelled":
+      case "failed-cancelled":
+        return [];
     }
 
     return filtered;
   };
 
-  const filteredHistoryTasks = getFilteredHistoryTasks();
+  const filteredNoteCollectionData = getFilteredNoteCollectionData();
 
   // 导出功能
   const exportToCSV = async () => {
     if (selectedHistoryTaskIds.length === 0) {
-      alert("请选择要导出的任务");
+      alert("请选择要导出的笔记");
       return;
     }
 
     setIsExportingCsv(true);
     try {
-      const selectedTasks = historyTasks.filter(
-        (task) =>
-          selectedHistoryTaskIds.includes(task.id) &&
-          task.status === "completed",
+      const selectedNotes = noteCollectionData.filter(
+        (note) => selectedHistoryTaskIds.includes(note.id),
       );
 
-      if (selectedTasks.length === 0) {
-        alert("没有可导出的已完成任务");
+      if (selectedNotes.length === 0) {
+        alert("没有可导出的笔记数据");
         return;
       }
 
@@ -799,38 +846,40 @@ export default function ContentExtract() {
       if (exportFormat === "csv") {
         // CSV导出
         const headers = [
-          "任务ID",
-          "URL",
+          "笔记ID",
+          "小红书ID",
           "标题",
           "内容文字",
           "图片数量",
           "图片URL列表",
-          "作者",
-          "粉丝数",
+          "作者昵称",
+          "作者ID",
           "点赞数",
           "评论数",
           "分享数",
+          "收藏数",
           "标签",
-          "完成时间",
+          "创建时间",
         ];
         const csvContent = [
           headers.join(","),
-          ...selectedTasks.map((task) =>
+          ...selectedNotes.map((note) =>
             [
-              task.id,
-              `"${task.url}"`,
-              `"${task.content?.title || ""}"`,
-              `"${task.content?.text?.replace(/"/g, '""') || ""}"`,
-              task.content?.images?.length || 0,
-              `"${task.content?.images?.map((img) => img.url).join("; ") || ""}"`,
-              `"${task.content?.author?.name || ""}"`,
-              task.content?.author?.followers || 0,
-              task.content?.stats?.likes || 0,
-              task.content?.stats?.comments || 0,
-              task.content?.stats?.shares || 0,
-              `"${task.content?.tags?.join("; ") || ""}"`,
-              task.completed_at
-                ? new Date(task.completed_at).toLocaleString()
+              note.id,
+              note.note_id,
+              `"${note.title || ""}"`,
+              `"${note.desc?.replace(/"/g, '""') || ""}"`,
+              note.images_list?.length || 0,
+              `"${note.images_list?.map((img) => img.url).join("; ") || ""}"`,
+              `"${note.author_nickname || ""}"`,
+              note.author_user_id,
+              note.likes_count || 0,
+              note.comment_count || 0,
+              note.share_count || 0,
+              note.collect_count || 0,
+              `"${note.tag_list?.map(tag => typeof tag === 'string' ? tag : tag.name).join("; ") || ""}"`,
+              note.created_at
+                ? new Date(note.created_at).toLocaleString()
                 : "",
             ].join(","),
           ),
@@ -842,29 +891,32 @@ export default function ContentExtract() {
         downloadFile(blob, `content_extract_${dateStr}.csv`);
       } else if (exportFormat === "markdown") {
         // Markdown导出
-        let markdownContent = `# 图文提取结果导出\n\n导出时间: ${new Date().toLocaleString()}\n\n`;
+        let markdownContent = `# 笔记数据导出\n\n导出时间: ${new Date().toLocaleString()}\n\n`;
 
-        selectedTasks.forEach((task, index) => {
-          markdownContent += `## ${index + 1}. ${task.content?.title || "无标题"}\n\n`;
-          markdownContent += `**任务ID**: ${task.id}\n\n`;
-          markdownContent += `**URL**: ${task.url}\n\n`;
-          markdownContent += `**作者**: ${task.content?.author?.name || "未知"} (${task.content?.author?.followers || 0} 粉丝)\n\n`;
-          markdownContent += `**互动数据**: ❤️ ${task.content?.stats?.likes || 0} | 💬 ${task.content?.stats?.comments || 0} | 🔗 ${task.content?.stats?.shares || 0}\n\n`;
-          markdownContent += `**内容文字**:\n${task.content?.text || ""}\n\n`;
+        selectedNotes.forEach((note, index) => {
+          markdownContent += `## ${index + 1}. ${note.title || "无标题"}\n\n`;
+          markdownContent += `**笔记ID**: ${note.id}\n\n`;
+          markdownContent += `**小红书ID**: ${note.note_id}\n\n`;
+          markdownContent += `**分享链接**: ${note.share_url}\n\n`;
+          markdownContent += `**作者**: ${note.author_nickname || "未知"} (ID: ${note.author_user_id})\n\n`;
+          markdownContent += `**互动数据**: ❤️ ${note.likes_count || 0} | 💬 ${note.comment_count || 0} | 🔗 ${note.share_count || 0} | ⭐ ${note.collect_count || 0}\n\n`;
+          markdownContent += `**内容文字**:\n${note.desc || ""}\n\n`;
 
-          if (task.content?.tags && task.content.tags.length > 0) {
-            markdownContent += `**标签**: ${task.content.tags.join(" ")}\n\n`;
+          if (note.tag_list && note.tag_list.length > 0) {
+            markdownContent += `**标签**: ${note.tag_list.map(tag => `#${typeof tag === 'string' ? tag : tag.name}`).join(" ")}\n\n`;
           }
 
-          if (task.content?.images && task.content.images.length > 0) {
-            markdownContent += `**图片 (${task.content.images.length}张)**:\n`;
-            task.content.images.forEach((img, imgIndex) => {
-              markdownContent += `${imgIndex + 1}. [${img.description || "图片"}](${img.url})\n`;
+          if (note.images_list && note.images_list.length > 0) {
+            markdownContent += `**图片 (${note.images_list.length}张)**:\n`;
+            note.images_list.forEach((img, imgIndex) => {
+              markdownContent += `${imgIndex + 1}. [${img.size}](${
+                img.url})
+`;
             });
             markdownContent += "\n";
           }
 
-          markdownContent += `**完成时间**: ${task.completed_at ? new Date(task.completed_at).toLocaleString() : ""}\n\n`;
+          markdownContent += `**创建时间**: ${note.created_at ? new Date(note.created_at).toLocaleString() : ""}\n\n`;
           markdownContent += "---\n\n";
         });
 
@@ -875,38 +927,40 @@ export default function ContentExtract() {
       } else if (exportFormat === "xlsx") {
         // XLSX导出 (简化版，使用CSV格式但扩展名为xlsx)
         const headers = [
-          "任务ID",
-          "URL",
+          "笔记ID",
+          "小红书ID",
           "标题",
           "内容文字",
           "图片数量",
           "图片URL列表",
-          "作者",
-          "粉丝数",
+          "作者昵称",
+          "作者ID",
           "点赞数",
           "评论数",
           "分享数",
+          "收藏数",
           "标签",
-          "完成时间",
+          "创建时间",
         ];
         const csvContent = [
           headers.join("\t"),
-          ...selectedTasks.map((task) =>
+          ...selectedNotes.map((note) =>
             [
-              task.id,
-              task.url,
-              task.content?.title || "",
-              task.content?.text || "",
-              task.content?.images?.length || 0,
-              task.content?.images?.map((img) => img.url).join("; ") || "",
-              task.content?.author?.name || "",
-              task.content?.author?.followers || 0,
-              task.content?.stats?.likes || 0,
-              task.content?.stats?.comments || 0,
-              task.content?.stats?.shares || 0,
-              task.content?.tags?.join("; ") || "",
-              task.completed_at
-                ? new Date(task.completed_at).toLocaleString()
+              note.id,
+              note.note_id,
+              note.title || "",
+              note.desc || "",
+              note.images_list?.length || 0,
+              note.images_list?.map((img) => img.url).join("; ") || "",
+              note.author_nickname || "",
+              note.author_user_id,
+              note.likes_count || 0,
+              note.comment_count || 0,
+              note.share_count || 0,
+              note.collect_count || 0,
+              note.tag_list?.map(tag => typeof tag === 'string' ? tag : tag.name).join("; ") || "",
+              note.created_at
+                ? new Date(note.created_at).toLocaleString()
                 : "",
             ].join("\t"),
           ),
@@ -918,7 +972,7 @@ export default function ContentExtract() {
         downloadFile(blob, `content_extract_${dateStr}.xlsx`);
       }
 
-      alert(`成功导出 ${selectedTasks.length} 个任务的数据`);
+      alert(`成功导出 ${selectedNotes.length} 个笔记的数据`);
       setSelectedHistoryTaskIds([]);
     } catch (error) {
       console.error("导出失败:", error);
@@ -980,7 +1034,7 @@ export default function ContentExtract() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="batch">批量提取</TabsTrigger>
             <TabsTrigger value="queue">提取队列</TabsTrigger>
-            <TabsTrigger value="history">文案数据</TabsTrigger>
+            <TabsTrigger value="history">笔记数据</TabsTrigger>
           </TabsList>
 
           <TabsContent value="batch" className="space-y-6">
@@ -995,73 +1049,40 @@ export default function ContentExtract() {
                         批量添加笔记链接
                       </span>
                       <Badge
-                        variant={urlCount > 20 ? "destructive" : "secondary"}
+                        variant={urlCount > 50 ? "destructive" : "secondary"}
                         className="text-xs"
                       >
-                        {urlCount}/20
+                        {urlCount}/50
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <Tabs value="url" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger
-                          value="url"
-                          className="flex items-center space-x-1"
-                        >
-                          <LinkIcon className="h-3 w-3" />
-                          <span>批量提取</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="search"
-                          className="flex items-center space-x-1"
-                        >
-                          <Search className="h-3 w-3" />
-                          <span>搜索提取</span>
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="url" className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">
-                            粘贴笔记链接（每行一个，最多20个）
-                          </label>
-                          <Textarea
-                            placeholder={`请粘贴小红书笔记链接，每行一个：
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          粘贴笔记链接（每行一个，最多50个）
+                        </label>
+                        <Textarea
+                          placeholder={`请粘贴小红书笔记链接，每行一个：
 
 https://www.xiaohongshu.com/discovery/item/123456789
 https://xhslink.com/abcdef
 https://www.xiaohongshu.com/discovery/item/987654321
 
 支持完整链接和分享短链接`}
-                            value={batchUrls}
-                            onChange={(e) => setBatchUrls(e.target.value)}
-                            className="min-h-[200px] resize-none font-mono text-sm"
-                            maxLength={5000}
-                          />
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <CheckCircle className="h-3 w-3 text-green-600" />
-                            <span>支持完整链接和短链接，每行一个</span>
-                          </div>
+                          value={batchUrls}
+                          onChange={(e) => setBatchUrls(e.target.value)}
+                          className="min-h-[200px] resize-none font-mono text-sm"
+                          maxLength={5000}
+                        />
+                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          <CheckCircle className="h-3 w-3 text-green-600" />
+                          <span>支持完整链接和短链接，每行一个</span>
                         </div>
-                      </TabsContent>
+                      </div>
+                    </div>
 
-                      <TabsContent value="search" className="space-y-4">
-                        <div className="space-y-4">
-                          <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
-                            <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-sm text-muted-foreground mb-2">
-                              根据关键词搜索小红书内容
-                            </p>
-                            <p className="text-xs text-muted-foreground mb-4">
-                              功能开发中，敬请期待
-                            </p>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-
-                    {urlCount > 20 && (
+                    {urlCount > 50 && (
                       <div className="flex items-center space-x-2 text-red-600 text-sm">
                         <AlertTriangle className="h-4 w-4" />
                         <span>链接数量超过限制，请删除多余的链接</span>
@@ -1075,7 +1096,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                           size="sm"
                           onClick={handleExtract}
                           disabled={
-                            urlCount === 0 || urlCount > 20 || isExtracting
+                            urlCount === 0 || urlCount > 50 || isExtracting
                           }
                           className="h-8"
                         >
@@ -1327,112 +1348,6 @@ https://www.xiaohongshu.com/discovery/item/987654321
                   </CardContent>
                 </Card>
 
-                {/* Extraction Settings */}
-                <Card className="border border-border">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Palette className="mr-2 h-4 w-4" />
-                      提取设置
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">提取内容</label>
-                      <div className="space-y-2">
-                        {[
-                          { label: "图片", icon: ImageIcon, key: "images" },
-                          { label: "文字", icon: Type, key: "text" },
-                          { label: "标签", icon: LinkIcon, key: "tags" },
-                        ].map((item) => (
-                          <div
-                            key={item.label}
-                            className="flex items-center justify-between"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <item.icon className="h-3 w-3" />
-                              <span className="text-sm">{item.label}</span>
-                            </div>
-                            <Button
-                              variant={
-                                extractionSettings[
-                                  item.key as keyof typeof extractionSettings
-                                ]
-                                  ? "default"
-                                  : "outline"
-                              }
-                              size="sm"
-                              className="h-6 w-12 text-xs"
-                              onClick={() =>
-                                setExtractionSettings((prev) => ({
-                                  ...prev,
-                                  [item.key]:
-                                    !prev[item.key as keyof typeof prev],
-                                }))
-                              }
-                            >
-                              {extractionSettings[
-                                item.key as keyof typeof extractionSettings
-                              ]
-                                ? "开启"
-                                : "���闭"}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Download Settings */}
-                <Card className="border border-border">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Folder className="mr-2 h-4 w-4" />
-                      下载设置
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">图片格式</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {["jpg", "png", "webp"].map((format) => (
-                          <Button
-                            key={format}
-                            variant={
-                              downloadSettings.format === format
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() =>
-                              setDownloadSettings((prev) => ({
-                                ...prev,
-                                format,
-                              }))
-                            }
-                          >
-                            {format.toUpperCase()}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">保存路径</label>
-                      <Input
-                        value={downloadSettings.downloadPath}
-                        onChange={(e) =>
-                          setDownloadSettings((prev) => ({
-                            ...prev,
-                            downloadPath: e.target.value,
-                          }))
-                        }
-                        className="text-xs"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
 
                 {/* Tips */}
                 <Card className="border border-border">
@@ -1462,7 +1377,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Download className="mr-2 h-4 w-4" />
-                    提取队列 ({extractTasks.length})
+                    提取队列 ({noteCollectionTasks.length})
                     {selectedTaskIds.length > 0 && (
                       <Badge variant="secondary" className="ml-2 text-xs">
                         已选择 {selectedTaskIds.length}
@@ -1490,7 +1405,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       variant="ghost"
                       size="sm"
                       className="h-7"
-                      onClick={fetchExtractTasks}
+                      onClick={() => fetchExtractTasks(1, 20)}
                       disabled={isLoadingTasks}
                     >
                       {isLoadingTasks ? (
@@ -1513,7 +1428,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       </p>
                     </div>
                   </div>
-                ) : extractTasks.length === 0 ? (
+                ) : noteCollectionTasks.length === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-center">
                       <Download className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
@@ -1527,14 +1442,14 @@ https://www.xiaohongshu.com/discovery/item/987654321
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {extractTasks.length > 0 && (
+                    {noteCollectionTasks.length > 0 && (
                       <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id="select-all"
                             checked={
-                              selectedTaskIds.length === extractTasks.length &&
-                              extractTasks.length > 0
+                              selectedTaskIds.length === noteCollectionTasks.length &&
+                              noteCollectionTasks.length > 0
                             }
                             onCheckedChange={handleSelectAll}
                           />
@@ -1542,22 +1457,22 @@ https://www.xiaohongshu.com/discovery/item/987654321
                             htmlFor="select-all"
                             className="text-sm font-medium cursor-pointer"
                           >
-                            全选 ({extractTasks.length} 个任务)
+                            全选 ({noteCollectionTasks.length} 个任务)
                           </label>
                         </div>
                         {selectedTaskIds.length > 0 && (
                           <span className="text-xs text-muted-foreground">
                             已选择 {selectedTaskIds.length} /{" "}
-                            {extractTasks.length}
+                            {noteCollectionTasks.length}
                           </span>
                         )}
                       </div>
                     )}
-                    {extractTasks.map((task) => (
+                    {noteCollectionTasks.map((task) => (
                       <div
-                        key={task.id}
+                        key={task.task_id}
                         className={`p-4 border border-border rounded-lg ${
-                          selectedTaskIds.includes(task.id)
+                          selectedTaskIds.includes(task.task_id)
                             ? "bg-blue-50 border-blue-200"
                             : ""
                         }`}
@@ -1565,10 +1480,10 @@ https://www.xiaohongshu.com/discovery/item/987654321
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-start space-x-3 flex-1 min-w-0">
                             <Checkbox
-                              id={`task-${task.id}`}
-                              checked={selectedTaskIds.includes(task.id)}
+                              id={`task-${task.task_id}`}
+                              checked={selectedTaskIds.includes(task.task_id)}
                               onCheckedChange={(checked) =>
-                                handleSelectTask(task.id, checked as boolean)
+                                handleSelectTask(task.task_id, checked as boolean)
                               }
                               className="mt-1"
                             />
@@ -1576,7 +1491,11 @@ https://www.xiaohongshu.com/discovery/item/987654321
                               <div className="flex items-center space-x-2 mb-1">
                                 {getStatusIcon(task.status)}
                                 <h3 className="text-sm font-medium truncate">
-                                  {task.content?.title || "正在提取内容..."}
+                                  {task.status.toLowerCase() === 'completed' ? '内容提取完成' : 
+                                   task.status.toLowerCase() === 'processing' ? '正在提取内容...' :
+                                   task.status.toLowerCase() === 'queued' ? '等待提取...' :
+                                   task.status.toLowerCase() === 'failed' ? '提取失败' :
+                                   '提取任务'}
                                 </h3>
                                 <Badge
                                   variant="secondary"
@@ -1586,15 +1505,17 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 </Badge>
                               </div>
                               <p className="text-xs text-muted-foreground truncate mb-2">
-                                {task.url}
+                                {task.original_url || task.url}
                               </p>
                               <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                 <span>小红书</span>
-                                {task.content?.images && (
-                                  <span>
-                                    {task.content.images.length} 张图片
-                                  </span>
-                                )}
+                                <span>
+                                  {task.status.toLowerCase() === 'completed' ? '提取完成' : 
+                                   task.status.toLowerCase() === 'processing' ? '正在处理' :
+                                   task.status.toLowerCase() === 'queued' ? '等待处理中' :
+                                   task.status.toLowerCase() === 'failed' ? '处理失败' :
+                                   '状态未知'}
+                                </span>
                                 {task.created_at && (
                                   <span>
                                     {new Date(task.created_at).toLocaleString()}
@@ -1604,23 +1525,11 @@ https://www.xiaohongshu.com/discovery/item/987654321
                             </div>
                           </div>
                           <div className="flex items-center space-x-2 ml-4">
-                            {task.content && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={() =>
-                                  task.content && handleCopy(task.content.text)
-                                }
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                            )}
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-6 w-6 p-0 text-red-600"
-                              onClick={() => cancelTasks([task.id])}
+                              onClick={() => cancelTasks([task.task_id])}
                               disabled={isCancellingTasks}
                               title="取消任务"
                             >
@@ -1657,8 +1566,8 @@ https://www.xiaohongshu.com/discovery/item/987654321
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="mr-2 h-4 w-4" />
-                    文案数据 ({filteredHistoryTasks.length}/
-                    {historyTasks.length})
+                    笔记数据 ({filteredNoteCollectionData.length}/
+                    {noteCollectionData.length})
                     {selectedHistoryTaskIds.length > 0 && (
                       <Badge variant="secondary" className="ml-2 text-xs">
                         已选择 {selectedHistoryTaskIds.length}
@@ -1748,7 +1657,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                       variant="ghost"
                       size="sm"
                       className="h-7"
-                      onClick={fetchHistoryTasks}
+                      onClick={() => fetchHistoryTasks(1, 20)}
                       disabled={isLoadingHistory}
                     >
                       {isLoadingHistory ? (
@@ -1767,42 +1676,36 @@ https://www.xiaohongshu.com/discovery/item/987654321
                     <div className="text-center">
                       <RefreshCw className="h-8 w-8 animate-spin text-brand-accent mx-auto mb-4" />
                       <p className="text-sm text-muted-foreground">
-                        正在加载文案数据...
+                        正在加载笔记数据...
                       </p>
                     </div>
                   </div>
-                ) : filteredHistoryTasks.length === 0 ? (
+                ) : filteredNoteCollectionData.length === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-center">
                       <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
                       <p className="text-sm text-muted-foreground mb-2">
                         {historyFilter === "all"
-                          ? "暂无文案数据"
-                          : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的任务`}
+                          ? "暂无笔记数据"
+                          : `暂无${historyFilter === "completed" ? "已完成" : historyFilter === "failed" ? "失败" : historyFilter === "cancelled" ? "已取消" : "失败或取消"}的笔记`}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {historyFilter === "all"
-                          ? "完成的提取任务将在这里显示"
+                          ? "已收藏的笔记数据将在这里显示"
                           : "请尝试其他筛选条件"}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {filteredHistoryTasks.length > 0 && (
+                    {filteredNoteCollectionData.length > 0 && (
                       <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id="select-all-history"
                             checked={
                               selectedHistoryTaskIds.length > 0 &&
-                              selectedHistoryTaskIds.length ===
-                                filteredHistoryTasks.filter(
-                                  (task) =>
-                                    task.status === "completed" ||
-                                    task.status === "failed" ||
-                                    task.status === "cancelled",
-                                ).length
+                              selectedHistoryTaskIds.length === filteredNoteCollectionData.length
                             }
                             onCheckedChange={handleSelectAllHistory}
                           />
@@ -1810,48 +1713,25 @@ https://www.xiaohongshu.com/discovery/item/987654321
                             htmlFor="select-all-history"
                             className="text-sm font-medium cursor-pointer"
                           >
-                            全选 (
-                            {
-                              filteredHistoryTasks.filter(
-                                (task) =>
-                                  task.status === "completed" ||
-                                  task.status === "failed" ||
-                                  task.status === "cancelled",
-                              ).length
-                            }{" "}
-                            个可选)
+                            全选 ({filteredNoteCollectionData.length} 个可选)
                           </label>
                         </div>
                         {selectedHistoryTaskIds.length > 0 && (
                           <span className="text-xs text-muted-foreground">
-                            已选择 {selectedHistoryTaskIds.length} /{" "}
-                            {
-                              filteredHistoryTasks.filter(
-                                (task) =>
-                                  task.status === "completed" ||
-                                  task.status === "failed" ||
-                                  task.status === "cancelled",
-                              ).length
-                            }
+                            已选择 {selectedHistoryTaskIds.length} / {filteredNoteCollectionData.length}
                           </span>
                         )}
                       </div>
                     )}
-                    {filteredHistoryTasks.map((task) => {
-                      const isExpanded = expandedHistoryItems.includes(
-                        parseInt(task.id),
-                      );
-                      const isRetryable =
-                        task.status === "failed" || task.status === "cancelled";
-                      const isSelectable =
-                        task.status === "completed" ||
-                        task.status === "failed" ||
-                        task.status === "cancelled";
+                    {filteredNoteCollectionData.map((note) => {
+                      const isExpanded = expandedHistoryItems.includes(note.id);
+                      const isRetryable = false; // 笔记数据不需要重试
+                      const isSelectable = true; // 笔记数据都可选
                       return (
                         <div
-                          key={task.id}
+                          key={note.id}
                           className={`border border-border rounded-lg ${
-                            selectedHistoryTaskIds.includes(task.id)
+                            selectedHistoryTaskIds.includes(note.id)
                               ? "bg-blue-50 border-blue-200"
                               : ""
                           }`}
@@ -1861,13 +1741,13 @@ https://www.xiaohongshu.com/discovery/item/987654321
                               <div className="flex items-start space-x-3 flex-1 min-w-0">
                                 {isSelectable && (
                                   <Checkbox
-                                    id={`history-task-${task.id}`}
+                                    id={`history-note-${note.id}`}
                                     checked={selectedHistoryTaskIds.includes(
-                                      task.id,
+                                      note.id,
                                     )}
                                     onCheckedChange={(checked) =>
                                       handleSelectHistoryTask(
-                                        task.id,
+                                        note.id,
                                         checked as boolean,
                                       )
                                     }
@@ -1876,153 +1756,127 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center space-x-2 mb-1">
-                                    {getStatusIcon(task.status)}
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
                                     <h3 className="text-sm font-medium truncate">
-                                      {task.content?.title || "提取内容"}
+                                      {note.title || "无标题"}
                                     </h3>
                                     <Badge
                                       variant="secondary"
-                                      className={`text-xs ${getStatusColor(task.status)}`}
+                                      className="text-xs bg-green-100 text-green-800"
                                     >
-                                      {getStatusText(task.status)}
+                                      已收藏
                                     </Badge>
                                   </div>
                                   <p className="text-xs text-muted-foreground truncate mb-2">
-                                    {task.url}
+                                    {note.share_url}
                                   </p>
                                   <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                     <span>小红书</span>
-                                    {task.content?.images && (
+                                    {note.images_list && (
                                       <span>
-                                        {task.content.images.length} 张图片
+                                        {note.images_list.length} 张图片
                                       </span>
                                     )}
-                                    {task.completed_at && (
+                                    {note.created_at && (
                                       <span>
                                         {new Date(
-                                          task.completed_at,
+                                          note.created_at,
                                         ).toLocaleString()}
                                       </span>
                                     )}
                                   </div>
-                                  {task.status === "completed" &&
-                                    task.content && (
-                                      <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
-                                        <p className="line-clamp-1 font-medium">
-                                          {task.content.title}
-                                        </p>
-                                      </div>
-                                    )}
-                                  {task.error_message && (
-                                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
-                                      错误: {task.error_message}
-                                    </div>
-                                  )}
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2 ml-4">
-                                {task.status === "completed" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      toggleHistoryExpansion(parseInt(task.id))
-                                    }
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    {isExpanded ? (
-                                      <ChevronDown className="h-3 w-3" />
-                                    ) : (
-                                      <ChevronRight className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                )}
-                                {task.content && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleCopy(task.content?.text || "")
-                                    }
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                )}
-                                {isRetryable && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => retryTasks([task.id])}
-                                    className="h-6 w-6 p-0 text-blue-600"
-                                    title="重试任务"
-                                  >
-                                    <RotateCcw className="h-3 w-3" />
-                                  </Button>
-                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    toggleHistoryExpansion(note.id)
+                                  }
+                                  className="h-6 w-6 p-0"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronRight className="h-3 w-3" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleCopy(note.desc || "")
+                                  }
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => window.open(note.share_url, '_blank')}
+                                  className="h-6 w-6 p-0 text-blue-600"
+                                  title="打开原链接"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                </Button>
                               </div>
                             </div>
                           </div>
 
                           {/* Expanded Content */}
-                          {isExpanded && task.content && (
+                          {isExpanded && (
                             <div className="border-t border-border p-4 bg-muted/20">
                               <div className="space-y-4">
                                 {/* Author Info */}
-                                {task.content.author && (
-                                  <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
-                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                      {task.content.author.avatar ? (
-                                        <img
-                                          src={task.content.author.avatar}
-                                          alt={task.content.author.name}
-                                          className="w-10 h-10 rounded-full"
-                                        />
-                                      ) : (
-                                        <span className="text-sm">👤</span>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium">
-                                        {task.content.author.name}
-                                      </p>
-                                      {task.content.author.followers && (
-                                        <p className="text-xs text-muted-foreground">
-                                          {task.content.author.followers} 粉丝
-                                        </p>
-                                      )}
-                                    </div>
-                                    <div className="ml-auto flex space-x-4 text-xs text-muted-foreground">
-                                      {task.content.stats.likes && (
-                                        <span>
-                                          ❤️ {task.content.stats.likes}
-                                        </span>
-                                      )}
-                                      {task.content.stats.comments && (
-                                        <span>
-                                          💬 {task.content.stats.comments}
-                                        </span>
-                                      )}
-                                      {task.content.stats.shares && (
-                                        <span>
-                                          🔗 {task.content.stats.shares}
-                                        </span>
-                                      )}
-                                    </div>
+                                <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
+                                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    {note.author_avatar ? (
+                                      <img
+                                        src={note.author_avatar}
+                                        alt={note.author_nickname}
+                                        className="w-10 h-10 rounded-full"
+                                      />
+                                    ) : (
+                                      <span className="text-sm">👤</span>
+                                    )}
                                   </div>
-                                )}
+                                  <div>
+                                    <p className="text-sm font-medium">
+                                      {note.author_nickname}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      ID: {note.author_user_id}
+                                    </p>
+                                  </div>
+                                  <div className="ml-auto flex space-x-4 text-xs text-muted-foreground">
+                                    <span>
+                                      ❤️ {note.likes_count || 0}
+                                    </span>
+                                    <span>
+                                      💬 {note.comment_count || 0}
+                                    </span>
+                                    <span>
+                                      🔗 {note.share_count || 0}
+                                    </span>
+                                    <span>
+                                      ⭐ {note.collect_count || 0}
+                                    </span>
+                                  </div>
+                                </div>
 
-                                {/* Extracted Text */}
+                                {/* Note Content */}
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between">
                                     <h4 className="text-sm font-medium">
-                                      提取的文字内容
+                                      笔记内容
                                     </h4>
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       onClick={() =>
-                                        handleCopy(task.content?.text || "")
+                                        handleCopy(note.desc || "")
                                       }
                                       className="h-6"
                                     >
@@ -2031,41 +1885,44 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                     </Button>
                                   </div>
                                   <div className="bg-background p-3 rounded-lg text-sm max-h-40 overflow-y-auto">
-                                    {task.content.text}
+                                    {note.desc}
                                   </div>
                                 </div>
 
                                 {/* Tags */}
-                                {task.content.tags &&
-                                  task.content.tags.length > 0 && (
+                                {note.tag_list &&
+                                  note.tag_list.length > 0 && (
                                     <div className="space-y-2">
                                       <h4 className="text-sm font-medium">
                                         话题标签
                                       </h4>
                                       <div className="flex flex-wrap gap-2">
-                                        {task.content.tags.map(
-                                          (tag: string, index: number) => (
-                                            <Badge
-                                              key={index}
-                                              variant="outline"
-                                              className="text-xs cursor-pointer"
-                                              onClick={() => handleCopy(tag)}
-                                            >
-                                              #{tag}
-                                            </Badge>
-                                          ),
+                                        {note.tag_list.map(
+                                          (tag: any, index: number) => {
+                                            const tagName = typeof tag === 'string' ? tag : tag.name;
+                                            return (
+                                              <Badge
+                                                key={index}
+                                                variant="outline"
+                                                className="text-xs cursor-pointer"
+                                                onClick={() => handleCopy(`#${tagName}`)}
+                                              >
+                                                #{tagName}
+                                              </Badge>
+                                            );
+                                          },
                                         )}
                                       </div>
                                     </div>
                                   )}
 
                                 {/* Images */}
-                                {task.content.images &&
-                                  task.content.images.length > 0 && (
+                                {note.images_list &&
+                                  note.images_list.length > 0 && (
                                     <div className="space-y-2">
                                       <div className="flex items-center justify-between">
                                         <h4 className="text-sm font-medium">
-                                          提取图片 ({task.content.images.length}
+                                          笔记图片 ({note.images_list.length}
                                           )
                                         </h4>
                                         <Button
@@ -2079,7 +1936,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                         </Button>
                                       </div>
                                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        {task.content.images.map(
+                                        {note.images_list.map(
                                           (image: any, index: number) => (
                                             <div
                                               key={index}
@@ -2088,7 +1945,7 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                               <div className="aspect-square flex items-center justify-center">
                                                 <img
                                                   src={image.url}
-                                                  alt={image.description}
+                                                  alt={`Image ${index + 1}`}
                                                   className="w-full h-full object-cover"
                                                   onError={(e) => {
                                                     e.currentTarget.style.display =
@@ -2108,11 +1965,13 @@ https://www.xiaohongshu.com/discovery/item/987654321
                                               </div>
                                               <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1">
                                                 <p className="truncate text-xs">
-                                                  {image.description}
+                                                  {image.size}
                                                 </p>
-                                                <p className="text-gray-300 text-xs">
-                                                  {image.fileSize}
-                                                </p>
+                                                {image.is_live && (
+                                                  <p className="text-red-300 text-xs">
+                                                    Live
+                                                  </p>
+                                                )}
                                               </div>
                                             </div>
                                           ),
