@@ -382,7 +382,7 @@ export default function DouyinKolAnalysis() {
         {/* Main Tabs */}
         <Card>
           <CardContent className="p-0">
-            <Tabs defaultValue="add" className="w-full">
+            <Tabs defaultValue="history" className="w-full">
               <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
                 <TabsTrigger
                   value="add"
@@ -573,31 +573,34 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[300px]">
+                                <TableHead className="w-[280px]">
                                   KOL信息
                                 </TableHead>
                                 <TableHead className="w-[100px]">
                                   粉丝数
                                 </TableHead>
-                                <TableHead className="w-[120px]">
-                                  MCN机构
+                                <TableHead className="w-[100px]">
+                                  类型
                                 </TableHead>
                                 <TableHead className="w-[100px]">
+                                  MCN机构
+                                </TableHead>
+                                <TableHead className="w-[80px]">
                                   是否带货
                                 </TableHead>
-                                <TableHead className="w-[120px]">
+                                <TableHead className="w-[100px]">
                                   标签
                                 </TableHead>
-                                <TableHead className="w-[120px]">
+                                <TableHead className="w-[100px]">
                                   添加时间
                                 </TableHead>
-                                <TableHead className="w-[80px]">操作</TableHead>
+                                <TableHead className="w-[60px]">操作</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {loading ? (
                                 <TableRow>
-                                  <TableCell colSpan={7} className="text-center py-8">
+                                  <TableCell colSpan={8} className="text-center py-8">
                                     <RefreshCw className="h-6 w-6 mx-auto animate-spin text-muted-foreground mb-2" />
                                     <p className="text-sm text-muted-foreground">加载中...</p>
                                   </TableCell>
@@ -633,6 +636,20 @@ https://www.douyin.com/user/MS4wLjABAAAA...`}
                                   </TableCell>
                                   <TableCell className="font-medium">
                                     {formatNumber(kol.follower_count)}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex flex-wrap gap-1">
+                                      {kol.tags_relation && Object.keys(kol.tags_relation).map((tagKey) => (
+                                        <Badge
+                                          key={tagKey}
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          {tagKey}
+                                        </Badge>
+                                      ))}
+                                      {!kol.tags_relation && '-'}
+                                    </div>
                                   </TableCell>
                                   <TableCell>
                                     <div className="text-sm">

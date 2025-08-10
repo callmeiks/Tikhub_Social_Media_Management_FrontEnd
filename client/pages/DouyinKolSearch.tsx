@@ -232,7 +232,7 @@ export default function DouyinKolSearch() {
       nickname: kol.nick_name,
       avatar_url: kol.avatar_uri,
       signature: (kol.content_theme_labels_180d && Array.isArray(kol.content_theme_labels_180d) && kol.content_theme_labels_180d.length > 0) ? kol.content_theme_labels_180d.join(", ") : "暂无简介",
-      follower_count: kol.follower_count || kol.follower,
+      follower_count: kol.follower_count,
       following_count: 0, // API响应中没有此字段
       aweme_count: 0, // API响应中没有此字段
       total_favorited: kol.interaction_median_30d ? kol.interaction_median_30d * 30 : 0, // 估算值
@@ -247,7 +247,7 @@ export default function DouyinKolSearch() {
       with_commerce_entry: kol.e_commerce_enable || false,
       with_fusion_shop_entry: false,
       with_new_goods: false,
-      max_follower_count: kol.follower_count || kol.follower,
+      max_follower_count: kol.follower_count,
       platform: "douyin",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
