@@ -481,12 +481,23 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0]
       });
-      setFansTrendData(response);
       
-      // 存入缓存
-      tabCache.set(cacheKey, response);
+      // 确保响应数据结构正确
+      if (response && response.data) {
+        setFansTrendData(response.data);
+        // 存入缓存
+        tabCache.set(cacheKey, response.data);
+      } else if (response && response.fans_count) {
+        setFansTrendData(response);
+        // 存入缓存
+        tabCache.set(cacheKey, response);
+      } else {
+        console.error("Invalid API response structure:", response);
+        setFansTrendData(null);
+      }
     } catch (error) {
       console.error("获取粉丝趋势数据失败:", error);
+      setFansTrendData(null);
     } finally {
       setLoading(false);
     }
@@ -505,19 +516,30 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
   }
 
   const calculateGrowthRate = () => {
-    if (!fansTrendData || fansTrendData.fans_count.length < 2) return "0%";
-    const firstCount = parseInt(fansTrendData.fans_count[0].fans_cnt);
-    const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt);
-    const rate = ((lastCount - firstCount) / firstCount) * 100;
-    return `${rate > 0 ? '+' : ''}${rate.toFixed(1)}%`;
+    if (!fansTrendData || !fansTrendData.fans_count || !Array.isArray(fansTrendData.fans_count) || fansTrendData.fans_count.length < 2) return "0%";
+    try {
+      const firstCount = parseInt(fansTrendData.fans_count[0]?.fans_cnt || '0');
+      const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1]?.fans_cnt || '0');
+      if (firstCount === 0) return "0%";
+      const rate = ((lastCount - firstCount) / firstCount) * 100;
+      return `${rate > 0 ? '+' : ''}${rate.toFixed(1)}%`;
+    } catch (error) {
+      console.error("Error calculating growth rate:", error);
+      return "0%";
+    }
   };
 
   const calculateMonthlyGrowth = () => {
-    if (!fansTrendData || fansTrendData.fans_count.length < 2) return "0";
-    const firstCount = parseInt(fansTrendData.fans_count[0].fans_cnt);
-    const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt);
-    const growth = lastCount - firstCount;
-    return formatNumber(Math.abs(growth));
+    if (!fansTrendData || !fansTrendData.fans_count || !Array.isArray(fansTrendData.fans_count) || fansTrendData.fans_count.length < 2) return "0";
+    try {
+      const firstCount = parseInt(fansTrendData.fans_count[0]?.fans_cnt || '0');
+      const lastCount = parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1]?.fans_cnt || '0');
+      const growth = lastCount - firstCount;
+      return formatNumber(Math.abs(growth));
+    } catch (error) {
+      console.error("Error calculating monthly growth:", error);
+      return "0";
+    }
   };
 
   return (
@@ -612,8 +634,8 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
             <div className="w-px h-10 bg-gray-200"></div>
             <div className="text-center">
               <div className="text-lg font-bold text-black">
-                {fansTrendData?.fans_count.length ? 
-                  formatNumber(parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1].fans_cnt)) : 
+                {fansTrendData?.fans_count && Array.isArray(fansTrendData.fans_count) && fansTrendData.fans_count.length > 0 ? 
+                  formatNumber(parseInt(fansTrendData.fans_count[fansTrendData.fans_count.length - 1]?.fans_cnt || '0')) : 
                   '-'
                 }
               </div>
@@ -632,7 +654,7 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {fansTrendData && fansTrendData.fans_count.length > 0 ? (
+          {fansTrendData && fansTrendData.fans_count && Array.isArray(fansTrendData.fans_count) && fansTrendData.fans_count.length > 0 ? (
             <div className="w-full h-64">
               <FansCountLineChart data={fansTrendData.fans_count} />
             </div>
@@ -654,7 +676,7 @@ const FanTrendsAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {fansTrendData && fansTrendData.fans_growth.length > 0 ? (
+          {fansTrendData && fansTrendData.fans_growth && Array.isArray(fansTrendData.fans_growth) && fansTrendData.fans_growth.length > 0 ? (
             <div className="w-full h-64">
               <DailyGrowthChart data={fansTrendData.fans_growth} />
             </div>
@@ -687,7 +709,9 @@ const AudienceAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       // 检查缓存
       const cachedData = tabCache.get<AudiencePortraitResponse>(cacheKey);
       if (cachedData) {
-        setAudienceData(cachedData);
+        // 确保缓存的数据有正确的结构
+        const validData = cachedData.data || cachedData;
+        setAudienceData(validData);
         setLoading(false);
         return;
       }
@@ -696,10 +720,18 @@ const AudienceAnalysisTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       setError(null);
       try {
         const response = await apiClient.getKolAudiencePortrait({ kol_id: kolId });
-        setAudienceData(response);
         
-        // 存入缓存
-        tabCache.set(cacheKey, response);
+        // 处理响应数据结构
+        const audiencePortraitData = response.data || response;
+        
+        if (audiencePortraitData) {
+          setAudienceData(audiencePortraitData);
+          // 存入缓存
+          tabCache.set(cacheKey, audiencePortraitData);
+        } else {
+          console.error("Invalid audience data structure:", response);
+          setError("数据格式错误");
+        }
       } catch (error) {
         console.error("获取受众画像数据失败:", error);
         setError(error instanceof Error ? error.message : "获取数据失败");
@@ -1269,7 +1301,9 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       // 检查缓存
       const cachedData = tabCache.get<ServicePricingResponse>(cacheKey);
       if (cachedData) {
-        setServicePricingData(cachedData);
+        // 确保缓存的数据有正确的结构
+        const validData = cachedData.data || cachedData;
+        setServicePricingData(validData);
         setLoading(false);
         return;
       }
@@ -1277,10 +1311,13 @@ const ServicePricingTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       setLoading(true);
       try {
         const response = await apiClient.getKolServicePricing({ kol_id: kolId });
-        setServicePricingData(response);
+        
+        // 处理响应数据结构
+        const pricingData = response.data || response;
+        setServicePricingData(pricingData);
         
         // 存入缓存
-        tabCache.set(cacheKey, response);
+        tabCache.set(cacheKey, pricingData);
       } catch (error) {
         console.error("获取服务报价数据失败:", error);
       } finally {
@@ -1428,7 +1465,9 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
       // 检查缓存
       const cachedData = tabCache.get<VideoPerformanceResponse>(cacheKey);
       if (cachedData) {
-        setVideoPerformanceData(cachedData);
+        // 确保缓存的数据有正确的结构
+        const validData = cachedData.data || cachedData;
+        setVideoPerformanceData(validData);
         setLoading(false);
         return;
       }
@@ -1440,10 +1479,13 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
           type: "_1",
           range: "_3"
         });
-        setVideoPerformanceData(response);
+        
+        // 处理响应数据结构
+        const videoData = response.data || response;
+        setVideoPerformanceData(videoData);
         
         // 存入缓存
-        tabCache.set(cacheKey, response);
+        tabCache.set(cacheKey, videoData);
       } catch (error) {
         console.error("获取视频表现数据失败:", error);
       } finally {
@@ -1576,41 +1618,9 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
             <Flame className="mr-2 h-4 w-4 text-gray-600" />
             个人热门视频
           </h3>
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* 视频缩略图 */}
-            <div className="w-full md:w-48 flex-shrink-0">
-              <div className="relative aspect-[9/16] bg-gray-100 rounded-lg overflow-hidden">
-                {getVideoThumbnail(videoPerformanceData.personal_hot_videos.cover_uri) ? (
-                  <img
-                    src={getVideoThumbnail(videoPerformanceData.personal_hot_videos.cover_uri)}
-                    alt="视频封面"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <Video className="h-8 w-8 text-gray-400" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                  <PlayCircle className="h-12 w-12 text-white opacity-80" />
-                </div>
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                  {formatDuration(Math.floor(videoPerformanceData.personal_hot_videos.duration))}
-                </div>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full mt-2"
-                onClick={() => window.open(videoPerformanceData.personal_hot_videos.url, '_blank')}
-              >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                观看视频
-              </Button>
-            </div>
-
+          <div>
             {/* 视频信息 */}
-            <div className="flex-1">
+            <div>
               <h4 className="font-medium text-black mb-2 line-clamp-2" title={videoPerformanceData.personal_hot_videos.title}>
                 {videoPerformanceData.personal_hot_videos.title}
               </h4>
@@ -1640,6 +1650,15 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                   <div className="font-bold text-black">{(videoPerformanceData.personal_hot_videos.stats.interact_rate * 100).toFixed(1)}%</div>
                 </div>
               </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3"
+                onClick={() => window.open(videoPerformanceData.personal_hot_videos.url, '_blank', 'noreferrer')}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                观看视频
+              </Button>
             </div>
           </div>
         </div>
@@ -1652,41 +1671,9 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
             <Clock className="mr-2 h-4 w-4 text-gray-600" />
             最新视频
           </h3>
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* 视频缩略图 */}
-            <div className="w-full md:w-48 flex-shrink-0">
-              <div className="relative aspect-[9/16] bg-gray-100 rounded-lg overflow-hidden">
-                {getVideoThumbnail(videoPerformanceData.newest_videos.cover_uri) ? (
-                  <img
-                    src={getVideoThumbnail(videoPerformanceData.newest_videos.cover_uri)}
-                    alt="视频封面"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <Video className="h-8 w-8 text-gray-400" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                  <PlayCircle className="h-12 w-12 text-white opacity-80" />
-                </div>
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                  {formatDuration(Math.floor(videoPerformanceData.newest_videos.duration))}
-                </div>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full mt-2"
-                onClick={() => window.open(videoPerformanceData.newest_videos.url, '_blank')}
-              >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                观看视频
-              </Button>
-            </div>
-
+          <div>
             {/* 视频信息 */}
-            <div className="flex-1">
+            <div>
               <h4 className="font-medium text-black mb-2 line-clamp-2" title={videoPerformanceData.newest_videos.title}>
                 {videoPerformanceData.newest_videos.title}
               </h4>
@@ -1716,6 +1703,15 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                   <div className="font-bold text-black">{(videoPerformanceData.newest_videos.stats.interact_rate * 100).toFixed(1)}%</div>
                 </div>
               </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3"
+                onClick={() => window.open(videoPerformanceData.newest_videos.url, '_blank', 'noreferrer')}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                观看视频
+              </Button>
             </div>
           </div>
         </div>
@@ -1745,7 +1741,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[250px]">标题</TableHead>
                       <TableHead className="w-[100px]">时长</TableHead>
                       <TableHead className="w-[120px]">播放量</TableHead>
                       <TableHead className="w-[100px]">点赞数</TableHead>
@@ -1758,27 +1754,12 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                     {videoPerformanceData.latest_videos.slice(0, 10).map((video) => (
                       <TableRow key={video.item_id} className="hover:bg-gray-50">
                         <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                              {getVideoThumbnail(video.item_cover) ? (
-                                <img
-                                  src={getVideoThumbnail(video.item_cover)}
-                                  alt="视频封面"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex items-center justify-center h-full">
-                                  <Video className="h-4 w-4 text-gray-400" />
-                                </div>
-                              )}
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm text-black truncate" title={video.title}>
+                              {video.title}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm text-black truncate" title={video.title}>
-                                {video.title}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {formatDate(video.create_timestamp)}
-                              </div>
+                            <div className="text-xs text-gray-500">
+                              {formatDate(video.create_timestamp)}
                             </div>
                           </div>
                         </TableCell>
@@ -1791,7 +1772,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(video.url, '_blank')}
+                            onClick={() => window.open(video.url, '_blank', 'noreferrer')}
                           >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
@@ -1830,7 +1811,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[250px]">标题</TableHead>
                       <TableHead className="w-[100px]">时长</TableHead>
                       <TableHead className="w-[120px]">播放量</TableHead>
                       <TableHead className="w-[100px]">点赞数</TableHead>
@@ -1843,27 +1824,12 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                     {videoPerformanceData.latest_star_videos.slice(0, 10).map((video) => (
                       <TableRow key={video.item_id} className="hover:bg-gray-50">
                         <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                              {getVideoThumbnail(video.item_cover) ? (
-                                <img
-                                  src={getVideoThumbnail(video.item_cover)}
-                                  alt="视频封面"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex items-center justify-center h-full">
-                                  <Video className="h-4 w-4 text-gray-400" />
-                                </div>
-                              )}
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm text-black truncate" title={video.title}>
+                              {video.title}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm text-black truncate" title={video.title}>
-                                {video.title}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {formatDate(video.create_timestamp)}
-                              </div>
+                            <div className="text-xs text-gray-500">
+                              {formatDate(video.create_timestamp)}
                             </div>
                           </div>
                         </TableCell>
@@ -1876,7 +1842,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(video.url, '_blank')}
+                            onClick={() => window.open(video.url, '_blank', 'noreferrer')}
                           >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
@@ -1915,7 +1881,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[300px]">视频信息</TableHead>
+                      <TableHead className="w-[250px]">标题</TableHead>
                       <TableHead className="w-[100px]">时长</TableHead>
                       <TableHead className="w-[120px]">播放量</TableHead>
                       <TableHead className="w-[100px]">点赞数</TableHead>
@@ -1928,27 +1894,12 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                     {videoPerformanceData.masterpiece_videos.map((video) => (
                       <TableRow key={video.id} className="hover:bg-gray-50">
                         <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                              {getVideoThumbnail(video.cover_uri) ? (
-                                <img
-                                  src={getVideoThumbnail(video.cover_uri)}
-                                  alt="视频封面"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex items-center justify-center h-full">
-                                  <Video className="h-4 w-4 text-gray-400" />
-                                </div>
-                              )}
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm text-black truncate" title={video.title}>
+                              {video.title}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm text-black truncate" title={video.title}>
-                                {video.title}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {formatDate(parseInt(video.create_time))}
-                              </div>
+                            <div className="text-xs text-gray-500">
+                              {formatDate(parseInt(video.create_time))}
                             </div>
                           </div>
                         </TableCell>
@@ -1965,7 +1916,7 @@ const VideoPerformanceTab: React.FC<{ kolId: string }> = ({ kolId }) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(video.url, '_blank')}
+                            onClick={() => window.open(video.url, '_blank', 'noreferrer')}
                           >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
@@ -1999,11 +1950,14 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
     setError(null);
     try {
       const response = await apiClient.getKolInfluenceMetrics({ kol_id: kolId });
-      setData(response);
+      
+      // 处理响应数据结构
+      const metricsData = response.data || response;
+      setData(metricsData);
       
       // 存入缓存
       const cacheKey = `performance_${kolId}`;
-      tabCache.set(cacheKey, response);
+      tabCache.set(cacheKey, metricsData);
     } catch (error) {
       console.error("获取影响力指标失败:", error);
       setError(error instanceof Error ? error.message : "获取数据失败");
@@ -2022,7 +1976,9 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
       // 检查缓存
       const cachedData = tabCache.get<InfluenceMetricsResponse>(cacheKey);
       if (cachedData) {
-        setData(cachedData);
+        // 确保缓存的数据有正确的结构
+        const validData = cachedData.data || cachedData;
+        setData(validData);
         setLoading(false);
         return;
       }
@@ -2138,30 +2094,6 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
           data?.cp_index,
           "text-green-600"
         )}
-        {renderMetricCard(
-          "转化指数",
-          <TrendingUp className="mr-2 h-4 w-4 text-purple-600" />,
-          data?.link_convert_index,
-          "text-purple-600"
-        )}
-        {renderMetricCard(
-          "传播指数",
-          <Award className="mr-2 h-4 w-4 text-blue-600" />,
-          data?.link_spread_index,
-          "text-blue-600"
-        )}
-        {renderMetricCard(
-          "购物指数",
-          <DollarSign className="mr-2 h-4 w-4 text-orange-600" />,
-          data?.link_shopping_index,
-          "text-orange-600"
-        )}
-        {renderMetricCard(
-          "星图指数",
-          <Star className="mr-2 h-4 w-4 text-pink-600" />,
-          data?.link_star_index,
-          "text-pink-600"
-        )}
       </div>
 
       {/* 达人能力雷达图 */}
@@ -2191,38 +2123,6 @@ const CreatorPerformanceTab: React.FC<CreatorPerformanceTabProps> = ({ kolId }) 
                   avgValue: data?.cp_index?.avg_value || 0,
                   linkRatio: data?.cp_index?.link_relative_ratio || 0,
                   rankPercent: data?.cp_index?.rank_percent || 0
-                },
-                { 
-                  skill: "转化指数", 
-                  score: data?.link_convert_index?.value || 0, 
-                  rank: data?.link_convert_index?.rank || '-', 
-                  avgValue: data?.link_convert_index?.avg_value || 0,
-                  linkRatio: data?.link_convert_index?.link_relative_ratio || 0,
-                  rankPercent: data?.link_convert_index?.rank_percent || 0
-                },
-                { 
-                  skill: "传播指数", 
-                  score: data?.link_spread_index?.value || 0, 
-                  rank: data?.link_spread_index?.rank || '-', 
-                  avgValue: data?.link_spread_index?.avg_value || 0,
-                  linkRatio: data?.link_spread_index?.link_relative_ratio || 0,
-                  rankPercent: data?.link_spread_index?.rank_percent || 0
-                },
-                { 
-                  skill: "购物指数", 
-                  score: data?.link_shopping_index?.value || 0, 
-                  rank: data?.link_shopping_index?.rank || '-', 
-                  avgValue: data?.link_shopping_index?.avg_value || 0,
-                  linkRatio: data?.link_shopping_index?.link_relative_ratio || 0,
-                  rankPercent: data?.link_shopping_index?.rank_percent || 0
-                },
-                { 
-                  skill: "星图指数", 
-                  score: data?.link_star_index?.value || 0, 
-                  rank: data?.link_star_index?.rank || '-', 
-                  avgValue: data?.link_star_index?.avg_value || 0,
-                  linkRatio: data?.link_star_index?.link_relative_ratio || 0,
-                  rankPercent: data?.link_star_index?.rank_percent || 0
                 },
               ].map((item) => (
                 <div key={item.skill} className="space-y-2">
@@ -2267,11 +2167,14 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
     setError(null);
     try {
       const response = await apiClient.getKolHotCommentWords({ kol_id: kolId });
-      setData(response);
+      
+      // 处理响应数据结构
+      const wordsData = response.data || response;
+      setData(wordsData);
       
       // 存入缓存
       const cacheKey = `wordcloud_${kolId}`;
-      tabCache.set(cacheKey, response);
+      tabCache.set(cacheKey, wordsData);
     } catch (error) {
       console.error("获取热门评论词汇失败:", error);
       setError(error instanceof Error ? error.message : "获取数据失败");
@@ -2290,7 +2193,9 @@ const HotWordCloudTab: React.FC<HotWordCloudTabProps> = ({ kolId }) => {
       // 检查缓存
       const cachedData = tabCache.get<HotCommentWordsResponse>(cacheKey);
       if (cachedData) {
-        setData(cachedData);
+        // 确保缓存的数据有正确的结构
+        const validData = cachedData.data || cachedData;
+        setData(validData);
         setLoading(false);
         return;
       }
@@ -2795,94 +2700,6 @@ export default function DouyinKolAnalysisDetail() {
                             <div className="text-gray-500">MCN机构</div>
                             <div className="font-medium">{data.mcn_name || '-'}</div>
                           </div>
-                          <div>
-                            <div className="text-gray-500">星图指数</div>
-                            <div className="font-medium">
-                              {data.star_index !== null && data.star_index !== undefined ? data.star_index.toFixed(1) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">平均播放量</div>
-                            <div className="font-medium">
-                              {data.vv_median_30d !== null && data.vv_median_30d !== undefined ? formatNumber(data.vv_median_30d) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">互动中位数</div>
-                            <div className="font-medium">
-                              {data.interaction_median_30d !== null && data.interaction_median_30d !== undefined ? formatNumber(data.interaction_median_30d) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">15天涨粉</div>
-                            <div className="font-medium" style={{color: (data.fans_increment_within_15d || 0) < 0 ? '#ef4444' : '#10b981'}}>
-                              {data.fans_increment_within_15d !== null && data.fans_increment_within_15d !== undefined ? 
-                                (data.fans_increment_within_15d >= 0 ? '+' : '') + formatNumber(data.fans_increment_within_15d) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">30天涨粉</div>
-                            <div className="font-medium" style={{color: (data.fans_increment_within_30d || 0) < 0 ? '#ef4444' : '#10b981'}}>
-                              {data.fans_increment_within_30d !== null && data.fans_increment_within_30d !== undefined ? 
-                                (data.fans_increment_within_30d >= 0 ? '+' : '') + formatNumber(data.fans_increment_within_30d) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">15天涨粉率</div>
-                            <div className="font-medium" style={{color: (data.fans_increment_rate_within_15d || 0) < 0 ? '#ef4444' : '#10b981'}}>
-                              {data.fans_increment_rate_within_15d !== null && data.fans_increment_rate_within_15d !== undefined ? 
-                                `${(data.fans_increment_rate_within_15d * 100).toFixed(2)}%` : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">电商评分</div>
-                            <div className="font-medium">
-                              {data.ecom_score !== null && data.ecom_score !== undefined ? data.ecom_score.toFixed(1) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">预期播放量</div>
-                            <div className="font-medium">
-                              {data.expected_play_num !== null && data.expected_play_num !== undefined ? formatNumber(data.expected_play_num) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">自然播放量</div>
-                            <div className="font-medium">
-                              {data.expected_natural_play_num !== null && data.expected_natural_play_num !== undefined ? formatNumber(data.expected_natural_play_num) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">建议CPM</div>
-                            <div className="font-medium">
-                              {data.assign_cpm_suggest_price !== null && data.assign_cpm_suggest_price !== undefined ? 
-                                `¥${data.assign_cpm_suggest_price}` : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">链接转化指数</div>
-                            <div className="font-medium">
-                              {data.link_convert_index !== null && data.link_convert_index !== undefined ? data.link_convert_index.toFixed(1) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">链接购物指数</div>
-                            <div className="font-medium">
-                              {data.link_shopping_index !== null && data.link_shopping_index !== undefined ? data.link_shopping_index.toFixed(1) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">链接传播指数</div>
-                            <div className="font-medium">
-                              {data.link_spread_index !== null && data.link_spread_index !== undefined ? data.link_spread_index.toFixed(1) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">链接星图指数</div>
-                            <div className="font-medium">
-                              {data.link_star_index !== null && data.link_star_index !== undefined ? data.link_star_index.toFixed(1) : '-'}
-                            </div>
-                          </div>
                           {data.price_1_20 !== null && data.price_1_20 !== undefined && (
                             <div>
                               <div className="text-gray-500">1-20s报价</div>
@@ -3048,27 +2865,27 @@ export default function DouyinKolAnalysisDetail() {
 
               <div className="p-6">
                 <TabsContent value="fantrends" className="mt-0">
-                  <FanTrendsAnalysisTab kolId={kolData.task_id || kolId || ''} />
+                  <FanTrendsAnalysisTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="audience" className="mt-0">
-                  <AudienceAnalysisTab kolId={kolData.task_id || kolId || ''} />
+                  <AudienceAnalysisTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="pricing" className="mt-0">
-                  <ServicePricingTab kolId={kolData.task_id || kolId || ''} />
+                  <ServicePricingTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="video" className="mt-0">
-                  <VideoPerformanceTab kolId={kolData.task_id || kolId || ''} />
+                  <VideoPerformanceTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <CreatorPerformanceTab kolId={kolData.task_id || kolId || ''} />
+                  <CreatorPerformanceTab kolId={kolId || ''} />
                 </TabsContent>
 
                 <TabsContent value="wordcloud" className="mt-0">
-                  <HotWordCloudTab kolId={kolData.task_id || kolId || ''} />
+                  <HotWordCloudTab kolId={kolId || ''} />
                 </TabsContent>
               </div>
             </Tabs>

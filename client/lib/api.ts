@@ -518,6 +518,7 @@ interface DouyinKolSearchResult {
   content_theme_labels_180d: string[];
   tags_relation: Record<string, string[]>;
   follower: number;
+  follower_count: number | string;
   fans_increment_rate_within_15d: number;
   fans_increment_within_15d: number;
   fans_increment_within_30d: number;
@@ -531,7 +532,7 @@ interface DouyinKolSearchResult {
   expected_natural_play_num: number;
   brand_boost_vv: number | null;
   vv_median_30d: number;
-  star_index: number | null;
+  star_index: number | string | null;
   link_convert_index: number | null;
   link_shopping_index: number | null;
   link_spread_index: number | null;
@@ -610,6 +611,7 @@ interface DouyinKolInfo {
   link_shopping_index: number | null;
   link_spread_index: number | null;
   link_star_index: number | null;
+  tags_relation: { [key: string]: string[] } | null;
   created_at: string;
   updated_at: string;
 }
@@ -1008,17 +1010,37 @@ interface UserInfluencer {
   id: string;
   task_id: string;
   platform: string;
-  platform_user_id: string;
+  platform_user_id?: string;
   keyword: string;
-  username: string;
+  username?: string;
   nickname: string;
   avatar_url: string;
   follower_count: number;
   following_count: number;
-  post_count: number;
-  is_verified: boolean;
-  profile_url: string;
+  post_count?: number;
+  is_verified?: boolean;
+  profile_url?: string;
   created_at: string;
+  
+  // Douyin-specific fields
+  sec_user_id?: string;
+  unique_id?: string;
+  age?: number | null;
+  gender?: number;
+  signature?: string | null;
+  share_url?: string | null;
+  total_favorited?: number;
+  max_follower_count?: number;
+  aweme_count?: number;
+  ip_location?: string | null;
+  is_star?: boolean;
+  is_effect_artist?: boolean;
+  is_gov_media_vip?: boolean;
+  is_live_commerce?: boolean;
+  is_xingtu_kol?: boolean;
+  with_commerce_entry?: boolean;
+  with_fusion_shop_entry?: boolean;
+  with_new_goods?: boolean;
 }
 
 interface GetInfluencersResponse {
@@ -1416,51 +1438,18 @@ class ApiClient {
       searchParams.append("sort_by_time", queryParams.sort_by_time.toString());
 
     const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
+    const endpoint = `/user-collection/posts/${platform}/${platform_user_id}${query}`;
 
-    // Use updated endpoint for user collection posts
-    const url = `${this.baseURL}/user-collection/posts/${platform}/${platform_user_id}${query}`;
-
-    const headers: Record<string, string> = {};
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-    }
-
-    const response = await fetch(url, {
+    return this.request<ApiResponse<Post>>(endpoint, {
       method: "GET",
-      headers,
     });
-
-    if (!response.ok) {
-      throw new Error(
-        `API request failed: ${response.status} ${response.statusText}`,
-      );
-    }
-
-    return response.json();
   }
 
   async getAccountDetail(accountId: string): Promise<Influencer> {
-    // Use port 8001 for account-interaction API
-    const apiUrl = this.baseURL.replace(":8000", ":8001");
-    const url = `${apiUrl}/account-interaction/influencers`;
-
-    const headers: Record<string, string> = {};
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-    }
-
-    const response = await fetch(url, {
+    const data = await this.request<{ items: Influencer[] }>("/account-interaction/influencers", {
       method: "GET",
-      headers,
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `API request failed: ${response.status} ${response.statusText}`,
-      );
-    }
-
-    const data = await response.json();
     // 从返回的列表中查找匹配的账号
     const account = data.items.find((item: any) => item.id === accountId);
     if (!account) {
@@ -1499,38 +1488,15 @@ class ApiClient {
   async keywordUserSearch(
     params: KeywordUserSearchParams,
   ): Promise<KeywordUserSearchResponse> {
-    // The API endpoint expects port 8001 based on the documentation
-    const apiUrl = this.baseURL.replace(":8000", ":8001");
-    const url = `${apiUrl}/keyword-search-user/search`;
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-    }
-
-    const response = await fetch(url, {
+    return this.request<KeywordUserSearchResponse>("/keyword-search-user/search", {
       method: "POST",
-      headers,
       body: JSON.stringify(params),
     });
-
-    if (!response.ok) {
-      throw new Error(
-        `API request failed: ${response.status} ${response.statusText}`,
-      );
-    }
-
-    return response.json();
   }
 
   async getUserInfluencers(
     params: GetUserInfluencersParams = {},
   ): Promise<GetInfluencersResponse> {
-    // The API endpoint expects port 8001 based on the documentation
-    const apiUrl = this.baseURL.replace(":8000", ":8001");
     const searchParams = new URLSearchParams();
 
     if (params.platform) searchParams.append("platform", params.platform);
@@ -1538,26 +1504,11 @@ class ApiClient {
     if (params.page) searchParams.append("page", params.page.toString());
     if (params.limit) searchParams.append("limit", params.limit.toString());
 
-    const url = `${apiUrl}/keyword-search-user/influencers?${searchParams.toString()}`;
-
-    const headers: Record<string, string> = {};
-
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-    }
-
-    const response = await fetch(url, {
+    const endpoint = `/keyword-search-user/influencers?${searchParams.toString()}`;
+    
+    return this.request<GetInfluencersResponse>(endpoint, {
       method: "GET",
-      headers,
     });
-
-    if (!response.ok) {
-      throw new Error(
-        `API request failed: ${response.status} ${response.statusText}`,
-      );
-    }
-
-    return response.json();
   }
 
   // Douyin Rankings API Methods
@@ -2132,7 +2083,7 @@ class ApiClient {
   // 抖音KOL管理API - 添加KOL到分析列表
   async fetchDouyinKolInfo(params: DouyinKolFetchInfoRequest): Promise<DouyinKolFetchInfoResponse> {
     return this.request<DouyinKolFetchInfoResponse>(
-      "/kol/douyin/fetch-info",
+      "/kol/douyin/create-tasks",
       {
         method: "POST",
         body: JSON.stringify(params),
@@ -2149,7 +2100,7 @@ class ApiClient {
     if (params.nickname) queryParams.append('nickname', params.nickname);
     if (params.sort_by_fans !== undefined) queryParams.append('sort_by_fans', params.sort_by_fans.toString());
 
-    const endpoint = `/kol/douyin/list${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const endpoint = `/kol/douyin/kols${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     
     return this.request<DouyinKolListResponse>(
       endpoint,

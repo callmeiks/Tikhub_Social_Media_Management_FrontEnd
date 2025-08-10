@@ -35,14 +35,12 @@ import {
   ArrowUp,
   ArrowDown,
   Download,
-  Plus,
 } from "lucide-react";
 import { 
   apiClient, 
   type DouyinInfluencer, 
   type DouyinKolSearchRequest, 
   type DouyinKolSearchResult,
-  type DouyinKolFetchInfoRequest
 } from "@/lib/api";
 import { AvatarImage } from "@/components/ui/avatar-image";
 import * as XLSX from 'xlsx';
@@ -121,7 +119,6 @@ export default function DouyinKolSearch() {
   const [searchResults, setSearchResults] = useState<DouyinKolSearchResult[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [addingToAnalysis, setAddingToAnalysis] = useState<Set<string>>(new Set());
 
   const [filters, setFilters] = useState<SearchFilters>(() => {
     const cached = searchCache.get<{filters: SearchFilters, results: DouyinKolSearchResult[], total: number}>('douyin_search_state');
@@ -227,7 +224,7 @@ export default function DouyinKolSearch() {
 
   const handleKolClick = (kol: DouyinKolSearchResult) => {
     // 转换数据结构以匹配DouyinInfluencer接口
-    const transformedKol: DouyinInfluencer = {
+    const transformedKol: DouyinInfluencer & { kol_id: string } = {
       id: kol.kol_id,
       task_id: kol.core_user_id,
       sec_user_id: kol.id,
@@ -235,7 +232,7 @@ export default function DouyinKolSearch() {
       nickname: kol.nick_name,
       avatar_url: kol.avatar_uri,
       signature: (kol.content_theme_labels_180d && Array.isArray(kol.content_theme_labels_180d) && kol.content_theme_labels_180d.length > 0) ? kol.content_theme_labels_180d.join(", ") : "暂无简介",
-      follower_count: kol.follower,
+      follower_count: kol.follower_count || kol.follower,
       following_count: 0, // API响应中没有此字段
       aweme_count: 0, // API响应中没有此字段
       total_favorited: kol.interaction_median_30d ? kol.interaction_median_30d * 30 : 0, // 估算值
@@ -250,11 +247,12 @@ export default function DouyinKolSearch() {
       with_commerce_entry: kol.e_commerce_enable || false,
       with_fusion_shop_entry: false,
       with_new_goods: false,
-      max_follower_count: kol.follower,
+      max_follower_count: kol.follower_count || kol.follower,
       platform: "douyin",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       share_url: `https://www.douyin.com/user/${kol.id}`, // kol.id 是 sec_user_id
+      kol_id: kol.kol_id, // Add the kol_id field
     };
     
     // 保存转换后的KOL数据到sessionStorage
@@ -274,57 +272,14 @@ export default function DouyinKolSearch() {
     });
   };
 
-  const handleAddToAnalysis = async (kol: DouyinKolSearchResult) => {
-    const kolId = kol.kol_id;
-    
-    // 防止重复添加
-    if (addingToAnalysis.has(kolId)) {
-      return;
-    }
-
-    setAddingToAnalysis(prev => new Set(prev).add(kolId));
-
-    try {
-      // 直接传入 kol_id
-      const response = await apiClient.fetchDouyinKolInfo({
-        urls: [kol.kol_id]
-      });
-
-      console.log("添加KOL到分析列表响应:", response);
-      
-      // 检查响应结果
-      if (response.total_successful > 0) {
-        // 成功添加
-        alert(`成功添加 ${kol.nick_name} 到分析列表！任务ID: ${response.celery_tasks[0]?.task_id || '未知'}`);
-      } else if (response.total_failed > 0) {
-        // 添加失败
-        const errorMessage = response.failed_urls && response.failed_urls.length > 0 
-          ? response.failed_urls[0].error || "添加失败"
-          : "添加失败";
-        alert(`KOL添加失败: ${errorMessage}`);
-      } else {
-        // 未知状态
-        alert(`添加 ${kol.nick_name} 状态未知，请检查分析列表`);
-      }
-      
-    } catch (error) {
-      console.error("添加KOL到分析列表失败:", error);
-      alert(`添加 ${kol.nick_name} 到分析列表失败: ${error instanceof Error ? error.message : "网络或服务器错误"}`);
-    } finally {
-      setAddingToAnalysis(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(kolId);
-        return newSet;
-      });
-    }
-  };
 
   const getStarLevel = (kol: DouyinKolSearchResult): string => {
     if (!kol.star_index || kol.star_index === null) return "B";
-    if (kol.star_index > 80) return "S";
-    if (kol.star_index > 60) return "A+";
-    if (kol.star_index > 40) return "A";
-    if (kol.star_index > 20) return "B+";
+    const starValue = typeof kol.star_index === 'string' ? parseFloat(kol.star_index) : kol.star_index;
+    if (starValue > 80) return "S";
+    if (starValue > 60) return "A+";
+    if (starValue > 40) return "A";
+    if (starValue > 20) return "B+";
     return "B";
   };
 
@@ -361,8 +316,8 @@ export default function DouyinKolSearch() {
           bValue = b.fans_increment_within_30d || 0;
           break;
         case 'star_index':
-          aValue = a.star_index || 0;
-          bValue = b.star_index || 0;
+          aValue = typeof a.star_index === 'string' ? parseFloat(a.star_index) || 0 : (a.star_index || 0);
+          bValue = typeof b.star_index === 'string' ? parseFloat(b.star_index) || 0 : (b.star_index || 0);
           break;
         case 'vv_median':
           aValue = a.vv_median_30d || 0;
@@ -391,12 +346,15 @@ export default function DouyinKolSearch() {
       '序号': index + 1,
       'KOL昵称': kol.nick_name || '',
       '抖音ID': kol.core_user_id || '',
-      '粉丝数': kol.follower || 0,
+      '粉丝数': typeof kol.follower_count === 'string' 
+        ? parseInt(kol.follower_count) || 0 
+        : (kol.follower_count || kol.follower || 0),
       '30天涨粉': kol.fans_increment_within_30d || 0,
       '涨粉率(%)': ((kol.fans_increment_rate_within_15d || 0) * 100).toFixed(2),
       '平均播放量': kol.vv_median_30d || 0,
       '互动量中位数': kol.interaction_median_30d || 0,
-      '星图指数': kol.star_index ? kol.star_index.toFixed(1) : '',
+      '星图指数': (kol.star_index !== null && kol.star_index !== undefined) ? 
+        (typeof kol.star_index === 'string' ? kol.star_index : kol.star_index.toFixed(1)) : '',
       '等级': getStarLevel(kol),
       '性别': kol.gender === 2 ? '女' : kol.gender === 1 ? '男' : '未知',
       '地区': kol.city || kol.province || '未知',
@@ -736,7 +694,11 @@ export default function DouyinKolSearch() {
                             </div>
                           </TableCell>
                           <TableCell className="font-medium">
-                            {formatDetailedNumber(kol.follower || 0)}
+                            {formatDetailedNumber(
+                              typeof kol.follower_count === 'string' 
+                                ? parseInt(kol.follower_count) || 0
+                                : (kol.follower_count || kol.follower || 0)
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col">
@@ -754,9 +716,9 @@ export default function DouyinKolSearch() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {kol.star_index ? (
+                            {kol.star_index !== null && kol.star_index !== undefined ? (
                               <Badge variant="secondary">
-                                {kol.star_index.toFixed(1)}
+                                {typeof kol.star_index === 'string' ? kol.star_index : kol.star_index.toFixed(1)}
                               </Badge>
                             ) : (
                               <span className="text-muted-foreground text-xs">暂无</span>
@@ -806,20 +768,6 @@ export default function DouyinKolSearch() {
                                 <BarChart3 className="mr-1 h-3 w-3" />
                                 详情
                               </Button>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                className="h-7 px-2"
-                                onClick={() => handleAddToAnalysis(kol)}
-                                disabled={addingToAnalysis.has(kol.kol_id)}
-                              >
-                                {addingToAnalysis.has(kol.kol_id) ? (
-                                  <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Plus className="mr-1 h-3 w-3" />
-                                )}
-                                添加分析
-                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -859,7 +807,11 @@ export default function DouyinKolSearch() {
                   <div className="text-2xl font-bold">
                     {Math.round(
                       searchResults.reduce(
-                        (sum, kol) => sum + kol.follower,
+                        (sum, kol) => sum + (
+                          typeof kol.follower_count === 'string' 
+                            ? parseInt(kol.follower_count) || 0
+                            : (kol.follower_count || kol.follower || 0)
+                        ),
                         0,
                       ) /
                         searchResults.length /

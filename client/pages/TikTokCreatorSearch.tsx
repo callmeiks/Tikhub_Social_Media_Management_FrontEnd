@@ -39,6 +39,7 @@ import {
   Eye,
   Heart,
   Calendar,
+  AlertTriangle,
 } from "lucide-react";
 import { AvatarImage } from "@/components/ui/avatar-image";
 
@@ -302,6 +303,23 @@ export default function TikTokCreatorSearch() {
       subtitle="Discover and analyze top TikTok creators for your marketing campaigns"
     >
       <div className="space-y-6">
+        {/* Service Unavailable Notice */}
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-3">
+              <AlertTriangle className="h-6 w-6 text-amber-600 flex-shrink-0" />
+              <div>
+                <h3 className="text-lg font-semibold text-amber-800 mb-2">服务暂不可用</h3>
+                <p className="text-amber-700 mb-4">
+                  TikTok创作者搜索功能目前暂时不可用。我们正在努力恢复此功能，请稍后再试。
+                </p>
+                <p className="text-sm text-amber-600">
+                  如有紧急需求，请联系客服或使用其他平台的创作者搜索功能。
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         {/* 搜索区域 */}
         <Card>
           <CardHeader>
@@ -379,18 +397,14 @@ export default function TikTokCreatorSearch() {
               <div className="flex items-end space-x-2">
                 <Button
                   onClick={handleSearch}
-                  disabled={loading}
-                  className="flex-1"
+                  disabled={true}
+                  className="flex-1 opacity-50 cursor-not-allowed"
                 >
-                  {loading ? (
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="mr-2 h-4 w-4" />
-                  )}
-                  Search
+                  <Search className="mr-2 h-4 w-4" />
+                  搜索暂不可用
                 </Button>
-                <Button variant="outline" onClick={clearFilters} disabled={loading}>
-                  Clear
+                <Button variant="outline" onClick={clearFilters} disabled={true} className="opacity-50 cursor-not-allowed">
+                  清除
                 </Button>
               </div>
             </div>
