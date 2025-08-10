@@ -139,6 +139,7 @@ interface PostHistoryItem {
   desc: string;
   share_url: string;
   author_nickname: string;
+  video_url: string;
   most_recent_counts: {
     digg_count: number;
     comment_count: number;
@@ -649,6 +650,29 @@ export default function DouyinMonitoring() {
 
   const validateUrl = (url: string) => {
     return url.includes("douyin.com");
+  };
+
+  // Helper function to open external links with noreferrer
+  const openExternalLink = (url: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Helper function to convert HEIC avatar URLs to JPEG format
+  const convertHeicToJpeg = (avatarUrl: string) => {
+    if (!avatarUrl) return avatarUrl;
+    
+    // Check if the URL contains .heic extension
+    if (avatarUrl.includes('.heic')) {
+      return avatarUrl.replace('.heic', '.jpeg');
+    }
+    
+    return avatarUrl;
   };
 
   const loadTasks = async () => {
@@ -1447,7 +1471,7 @@ export default function DouyinMonitoring() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.open(task.input_data.url, "_blank")}
+            onClick={() => openExternalLink(task.input_data.url)}
             className="h-7 text-xs"
             title="查看链接"
           >
@@ -2133,8 +2157,31 @@ export default function DouyinMonitoring() {
                             >
                               <TableCell className="font-medium">
                                 <div className="flex items-center space-x-3">
-                                  <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                                    <Play className="h-5 w-5 text-gray-500" />
+                                  <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    {post.video_url ? (
+                                      <video 
+                                        className="w-full h-full object-cover"
+                                        controls
+                                        preload="metadata"
+                                        referrerPolicy="no-referrer"
+                                        crossOrigin="anonymous"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onError={(e) => {
+                                          // Fallback to play icon if video fails to load
+                                          const target = e.target as HTMLVideoElement;
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.innerHTML = '<svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 8h8a2 2 0 002-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
+                                          }
+                                        }}
+                                      >
+                                        <source src={post.video_url} type="video/mp4" />
+                                        您的浏览器不支持视频播放
+                                      </video>
+                                    ) : (
+                                      <Play className="h-5 w-5 text-gray-500" />
+                                    )}
                                   </div>
                                   <div>
                                     <div
@@ -2220,7 +2267,7 @@ export default function DouyinMonitoring() {
                                     className="h-6 w-6 p-0 bg-white border-black text-black hover:bg-black hover:text-white"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      window.open(post.input_url, "_blank");
+                                      openExternalLink(post.input_url);
                                     }}
                                     title="查看作品"
                                   >
@@ -2362,8 +2409,25 @@ export default function DouyinMonitoring() {
                           >
                             <TableCell className="font-medium">
                               <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                                  {influencer.nickname.charAt(0)}
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                  {influencer.avatar_url ? (
+                                    <img 
+                                      src={convertHeicToJpeg(influencer.avatar_url)}
+                                      alt={influencer.nickname}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        // Fallback to initial letter if image fails to load
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          parent.innerHTML = influencer.nickname.charAt(0);
+                                        }
+                                      }}
+                                    />
+                                  ) : (
+                                    influencer.nickname.charAt(0)
+                                  )}
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1">
@@ -2435,7 +2499,7 @@ export default function DouyinMonitoring() {
                                   className="h-6 w-6 p-0"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    window.open(influencer.target_url, "_blank");
+                                    openExternalLink(influencer.target_url);
                                   }}
                                 >
                                   <ExternalLink className="h-3 w-3" />
