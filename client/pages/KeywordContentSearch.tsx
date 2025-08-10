@@ -251,6 +251,11 @@ export default function KeywordContentSearch() {
     }
   };
 
+  // Handle keyword search in results
+  const handleKeywordSearch = () => {
+    fetchSearchResults();
+  };
+
   // Function to fetch search results from API (for already collected keyword data)
   const fetchSearchResults = async () => {
     setIsLoadingResults(true);
@@ -1142,46 +1147,47 @@ export default function KeywordContentSearch() {
                       <span className="flex items-center">
                         <Eye className="mr-2 h-4 w-4" />
                         搜索结果 ({filteredResults.length})
-                        {keywordFilter && <span className="ml-2 text-sm text-gray-500">筛选: "{keywordFilter}"</span>}
                       </span>
-                      <Button
-                        size="sm"
-                        disabled={filteredResults.length === 0}
-                        className="h-8 brand-accent"
-                      >
-                        <Download className="mr-2 h-3.5 w-3.5" />
-                        导出结果
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            placeholder="关键词筛选..."
+                            value={keywordFilter}
+                            onChange={(e) => setKeywordFilter(e.target.value)}
+                            className="w-40 h-8"
+                            onKeyPress={(e) => e.key === "Enter" && handleKeywordSearch()}
+                          />
+                          <Button
+                            size="sm"
+                            onClick={handleKeywordSearch}
+                            disabled={isLoadingResults}
+                            className="h-8"
+                          >
+                            <Search className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={fetchSearchResults}
+                          disabled={isLoadingResults}
+                          className="h-8"
+                          variant="outline"
+                        >
+                          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isLoadingResults ? 'animate-spin' : ''}`} />
+                          刷新结果
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={filteredResults.length === 0}
+                          className="h-8 brand-accent"
+                        >
+                          <Download className="mr-2 h-3.5 w-3.5" />
+                          导出结果
+                        </Button>
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {/* Keyword Filter for collected results */}
-                    {searchResults.length > 0 && (
-                      <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="p-1.5 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white">
-                            <Search className="h-4 w-4" />
-                          </div>
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            关键词过滤器
-                          </span>
-                          <div className="flex-1 h-px bg-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800"></div>
-                        </div>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input
-                            placeholder="🔍 在搜索结果中筛选关键词..."
-                            value={keywordFilter}
-                            onChange={(e) => setKeywordFilter(e.target.value)}
-                            className="pl-10 pr-4 py-2 text-sm border-gray-300 dark:border-gray-600 focus:border-blue-400 transition-colors"
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          💡 可筛选标题、描述、作者名称或原始关键词
-                        </p>
-                      </div>
-                    )}
-                    
                     {filteredResults.length === 0 ? (
                       <div className="text-center py-8">
                         <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -1204,9 +1210,6 @@ export default function KeywordContentSearch() {
                               <TableHead className="w-[120px]">作者</TableHead>
                               <TableHead className="w-[100px]">
                                 发布时间
-                              </TableHead>
-                              <TableHead className="w-[100px]">
-                                播放量
                               </TableHead>
                               <TableHead className="w-[80px]">点赞</TableHead>
                               <TableHead className="w-[80px]">评论</TableHead>
@@ -1238,12 +1241,6 @@ export default function KeywordContentSearch() {
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
                                   {formatDate(result.created_time)}
-                                </TableCell>
-                                <TableCell className="text-sm">
-                                  <span className="flex items-center">
-                                    <Eye className="h-3 w-3 mr-1 text-blue-500" />
-                                    {formatNumber(result.view_count)}
-                                  </span>
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   <span className="flex items-center">

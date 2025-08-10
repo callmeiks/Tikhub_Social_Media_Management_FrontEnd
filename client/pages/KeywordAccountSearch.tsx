@@ -597,6 +597,16 @@ export default function KeywordAccountSearch() {
                         </div>
                         <Button
                           size="sm"
+                          onClick={() => fetchInfluencers()}
+                          disabled={isLoading}
+                          className="h-8"
+                          variant="outline"
+                        >
+                          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                          刷新结果
+                        </Button>
+                        <Button
+                          size="sm"
                           disabled={influencers.length === 0}
                           className="h-8 brand-accent"
                         >
@@ -627,14 +637,11 @@ export default function KeywordAccountSearch() {
                           <TableHeader>
                             <TableRow>
                               <TableHead className="w-[200px]">账号</TableHead>
-                              <TableHead className="w-[100px]">
-                                粉丝数
-                              </TableHead>
-                              <TableHead className="w-[80px]">关注</TableHead>
-                              <TableHead className="w-[80px]">作品</TableHead>
-                              <TableHead className="w-[100px]">平台</TableHead>
-                              <TableHead className="w-[150px]">认证状态</TableHead>
-                              <TableHead className="w-[120px]">操作</TableHead>
+                              <TableHead className="w-[100px]">粉丝数</TableHead>
+                              <TableHead className="w-[100px]">获赞数</TableHead>
+                              <TableHead className="w-[80px]">作品数</TableHead>
+                              <TableHead className="w-[100px]">关键词</TableHead>
+                              <TableHead className="w-[120px]">创建时间</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -660,10 +667,9 @@ export default function KeywordAccountSearch() {
                                         <span className="font-medium text-sm">
                                           {influencer.nickname}
                                         </span>
-                                        {getVerificationIcon(influencer.is_verified)}
                                       </div>
                                       <div className="text-xs text-muted-foreground">
-                                        @{influencer.username}
+                                        {influencer.sec_user_id || 'N/A'}
                                       </div>
                                     </div>
                                   </div>
@@ -675,49 +681,18 @@ export default function KeywordAccountSearch() {
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                  {formatNumber(influencer.following_count)}
+                                  {formatNumber(influencer.total_favorited || 0)}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                  {formatNumber(influencer.post_count)}
+                                  {formatNumber(influencer.aweme_count || 0)}
                                 </TableCell>
                                 <TableCell className="text-sm">
-                                  <Badge variant="outline" className="text-xs">
-                                    {influencer.platform.toUpperCase()}
+                                  <Badge variant="secondary" className="text-xs">
+                                    {influencer.keyword || 'N/A'}
                                   </Badge>
                                 </TableCell>
-                                <TableCell>
-                                  <Badge
-                                    variant={
-                                      influencer.is_verified ? "default" : "secondary"
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {influencer.is_verified ? "已认证" : "未认证"}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-1">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                      onClick={() =>
-                                        window.open(influencer.profile_url, "_blank")
-                                      }
-                                      title="访问主页"
-                                    >
-                                      <ExternalLink className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                      onClick={() => fetchInfluencers({ page: pagination.page })}
-                                      title="刷新数据"
-                                    >
-                                      <RefreshCw className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(influencer.created_at).toLocaleDateString('zh-CN')}
                                 </TableCell>
                               </TableRow>
                             ))}
