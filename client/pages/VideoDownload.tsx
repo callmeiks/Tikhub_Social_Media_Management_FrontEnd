@@ -96,8 +96,9 @@ export default function VideoDownload() {
 
     setIsLoadingTasks(true);
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
-      let url = "http://127.0.0.1:8004/api/video-download/tasks?page=1&limit=20";
+      let url = `${API_BASE_URL}/api/video-download/tasks?page=1&limit=20`;
       if (status) {
         url += `&status=${status}`;
       }
@@ -151,9 +152,10 @@ export default function VideoDownload() {
 
     setIsDeletingTasks(true);
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8004/api/video-download/batch-delete",
+        `${API_BASE_URL}/api/video-download/batch-delete`,
         {
           method: "POST",
           headers: {
@@ -209,9 +211,10 @@ export default function VideoDownload() {
 
     setIsDeletingHistoryTasks(true);
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8004/api/video-download/batch-delete",
+        `${API_BASE_URL}/api/video-download/batch-delete`,
         {
           method: "POST",
           headers: {
@@ -277,9 +280,10 @@ export default function VideoDownload() {
 
     setIsProcessing(true);
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
       const token = import.meta.env.VITE_BACKEND_API_TOKEN;
       const response = await fetch(
-        "http://127.0.0.1:8004/api/video-download/create-tasks",
+        `${API_BASE_URL}/api/video-download/create-tasks`,
         {
           method: "POST",
           headers: {
@@ -982,10 +986,11 @@ https://www.bilibili.com/video/BV1234567890
                                   const filePath = item.file_info!.local_path;
 
                                   try {
+                                    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8002";
                                     const token = import.meta.env
                                       .VITE_BACKEND_API_TOKEN;
                                     const response = await fetch(
-                                      "http://127.0.0.1:8004/api/video-download/open-folder",
+                                      `${API_BASE_URL}/api/video-download/open-folder`,
                                       {
                                         method: "POST",
                                         headers: {
